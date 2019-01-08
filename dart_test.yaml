@@ -1,0 +1,2 @@
+tags:
+  vm-only: {test_on: "vm"}
