@@ -2,7 +2,7 @@ author: "Alexey Karapetov <karapetov@gmail.com>"
 description: "JSON:API v1.0 (http://jsonapi.org) HTTP Client for Flutter, Server and Browsers"
 homepage: "https://github.com/f3ath/json-api-dart"
 name: "json_api"
-version: "0.0.1-dev3"
+version: "0.0.1-dev5"
 dependencies:
   http: "^0.12.0"
   json_api_document: "^0.3.9"

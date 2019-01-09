@@ -24,8 +24,8 @@ class JsonApiClient {
   final api = Api('1.0');
 
   /// Fetches a [Document] containing resource(s) from the given [url].
-  /// Pass a [Map] of [headers] to add extra headers to the request.
   ///
+  /// Pass a [Map] of [headers] to add extra headers to the request.
   /// More details: https://jsonapi.org/format/#fetching-resources
   Future<Response> fetchResource(String url,
           {Map<String, String> headers = const {}}) async =>
@@ -33,8 +33,8 @@ class JsonApiClient {
           preferResource: true);
 
   /// Fetches a [Document] containing identifier(s) from the given [url].
-  /// Pass a [Map] of [headers] to add extra headers to the request.
   ///
+  /// Pass a [Map] of [headers] to add extra headers to the request.
   /// More details: https://jsonapi.org/format/#fetching-relationships
   Future<Response> fetchRelationship(String url,
           {Map<String, String> headers = const {}}) async =>
@@ -42,8 +42,8 @@ class JsonApiClient {
           await _exec((_) => _.get(_url(url), headers: _headers(headers))));
 
   /// Creates a new [resource] sending a POST request to the [url].
-  /// Pass a [Map] of [headers] to add extra headers to the request.
   ///
+  /// Pass a [Map] of [headers] to add extra headers to the request.
   /// More details: https://jsonapi.org/format/#crud-creating
   Future<Response> createResource(String url, Resource resource,
           {Map<String, String> headers = const {}}) async =>
@@ -54,8 +54,8 @@ class JsonApiClient {
           preferResource: true);
 
   /// Deletes the resource sending a DELETE request to the [url].
-  /// Pass a [Map] of [headers] to add extra headers to the request.
   ///
+  /// Pass a [Map] of [headers] to add extra headers to the request.
   /// More details: https://jsonapi.org/format/#crud-deleting
   Future<Response> deleteResource(String url,
           {Map<String, String> headers = const {}}) async =>
@@ -63,8 +63,8 @@ class JsonApiClient {
           await _exec((_) => _.delete(_url(url), headers: _headers(headers))));
 
   /// Updates the [resource] sending a PATCH request to the [url].
-  /// Pass a [Map] of [headers] to add extra headers to the request.
   ///
+  /// Pass a [Map] of [headers] to add extra headers to the request.
   /// More details: https://jsonapi.org/format/#crud-updating
   Future<Response> updateResource(String url, Resource resource,
           {Map<String, String> headers = const {}}) async =>
@@ -76,8 +76,8 @@ class JsonApiClient {
 
   /// Creates or updates a to-one relationship sending a corresponding
   /// [identifier] via PATCH request to the [url].
-  /// Pass a [Map] of [headers] to add extra headers to the request.
   ///
+  /// Pass a [Map] of [headers] to add extra headers to the request.
   /// More details: https://jsonapi.org/format/#crud-updating-to-one-relationships
   Future<Response> setToOne(String url, Identifier identifier,
           {Map<String, String> headers = const {}}) async =>
@@ -87,8 +87,8 @@ class JsonApiClient {
 
   /// Removes a to-one relationship sending PATCH request with "null" data
   /// to the [url].
-  /// Pass a [Map] of [headers] to add extra headers to the request.
   ///
+  /// Pass a [Map] of [headers] to add extra headers to the request.
   /// More details: https://jsonapi.org/format/#crud-updating-to-one-relationships
   Future<Response> deleteToOne(String url,
           {Map<String, String> headers = const {}}) async =>
@@ -96,17 +96,48 @@ class JsonApiClient {
           body: json.encode(DataDocument.fromNull(api: api)),
           headers: _headers(headers, withContentType: true))));
 
-  /// Updates a to-many relationship sending the
+  /// Updates (replaces!) a to-many relationship sending the
   /// [identifiers] via PATCH request to the [url].
-  /// Pass a [Map] of [headers] to add extra headers to the request.
   ///
+  /// This call **completely replaces** the set of relationships. E.g. when given
+  /// an empty array, it will remove all relationships.
+  /// Pass a [Map] of [headers] to add extra headers to the request.
   /// More details: https://jsonapi.org/format/#crud-updating-to-many-relationships
-  setToMany(String url, List<Identifier> identifiers,
+  Future<Response> setToMany(String url, List<Identifier> identifiers,
           {Map<String, String> headers = const {}}) async =>
       Response(await _exec((_) => _.patch(_url(url),
           body: json
               .encode(DataDocument.fromIdentifierList(identifiers, api: api)),
           headers: _headers(headers, withContentType: true))));
+
+  /// Adds the [identifiers] to the to-many relationship via POST request to the [url].
+  ///
+  /// The existing members of the relationships will be kept.
+  /// Pass a [Map] of [headers] to add extra headers to the request.
+  /// More details: https://jsonapi.org/format/#crud-updating-to-many-relationships
+  Future<Response> addToMany(String url, List<Identifier> identifiers,
+          {Map<String, String> headers = const {}}) async =>
+      Response(await _exec((_) => _.post(_url(url),
+          body: json
+              .encode(DataDocument.fromIdentifierList(identifiers, api: api)),
+          headers: _headers(headers, withContentType: true))));
+
+  /// Deletes the [identifiers] from the to-many relationship via DELETE request to the [url].
+  ///
+  /// The other existing members of the relationships will be kept.
+  /// Pass a [Map] of [headers] to add extra headers to the request.
+  /// More details: https://jsonapi.org/format/#crud-updating-to-many-relationships
+  Future<Response> deleteToMany(String url, List<Identifier> identifiers,
+      {Map<String, String> headers = const {}}) async {
+    // http.Client at version 0.12.0 does not support delete() with a body
+    // So we will have to make the Request object
+    final request = http.Request('DELETE', Uri.parse(_url(url)));
+    request.body =
+        json.encode(DataDocument.fromIdentifierList(identifiers, api: api));
+    request.headers.addAll(_headers(headers, withContentType: true));
+    return Response(await _exec(
+        (_) async => http.Response.fromStream(await _.send(request))));
+  }
 
   String _url(String url) => '${baseUrl}${url}';
 

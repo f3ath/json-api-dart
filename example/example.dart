@@ -3,7 +3,7 @@ import 'package:json_api_document/json_api_document.dart';
 
 /// This is a simple example of JsonApiClient.
 ///
-/// Do not forget to start server.dart first!
+/// Don't forget to start server.dart first!
 void main() async {
   final client = JsonApiClient(baseUrl: 'http://localhost:8888');
   final response = await client.fetchResource('/example');

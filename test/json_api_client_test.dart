@@ -278,8 +278,8 @@ void main() {
         rq.response.close();
       });
 
-      final result = await client
-          .setToOne('/update', identifier, headers: {'foo': 'bar'});
+      final result =
+          await client.setToOne('/update', identifier, headers: {'foo': 'bar'});
 
       expect(result.status, HttpStatus.ok);
     }, tags: ['vm-only']);
@@ -296,7 +296,6 @@ void main() {
   ///
 
   group('deleteToOne()', () {
-
     test('200', () async {
       server.listen((rq) async {
         expect(rq.method, 'PATCH');
@@ -312,8 +311,8 @@ void main() {
         rq.response.close();
       });
 
-      final result = await client
-          .deleteToOne('/update', headers: {'foo': 'bar'});
+      final result =
+          await client.deleteToOne('/update', headers: {'foo': 'bar'});
 
       expect(result.status, HttpStatus.ok);
     }, tags: ['vm-only']);
@@ -329,7 +328,7 @@ void main() {
 
   ///
 
-  group('setToMany()', () {
+  group('replaceToMany()', () {
     final apple1 = Identifier('apples', '1');
     final apple2 = Identifier('apples', '2');
 
@@ -367,5 +366,83 @@ void main() {
     });
   }, tags: ['vm-only']);
 
+  ///
 
+  group('addToMany()', () {
+    final apple1 = Identifier('apples', '1');
+    final apple2 = Identifier('apples', '2');
+
+    test('200', () async {
+      server.listen((rq) async {
+        expect(rq.method, 'POST');
+        expect(rq.headers['foo'], ['bar']);
+        expect(rq.uri.path, '/add');
+        expect(rq.headers.host, 'localhost');
+        expect(rq.headers.port, 4041);
+        final doc = Document.fromJson(json.decode(await utf8.decodeStream(rq)));
+        expect(doc, TypeMatcher<DataDocument>());
+        expect((doc as DataDocument).data, TypeMatcher<IdentifierListData>());
+        expect((doc as DataDocument).data.identifies(Resource('apples', '1')),
+            true);
+        expect((doc as DataDocument).data.identifies(Resource('apples', '2')),
+            true);
+
+        rq.response.headers.contentType = ContentType.parse(Document.mediaType);
+        rq.response.close();
+      });
+
+      final result = await client
+          .addToMany('/add', [apple1, apple2], headers: {'foo': 'bar'});
+
+      expect(result.status, HttpStatus.ok);
+    }, tags: ['vm-only']);
+
+    test('invalid Content-Type', () async {
+      server.listen((rq) {
+        rq.response.close();
+      });
+      expect(() async => await client.addToMany('/add', [apple1, apple2]),
+          throwsA(TypeMatcher<InvalidContentTypeException>()));
+    });
+  }, tags: ['vm-only']);
+
+  ///
+
+  group('deleteToMany()', () {
+    final apple1 = Identifier('apples', '1');
+    final apple2 = Identifier('apples', '2');
+
+    test('200', () async {
+      server.listen((rq) async {
+        expect(rq.method, 'DELETE');
+        expect(rq.headers['foo'], ['bar']);
+        expect(rq.uri.path, '/add');
+        expect(rq.headers.host, 'localhost');
+        expect(rq.headers.port, 4041);
+        final doc = Document.fromJson(json.decode(await utf8.decodeStream(rq)));
+        expect(doc, TypeMatcher<DataDocument>());
+        expect((doc as DataDocument).data, TypeMatcher<IdentifierListData>());
+        expect((doc as DataDocument).data.identifies(Resource('apples', '1')),
+            true);
+        expect((doc as DataDocument).data.identifies(Resource('apples', '2')),
+            true);
+
+        rq.response.headers.contentType = ContentType.parse(Document.mediaType);
+        rq.response.close();
+      });
+
+      final result = await client
+          .deleteToMany('/add', [apple1, apple2], headers: {'foo': 'bar'});
+
+      expect(result.status, HttpStatus.ok);
+    }, tags: ['vm-only']);
+
+    test('invalid Content-Type', () async {
+      server.listen((rq) {
+        rq.response.close();
+      });
+      expect(() async => await client.deleteToMany('/add', [apple1, apple2]),
+          throwsA(TypeMatcher<InvalidContentTypeException>()));
+    });
+  }, tags: ['vm-only']);
 }
