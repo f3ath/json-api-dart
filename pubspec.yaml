@@ -1,13 +1,13 @@
 author: "Alexey Karapetov <karapetov@gmail.com>"
-description: "JSON:API v1.0 (http://jsonapi.org) HTTP Client"
+description: "JSON:API v1.0 (http://jsonapi.org) HTTP Client for Flutter, Server and Browsers"
 homepage: "https://github.com/f3ath/json-api-dart"
 name: "json_api"
-version: "0.0.1-dev1"
+version: "0.0.1-dev3"
 dependencies:
   http: "^0.12.0"
-  json_api_document: "^0.3.8"
+  json_api_document: "^0.3.9"
 dev_dependencies:
   pubspec_version: "^0.1.0"
-  test: "1.3.0"
+  test: "^1.3.0"
 environment:
   sdk: ">=2.0.0 <3.0.0"

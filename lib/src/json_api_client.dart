@@ -36,7 +36,7 @@ class JsonApiClient {
   /// Pass a [Map] of [headers] to add extra headers to the request.
   ///
   /// More details: https://jsonapi.org/format/#fetching-relationships
-  fetchRelationship(String url,
+  Future<Response> fetchRelationship(String url,
           {Map<String, String> headers = const {}}) async =>
       Response(
           await _exec((_) => _.get(_url(url), headers: _headers(headers))));
@@ -45,11 +45,11 @@ class JsonApiClient {
   /// Pass a [Map] of [headers] to add extra headers to the request.
   ///
   /// More details: https://jsonapi.org/format/#crud-creating
-  createResource(String url, Resource resource,
+  Future<Response> createResource(String url, Resource resource,
           {Map<String, String> headers = const {}}) async =>
       Response(
           await _exec((_) => _.post(_url(url),
-              body: _body(resource),
+              body: json.encode(DataDocument.fromResource(resource, api: api)),
               headers: _headers(headers, withContentType: true))),
           preferResource: true);
 
@@ -57,7 +57,8 @@ class JsonApiClient {
   /// Pass a [Map] of [headers] to add extra headers to the request.
   ///
   /// More details: https://jsonapi.org/format/#crud-deleting
-  deleteResource(String url, {Map<String, String> headers = const {}}) async =>
+  Future<Response> deleteResource(String url,
+          {Map<String, String> headers = const {}}) async =>
       Response(
           await _exec((_) => _.delete(_url(url), headers: _headers(headers))));
 
@@ -65,16 +66,47 @@ class JsonApiClient {
   /// Pass a [Map] of [headers] to add extra headers to the request.
   ///
   /// More details: https://jsonapi.org/format/#crud-updating
-  updateResource(String url, Resource resource,
+  Future<Response> updateResource(String url, Resource resource,
           {Map<String, String> headers = const {}}) async =>
       Response(
           await _exec((_) => _.patch(_url(url),
-              body: _body(resource),
+              body: json.encode(DataDocument.fromResource(resource, api: api)),
               headers: _headers(headers, withContentType: true))),
           preferResource: true);
 
-  String _body(Resource resource) =>
-      json.encode(DataDocument.fromResource(resource, api: api));
+  /// Creates or updates a to-one relationship sending a corresponding
+  /// [identifier] via PATCH request to the [url].
+  /// Pass a [Map] of [headers] to add extra headers to the request.
+  ///
+  /// More details: https://jsonapi.org/format/#crud-updating-to-one-relationships
+  Future<Response> setToOne(String url, Identifier identifier,
+          {Map<String, String> headers = const {}}) async =>
+      Response(await _exec((_) => _.patch(_url(url),
+          body: json.encode(DataDocument.fromIdentifier(identifier, api: api)),
+          headers: _headers(headers, withContentType: true))));
+
+  /// Removes a to-one relationship sending PATCH request with "null" data
+  /// to the [url].
+  /// Pass a [Map] of [headers] to add extra headers to the request.
+  ///
+  /// More details: https://jsonapi.org/format/#crud-updating-to-one-relationships
+  Future<Response> deleteToOne(String url,
+          {Map<String, String> headers = const {}}) async =>
+      Response(await _exec((_) => _.patch(_url(url),
+          body: json.encode(DataDocument.fromNull(api: api)),
+          headers: _headers(headers, withContentType: true))));
+
+  /// Updates a to-many relationship sending the
+  /// [identifiers] via PATCH request to the [url].
+  /// Pass a [Map] of [headers] to add extra headers to the request.
+  ///
+  /// More details: https://jsonapi.org/format/#crud-updating-to-many-relationships
+  setToMany(String url, List<Identifier> identifiers,
+          {Map<String, String> headers = const {}}) async =>
+      Response(await _exec((_) => _.patch(_url(url),
+          body: json
+              .encode(DataDocument.fromIdentifierList(identifiers, api: api)),
+          headers: _headers(headers, withContentType: true))));
 
   String _url(String url) => '${baseUrl}${url}';
 
