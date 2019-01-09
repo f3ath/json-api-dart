@@ -14,8 +14,10 @@ class Response {
   ///
   /// May be null if the body is empty.
   final Document document;
+
   /// HTTP status code
   final int status;
+
   /// HTTP headers
   final Map<String, String> headers;
 
