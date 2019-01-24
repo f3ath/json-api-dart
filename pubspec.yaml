@@ -8,6 +8,7 @@ dependencies:
   json_api_document: "^0.3.9"
 dev_dependencies:
   pubspec_version: "^0.1.0"
+  json_matcher: "^0.2.2"
   test: "^1.3.0"
 environment:
   sdk: ">=2.0.0 <3.0.0"
