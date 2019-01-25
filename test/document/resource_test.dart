@@ -42,60 +42,60 @@ void main() {
     expect(Resource.fromJson(j2).toJson(), j2);
   });
 
-  test('naming', () {
-    expect(Resource('_moo', '2').namingViolations().first.path, '/type');
-    expect(Resource('_moo', '2').namingViolations().first.value, '_moo');
+  test('validation', () {
+    expect(Resource('_moo', '2').validate().first.pointer, '/type');
+    expect(Resource('_moo', '2').validate().first.value, '_moo');
     expect(
-        Resource('apples', '2', meta: {'_foo': 'bar'})
-            .namingViolations()
-            .first
-            .path,
+        Resource('apples', '2', meta: {'_foo': 'bar'}).validate().first.pointer,
         '/meta');
     expect(
-        Resource('apples', '2', meta: {'_foo': 'bar'})
-            .namingViolations()
-            .first
-            .value,
+        Resource('apples', '2', meta: {'_foo': 'bar'}).validate().first.value,
         '_foo');
     expect(
         Resource('apples', '2', attributes: {'_foo': 'bar'})
-            .namingViolations()
+            .validate()
             .first
-            .path,
+            .pointer,
         '/attributes');
     expect(
         Resource('apples', '2', attributes: {'_foo': 'bar'})
-            .namingViolations()
+            .validate()
             .first
             .value,
         '_foo');
 
     expect(
         Resource('articles', '2', toOne: {'_author': Identifier('people', '9')})
-            .namingViolations()
+            .validate()
             .first
-            .path,
+            .pointer,
         '/relationships');
 
     expect(
         Resource('articles', '2', toOne: {'author': Identifier('_people', '9')})
-            .namingViolations()
+            .validate()
             .first
-            .path,
+            .pointer,
         '/relationships/author/type');
 
     expect(
         Resource('articles', '2', toMany: {'_comments': []})
-            .namingViolations()
+            .validate()
             .first
-            .path,
+            .pointer,
         '/relationships');
 
     expect(
-        Resource('articles', '2', toMany: {'comments': [Identifier('_moo', '9')]})
-            .namingViolations()
+        Resource('articles', '2', toMany: {'type': []})
+            .validate()
             .first
-            .path,
-        '/relationships/comments/0/type');
+            .pointer,
+        '/relationships');
+
+    expect(
+        Resource('articles', '2',
+            toMany: {'foo': []},
+            attributes: {'foo': 'bar'}).validate().first.pointer,
+        '/fields');
   });
 }

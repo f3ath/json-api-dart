@@ -25,7 +25,7 @@ void main() {
     });
 
     test('naming validation', () {
-      expect(Link(url).namingViolations(), []);
+      expect(Link(url).validate(), []);
     });
   });
 
@@ -52,8 +52,8 @@ void main() {
 
     test('naming validation', () {
       final violation =
-          LinkObject(url, meta: {'_invalid': true}).namingViolations().first;
-      expect(violation.path, '/meta');
+          LinkObject(url, meta: {'_invalid': true}).validate().first;
+      expect(violation.pointer, '/meta');
       expect(violation.value, '_invalid');
     });
   });

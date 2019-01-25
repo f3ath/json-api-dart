@@ -34,20 +34,16 @@ void main() {
   });
 
   test('naming', () {
-    expect(Identifier('_moo', '2').namingViolations().first.path, '/type');
-    expect(Identifier('_moo', '2').namingViolations().first.value, '_moo');
+    expect(Identifier('_moo', '2').validate().first.pointer, '/type');
+    expect(Identifier('_moo', '2').validate().first.value, '_moo');
     expect(
         Identifier('apples', '2', meta: {'_foo': 'bar'})
-            .namingViolations()
+            .validate()
             .first
-            .path,
+            .pointer,
         '/meta');
     expect(
-        Identifier('apples', '2', meta: {'_foo': 'bar'})
-            .namingViolations()
-            .first
-            .value,
+        Identifier('apples', '2', meta: {'_foo': 'bar'}).validate().first.value,
         '_foo');
   });
-
 }

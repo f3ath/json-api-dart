@@ -8,13 +8,29 @@ class ParseError implements Exception {
   String toString() => 'Can not parse $type from $json';
 }
 
+/// A violation of the JSON:API standard
+abstract class Violation {
+  String get pointer;
+
+  String get value;
+}
+
 /// A violation of JSON:API naming
 /// https://jsonapi.org/format/#document-member-names
-class NamingViolation {
-  final String path;
+class NamingViolation implements Violation {
+  final String pointer;
   final String value;
 
-  NamingViolation(this.path, this.value);
+  NamingViolation(this.pointer, this.value);
+}
+
+/// A violation of JSON:API fields uniqueness
+/// https://jsonapi.org/format/#document-resource-object-fields
+class NamespaceViolation implements Violation {
+  final String pointer;
+  final String value;
+
+  NamespaceViolation(this.pointer, this.value);
 }
 
 /// JSON:API naming rules
@@ -58,8 +74,7 @@ class StandardNaming extends Naming {
 }
 
 abstract class DocumentMember {
-  Iterable<NamingViolation> namingViolations(
-      [Naming naming = const StandardNaming()]);
+  Iterable<Violation> validate([Naming naming = const StandardNaming()]);
 
   Object toJson();
 }
@@ -81,7 +96,7 @@ class Link implements DocumentMember {
     throw ParseError(Link, json);
   }
 
-  namingViolations([Naming naming = const StandardNaming()]) => [];
+  validate([Naming naming = const StandardNaming()]) => [];
 }
 
 /// A JSON:API link object
@@ -102,7 +117,7 @@ class LinkObject extends Link {
   factory LinkObject.fromJson(Map json) =>
       LinkObject(json['href'], meta: json['meta']);
 
-  namingViolations([Naming naming = const StandardNaming()]) =>
+  validate([Naming naming = const StandardNaming()]) =>
       naming.violations('/meta', (meta).keys);
 }
 
@@ -119,9 +134,8 @@ class Identifier implements DocumentMember {
     if (type == null) throw ArgumentError.notNull('type');
   }
 
-  namingViolations([Naming naming = const StandardNaming()]) =>
-      naming.violations(
-          '/type', [type]).followedBy(naming.violations('/meta', (meta).keys));
+  validate([Naming naming = const StandardNaming()]) => naming.violations(
+      '/type', [type]).followedBy(naming.violations('/meta', (meta).keys));
 
   toJson() {
     final json = <String, Object>{'type': type, 'id': id};
@@ -131,6 +145,8 @@ class Identifier implements DocumentMember {
 
   factory Identifier.fromJson(Map json) =>
       Identifier(json['type'], json['id'], meta: json['meta']);
+
+  factory Identifier.of(Resource r) => Identifier(r.type, r.id);
 }
 
 abstract class Relationship implements DocumentMember {
@@ -159,9 +175,8 @@ class ToOne extends Relationship {
 
   Object get data => identifier.toJson();
 
-  Iterable<NamingViolation> namingViolations(
-          [Naming naming = const StandardNaming()]) =>
-      identifier.namingViolations(naming);
+  validate([Naming naming = const StandardNaming()]) =>
+      identifier.validate(naming);
 }
 
 class ToMany extends Relationship {
@@ -171,10 +186,11 @@ class ToMany extends Relationship {
 
   Object get data => identifiers.map((_) => toJson());
 
-  Iterable<NamingViolation> namingViolations(
-          [Naming naming = const StandardNaming()]) =>
-      identifiers.toList().asMap().entries.expand(
-          (_) => _.value.namingViolations(Prefixed(naming, '/${_.key}')));
+  validate([Naming naming = const StandardNaming()]) => identifiers
+      .toList()
+      .asMap()
+      .entries
+      .expand((_) => _.value.validate(Prefixed(naming, '/${_.key}')));
 }
 
 class Resource implements DocumentMember {
@@ -184,6 +200,8 @@ class Resource implements DocumentMember {
   final toOne = <String, Identifier>{};
   final toMany = <String, Iterable<Identifier>>{};
   final meta = <String, Object>{};
+  final relationships = <String, Relationship>{};
+
   Link self;
 
   Resource(this.type, this.id,
@@ -192,25 +210,42 @@ class Resource implements DocumentMember {
       Map<String, Object> attributes,
       Map<String, Identifier> toOne,
       Map<String, Iterable<Identifier>> toMany}) {
-    this.attributes.addAll(attributes ?? {});
-    this.toOne.addAll(toOne ?? {});
-    this.toMany.addAll(toMany ?? {});
-    this.meta.addAll(meta ?? {});
     if (type == null) throw ArgumentError.notNull('type');
+    this.attributes.addAll(attributes ?? {});
+    this.meta.addAll(meta ?? {});
+
+    toOne ??= {};
+    toMany ??= {};
+    relationships.addAll(
+        Map.fromIterables(toOne.keys, toOne.values.map((_) => ToOne(_))));
+    relationships.addAll(
+        Map.fromIterables(toMany.keys, toMany.values.map((_) => ToMany(_))));
   }
 
-  Map<String, Relationship> get relationships => Map.fromIterables(
-      toOne.keys, toOne.values.map((_) => ToOne(_)))
-    ..addAll(
-        Map.fromIterables(toMany.keys, toMany.values.map((_) => ToMany(_))));
-
-  namingViolations([Naming naming = const StandardNaming()]) => naming
-      .violations('/type', [type])
+  /// Violations if the JSON:API standard
+  validate([Naming naming = const StandardNaming()]) => <Violation>[]
+      .followedBy(naming.violations('/type', [type]))
       .followedBy(naming.violations('/meta', meta.keys))
       .followedBy(naming.violations('/attributes', attributes.keys))
       .followedBy(naming.violations('/relationships', relationships.keys))
-      .followedBy(relationships.entries.expand((rel) => rel.value
-          .namingViolations(Prefixed(naming, '/relationships/${rel.key}'))));
+      .followedBy(relationships.entries.expand((rel) =>
+          rel.value.validate(Prefixed(naming, '/relationships/${rel.key}'))))
+      .followedBy(_namespaceViolations());
+
+  _namespaceViolations() {
+    final fields = Set.of(['type', 'id']);
+    final rel = Set.of(relationships.keys);
+    final attr = Set.of(attributes.keys);
+    return fields
+        .intersection(rel)
+        .map((_) => NamespaceViolation('/relationships', _))
+        .followedBy(fields
+            .intersection(attr)
+            .map((_) => NamespaceViolation('/attributes', _)))
+        .followedBy(attr
+            .intersection(rel)
+            .map((_) => NamespaceViolation('/fields', _)));
+  }
 
   toJson() {
     final json = <String, Object>{'type': type, 'id': id};
@@ -222,4 +257,15 @@ class Resource implements DocumentMember {
 
   factory Resource.fromJson(Map json) =>
       Resource(json['type'], json['id'], meta: json['meta']);
+}
+
+class Document implements DocumentMember {
+  Object toJson() {
+    return null;
+  }
+
+  @override
+  Iterable<Violation> validate([Naming naming = const StandardNaming()]) {
+    return null;
+  }
 }
