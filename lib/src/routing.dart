@@ -1,4 +1,4 @@
-import 'package:json_api/document.dart';
+import 'package:json_api/src/link.dart';
 
 /// An object which can be encoded as URI query parameters
 abstract class QueryParameters {
