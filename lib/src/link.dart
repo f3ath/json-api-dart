@@ -43,7 +43,6 @@ class LinkObject extends Link {
       naming.violations('/meta', (meta).keys);
 }
 
-
 abstract class LinkFactory {
   Link collection(String type, {Map<String, String> queryParameters});
 
@@ -64,10 +63,10 @@ class StandardLinks implements LinkFactory {
   Link collection(String type, {Map<String, String> queryParameters}) =>
       Link(base
           .replace(
-          pathSegments: base.pathSegments.followedBy([type]),
-          queryParameters: _nullify({}
-            ..addAll(base.queryParameters)
-            ..addAll(queryParameters ?? {})))
+              pathSegments: base.pathSegments.followedBy([type]),
+              queryParameters: _nullify({}
+                ..addAll(base.queryParameters)
+                ..addAll(queryParameters ?? {})))
           .toString());
 
   Link related(String type, String id, String name) => Link(base
@@ -76,8 +75,8 @@ class StandardLinks implements LinkFactory {
 
   Link relationship(String type, String id, String name) => Link(base
       .replace(
-      pathSegments:
-      base.pathSegments.followedBy([type, id, 'relationships', name]))
+          pathSegments:
+              base.pathSegments.followedBy([type, id, 'relationships', name]))
       .toString());
 
   Link resource(String type, String id) => Link(base

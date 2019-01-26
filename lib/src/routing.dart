@@ -118,4 +118,3 @@ class RelationshipRoute {
     ArgumentError.checkNotNull(name, 'name');
   }
 }
-

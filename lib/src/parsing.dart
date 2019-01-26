@@ -1,4 +1,3 @@
-
 class ParseError implements Exception {
   final Type type;
   final Object json;

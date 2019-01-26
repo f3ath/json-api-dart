@@ -14,12 +14,15 @@ void main() {
   });
 
   test('.toJson()', () {
-    expect(Identifier('apples', '2'), encodesToJson({'type': 'apples', 'id': '2'}));
-    expect(Identifier('apples', '2', meta: {'foo': 'bar'}), encodesToJson({
-      'type': 'apples',
-      'id': '2',
-      'meta': {'foo': 'bar'}
-    }));
+    expect(Identifier('apples', '2'),
+        encodesToJson({'type': 'apples', 'id': '2'}));
+    expect(
+        Identifier('apples', '2', meta: {'foo': 'bar'}),
+        encodesToJson({
+          'type': 'apples',
+          'id': '2',
+          'meta': {'foo': 'bar'}
+        }));
   });
 
   test('.fromJson()', () {
