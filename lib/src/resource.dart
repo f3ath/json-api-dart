@@ -32,7 +32,7 @@ class ToOne extends Relationship {
 }
 
 class ToMany extends Relationship {
-  final Iterable<Identifier> identifiers;
+  final List<Identifier> identifiers;
 
   ToMany(this.identifiers) {}
 
@@ -42,7 +42,8 @@ class ToMany extends Relationship {
       .toList()
       .asMap()
       .entries
-      .expand((_) => _.value.validate(Prefixed(naming, '/${_.key}')));
+      .expand((_) => _.value.validate(Prefixed(naming, '/${_.key}')))
+      .toList();
 }
 
 class Resource implements Validatable {
@@ -50,7 +51,7 @@ class Resource implements Validatable {
   final String id;
   final attributes = <String, Object>{};
   final toOne = <String, Identifier>{};
-  final toMany = <String, Iterable<Identifier>>{};
+  final toMany = <String, List<Identifier>>{};
   final meta = <String, Object>{};
   final relationships = <String, Relationship>{};
 
@@ -61,7 +62,7 @@ class Resource implements Validatable {
       Map<String, Object> meta,
       Map<String, Object> attributes,
       Map<String, Identifier> toOne,
-      Map<String, Iterable<Identifier>> toMany}) {
+      Map<String, List<Identifier>> toMany}) {
     ArgumentError.checkNotNull(type, 'type');
     this.attributes.addAll(attributes ?? {});
     this.meta.addAll(meta ?? {});
@@ -75,16 +76,19 @@ class Resource implements Validatable {
   }
 
   /// Violations of the JSON:API standard
-  validate([Naming naming = const StandardNaming()]) => <Violation>[]
-      .followedBy(naming.violations('/type', [type]))
-      .followedBy(naming.violations('/meta', meta.keys))
-      .followedBy(naming.violations('/attributes', attributes.keys))
-      .followedBy(naming.violations('/relationships', relationships.keys))
-      .followedBy(relationships.entries.expand((rel) =>
-          rel.value.validate(Prefixed(naming, '/relationships/${rel.key}'))))
-      .followedBy(_namespaceViolations());
+  validate([Naming naming = const StandardNaming()]) => (<Violation>[] +
+          _namespaceViolations() +
+          naming.violations('/type', [type]) +
+          naming.violations('/meta', meta.keys) +
+          naming.violations('/attributes', attributes.keys) +
+          naming.violations('/relationships', relationships.keys) +
+          relationships.entries
+              .expand((rel) => rel.value
+                  .validate(Prefixed(naming, '/relationships/${rel.key}')))
+              .toList())
+      .toList();
 
-  _namespaceViolations() {
+  List<Violation> _namespaceViolations() {
     final fields = Set.of(['type', 'id']);
     final rel = Set.of(relationships.keys);
     final attr = Set.of(attributes.keys);
@@ -94,9 +98,9 @@ class Resource implements Validatable {
         .followedBy(fields
             .intersection(attr)
             .map((_) => NamespaceViolation('/attributes', _)))
-        .followedBy(attr
-            .intersection(rel)
-            .map((_) => NamespaceViolation('/fields', _)));
+        .followedBy(
+            attr.intersection(rel).map((_) => NamespaceViolation('/fields', _)))
+        .toList();
   }
 
   toJson() {
@@ -133,8 +137,10 @@ class Identifier implements Validatable {
     ArgumentError.checkNotNull(type, 'type');
   }
 
-  validate([Naming naming = const StandardNaming()]) => naming.violations(
-      '/type', [type]).followedBy(naming.violations('/meta', (meta).keys));
+  validate([Naming naming = const StandardNaming()]) =>
+      (naming.violations('/type', [type]) +
+              naming.violations('/meta', meta.keys))
+          .toList();
 
   toJson() {
     final json = <String, Object>{'type': type, 'id': id};

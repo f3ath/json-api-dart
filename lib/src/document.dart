@@ -3,8 +3,12 @@ import 'package:json_api/src/resource.dart';
 import 'package:json_api/src/routing.dart';
 import 'package:json_api/src/validation.dart';
 
-class CollectionDocument implements Validatable {
-  final Iterable<Resource> collection;
+abstract class Document implements Validatable {
+  Object toJson();
+}
+
+class CollectionDocument implements Document {
+  final List<Resource> collection;
   final CollectionRoute route;
   final List<Resource> included;
   Link self;
@@ -13,16 +17,16 @@ class CollectionDocument implements Validatable {
   Link first;
   Link last;
 
-  CollectionDocument(this.collection, {this.included, this.route});
+  CollectionDocument(this.collection, {this.included = const [], this.route});
 
   Object toJson() {
-    final json = <String, Object>{'data': collection};
-    final links = <String, Link>{
-      'self': self,
-      'pref': prev,
-      'next': next,
-      'first': first,
-      'last': last,
+    final json = <String, Object>{'data': collection.map((_) => _.toJson()).toList()};
+    final links = <String, Object>{
+      'self': self?.toJson(),
+      'prev': prev?.toJson(),
+      'next': next?.toJson(),
+      'first': first?.toJson(),
+      'last': last?.toJson(),
     }..removeWhere((k, v) => v == null);
     if (links.isNotEmpty) {
       json['links'] = links;
@@ -31,17 +35,24 @@ class CollectionDocument implements Validatable {
     return json;
   }
 
-  Iterable<Violation> validate([Naming naming = const StandardNaming()]) {
-    return collection.expand((_) => _.validate(naming));
+  List<Violation> validate([Naming naming = const StandardNaming()]) {
+    return collection.expand((_) => _.validate(naming)).toList();
   }
 
   void setLinks(LinkFactory link) {
-    self = route?.link(link);
-    prev = route?.prevPage?.link(link);
-    next = route?.nextPage?.link(link);
-    first = route?.firstPage?.link(link);
-    last = route?.lastPage?.link(link);
     collection.forEach((_) => _.setLinks(link));
     included.forEach((_) => _.setLinks(link));
+
+    if (route == null) return;
+
+    self = route.link(link);
+
+    final page = route.page;
+    if (page == null) return;
+
+    if (page.prev != null) prev = route.replace(page: page.prev).link(link);
+    if (page.next != null) next = route.replace(page: page.next).link(link);
+    if (page.first != null) first = route.replace(page: page.first).link(link);
+    if (page.last != null) last = route.replace(page: page.last).link(link);
   }
 }

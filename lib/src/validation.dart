@@ -6,7 +6,7 @@ abstract class Violation {
 }
 
 abstract class Validatable {
-  Iterable<Violation> validate([Naming naming = const StandardNaming()]);
+  List<Violation> validate([Naming naming = const StandardNaming()]);
 }
 
 /// JSON:API naming rules
@@ -14,7 +14,7 @@ abstract class Validatable {
 abstract class Naming {
   const Naming();
 
-  Iterable<NamingViolation> violations(String path, Iterable<String> values);
+  List<NamingViolation> violations(String path, Iterable<String> values);
 }
 
 class Prefixed implements Naming {
@@ -24,7 +24,7 @@ class Prefixed implements Naming {
   Prefixed(this.inner, this.prefix);
 
   @override
-  Iterable<NamingViolation> violations(String path, Iterable<String> values) =>
+  List<NamingViolation> violations(String path, Iterable<String> values) =>
       inner.violations(prefix + path, values);
 }
 
@@ -45,8 +45,8 @@ class StandardNaming extends Naming {
 
   bool disallows(String name) => !allows(name);
 
-  Iterable<NamingViolation> violations(String path, Iterable<String> values) =>
-      values.where(disallows).map((_) => NamingViolation(path, _));
+  List<NamingViolation> violations(String path, Iterable<String> values) =>
+      values.where(disallows).map((_) => NamingViolation(path, _)).toList();
 }
 
 /// A violation of JSON:API naming

@@ -40,7 +40,7 @@ class LinkObject extends Link {
       LinkObject(json['href'], meta: json['meta']);
 
   validate([Naming naming = const StandardNaming()]) =>
-      naming.violations('/meta', (meta).keys);
+      naming.violations('/meta', meta.keys.toList()).toList();
 }
 
 abstract class LinkFactory {
