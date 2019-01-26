@@ -1,4 +1,5 @@
 import 'package:json_api/document.dart';
+import 'package:json_matcher/json_matcher.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -14,32 +15,32 @@ void main() {
 
   test('.toJson()', () {
     final url = 'http://example.com/apples/2';
-    expect(Resource('apples', '2').toJson(), {'type': 'apples', 'id': '2'});
+    expect(
+        Resource('apples', '2'), encodesToJson({'type': 'apples', 'id': '2'}));
     expect(
         Resource('apples', '2',
-                attributes: {'color': 'red'},
-                meta: {'foo': 'bar'},
-                self: Link(url))
-            .toJson(),
-        {
+            attributes: {'color': 'red'},
+            meta: {'foo': 'bar'},
+            self: Link(url)),
+        encodesToJson({
           'type': 'apples',
           'id': '2',
           'attributes': {'color': 'red'},
           'links': {'self': url},
           'meta': {'foo': 'bar'}
-        });
+        }));
   });
 
   test('.fromJson()', () {
     final j1 = {'type': 'apples', 'id': '2'};
-    expect(Resource.fromJson(j1).toJson(), j1);
+    expect(Resource.fromJson(j1), encodesToJson(j1));
 
     final j2 = {
       'type': 'apples',
       'id': '2',
       'meta': {'foo': 'bar'}
     };
-    expect(Resource.fromJson(j2).toJson(), j2);
+    expect(Resource.fromJson(j2), encodesToJson(j2));
   });
 
   test('validation', () {

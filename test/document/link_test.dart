@@ -1,4 +1,5 @@
 import 'package:json_api/document.dart';
+import 'package:json_matcher/json_matcher.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -20,8 +21,8 @@ void main() {
     });
 
     test('json conversion', () {
-      expect(Link.fromJson(url).toJson(), url);
-      expect(Link.fromJson(json1).toJson(), json1);
+      expect(Link.fromJson(url), encodesToJson(url));
+      expect(Link.fromJson(json1), encodesToJson(json1));
     });
 
     test('naming validation', () {
@@ -39,15 +40,15 @@ void main() {
       final link = LinkObject(url);
       expect(link.href, url);
       expect(link.meta, isEmpty);
-      expect(link.toJson(), {'href': url});
+      expect(link, encodesToJson({'href': url}));
     });
     test('href can not be null', () {
       expect(() => LinkObject(null), throwsArgumentError);
     });
 
     test('json conversion', () {
-      expect(LinkObject.fromJson(json1).toJson(), json1);
-      expect(LinkObject.fromJson(json2).toJson(), json2);
+      expect(LinkObject.fromJson(json1), encodesToJson(json1));
+      expect(LinkObject.fromJson(json2), encodesToJson(json2));
     });
 
     test('naming validation', () {

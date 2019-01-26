@@ -1,3 +1,7 @@
+import 'package:json_api/src/routing.dart';
+
+export 'package:json_api/src/routing.dart';
+
 class ParseError implements Exception {
   final Type type;
   final Object json;
@@ -85,7 +89,7 @@ class Link implements DocumentMember {
   final String href;
 
   Link(String this.href) {
-    if (href == null) throw ArgumentError.notNull('href');
+    ArgumentError.checkNotNull(href, 'href');
   }
 
   toJson() => href;
@@ -130,8 +134,8 @@ class Identifier implements DocumentMember {
 
   Identifier(this.type, this.id, {Map<String, Object> meta}) {
     this.meta.addAll(meta ?? {});
-    if (id == null) throw ArgumentError.notNull('id');
-    if (type == null) throw ArgumentError.notNull('type');
+    ArgumentError.checkNotNull(id, 'id');
+    ArgumentError.checkNotNull(type, 'type');
   }
 
   validate([Naming naming = const StandardNaming()]) => naming.violations(
@@ -157,7 +161,7 @@ abstract class Relationship implements DocumentMember {
 
   Object toJson() {
     final json = {'data': data};
-    final links = {'self': self?.toJson(), 'related': related?.toJson()}
+    final links = {'self': self, 'related': related}
       ..removeWhere((k, v) => v == null);
     if (links.isNotEmpty) {
       json['links'] = links;
@@ -170,10 +174,10 @@ class ToOne extends Relationship {
   final Identifier identifier;
 
   ToOne(this.identifier) {
-    if (identifier == null) throw ArgumentError.notNull('identifier');
+    ArgumentError.checkNotNull(identifier, 'identifier');
   }
 
-  Object get data => identifier.toJson();
+  Object get data => identifier;
 
   validate([Naming naming = const StandardNaming()]) =>
       identifier.validate(naming);
@@ -184,7 +188,7 @@ class ToMany extends Relationship {
 
   ToMany(this.identifiers) {}
 
-  Object get data => identifiers.map((_) => toJson());
+  Object get data => identifiers.toList();
 
   validate([Naming naming = const StandardNaming()]) => identifiers
       .toList()
@@ -210,7 +214,7 @@ class Resource implements DocumentMember {
       Map<String, Object> attributes,
       Map<String, Identifier> toOne,
       Map<String, Iterable<Identifier>> toMany}) {
-    if (type == null) throw ArgumentError.notNull('type');
+    ArgumentError.checkNotNull(type, 'type');
     this.attributes.addAll(attributes ?? {});
     this.meta.addAll(meta ?? {});
 
@@ -222,7 +226,7 @@ class Resource implements DocumentMember {
         Map.fromIterables(toMany.keys, toMany.values.map((_) => ToMany(_))));
   }
 
-  /// Violations if the JSON:API standard
+  /// Violations of the JSON:API standard
   validate([Naming naming = const StandardNaming()]) => <Violation>[]
       .followedBy(naming.violations('/type', [type]))
       .followedBy(naming.violations('/meta', meta.keys))
@@ -250,22 +254,108 @@ class Resource implements DocumentMember {
   toJson() {
     final json = <String, Object>{'type': type, 'id': id};
     if (attributes.isNotEmpty) json['attributes'] = attributes;
+    if (relationships.isNotEmpty) json['relationships'] = relationships;
     if (meta.isNotEmpty) json['meta'] = meta;
-    if (self is Link) json['links'] = {'self': self.toJson()};
+    if (self is Link) json['links'] = {'self': self};
     return json;
   }
 
-  factory Resource.fromJson(Map json) =>
-      Resource(json['type'], json['id'], meta: json['meta']);
+  Resource.fromJson(Map json)
+      : this(json['type'], json['id'], meta: json['meta']);
+
+  void setLinks(LinkFactory link) {
+    self = link.resource(type, id);
+    relationships.forEach((name, rel) {
+      rel.self = link.relationship(type, id, name);
+      rel.related = link.related(type, id, name);
+    });
+  }
 }
 
-class Document implements DocumentMember {
+abstract class LinkFactory {
+  Link collection(String type, {Map<String, String> queryParameters});
+
+  Link resource(String type, String id);
+
+  Link related(String type, String id, String name);
+
+  Link relationship(String type, String id, String name);
+}
+
+class StandardLinks implements LinkFactory {
+  final Uri base;
+
+  StandardLinks(this.base) {
+    ArgumentError.checkNotNull(base, 'base');
+  }
+
+  Link collection(String type, {Map<String, String> queryParameters}) =>
+      Link(base
+          .replace(
+              pathSegments: base.pathSegments.followedBy([type]),
+              queryParameters: _nullify({}
+                ..addAll(base.queryParameters)
+                ..addAll(queryParameters ?? {})))
+          .toString());
+
+  Link related(String type, String id, String name) => Link(base
+      .replace(pathSegments: base.pathSegments.followedBy([type, id, name]))
+      .toString());
+
+  Link relationship(String type, String id, String name) => Link(base
+      .replace(
+          pathSegments:
+              base.pathSegments.followedBy([type, id, 'relationships', name]))
+      .toString());
+
+  Link resource(String type, String id) => Link(base
+      .replace(pathSegments: base.pathSegments.followedBy([type, id]))
+      .toString());
+
+  Map<K, V> _nullify<K, V>(Map<K, V> map) =>
+      map?.isNotEmpty == true ? map : null;
+}
+
+class CollectionDocument implements DocumentMember {
+  final Iterable<Resource> collection;
+  final CollectionRoute route;
+  final List<Resource> included;
+  Link self;
+  Link prev;
+  Link next;
+  Link first;
+  Link last;
+
+  CollectionDocument(this.collection, {this.included, this.route}) {}
+
   Object toJson() {
-    return null;
+    final json = <String, Object>{'data': collection};
+    final links = <String, Link>{
+      'self': self,
+      'pref': prev,
+      'next': next,
+      'first': first,
+      'last': last,
+    }..removeWhere((k, v) => v == null);
+    if (links.isNotEmpty) {
+      json['links'] = links;
+    }
+    if (included?.isNotEmpty == true) json['included'] = included.toList();
+    return json;
   }
 
   @override
   Iterable<Violation> validate([Naming naming = const StandardNaming()]) {
-    return null;
+    return collection.expand((_) => _.validate(naming));
+  }
+
+  void setLinks(LinkFactory link) {
+    self = route?.link(link);
+    prev = route?.prevPage?.link(link);
+    next = route?.nextPage?.link(link);
+    first = route?.firstPage?.link(link);
+    last = route?.lastPage?.link(link);
+    collection.forEach((_) => _.setLinks(link));
+    included.forEach((_) => _.setLinks(link));
   }
 }

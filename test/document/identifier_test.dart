@@ -1,4 +1,5 @@
 import 'package:json_api/document.dart';
+import 'package:json_matcher/json_matcher.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -13,24 +14,24 @@ void main() {
   });
 
   test('.toJson()', () {
-    expect(Identifier('apples', '2').toJson(), {'type': 'apples', 'id': '2'});
-    expect(Identifier('apples', '2', meta: {'foo': 'bar'}).toJson(), {
+    expect(Identifier('apples', '2'), encodesToJson({'type': 'apples', 'id': '2'}));
+    expect(Identifier('apples', '2', meta: {'foo': 'bar'}), encodesToJson({
       'type': 'apples',
       'id': '2',
       'meta': {'foo': 'bar'}
-    });
+    }));
   });
 
   test('.fromJson()', () {
     final j1 = {'type': 'apples', 'id': '2'};
-    expect(Identifier.fromJson(j1).toJson(), j1);
+    expect(Identifier.fromJson(j1), encodesToJson(j1));
 
     final j2 = {
       'type': 'apples',
       'id': '2',
       'meta': {'foo': 'bar'}
     };
-    expect(Identifier.fromJson(j2).toJson(), j2);
+    expect(Identifier.fromJson(j2), encodesToJson(j2));
   });
 
   test('naming', () {
