@@ -10,6 +10,8 @@ abstract class Relationship extends Validatable {
 
   Relationship({this.self, this.related});
 
+  Relationship replace({Link self, Link related});
+
   Map<String, Object> toJson() {
     final json = {'data': data};
     final links = {'self': self, 'related': related}
@@ -38,6 +40,9 @@ class ToMany extends Relationship {
       .entries
       .expand((_) => _.value.validate(Prefixed(naming, '/${_.key}')))
       .toList();
+
+  ToMany replace({Link self, Link related}) => ToMany(this.identifiers,
+      self: self ?? this.self, related: related ?? this.related);
 }
 
 class ToOne extends Relationship {
@@ -51,4 +56,7 @@ class ToOne extends Relationship {
   Object get data => identifier;
 
   validate(Naming naming) => identifier.validate(naming);
+
+  ToOne replace({Link self, Link related}) => ToOne(this.identifier,
+      self: self ?? this.self, related: related ?? this.related);
 }

@@ -41,8 +41,9 @@ void main() {
     final doc = CollectionDocument([article],
         included: [dan, firstComment, secondComment],
         self: Link('http://example.com/articles'),
-        next: Link('http://example.com/articles?page[offset]=2'),
-        last: Link('http://example.com/articles?page[offset]=10'));
+        pagination: PaginationLinks(
+            next: Link('http://example.com/articles?page[offset]=2'),
+            last: Link('http://example.com/articles?page[offset]=10')));
 
     expect(
         doc,

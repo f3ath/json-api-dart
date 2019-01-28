@@ -8,18 +8,10 @@ class CollectionDocument implements Document {
   final collection = <Resource>[];
   final included = <Resource>[];
   final Link self;
-  final Link prev;
-  final Link next;
-  final Link first;
-  final Link last;
+  final PaginationLinks pagination;
 
   CollectionDocument(List<Resource> collection,
-      {List<Resource> included,
-      this.self,
-      this.last,
-      this.first,
-      this.next,
-      this.prev}) {
+      {List<Resource> included, this.self, this.pagination}) {
     this.collection.addAll(collection ?? []);
     this.included.addAll(included ?? []);
   }
@@ -28,13 +20,10 @@ class CollectionDocument implements Document {
     final json = <String, Object>{
       'data': collection.map((_) => _.toJson()).toList()
     };
-    final links = {
-      'self': self?.toJson(),
-      'prev': prev?.toJson(),
-      'next': next?.toJson(),
-      'first': first?.toJson(),
-      'last': last?.toJson(),
-    }..removeWhere((k, v) => v == null);
+
+    final links = {'self': self}
+      ..addAll(pagination.asMap)
+      ..removeWhere((k, v) => v == null);
     if (links.isNotEmpty) {
       json['links'] = links;
     }

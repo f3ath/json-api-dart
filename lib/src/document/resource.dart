@@ -22,6 +22,17 @@ class Resource implements Validatable {
     this.meta.addAll(meta ?? {});
   }
 
+  Resource replace(
+          {Map<String, Object> meta,
+          Map<String, Object> attributes,
+          Map<String, Relationship> relationships,
+          Link self}) =>
+      Resource(this.type, this.id,
+          meta: meta ?? this.meta,
+          attributes: attributes ?? this.attributes,
+          relationships: relationships ?? this.relationships,
+          self: self ?? this.self);
+
   /// Violations of the JSON:API standard
   validate(Naming naming) {
     final fields = Set.of(['type', 'id']);
