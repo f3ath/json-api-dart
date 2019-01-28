@@ -1,47 +1,4 @@
-import 'package:json_api/src/parsing.dart';
-import 'package:json_api/src/validation.dart';
-
-/// A JSON:API link
-/// https://jsonapi.org/format/#document-links
-class Link implements Validatable {
-  final String href;
-
-  Link(String this.href) {
-    ArgumentError.checkNotNull(href, 'href');
-  }
-
-  toJson() => href;
-
-  factory Link.fromJson(Object json) {
-    if (json is String) return Link(json);
-    if (json is Map) return LinkObject.fromJson(json);
-    throw ParseError(Link, json);
-  }
-
-  validate([Naming naming = const StandardNaming()]) => [];
-}
-
-/// A JSON:API link object
-/// https://jsonapi.org/format/#document-links
-class LinkObject extends Link {
-  final meta = <String, Object>{};
-
-  LinkObject(String href, {Map<String, Object> meta}) : super(href) {
-    this.meta.addAll(meta ?? {});
-  }
-
-  toJson() {
-    final json = <String, Object>{'href': href};
-    if (meta != null && meta.isNotEmpty) json['meta'] = meta;
-    return json;
-  }
-
-  factory LinkObject.fromJson(Map json) =>
-      LinkObject(json['href'], meta: json['meta']);
-
-  validate([Naming naming = const StandardNaming()]) =>
-      naming.violations('/meta', meta.keys.toList()).toList();
-}
+import 'package:json_api/src/document/link.dart';
 
 abstract class LinkFactory {
   Link collection(String type, {Map<String, String> queryParameters});

@@ -1,0 +1,43 @@
+import 'package:json_api/src/document/parsing.dart';
+import 'package:json_api/src/document/validation.dart';
+
+/// A JSON:API link
+/// https://jsonapi.org/format/#document-links
+class Link implements Validatable {
+  final String href;
+
+  Link(String this.href) {
+    ArgumentError.checkNotNull(href, 'href');
+  }
+
+  factory Link.fromJson(Object json) {
+    if (json is String) return Link(json);
+    if (json is Map) return LinkObject.fromJson(json);
+    throw ParseError(Link, json);
+  }
+
+  toJson() => href;
+
+  validate(Naming naming) => [];
+}
+
+/// A JSON:API link object
+/// https://jsonapi.org/format/#document-links
+class LinkObject extends Link {
+  final meta = <String, Object>{};
+
+  LinkObject(String href, {Map<String, Object> meta}) : super(href) {
+    this.meta.addAll(meta ?? {});
+  }
+
+  LinkObject.fromJson(Map json) : this(json['href'], meta: json['meta']);
+
+  toJson() {
+    final json = <String, Object>{'href': href};
+    if (meta != null && meta.isNotEmpty) json['meta'] = meta;
+    return json;
+  }
+
+  validate(Naming naming) =>
+      naming.violations('/meta', meta.keys.toList()).toList();
+}

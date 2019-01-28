@@ -6,7 +6,7 @@ abstract class Violation {
 }
 
 abstract class Validatable {
-  List<Violation> validate([Naming naming = const StandardNaming()]);
+  List<Violation> validate(Naming naming);
 }
 
 /// JSON:API naming rules

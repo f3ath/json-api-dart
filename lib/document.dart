@@ -1,4 +1,5 @@
-export 'package:json_api/src/document.dart';
-export 'package:json_api/src/link.dart';
-export 'package:json_api/src/resource.dart';
-export 'package:json_api/src/routing.dart';
+export 'package:json_api/src/document/document.dart';
+export 'package:json_api/src/document/identifier.dart';
+export 'package:json_api/src/document/link.dart';
+export 'package:json_api/src/document/relationship.dart';
+export 'package:json_api/src/document/resource.dart';

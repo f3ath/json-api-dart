@@ -1,4 +1,5 @@
-import 'package:json_api/document.dart';
+import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/validation.dart';
 import 'package:json_matcher/json_matcher.dart';
 import 'package:test/test.dart';
 
@@ -38,16 +39,21 @@ void main() {
   });
 
   test('naming', () {
-    expect(Identifier('_moo', '2').validate().first.pointer, '/type');
-    expect(Identifier('_moo', '2').validate().first.value, '_moo');
+    expect(Identifier('_moo', '2').validate(StandardNaming()).first.pointer,
+        '/type');
+    expect(
+        Identifier('_moo', '2').validate(StandardNaming()).first.value, '_moo');
     expect(
         Identifier('apples', '2', meta: {'_foo': 'bar'})
-            .validate()
+            .validate(StandardNaming())
             .first
             .pointer,
         '/meta');
     expect(
-        Identifier('apples', '2', meta: {'_foo': 'bar'}).validate().first.value,
+        Identifier('apples', '2', meta: {'_foo': 'bar'})
+            .validate(StandardNaming())
+            .first
+            .value,
         '_foo');
   });
 }

@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:json_api/src/link.dart';
-
-/// An object which can be encoded as URI query parameters
-abstract class QueryParameters {
-  Map<String, String> get parameters;
-}
+import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/server/controller.dart';
+import 'package:json_api/src/server/link_factory.dart';
+import 'package:json_api/src/server/query_parameters.dart';
 
 /// Fields to include in sparse fieldsets
 /// https://jsonapi.org/format/#fetching-sparse-fieldsets
@@ -148,52 +146,4 @@ class RelationshipRoute implements Route {
   FutureOr<Response> handle<Request, Response>(
           Controller<Request, Response> controller, Request request) =>
       controller.fetchRelationship(this, request);
-}
-
-abstract class Controller<Request, Response> {
-  FutureOr<Response> fetchCollection(CollectionRoute route, Request request);
-
-  FutureOr<Response> fetchResource(ResourceRoute r, Request request);
-
-  FutureOr<Response> fetchRelated(RelatedRoute r, Request request);
-
-  FutureOr<Response> fetchRelationship(RelationshipRoute r, Request request);
-}
-
-abstract class Router<Request> {
-  FutureOr<Route> parse(Request request);
-}
-
-class RouterException implements Exception {
-  final String message;
-
-  RouterException(this.message);
-}
-
-class StandardRouterRequest {
-  final String method;
-  final Uri uri;
-
-  StandardRouterRequest(this.method, this.uri);
-}
-
-/// A Router following the standard conventions
-class StandardRouter implements Router<StandardRouterRequest> {
-  @override
-  parse(StandardRouterRequest rq) {
-    final seg = rq.uri.pathSegments;
-    switch (seg.length) {
-      case 1:
-        return CollectionRoute(seg[0], method: rq.method);
-      case 2:
-        return ResourceRoute(seg[0], seg[1], method: rq.method);
-      case 3:
-        return RelatedRoute(seg[0], seg[1], seg[2], method: rq.method);
-      case 4:
-        if (seg[2] == 'relationships') {
-          return RelationshipRoute(seg[0], seg[1], seg[3], method: rq.method);
-        }
-    }
-    throw RouterException('Can not parse URI: ${rq.uri}');
-  }
 }

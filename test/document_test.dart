@@ -4,50 +4,53 @@ import 'package:test/test.dart';
 
 void main() {
   test('Example document', () {
-    final dan = Resource('people', '9', attributes: {
-      'firstName': 'Dan',
-      'lastName': 'Gebhardt',
-      'twitter': 'dgeb'
-    });
+    final dan = Resource('people', '9',
+        attributes: {
+          'firstName': 'Dan',
+          'lastName': 'Gebhardt',
+          'twitter': 'dgeb'
+        },
+        self: Link('http://example.com/people/9'));
 
     final firstComment = Resource('comments', '5',
         attributes: {'body': 'First!'},
-        toOne: {'author': Identifier('people', '2')});
+        relationships: {'author': ToOne(Identifier('people', '2'))},
+        self: Link('http://example.com/comments/5'));
 
     final secondComment = Resource('comments', '12',
         attributes: {'body': 'I like XML better'},
-        toOne: {'author': Identifier.of(dan)});
+        relationships: {'author': ToOne(Identifier('people', '9'))},
+        self: Link('http://example.com/comments/12'));
 
     final article = Resource(
       'articles',
       '1',
       attributes: {'title': 'JSON:API paints my bikeshed!'},
-      toOne: {
-        'author': Identifier.of(dan),
-      },
-      toMany: {
-        'comments': [Identifier.of(firstComment), Identifier.of(secondComment)],
+      self: Link('http://example.com/articles/1'),
+      relationships: {
+        'author': ToOne(Identifier('people', '9'),
+            self: Link('http://example.com/articles/1/relationships/author'),
+            related: Link('http://example.com/articles/1/author')),
+        'comments': ToMany(
+            [Identifier('comments', '5'), Identifier('comments', '12')],
+            self: Link('http://example.com/articles/1/relationships/comments'),
+            related: Link('http://example.com/articles/1/comments')),
       },
     );
 
-    final page = MockPage({},
-        next: MockPage({'page[offset]': '2'}),
-        last: MockPage({'page[offset]': '10'}));
-
     final doc = CollectionDocument([article],
-        route: CollectionRoute('articles', page: page),
-        included: [dan, firstComment, secondComment]);
-
-    final links = StandardLinks(Uri.parse('http://example.com'));
-    doc.setLinks(links);
+        included: [dan, firstComment, secondComment],
+        self: Link('http://example.com/articles'),
+        next: Link('http://example.com/articles?page[offset]=2'),
+        last: Link('http://example.com/articles?page[offset]=10'));
 
     expect(
         doc,
         encodesToJson({
           "links": {
             "self": "http://example.com/articles",
-            "next": "http://example.com/articles?page%5Boffset%5D=2",
-            "last": "http://example.com/articles?page%5Boffset%5D=10"
+            "next": "http://example.com/articles?page[offset]=2",
+            "last": "http://example.com/articles?page[offset]=10"
           },
           "data": [
             {
@@ -95,11 +98,6 @@ void main() {
               "attributes": {"body": "First!"},
               "relationships": {
                 "author": {
-                  "links": {
-                    "self":
-                        "http://example.com/comments/5/relationships/author",
-                    "related": "http://example.com/comments/5/author"
-                  },
                   "data": {"type": "people", "id": "2"}
                 }
               },
@@ -111,11 +109,6 @@ void main() {
               "attributes": {"body": "I like XML better"},
               "relationships": {
                 "author": {
-                  "links": {
-                    "self":
-                        "http://example.com/comments/12/relationships/author",
-                    "related": "http://example.com/comments/12/author"
-                  },
                   "data": {"type": "people", "id": "9"}
                 }
               },
@@ -126,12 +119,12 @@ void main() {
   });
 }
 
-class MockPage implements Page {
-  final Map<String, String> parameters;
-  final Page next;
-  final Page prev;
-  final Page first;
-  final Page last;
-
-  MockPage(this.parameters, {this.first, this.last, this.prev, this.next});
-}
+//class MockPage implements Page {
+//  final Map<String, String> parameters;
+//  final Page next;
+//  final Page prev;
+//  final Page first;
+//  final Page last;
+//
+//  MockPage(this.parameters, {this.first, this.last, this.prev, this.next});
+//}

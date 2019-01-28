@@ -35,7 +35,7 @@ class ExampleController implements Controller<HttpRequest, Document> {
         .map((_) => Resource('countries', _.id.toString(),
             attributes: {'name': _.name}))
         .toList();
-    final doc = CollectionDocument(resources, route: route);
+    final doc = CollectionDocument.build(PagedCollection(resources, Page()), route: route);
     doc.setLinks(links);
     return doc;
   }

@@ -1,4 +1,5 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/src/document/validation.dart';
 import 'package:json_matcher/json_matcher.dart';
 import 'package:test/test.dart';
 
@@ -26,7 +27,7 @@ void main() {
     });
 
     test('naming validation', () {
-      expect(Link(url).validate(), []);
+      expect(Link(url).validate(StandardNaming()), []);
     });
   });
 
@@ -52,8 +53,9 @@ void main() {
     });
 
     test('naming validation', () {
-      final violation =
-          LinkObject(url, meta: {'_invalid': true}).validate().first;
+      final violation = LinkObject(url, meta: {'_invalid': true})
+          .validate(StandardNaming())
+          .first;
       expect(violation.pointer, '/meta');
       expect(violation.value, '_invalid');
     });

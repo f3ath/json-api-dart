@@ -1,4 +1,7 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/relationship.dart';
+import 'package:json_api/src/document/validation.dart';
 import 'package:json_matcher/json_matcher.dart';
 import 'package:test/test.dart';
 
@@ -14,19 +17,15 @@ void main() {
   });
 
   test('.toJson()', () {
-    final url = 'http://example.com/apples/2';
     expect(
         Resource('apples', '2'), encodesToJson({'type': 'apples', 'id': '2'}));
     expect(
         Resource('apples', '2',
-            attributes: {'color': 'red'},
-            meta: {'foo': 'bar'},
-            self: Link(url)),
+            attributes: {'color': 'red'}, meta: {'foo': 'bar'}),
         encodesToJson({
           'type': 'apples',
           'id': '2',
           'attributes': {'color': 'red'},
-          'links': {'self': url},
           'meta': {'foo': 'bar'}
         }));
   });
@@ -44,59 +43,71 @@ void main() {
   });
 
   test('validation', () {
-    expect(Resource('_moo', '2').validate().first.pointer, '/type');
-    expect(Resource('_moo', '2').validate().first.value, '_moo');
+    expect(Resource('_moo', '2').validate(StandardNaming()).first.pointer,
+        '/type');
     expect(
-        Resource('apples', '2', meta: {'_foo': 'bar'}).validate().first.pointer,
+        Resource('_moo', '2').validate(StandardNaming()).first.value, '_moo');
+    expect(
+        Resource('apples', '2', meta: {'_foo': 'bar'})
+            .validate(StandardNaming())
+            .first
+            .pointer,
         '/meta');
     expect(
-        Resource('apples', '2', meta: {'_foo': 'bar'}).validate().first.value,
+        Resource('apples', '2', meta: {'_foo': 'bar'})
+            .validate(StandardNaming())
+            .first
+            .value,
         '_foo');
     expect(
         Resource('apples', '2', attributes: {'_foo': 'bar'})
-            .validate()
+            .validate(StandardNaming())
             .first
             .pointer,
         '/attributes');
     expect(
         Resource('apples', '2', attributes: {'_foo': 'bar'})
-            .validate()
+            .validate(StandardNaming())
             .first
             .value,
         '_foo');
 
     expect(
-        Resource('articles', '2', toOne: {'_author': Identifier('people', '9')})
-            .validate()
-            .first
-            .pointer,
-        '/relationships');
-
-    expect(
-        Resource('articles', '2', toOne: {'author': Identifier('_people', '9')})
-            .validate()
-            .first
-            .pointer,
-        '/relationships/author/type');
-
-    expect(
-        Resource('articles', '2', toMany: {'_comments': []})
-            .validate()
-            .first
-            .pointer,
-        '/relationships');
-
-    expect(
-        Resource('articles', '2', toMany: {'type': []})
-            .validate()
+        Resource('articles', '2',
+                relationships: {'_author': ToOne(Identifier('people', '9'))})
+            .validate(StandardNaming())
             .first
             .pointer,
         '/relationships');
 
     expect(
         Resource('articles', '2',
-            toMany: {'foo': []},
-            attributes: {'foo': 'bar'}).validate().first.pointer,
+                relationships: {'author': ToOne(Identifier('_people', '9'))})
+            .validate(StandardNaming())
+            .first
+            .pointer,
+        '/relationships/author/type');
+
+    expect(
+        Resource('articles', '2', relationships: {'_comments': ToMany([])})
+            .validate(StandardNaming())
+            .first
+            .pointer,
+        '/relationships');
+
+    expect(
+        Resource('articles', '2', relationships: {'type': ToMany([])})
+            .validate(StandardNaming())
+            .first
+            .pointer,
+        '/relationships');
+
+    expect(
+        Resource('articles', '2',
+                relationships: {'foo': ToMany([])}, attributes: {'foo': 'bar'})
+            .validate(StandardNaming())
+            .first
+            .pointer,
         '/fields');
   });
 }
