@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:json_api/document.dart';
 import 'package:json_api/server.dart';
-import 'package:json_api/src/server/recommended_routing.dart';
 
 Future main() async {
   var server = await HttpServer.bind(
@@ -13,50 +12,29 @@ Future main() async {
   );
   print('Listening on localhost:${server.port}');
 
-  await for (HttpRequest request in server) {
-    final rq = await routing.createRequest(request.uri, request.method);
-    final doc = await rq.handleBy(controller);
-    request.response
-      ..headers.contentType = ContentType('application', 'vnd.api+json')
-      ..write(json.encode(doc))
-      ..close();
-  }
+  server.forEach((rq) async {
+    try {
+      final doc = await routing
+          .resolveOperation(rq.uri, rq.method)
+          .handler(controller);
+      rq.response
+        ..headers.contentType = ContentType('application', 'vnd.api+json')
+        ..write(json.encode(doc))
+        ..close();
+    } catch (e) {
+      print(e);
+      rq.response
+        ..statusCode = 500
+        ..close();
+    }
+  });
 }
 
 final routing = RecommendedRouting(Uri.parse('http://localhost:8080'));
+final resourceController = ExampleResourceController();
+final controller = DocumentController(routing, resourceController);
 
-final controller = DocumentController();
-
-class DocumentController implements Controller<FutureOr<Document>> {
-  final provider = ResourceProvider();
-
-  @override
-  FutureOr<Document> fetchCollection(CollectionRequest rq) async {
-    final c = await provider.fetchCollection(rq.type);
-    Iterable<Resource> linked = _addLinks(c.elements);
-    final pagination = PaginationLinks(next: c.page?.next)
-    return CollectionDocument(linked.toList(),
-        self: routing.collectionLink(rq.type));
-  }
-
-  Iterable<Resource> _addLinks(Iterable<Resource> rs) =>
-      rs.map((r) => r.replace(
-          self: routing.resourceLink(r.type, r.id),
-          relationships: r.relationships.map((name, _) => MapEntry(
-              name,
-              _.replace(
-                  related: routing.relatedLink(r.type, r.id, name),
-                  self: routing.relationshipLink(r.type, r.id, name))))));
-}
-
-class Collection<T> {
-  Iterable<T> elements;
-  Page page;
-
-  Collection(this.elements, {this.page});
-}
-
-class ResourceProvider<R> {
+class ExampleResourceController implements ResourceController {
   FutureOr<Collection<Resource>> fetchCollection(String type) {
     switch (type) {
       case 'countries':
