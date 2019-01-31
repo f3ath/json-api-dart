@@ -5,7 +5,6 @@ name: "json_api"
 version: "0.0.1"
 dependencies:
   http: "^0.12.0"
-  json_api_document: "^0.3.9"
 dev_dependencies:
   pubspec_version: "^0.1.0"
   json_matcher: "^0.2.2"

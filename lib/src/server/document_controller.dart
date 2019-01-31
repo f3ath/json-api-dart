@@ -7,12 +7,7 @@ abstract class ResourceController {
   FutureOr<Collection<Resource>> fetchCollection(String type);
 }
 
-class Collection<T> {
-  Iterable<T> elements;
-  Page page;
 
-  Collection(this.elements, {this.page});
-}
 
 class DocumentController implements CRUDController<Document> {
   final Routing routing;

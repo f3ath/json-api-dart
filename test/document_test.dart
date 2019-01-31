@@ -3,6 +3,22 @@ import 'package:json_matcher/json_matcher.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('Single resource collection', () {
+    final tesla = Resource('brands', '1', attributes: {'name': 'Tesla'});
+    final doc = CollectionDocument([tesla]);
+    expect(
+        doc,
+        encodesToJson({
+          'data': [
+            {
+              'type': 'brands',
+              'id': '1',
+              'attributes': {'name': 'Tesla'}
+            }
+          ]
+        }));
+  });
+
   test('Example document', () {
     final dan = Resource('people', '9',
         attributes: {

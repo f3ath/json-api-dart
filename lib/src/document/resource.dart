@@ -71,5 +71,6 @@ class Resource implements Validatable {
   }
 
   Resource.fromJson(Map json)
-      : this(json['type'], json['id'], meta: json['meta']);
+      : this(json['type'], json['id'],
+            meta: json['meta'], attributes: json['attributes']);
 }

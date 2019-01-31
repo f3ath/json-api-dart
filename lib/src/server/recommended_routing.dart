@@ -38,8 +38,6 @@ class RecommendedRouting implements Routing {
       base.replace(pathSegments: base.pathSegments + [type, id]).toString());
 
   Operation resolveOperation(Uri uri, String method) {
-    print(uri);
-    print(base);
     if (uri.path.toString().startsWith(base.path.toString())) {
       final seg = uri.pathSegments.sublist(base.pathSegments.length);
       switch (seg.length) {
@@ -51,11 +49,11 @@ class RecommendedRouting implements Routing {
           return RelatedOperation(seg[0], seg[1], seg[2], method: method);
         case 4:
           if (seg[2] == relationships) {
-            return RelationshipOperation(seg[0], seg[1], seg[3], method: method);
+            return RelationshipOperation(seg[0], seg[1], seg[3],
+                method: method);
           }
       }
     }
-    return UnsupportedOperation();
   }
 
   Map<K, V> _nonEmpty<K, V>(Map<K, V> map) => map.isEmpty ? null : map;

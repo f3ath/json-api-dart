@@ -10,19 +10,17 @@ class CollectionDocument implements Document {
   final Link self;
   final PaginationLinks pagination;
 
-  CollectionDocument(List<Resource> collection,
-      {List<Resource> included, this.self, this.pagination}) {
+  CollectionDocument(Iterable<Resource> collection,
+      {Iterable<Resource> included, this.self, this.pagination}) {
     this.collection.addAll(collection ?? []);
     this.included.addAll(included ?? []);
   }
 
   toJson() {
-    final json = <String, Object>{
-      'data': collection.map((_) => _.toJson()).toList()
-    };
+    final json = <String, Object>{'data': collection};
 
     final links = {'self': self}
-      ..addAll(pagination.asMap)
+      ..addAll(pagination?.asMap ?? {})
       ..removeWhere((k, v) => v == null);
     if (links.isNotEmpty) {
       json['links'] = links;
@@ -33,5 +31,15 @@ class CollectionDocument implements Document {
 
   List<Violation> validate(Naming naming) {
     return collection.expand((_) => _.validate(naming)).toList();
+  }
+
+  factory CollectionDocument.fromJson(Object json) {
+    if (json is Map) {
+      final data = json['data'];
+      if (data is List) {
+        return CollectionDocument(data.map((_) => Resource.fromJson(_)));
+      }
+    }
+    throw 'Parse error';
   }
 }
