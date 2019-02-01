@@ -1,4 +1,5 @@
 import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/validation.dart';
 
@@ -34,20 +35,57 @@ class ResourceDocument implements Document {
       if (data is Map) {
         return ResourceDocument(Resource.fromJson(data));
       }
+      if (data == null) {
+        return ResourceDocument(null);
+      }
     }
-    throw 'Parse error';
+    throw 'Can not parse ResourceDocument from $json';
+  }
+}
+
+class RelationshipDocument implements Document {
+  final Relationship relationship;
+  final Link self;
+
+  RelationshipDocument(this.relationship, {this.self});
+
+  toJson() {
+    final json = <String, Object>{'data': relationship?.data};
+
+    final links = {'self': self}..removeWhere((k, v) => v == null);
+    if (links.isNotEmpty) {
+      json['links'] = links;
+    }
+    return json;
+  }
+
+  List<Violation> validate(Naming naming) {
+    return relationship.validate(naming);
+  }
+
+  factory RelationshipDocument.fromJson(Object json) {
+    if (json is Map) {
+      final data = json['data'];
+      if (data is Map) {
+        return RelationshipDocument(Relationship.fromJson(data));
+      }
+      if (data == null) {
+        return RelationshipDocument(null);
+      }
+    }
+    throw 'Can not parse ResourceDocument from $json';
   }
 }
 
 class CollectionDocument implements Document {
-  final collection = <Resource>[];
+  final resources = <Resource>[];
   final included = <Resource>[];
   final Link self;
   final PaginationLinks pagination;
 
   CollectionDocument(Iterable<Resource> collection,
       {Iterable<Resource> included, this.self, this.pagination}) {
-    this.collection.addAll(collection ?? []);
+    this.resources.addAll(collection ?? []);
     this.included.addAll(included ?? []);
   }
 
@@ -60,7 +98,7 @@ class CollectionDocument implements Document {
   Link get next => pagination.next;
 
   toJson() {
-    final json = <String, Object>{'data': collection};
+    final json = <String, Object>{'data': resources};
 
     final links = {'self': self}
       ..addAll(pagination?.asMap ?? {})
@@ -73,7 +111,7 @@ class CollectionDocument implements Document {
   }
 
   List<Violation> validate(Naming naming) {
-    return collection.expand((_) => _.validate(naming)).toList();
+    return resources.expand((_) => _.validate(naming)).toList();
   }
 
   factory CollectionDocument.fromJson(Object json) {

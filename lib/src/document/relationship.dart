@@ -21,6 +21,13 @@ abstract class Relationship extends Validatable {
     }
     return json;
   }
+
+  static Map<String, Relationship> parseMap(Map map) =>
+      map.map((k, r) => MapEntry(k, ToOne.fromJson(r)));
+
+  factory Relationship.fromJson(Object json) {
+    return ToOne.fromJson(json);
+  }
 }
 
 class ToMany extends Relationship {
@@ -59,4 +66,13 @@ class ToOne extends Relationship {
 
   ToOne replace({Link self, Link related}) => ToOne(this.identifier,
       self: self ?? this.self, related: related ?? this.related);
+
+  factory ToOne.fromJson(Object json) {
+    if (json is Map) {
+      final links = Link.parseMap(json['links'] ?? {});
+      return ToOne(Identifier.fromJson(json['data']),
+          self: links['self'], related: links['related']);
+    }
+    throw 'Parse error';
+  }
 }

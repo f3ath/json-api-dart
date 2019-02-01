@@ -30,7 +30,8 @@ class JsonApiServer<R> implements JsonApiController<R> {
     final pagination = PaginationLinks.fromMap(collection.page.asMap.map(
         (name, page) => MapEntry(
             name, links.collection(request.type, params: page?.parameters))));
-    return ServerResponse.ok(CollectionDocument(collection.elements,
+    return ServerResponse.ok(CollectionDocument(
+        collection.elements.map(_addLinks),
         self:
             links.collection(request.type, params: collection.page?.parameters),
         pagination: pagination));
@@ -38,8 +39,27 @@ class JsonApiServer<R> implements JsonApiController<R> {
 
   Future<ServerResponse> fetchResource(ResourceRequest<R> request) async {
     final res = await resource.fetchResource(request);
+    return ServerResponse.ok(ResourceDocument(_addLinks(res)));
+  }
+
+  Future<ServerResponse> fetchRelated(RelatedRequest<R> request) async {
+    final res = await resource.fetchRelated(request);
     return ServerResponse.ok(ResourceDocument(res));
   }
+
+  Future<ServerResponse> fetchRelationship(RelationshipRequest rq) async {
+    final rel = await resource.fetchRelationship(rq);
+    print(RelationshipDocument(rel).toJson());
+    return ServerResponse.ok(RelationshipDocument(rel));
+  }
+
+  Resource _addLinks(Resource r) => r.replace(
+      self: links.resource(r.type, r.id),
+      relationships: r.relationships.map((name, _) => MapEntry(
+          name,
+          _.replace(
+              related: links.related(r.type, r.id, name),
+              self: links.relationship(r.type, r.id, name)))));
 }
 
 class Collection<T> {
@@ -49,12 +69,16 @@ class Collection<T> {
   Collection(this.elements, {this.page});
 }
 
-abstract class ResourceController<T> {
+abstract class ResourceController<R> {
   bool supports(String type);
 
-  Future<Collection<Resource>> fetchCollection(CollectionRequest<T> r);
+  Future<Collection<Resource>> fetchCollection(CollectionRequest<R> request);
 
-  Future<Resource> fetchResource(ResourceRequest<T> r);
+  Future<Resource> fetchResource(ResourceRequest<R> request);
+
+  Future<Resource> fetchRelated(RelatedRequest<R> request);
+
+  Future<Relationship> fetchRelationship(RelationshipRequest request);
 }
 
 /// An object which can be encoded as URI query parameters
@@ -101,4 +125,8 @@ class NumberedPage extends Page {
   Page get next => NumberedPage(min(number + 1, total), total: total);
 
   Page get prev => NumberedPage(max(number - 1, 1), total: total);
+
+  NumberedPage.fromQueryParameters(Map<String, String> queryParameters,
+      {int total})
+      : this(int.parse(queryParameters['page[number]'] ?? '1'), total: total);
 }

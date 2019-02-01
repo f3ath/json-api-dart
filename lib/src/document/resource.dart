@@ -70,7 +70,12 @@ class Resource implements Validatable {
     return json;
   }
 
-  Resource.fromJson(Map json)
-      : this(json['type'], json['id'],
-            meta: json['meta'], attributes: json['attributes']);
+  factory Resource.fromJson(Map json) {
+    final links = Link.parseMap(json['links'] ?? {});
+    return Resource(json['type'], json['id'],
+        self: links['self'],
+        meta: json['meta'],
+        attributes: json['attributes'],
+        relationships: Relationship.parseMap(json['relationships'] ?? {}));
+  }
 }
