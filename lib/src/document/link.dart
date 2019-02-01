@@ -10,10 +10,18 @@ class Link implements Validatable {
     ArgumentError.checkNotNull(href, 'href');
   }
 
+  Uri get uri => Uri.parse(href);
+
   factory Link.fromJson(Object json) {
     if (json is String) return Link(json);
     if (json is Map) return LinkObject.fromJson(json);
     throw ParseError(Link, json);
+  }
+
+  static Map<String, Link> parseMap(Map m) {
+    final links = <String, Link>{};
+    m.forEach((k, v) => links[k] = Link.fromJson(v));
+    return links;
   }
 
   toJson() => href;
@@ -49,6 +57,13 @@ class PaginationLinks {
   final Link next;
 
   PaginationLinks({this.next, this.first, this.last, this.prev});
+
+  PaginationLinks.fromMap(Map<String, Link> links)
+      : this(
+            first: links['first'],
+            last: links['last'],
+            next: links['next'],
+            prev: links['prev']);
 
   Map<String, Link> get asMap =>
       {'first': first, 'last': last, 'prev': prev, 'next': next};

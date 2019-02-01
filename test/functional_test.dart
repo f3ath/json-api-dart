@@ -7,16 +7,16 @@ import 'package:test/test.dart';
 
 void main() {
   HttpServer httpServer;
-  JsonApiServer jsonApiServer;
+  JsonApiServer<HttpRequest> jsonApiServer;
   setUp(() async {
-    jsonApiServer = JsonApiServer(controller);
+    jsonApiServer = JsonApiServer<HttpRequest>(controller, resolveAction,
+        StandardLinks(Uri.parse('http://localhost:8080')));
     httpServer = await HttpServer.bind(
       InternetAddress.loopbackIPv4,
       8080,
     );
     httpServer.forEach((rq) async {
-      final rs = await jsonApiServer.handle(ServerRequest(rq.uri));
-
+      final rs = await jsonApiServer.handle(rq);
       rq.response
         ..statusCode = rs.status
         ..write(rs.body)
@@ -28,32 +28,91 @@ void main() {
     httpServer.close();
   });
 
-  test('get collection', () async {
+//  test('get first page of collection', () async {
+//    final c = JsonApiClient();
+//    final doc =
+//        await c.fetchCollection(Uri.parse('http://localhost:8080/brands'));
+//    expect(doc.collection.first.attributes['name'], 'Tesla');
+//
+//    expect(doc.self.href, 'http://localhost:8080/brands');
+//    expect(doc.first.href, 'http://localhost:8080/brands');
+//    expect(doc.last.href, 'http://localhost:8080/brands?page%5Bnumber%5D=5');
+//    expect(doc.prev.href, 'http://localhost:8080/brands');
+//    expect(doc.next.href, 'http://localhost:8080/brands?page%5Bnumber%5D=2');
+//  });
+
+  test('get second page of collection', () async {
     final c = JsonApiClient();
-    final doc = await c.fetchCollection('http://localhost:8080/brands');
+    final doc = await c.fetchCollection(
+        Uri.parse('http://localhost:8080/brands')
+            .replace(queryParameters: {'page[number]': '2'}));
     expect(doc.collection.first.attributes['name'], 'Tesla');
+
+    expect(doc.self.href, 'http://localhost:8080/brands?page%5Bnumber%5D=2');
+    expect(doc.first.href, 'http://localhost:8080/brands');
+    expect(doc.last.href, 'http://localhost:8080/brands?page%5Bnumber%5D=5');
+    expect(doc.prev.href, 'http://localhost:8080/brands');
+    expect(doc.next.href, 'http://localhost:8080/brands?page%5Bnumber%5D=3');
+  });
+
+  test('get single resource', () async {
+    final c = JsonApiClient();
+    final doc =
+        await c.fetchResource(Uri.parse('http://localhost:8080/brands/1'));
+    expect(doc.resource.attributes['name'], 'Tesla');
   });
 
   test('get collection - 404', () async {
     final c = JsonApiClient();
     try {
-      await c.fetchCollection('http://localhost:8080/unicorns');
+      await c.fetchCollection(Uri.parse('http://localhost:8080/unicorns'));
       fail('exception expected');
     } on NotFoundException {}
   });
 }
 
+JsonApiRequest<HttpRequest> resolveAction(HttpRequest rq) {
+  final seg = rq.uri.pathSegments;
+  if (seg.length == 1) {
+    return CollectionRequest(seg[0], httpRequest: rq);
+  } else if (seg.length == 2) {
+    return ResourceRequest(seg[0], seg[1], httpRequest: rq);
+  }
+  return null;
+}
+
 final controller = TestController();
 
-class TestController implements ResourceController {
-  @override
-  Future<Collection<Resource>> fetchCollection(String type) async {
-    switch (type) {
+class TestController implements ResourceController<HttpRequest> {
+  final mapper = {
+    Brand: (Brand _) =>
+        Resource('brands', _.id.toString(), attributes: {'name': _.name})
+  };
+
+  Future<Collection<Resource>> fetchCollection(
+      CollectionRequest<HttpRequest> rq) async {
+    switch (rq.type) {
       case 'brands':
-        return Collection([
-          Resource(type, '1', attributes: {'name': 'Tesla'})
-        ]);
+        return Collection(brands.map(mapper[Brand]),
+            page: NumberedPage(2, total: 5));
     }
     return null;
   }
+
+  @override
+  Future<Resource> fetchResource(ResourceRequest<HttpRequest> rq) async {
+    return mapper[Brand](brands.firstWhere((_) => _.id.toString() == rq.id));
+  }
+
+  @override
+  bool supports(String type) => ['brands'].contains(type);
 }
+
+class Brand {
+  final String name;
+  final int id;
+
+  Brand(this.id, this.name);
+}
+
+final brands = [Brand(1, 'Tesla')];

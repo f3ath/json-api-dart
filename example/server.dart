@@ -34,8 +34,8 @@ final routing = RecommendedRouting(Uri.parse('http://localhost:8080'));
 final resourceController = ExampleResourceController();
 final controller = DocumentController(routing, resourceController);
 
-class ExampleResourceController implements ResourceController {
-  FutureOr<Collection<Resource>> fetchCollection(String type) {
+class ExampleResourceController implements ResourceController<HttpRequest> {
+  FutureOr<Collection<Resource>> fetchCollection(JsonApiRequest<HttpRequest> rq) {
     switch (type) {
       case 'countries':
         return Collection(countries.map((_) => Resource(
