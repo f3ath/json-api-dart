@@ -1,3 +1,4 @@
+import 'package:json_api/client.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
@@ -37,40 +38,6 @@ class ResourceDocument implements Document {
       }
       if (data == null) {
         return ResourceDocument(null);
-      }
-    }
-    throw 'Can not parse ResourceDocument from $json';
-  }
-}
-
-class RelationshipDocument implements Document {
-  final Relationship relationship;
-  final Link self;
-
-  RelationshipDocument(this.relationship, {this.self});
-
-  toJson() {
-    final json = <String, Object>{'data': relationship?.data};
-
-    final links = {'self': self}..removeWhere((k, v) => v == null);
-    if (links.isNotEmpty) {
-      json['links'] = links;
-    }
-    return json;
-  }
-
-  List<Violation> validate(Naming naming) {
-    return relationship.validate(naming);
-  }
-
-  factory RelationshipDocument.fromJson(Object json) {
-    if (json is Map) {
-      final data = json['data'];
-      if (data is Map) {
-        return RelationshipDocument(Relationship.fromJson(data));
-      }
-      if (data == null) {
-        return RelationshipDocument(null);
       }
     }
     throw 'Can not parse ResourceDocument from $json';
@@ -124,5 +91,42 @@ class CollectionDocument implements Document {
       }
     }
     throw 'Parse error';
+  }
+
+  Future<CollectionDocument> fetchNext(JsonApiClient client) =>
+      pagination.fetch('next', client);
+
+  Future<CollectionDocument> fetchPrev(JsonApiClient client) =>
+      pagination.fetch('prev', client);
+
+  Future<CollectionDocument> fetchFirst(JsonApiClient client) =>
+      pagination.fetch('first', client);
+
+  Future<CollectionDocument> fetchLast(JsonApiClient client) =>
+      pagination.fetch('last', client);
+}
+
+class PaginationLinks {
+  final Link first;
+  final Link last;
+  final Link prev;
+  final Link next;
+
+  PaginationLinks({this.next, this.first, this.last, this.prev});
+
+  PaginationLinks.fromMap(Map<String, Link> links)
+      : this(
+            first: links['first'],
+            last: links['last'],
+            next: links['next'],
+            prev: links['prev']);
+
+  Map<String, Link> get asMap =>
+      {'first': first, 'last': last, 'prev': prev, 'next': next};
+
+  Future<CollectionDocument> fetch(String name, JsonApiClient client) {
+    final page = asMap[name];
+    if (page == null) throw StateError('Page $name is not set');
+    return client.fetchCollection(page.uri);
   }
 }

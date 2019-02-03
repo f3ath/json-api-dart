@@ -23,6 +23,7 @@ class Identifier implements Validatable {
     return json;
   }
 
-  factory Identifier.fromJson(Map json) =>
-      Identifier(json['type'], json['id'], meta: json['meta']);
+  factory Identifier.fromJson(Map json) => json == null
+      ? null
+      : Identifier(json['type'], json['id'], meta: json['meta']);
 }

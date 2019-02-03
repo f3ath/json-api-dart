@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:json_api/client.dart';
+import 'package:json_api/document.dart';
 import 'package:test/test.dart';
 
 import 'test_server.dart';
@@ -18,18 +20,42 @@ void main() {
   });
 
   test('traversing a collection', () async {
+    final page =
+        await client.fetchCollection(Uri.parse('http://localhost:8080/brands'));
+
+    final tesla = page.resources.first;
+    expect(tesla.attributes['name'], 'Tesla');
+
+    final city = await tesla.toOne('headquarters').fetchRelated(client);
+
+    expect(city.resource.attributes['name'], 'Palo Alto');
+  });
+
+  test('fetching relationships', () async {
+
+    final hq = await client.fetchRelationship(
+        Uri.parse('http://localhost:8080/brands/1/relationships/headquarters'));
+
+    final city = await (hq as ToOne).fetchRelated(client);
+    expect(city.resource.attributes['name'], 'Palo Alto');
+
+    final models = await client.fetchRelationship(
+        Uri.parse('http://localhost:8080/brands/1/relationships/models'));
+
+    final cars = await (models as ToMany).fetchRelated(client);
+    expect(cars.resources.length, 4);
+    expect(cars.resources.map((_) => _.attributes['name']), contains('Model 3'));
+  });
+
+  test('fetching pages', () async {
     final page1 =
         await client.fetchCollection(Uri.parse('http://localhost:8080/brands'));
-    expect(page1.resources.first.attributes['name'], 'Tesla');
-
-    final page2 = await client.fetchCollection(page1.next.uri);
-    final bmw = await client.fetchResource(page2.resources.first.self.uri);
-    expect(bmw.resource.attributes['name'], 'BMW');
-
-    final bmwHeadquarters = await client
-        .fetchResource(bmw.resource.relationships['headquarters'].self.uri);
-
-    print(bmwHeadquarters.resource.attributes);
+    final page2 = await page1.fetchNext(client);
+    final first = await page2.fetchFirst(client);
+    expect(json.encode(page1), json.encode(first));
+    expect(json.encode(await page2.fetchPrev(client)), json.encode(first));
+    expect(json.encode(await page2.fetchLast(client)),
+        json.encode(await page1.fetchLast(client)));
   });
 
   test('get collection - 404', () async {

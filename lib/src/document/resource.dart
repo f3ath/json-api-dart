@@ -22,6 +22,18 @@ class Resource implements Validatable {
     this.meta.addAll(meta ?? {});
   }
 
+  ToOne toOne(String name) {
+    final rel = relationships[name];
+    if (rel is ToOne) return rel;
+    throw StateError('No ToOne relationship $name');
+  }
+
+  ToMany toMany(String name) {
+    final rel = relationships[name];
+    if (rel is ToMany) return rel;
+    throw StateError('No ToMany relationship $name');
+  }
+
   Resource replace(
           {Map<String, Object> meta,
           Map<String, Object> attributes,

@@ -50,21 +50,3 @@ class LinkObject extends Link {
       naming.violations('/meta', meta.keys.toList()).toList();
 }
 
-class PaginationLinks {
-  final Link first;
-  final Link last;
-  final Link prev;
-  final Link next;
-
-  PaginationLinks({this.next, this.first, this.last, this.prev});
-
-  PaginationLinks.fromMap(Map<String, Link> links)
-      : this(
-            first: links['first'],
-            last: links['last'],
-            next: links['next'],
-            prev: links['prev']);
-
-  Map<String, Link> get asMap =>
-      {'first': first, 'last': last, 'prev': prev, 'next': next};
-}

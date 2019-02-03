@@ -8,10 +8,10 @@ import 'package:json_api/src/server/response.dart';
 export 'package:json_api/src/server/links.dart';
 export 'package:json_api/src/server/request.dart';
 
-typedef JsonApiRequest<R> ActionResolver<R>(R request);
+typedef JsonApiRequest ActionResolver<R>(R request);
 
-class JsonApiServer<R> implements JsonApiController<R> {
-  final ResourceController<R> resource;
+class JsonApiServer<R> implements JsonApiController {
+  final ResourceController resource;
   final ActionResolver<R> resolver;
   final Links links;
 
@@ -25,41 +25,66 @@ class JsonApiServer<R> implements JsonApiController<R> {
     return jsonApiRequest.perform(this);
   }
 
-  Future<ServerResponse> fetchCollection(CollectionRequest<R> request) async {
-    final collection = await resource.fetchCollection(request);
-    final pagination = PaginationLinks.fromMap(collection.page.asMap.map(
-        (name, page) => MapEntry(
-            name, links.collection(request.type, params: page?.parameters))));
+  Future<ServerResponse> fetchCollection(CollectionRequest rq) async {
+    final collection =
+        await resource.fetchCollection(rq.type, rq.queryParameters);
+
+    final pagination = PaginationLinks.fromMap(collection.page.asMap.map((name,
+            page) =>
+        MapEntry(name, links.collection(rq.type, params: page?.parameters))));
+
     return ServerResponse.ok(CollectionDocument(
-        collection.elements.map(_addLinks),
-        self:
-            links.collection(request.type, params: collection.page?.parameters),
+        collection.elements.map(_addResourceLinks),
+        self: links.collection(rq.type, params: collection.page?.parameters),
         pagination: pagination));
   }
 
-  Future<ServerResponse> fetchResource(ResourceRequest<R> request) async {
-    final res = await resource.fetchResource(request);
-    return ServerResponse.ok(ResourceDocument(_addLinks(res)));
+  Future<ServerResponse> fetchResource(ResourceRequest rq) async {
+    final res = await _resource(rq.identifier);
+    return ServerResponse.ok(ResourceDocument(_addResourceLinks(res)));
   }
 
-  Future<ServerResponse> fetchRelated(RelatedRequest<R> request) async {
-    final res = await resource.fetchRelated(request);
-    return ServerResponse.ok(ResourceDocument(res));
+  Future<ServerResponse> fetchRelated(RelatedRequest rq) async {
+    final res = await _resource(rq.identifier);
+    final rel = res.relationships[rq.name];
+    if (rel is ToOne) {
+      return ServerResponse.ok(
+          ResourceDocument(_addResourceLinks(await _resource(rel.identifier))));
+    }
+
+    if (rel is ToMany) {
+      final list = await resource
+          .fetchResources(rel.identifiers)
+          .map(_addResourceLinks)
+          .toList();
+
+      return ServerResponse.ok(CollectionDocument(list,
+          self: links.related(rq.type, rq.id, rq.name)));
+    }
+
+    throw StateError('Unknown relationship type ${rel.runtimeType}');
   }
+
+  Future<Resource> _resource(Identifier id) =>
+      resource.fetchResources([id]).first;
 
   Future<ServerResponse> fetchRelationship(RelationshipRequest rq) async {
-    final rel = await resource.fetchRelationship(rq);
-    print(RelationshipDocument(rel).toJson());
-    return ServerResponse.ok(RelationshipDocument(rel));
+    final res = await _resource(rq.identifier);
+    final rel = res.relationships[rq.name];
+    return ServerResponse.ok(
+        _addRelationshipLinks(rel, rq.type, rq.id, rq.name));
   }
 
-  Resource _addLinks(Resource r) => r.replace(
+  Resource _addResourceLinks(Resource r) => r.replace(
       self: links.resource(r.type, r.id),
-      relationships: r.relationships.map((name, _) => MapEntry(
-          name,
-          _.replace(
-              related: links.related(r.type, r.id, name),
-              self: links.relationship(r.type, r.id, name)))));
+      relationships: r.relationships.map((name, _) =>
+          MapEntry(name, _addRelationshipLinks(_, r.type, r.id, name))));
+
+  Relationship _addRelationshipLinks(
+          Relationship r, String type, String id, String name) =>
+      r.replace(
+          related: links.related(type, id, name),
+          self: links.relationship(type, id, name));
 }
 
 class Collection<T> {
@@ -69,16 +94,13 @@ class Collection<T> {
   Collection(this.elements, {this.page});
 }
 
-abstract class ResourceController<R> {
+abstract class ResourceController {
   bool supports(String type);
 
-  Future<Collection<Resource>> fetchCollection(CollectionRequest<R> request);
+  Future<Collection<Resource>> fetchCollection(
+      String type, Map<String, String> queryParameters);
 
-  Future<Resource> fetchResource(ResourceRequest<R> request);
-
-  Future<Resource> fetchRelated(RelatedRequest<R> request);
-
-  Future<Relationship> fetchRelationship(RelationshipRequest request);
+  Stream<Resource> fetchResources(Iterable<Identifier> ids);
 }
 
 /// An object which can be encoded as URI query parameters

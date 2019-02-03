@@ -1,66 +1,66 @@
+import 'package:json_api/document.dart';
 import 'package:json_api/src/server/response.dart';
 
-abstract class JsonApiController<R> {
-  Future<ServerResponse> fetchCollection(CollectionRequest<R> request);
+abstract class JsonApiController {
+  Future<ServerResponse> fetchCollection(CollectionRequest rq);
 
-  Future<ServerResponse> fetchResource(ResourceRequest<R> request);
+  Future<ServerResponse> fetchResource(ResourceRequest rq);
 
-  Future<ServerResponse> fetchRelated(RelatedRequest<R> relatedRequest);
+  Future<ServerResponse> fetchRelated(RelatedRequest rq);
 
-  Future<ServerResponse> fetchRelationship(RelationshipRequest request);
+  Future<ServerResponse> fetchRelationship(RelationshipRequest rq);
 }
 
-abstract class JsonApiRequest<R> {
+abstract class JsonApiRequest {
   String get type;
 
-  R get httpRequest;
-
-  Future<ServerResponse> perform(JsonApiController<R> controller);
+  Future<ServerResponse> perform(JsonApiController controller);
 }
 
-class CollectionRequest<R> implements JsonApiRequest<R> {
+class CollectionRequest implements JsonApiRequest {
   final String type;
   final Map<String, String> queryParameters;
-  final R httpRequest;
 
-  CollectionRequest(this.type, {this.httpRequest, this.queryParameters});
+  CollectionRequest(this.type, {this.queryParameters});
 
-  Future<ServerResponse> perform(JsonApiController<R> controller) =>
+  Future<ServerResponse> perform(JsonApiController controller) =>
       controller.fetchCollection(this);
 }
 
-class ResourceRequest<R> implements JsonApiRequest<R> {
+class ResourceRequest<R> implements JsonApiRequest {
   final String type;
   final String id;
-  final R httpRequest;
 
-  ResourceRequest(this.type, this.id, {this.httpRequest});
+  ResourceRequest(this.type, this.id);
 
-  @override
-  Future<ServerResponse> perform(JsonApiController<R> controller) =>
+  Identifier get identifier => Identifier(type, id);
+
+  Future<ServerResponse> perform(JsonApiController controller) =>
       controller.fetchResource(this);
 }
 
-class RelatedRequest<R> implements JsonApiRequest<R> {
+class RelatedRequest implements JsonApiRequest {
   final String type;
   final String id;
   final String name;
-  final R httpRequest;
 
-  RelatedRequest(this.type, this.id, this.name, {this.httpRequest});
+  RelatedRequest(this.type, this.id, this.name);
 
-  Future<ServerResponse> perform(JsonApiController<R> controller) =>
+  Identifier get identifier => Identifier(type, id);
+
+  Future<ServerResponse> perform(JsonApiController controller) =>
       controller.fetchRelated(this);
 }
 
-class RelationshipRequest<R> implements JsonApiRequest<R> {
+class RelationshipRequest<R> implements JsonApiRequest {
   final String type;
   final String id;
   final String name;
-  final R httpRequest;
 
-  RelationshipRequest(this.type, this.id, this.name, {this.httpRequest});
+  RelationshipRequest(this.type, this.id, this.name);
 
-  Future<ServerResponse> perform(JsonApiController<R> controller) =>
+  Identifier get identifier => Identifier(type, id);
+
+  Future<ServerResponse> perform(JsonApiController controller) =>
       controller.fetchRelationship(this);
 }
