@@ -1,8 +1,10 @@
 import 'dart:io';
 
-import '../test/test_server.dart';
+import 'server/server.dart';
 
 void main() async {
-  final s = TestServer();
-  await s.start(InternetAddress.loopbackIPv4, 8080);
+  final addr = InternetAddress.loopbackIPv4;
+  final port = 8080;
+  await createServer().start(addr, port);
+  print('Listening on ${addr.host}:$port');
 }

@@ -1,7 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:json_api/document.dart';
+import 'package:json_api/src/server/request.dart';
 
-abstract class Links {
+abstract class Routing {
   Link collection(String type, {Map<String, String> params});
 
   Link resource(String type, String id);
@@ -9,6 +10,8 @@ abstract class Links {
   Link related(String type, String id, String name);
 
   Link relationship(String type, String id, String name);
+
+  Future<JsonApiRequest> resolve(String method, Uri uri, String body);
 }
 
 /// Recommended URL design schema:
@@ -19,10 +22,10 @@ abstract class Links {
 /// /photos/1/author - for a related resource
 ///
 /// See https://jsonapi.org/recommendations/#urls
-class StandardLinks implements Links {
+class StandardRouting implements Routing {
   final Uri base;
 
-  StandardLinks(this.base) {
+  StandardRouting(this.base) {
     ArgumentError.checkNotNull(base, 'base');
   }
 
@@ -44,6 +47,25 @@ class StandardLinks implements Links {
 
   resource(String type, String id) => Link(
       base.replace(pathSegments: base.pathSegments + [type, id]).toString());
+
+  Future<JsonApiRequest> resolve(String method, Uri uri, String body) async {
+    final seg = uri.pathSegments;
+    switch (seg.length) {
+      case 1:
+        return CollectionRequest(method, seg[0],
+            body: body, queryParameters: uri.queryParameters);
+      case 2:
+        return ResourceRequest(seg[0], seg[1]);
+      case 3:
+        return RelatedRequest(seg[0], seg[1], seg[2]);
+      case 4:
+        if (seg[2] == 'relationships') {
+          return RelationshipRequest(method, seg[0], seg[1], seg[3],
+              body: body);
+        }
+    }
+    return null;
+  }
 
   Map<K, V> _nonEmpty<K, V>(Map<K, V> map) => map.isEmpty ? null : map;
 }

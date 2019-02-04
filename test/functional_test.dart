@@ -3,16 +3,17 @@ import 'dart:io';
 
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
+import 'package:json_api/simple_server.dart';
 import 'package:test/test.dart';
 
-import 'test_server.dart';
+import '../examples/server/server.dart';
 
 void main() {
   group('client-server e2e tests', () {
     final client = DartHttpClient();
-    TestServer s;
+    SimpleServer s;
     setUp(() async {
-      s = TestServer();
+      s = createServer();
       await s.start(InternetAddress.loopbackIPv4, 8080);
     });
 

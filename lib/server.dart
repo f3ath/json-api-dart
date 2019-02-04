@@ -11,15 +11,14 @@ export 'package:json_api/src/server/request.dart';
 
 typedef Future<JsonApiRequest> ActionResolver<R>(R request);
 
-class JsonApiServer<R> implements JsonApiController {
+class JsonApiServer implements JsonApiController {
   final ResourceController resource;
-  final ActionResolver<R> resolver;
-  final Links links;
+  final Routing route;
 
-  JsonApiServer(this.resource, this.resolver, this.links);
+  JsonApiServer(this.resource, this.route);
 
-  Future<ServerResponse> handle(R rq) async {
-    final jsonApiRequest = await resolver(rq);
+  Future<ServerResponse> handle(String method, Uri uri, String body) async {
+    final jsonApiRequest = await route.resolve(method, uri, body);
     if (jsonApiRequest == null || !resource.supports(jsonApiRequest.type)) {
       return ServerResponse(404);
     }
@@ -32,11 +31,11 @@ class JsonApiServer<R> implements JsonApiController {
 
     final pagination = PaginationLinks.fromMap(collection.page.asMap.map((name,
             page) =>
-        MapEntry(name, links.collection(rq.type, params: page?.parameters))));
+        MapEntry(name, route.collection(rq.type, params: page?.parameters))));
 
     return ServerResponse.ok(CollectionDocument(
         collection.elements.map(_addResourceLinks),
-        self: links.collection(rq.type, params: collection.page?.parameters),
+        self: route.collection(rq.type, params: collection.page?.parameters),
         pagination: pagination));
   }
 
@@ -61,7 +60,7 @@ class JsonApiServer<R> implements JsonApiController {
           .toList();
 
       return ServerResponse.ok(CollectionDocument(list,
-          self: links.related(rq.type, rq.id, rq.name)));
+          self: route.related(rq.type, rq.id, rq.name)));
     }
 
     throw StateError('Unknown relationship type ${rel.runtimeType}');
@@ -96,15 +95,15 @@ class JsonApiServer<R> implements JsonApiController {
   }
 
   Resource _addResourceLinks(Resource r) => r.replace(
-      self: links.resource(r.type, r.id),
+      self: route.resource(r.type, r.id),
       relationships: r.relationships.map((name, _) =>
           MapEntry(name, _addRelationshipLinks(_, r.type, r.id, name))));
 
   Relationship _addRelationshipLinks(
           Relationship r, String type, String id, String name) =>
       r.replace(
-          related: links.related(type, id, name),
-          self: links.relationship(type, id, name));
+          related: route.related(type, id, name),
+          self: route.relationship(type, id, name));
 }
 
 class Collection<T> {
