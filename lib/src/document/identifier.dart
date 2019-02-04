@@ -26,4 +26,7 @@ class Identifier implements Validatable {
   factory Identifier.fromJson(Map json) => json == null
       ? null
       : Identifier(json['type'], json['id'], meta: json['meta']);
+
+  @override
+  String toString() => 'Identifier($type:$id)';
 }

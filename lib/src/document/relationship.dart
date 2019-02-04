@@ -4,7 +4,7 @@ import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/validation.dart';
 
-abstract class Relationship extends Validatable {
+abstract class Relationship extends Document {
   Object get data;
 
   final Link self;
@@ -13,8 +13,6 @@ abstract class Relationship extends Validatable {
   Relationship({this.self, this.related});
 
   Relationship replace({Link self, Link related});
-
-  Future<Document> fetchRelated(JsonApiClient client);
 
   Map<String, Object> toJson() {
     final json = {'data': data};
@@ -31,16 +29,13 @@ abstract class Relationship extends Validatable {
 
   factory Relationship.fromJson(Object json) {
     if (json is Map) {
-      final links = Link.parseMap(json['links'] ?? {});
       final data = json['data'];
       if (data is List) {
-        return ToMany(data.map((_) => Identifier.fromJson(_)),
-            self: links['self'], related: links['related']);
+        return ToMany.fromJson(json);
       }
-      return ToOne(Identifier.fromJson(json['data']),
-          self: links['self'], related: links['related']);
+      return ToOne.fromJson(json);
     }
-    throw 'Parse error';
+    throw 'Can not parse Relationship from $json';
   }
 }
 
@@ -65,8 +60,20 @@ class ToMany extends Relationship {
   ToMany replace({Link self, Link related}) => ToMany(this.identifiers,
       self: self ?? this.self, related: related ?? this.related);
 
-  Future<CollectionDocument> fetchRelated(JsonApiClient client) =>
+  Future<Response<CollectionDocument>> fetchRelated(Client client) =>
       client.fetchCollection(related.uri);
+
+  factory ToMany.fromJson(Object json) {
+    if (json is Map) {
+      final links = Link.parseMap(json['links'] ?? {});
+      final data = json['data'];
+      if (data is List) {
+        return ToMany(data.map((_) => Identifier.fromJson(_)),
+            self: links['self'], related: links['related']);
+      }
+    }
+    throw 'Can not parse ToMany from $json';
+  }
 }
 
 class ToOne extends Relationship {
@@ -82,6 +89,15 @@ class ToOne extends Relationship {
   ToOne replace({Link self, Link related}) => ToOne(this.identifier,
       self: self ?? this.self, related: related ?? this.related);
 
-  Future<ResourceDocument> fetchRelated(JsonApiClient client) =>
+  Future<Response<ResourceDocument>> fetchRelated(Client client) =>
       client.fetchResource(related.uri);
+
+  factory ToOne.fromJson(Object json) {
+    if (json is Map) {
+      final links = Link.parseMap(json['links'] ?? {});
+      return ToOne(Identifier.fromJson(json['data']),
+          self: links['self'], related: links['related']);
+    }
+    throw 'Can not parse ToOne from $json';
+  }
 }

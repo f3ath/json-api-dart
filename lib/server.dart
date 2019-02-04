@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:json_api/document.dart';
@@ -8,7 +9,7 @@ import 'package:json_api/src/server/response.dart';
 export 'package:json_api/src/server/links.dart';
 export 'package:json_api/src/server/request.dart';
 
-typedef JsonApiRequest ActionResolver<R>(R request);
+typedef Future<JsonApiRequest> ActionResolver<R>(R request);
 
 class JsonApiServer<R> implements JsonApiController {
   final ResourceController resource;
@@ -18,11 +19,11 @@ class JsonApiServer<R> implements JsonApiController {
   JsonApiServer(this.resource, this.resolver, this.links);
 
   Future<ServerResponse> handle(R rq) async {
-    final jsonApiRequest = resolver(rq);
+    final jsonApiRequest = await resolver(rq);
     if (jsonApiRequest == null || !resource.supports(jsonApiRequest.type)) {
       return ServerResponse(404);
     }
-    return jsonApiRequest.perform(this);
+    return jsonApiRequest.fulfill(this);
   }
 
   Future<ServerResponse> fetchCollection(CollectionRequest rq) async {
@@ -41,7 +42,8 @@ class JsonApiServer<R> implements JsonApiController {
 
   Future<ServerResponse> fetchResource(ResourceRequest rq) async {
     final res = await _resource(rq.identifier);
-    return ServerResponse.ok(ResourceDocument(_addResourceLinks(res)));
+    return ServerResponse.ok(
+        ResourceDocument(res == null ? null : _addResourceLinks(res)));
   }
 
   Future<ServerResponse> fetchRelated(RelatedRequest rq) async {
@@ -75,6 +77,24 @@ class JsonApiServer<R> implements JsonApiController {
         _addRelationshipLinks(rel, rq.type, rq.id, rq.name));
   }
 
+  Future<ServerResponse> createResource(CollectionRequest rq) async {
+    final doc = ResourceDocument.fromJson(json.decode(rq.body));
+    await resource.createResource(rq.type, doc.resource);
+    return ServerResponse(204);
+  }
+
+  Future<ServerResponse> addRelationship(RelationshipRequest rq) async {
+    final rel = Relationship.fromJson(json.decode(rq.body));
+    if (rel is ToMany) {
+      await resource.mergeToMany(rq.identifier, rq.name, rel);
+      final res = await _resource(rq.identifier);
+      return ServerResponse.ok(_addRelationshipLinks(
+          res.relationships[rq.name], rq.type, rq.id, rq.name));
+    }
+    // TODO: Return a meaningful response
+    return null;
+  }
+
   Resource _addResourceLinks(Resource r) => r.replace(
       self: links.resource(r.type, r.id),
       relationships: r.relationships.map((name, _) =>
@@ -101,6 +121,12 @@ abstract class ResourceController {
       String type, Map<String, String> queryParameters);
 
   Stream<Resource> fetchResources(Iterable<Identifier> ids);
+
+  Future createResource(String type, Resource resource);
+
+  /// Add all ids in [rel] to the relationship [name] of the resource identified by [id].
+  /// This implies that the relationship is a [ToMany] one.
+  Future mergeToMany(Identifier id, String name, ToMany rel);
 }
 
 /// An object which can be encoded as URI query parameters

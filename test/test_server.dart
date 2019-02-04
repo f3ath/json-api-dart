@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:json_api/document.dart';
@@ -53,18 +54,21 @@ class TestServer {
   Future stop() => httpServer.close();
 }
 
-JsonApiRequest resolveAction(HttpRequest rq) {
+Future<JsonApiRequest> resolveAction(HttpRequest rq) async {
   final seg = rq.uri.pathSegments;
+  final body = await rq.transform(utf8.decoder).join();
   switch (seg.length) {
     case 1:
-      return CollectionRequest(seg[0], queryParameters: rq.uri.queryParameters);
+      return CollectionRequest(rq.method, seg[0],
+          body: body, queryParameters: rq.uri.queryParameters);
     case 2:
       return ResourceRequest(seg[0], seg[1]);
     case 3:
       return RelatedRequest(seg[0], seg[1], seg[2]);
     case 4:
       if (seg[2] == 'relationships') {
-        return RelationshipRequest(seg[0], seg[1], seg[3]);
+        return RelationshipRequest(rq.method, seg[0], seg[1], seg[3],
+            body: body);
       }
   }
   return null;
@@ -74,6 +78,9 @@ class TestController implements ResourceController {
   final Map<String, DAO> daos;
 
   TestController(this.daos);
+
+  @override
+  bool supports(String type) => daos.containsKey(type);
 
   Future<Collection<Resource>> fetchCollection(
       String type, Map<String, String> queryParameters) async {
@@ -88,12 +95,27 @@ class TestController implements ResourceController {
 
   @override
   Stream<Resource> fetchResources(Iterable<Identifier> ids) async* {
-    for (final id in ids)
-      yield daos[id.type].toResource(daos[id.type].fetchById(id.id));
+    for (final id in ids) {
+      final obj = daos[id.type].fetchById(id.id);
+      yield obj == null ? null : daos[id.type].toResource(obj);
+    }
   }
 
   @override
-  bool supports(String type) => daos.containsKey(type);
+  Future createResource(String type, Resource resource) async {
+    final obj = daos[type].fromResource(resource);
+    daos[type].insert(obj);
+    return null;
+  }
+
+  @override
+  Future mergeToMany(Identifier id, String name, ToMany rel) async {
+    final obj = daos[id.type].fetchById(id.id);
+    rel.identifiers.map((id) => daos[id.type].fetchById(id.id)).forEach(
+        (related) => daos[id.type].addRelationship(obj, name, related));
+
+    return null;
+  }
 }
 
 abstract class HasId {
@@ -114,14 +136,16 @@ abstract class DAO<T extends HasId> {
   Map<String, Relationship> relationships(List<String> names, T t) =>
       Map.fromIterables(names, names.map((_) => relationship(_, t)));
 
-  //  T fromResource(Resource r);
-
   T fetchById(String id) => collection[id];
 
   void insert(T t) => collection[t.id] = t;
 
   Iterable<T> fetchCollection({int offset = 0, int limit = 1}) =>
       collection.values.skip(offset).take(limit);
+
+  HasId fromResource(Resource r);
+
+  addRelationship(T t, String name, HasId related) {}
 }
 
 class Brand implements HasId {
@@ -149,6 +173,20 @@ class BrandDAO extends DAO<Brand> {
     }
     throw ArgumentError();
   }
+
+  @override
+  HasId fromResource(Resource r) => Brand(r.id, r.attributes['name']);
+
+  @override
+  addRelationship(Brand obj, String name, HasId related) {
+    switch (name) {
+      case 'models':
+        obj.models.add(related.id);
+        break;
+      default:
+        throw ArgumentError.value(name, 'name');
+    }
+  }
 }
 
 class City implements HasId {
@@ -161,6 +199,9 @@ class City implements HasId {
 class CityDAO extends DAO<City> {
   Resource toResource(City _) =>
       Resource('cities', _.id, attributes: {'name': _.name});
+
+  @override
+  HasId fromResource(Resource r) => City(r.id, r.attributes['name']);
 }
 
 class Car implements HasId {
@@ -173,4 +214,7 @@ class Car implements HasId {
 class CarDAO extends DAO<Car> {
   Resource toResource(Car _) =>
       Resource('cars', _.id, attributes: {'name': _.name});
+
+  @override
+  HasId fromResource(Resource r) => Car(r.id, r.attributes['name']);
 }

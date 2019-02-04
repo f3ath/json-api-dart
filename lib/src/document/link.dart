@@ -49,4 +49,3 @@ class LinkObject extends Link {
   validate(Naming naming) =>
       naming.violations('/meta', meta.keys.toList()).toList();
 }
-
