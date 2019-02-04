@@ -1,4 +1,5 @@
 import 'package:json_api/client.dart';
+import 'package:json_api/src/document/http.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/validation.dart';
@@ -123,7 +124,7 @@ class PaginationLinks {
   Map<String, Link> get asMap =>
       {'first': first, 'last': last, 'prev': prev, 'next': next};
 
-  Future<CollectionDocument> fetch(String name, Client client) async {
+  Future<CollectionDocument> fetch(String name, CollectionFetcher client) async {
     final page = asMap[name];
     if (page == null) throw StateError('Page $name is not set');
     final response = await client.fetchCollection(page.uri);

@@ -2,14 +2,12 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:json_api/document.dart';
-import 'package:json_api/src/server/links.dart';
+import 'package:json_api/src/server/routing.dart';
 import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/response.dart';
 
-export 'package:json_api/src/server/links.dart';
+export 'package:json_api/src/server/routing.dart';
 export 'package:json_api/src/server/request.dart';
-
-typedef Future<JsonApiRequest> ActionResolver<R>(R request);
 
 class JsonApiServer implements JsonApiController {
   final ResourceController resource;

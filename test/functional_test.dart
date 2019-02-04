@@ -6,7 +6,7 @@ import 'package:json_api/document.dart';
 import 'package:json_api/simple_server.dart';
 import 'package:test/test.dart';
 
-import '../examples/server/server.dart';
+import '../example/server/server.dart';
 
 void main() {
   group('client-server e2e tests', () {
