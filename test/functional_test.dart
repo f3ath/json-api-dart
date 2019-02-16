@@ -10,7 +10,7 @@ import '../example/server/server.dart';
 
 void main() {
   group('client-server e2e tests', () {
-    final client = DartHttpClient();
+    final client = Client();
     SimpleServer s;
     setUp(() async {
       s = createServer();

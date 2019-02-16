@@ -1,15 +1,17 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
+import 'package:json_api/src/client/response.dart';
 
-class DartHttpClient implements Client {
+typedef D ResponseParser<D extends Document>(Object j);
+
+class Client {
   static const contentType = 'application/vnd.api+json';
 
   final HttpClientFactory _factory;
 
-  DartHttpClient({HttpClientFactory factory})
+  Client({HttpClientFactory factory})
       : _factory = factory ?? (() => http.Client());
 
   Future<Response<CollectionDocument>> fetchCollection(Uri uri,
@@ -66,7 +68,8 @@ class DartHttpClient implements Client {
     final client = _factory();
     try {
       final r = await fn(client);
-      return Response(r.statusCode, r.body, r.headers, parse);
+      return Response(r.statusCode,
+          r.body.isNotEmpty ? parse(json.decode(r.body)) : null, r.headers);
     } finally {
       client.close();
     }

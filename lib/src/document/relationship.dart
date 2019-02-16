@@ -1,5 +1,6 @@
+import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
-import 'package:json_api/src/document/http.dart';
+import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/validation.dart';
@@ -60,7 +61,7 @@ class ToMany extends Relationship {
   ToMany replace({Link self, Link related}) => ToMany(this.identifiers,
       self: self ?? this.self, related: related ?? this.related);
 
-  Future<Response<CollectionDocument>> fetchRelated(CollectionFetcher client) =>
+  Future<Response<CollectionDocument>> fetchRelated(Client client) =>
       client.fetchCollection(related.uri);
 
   factory ToMany.fromJson(Object json) {
@@ -89,7 +90,7 @@ class ToOne extends Relationship {
   ToOne replace({Link self, Link related}) => ToOne(this.identifier,
       self: self ?? this.self, related: related ?? this.related);
 
-  Future<Response<ResourceDocument>> fetchRelated(ResourceFetcher client) =>
+  Future<Response<ResourceDocument>> fetchRelated(Client client) =>
       client.fetchResource(related.uri);
 
   factory ToOne.fromJson(Object json) {

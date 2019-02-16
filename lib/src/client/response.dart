@@ -1,35 +1,18 @@
-import 'dart:convert';
-
-import 'package:json_api/src/document/document.dart';
-
-abstract class ResourceFetcher {
-  Future<Response<ResourceDocument>> fetchResource(Uri uri,
-      {Map<String, String> headers});
-}
-
-abstract class CollectionFetcher {
-  Future<Response<CollectionDocument>> fetchCollection(Uri uri,
-      {Map<String, String> headers});
-}
-
-typedef D ResponseParser<D extends Document>(Object j);
+import 'package:json_api/document.dart';
 
 /// A response of JSON:API server
 class Response<D extends Document> {
   /// HTTP status code
   final int status;
-  final String body;
-  final Map<String, String> headers;
-  final ResponseParser _parse;
-
-  Response(this.status, this.body, this.headers, this._parse) {
-    // TODO: Check for null and content-type
-  }
 
   /// Document parsed from the response body.
   /// May be null.
-  D get document =>
-      (isSuccessful && body.isNotEmpty) ? _parse(json.decode(body)) : null;
+  final D document;
+  final Map<String, String> headers;
+
+  Response(this.status, this.document, this.headers) {
+    // TODO: Check for null and content-type
+  }
 
   /// Was the request successful?
   ///

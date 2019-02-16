@@ -1,5 +1,4 @@
 import 'package:json_api/client.dart';
-import 'package:json_api/src/document/http.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/validation.dart';
@@ -90,7 +89,7 @@ class CollectionDocument implements Document {
             self: links['self'], pagination: PaginationLinks.fromMap(links));
       }
     }
-    throw 'Parse error';
+    throw 'Can not parse CollectionDocument from $json';
   }
 
   Future<CollectionDocument> fetchNext(Client client) =>
@@ -124,7 +123,7 @@ class PaginationLinks {
   Map<String, Link> get asMap =>
       {'first': first, 'last': last, 'prev': prev, 'next': next};
 
-  Future<CollectionDocument> fetch(String name, CollectionFetcher client) async {
+  Future<CollectionDocument> fetch(String name, Client client) async {
     final page = asMap[name];
     if (page == null) throw StateError('Page $name is not set');
     final response = await client.fetchCollection(page.uri);
