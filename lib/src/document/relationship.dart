@@ -4,6 +4,7 @@ import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/validation.dart';
+import 'package:json_api/src/nullable.dart';
 
 abstract class Relationship extends Document {
   Object get data;
@@ -64,7 +65,7 @@ class ToMany extends Relationship {
   Future<Response<CollectionDocument>> fetchRelated(Client client) =>
       client.fetchCollection(related.uri);
 
-  factory ToMany.fromJson(Object json) {
+  static ToMany fromJson(Object json) {
     if (json is Map) {
       final links = Link.parseMap(json['links'] ?? {});
       final data = json['data'];
@@ -93,12 +94,14 @@ class ToOne extends Relationship {
   Future<Response<ResourceDocument>> fetchRelated(Client client) =>
       client.fetchResource(related.uri);
 
-  factory ToOne.fromJson(Object json) {
+  static ToOne fromJson(Object json) {
     if (json is Map) {
       final links = Link.parseMap(json['links'] ?? {});
-      return ToOne(Identifier.fromJson(json['data']),
+      return ToOne(nullable(json['data'], Identifier.fromJson),
           self: links['self'], related: links['related']);
     }
     throw 'Can not parse ToOne from $json';
   }
 }
+
+

@@ -15,31 +15,27 @@ class Client {
       : _factory = factory ?? (() => http.Client());
 
   Future<Response<CollectionDocument>> fetchCollection(Uri uri,
-      {Map<String, String> headers}) {
-    return _get((_) => CollectionDocument.fromJson(_), uri, headers);
-  }
+          {Map<String, String> headers}) =>
+      _get(CollectionDocument.fromJson, uri, headers);
 
   Future<Response<ResourceDocument>> fetchResource(Uri uri,
-      {Map<String, String> headers}) {
-    return _get((_) => ResourceDocument.fromJson(_), uri, headers);
-  }
+          {Map<String, String> headers}) =>
+      _get(ResourceDocument.fromJson, uri, headers);
 
-  Future<Response<ToOne>> fetchToOne(Uri uri, {Map<String, String> headers}) {
-    return _get((_) => ToOne.fromJson(_), uri, headers);
-  }
+  Future<Response<ToOne>> fetchToOne(Uri uri, {Map<String, String> headers}) =>
+      _get(ToOne.fromJson, uri, headers);
 
-  Future<Response<ToMany>> fetchToMany(Uri uri, {Map<String, String> headers}) {
-    return _get((_) => ToMany.fromJson(_), uri, headers);
-  }
+  Future<Response<ToMany>> fetchToMany(Uri uri,
+          {Map<String, String> headers}) =>
+      _get(ToMany.fromJson, uri, headers);
 
   Future<Response<ResourceDocument>> createResource(Uri uri, Resource r,
           {Map<String, String> headers}) =>
-      _post((_) => ResourceDocument.fromJson(_), uri, ResourceDocument(r),
-          headers);
+      _post(ResourceDocument.fromJson, uri, ResourceDocument(r), headers);
 
   Future<Response<ToMany>> addToMany(Uri uri, Iterable<Identifier> ids,
           {Map<String, String> headers}) =>
-      _post((_) => ToMany.fromJson(_), uri, ToMany(ids), headers);
+      _post(ToMany.fromJson, uri, ToMany(ids), headers);
 
   Future<Response<D>> _get<D extends Document>(
           ResponseParser<D> parse, uri, Map<String, String> headers) =>

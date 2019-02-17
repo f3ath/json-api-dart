@@ -2,21 +2,22 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:json_api/document.dart';
-import 'package:json_api/src/server/routing.dart';
 import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/response.dart';
+import 'package:json_api/src/server/routing.dart';
 
-export 'package:json_api/src/server/routing.dart';
 export 'package:json_api/src/server/request.dart';
+export 'package:json_api/src/server/routing.dart';
+
 
 class JsonApiServer implements JsonApiController {
   final ResourceController resource;
-  final Routing route;
+  final Routing routing;
 
-  JsonApiServer(this.resource, this.route);
+  JsonApiServer(this.resource, this.routing);
 
   Future<ServerResponse> handle(String method, Uri uri, String body) async {
-    final jsonApiRequest = await route.resolve(method, uri, body);
+    final jsonApiRequest = await routing.resolve(method, uri, body);
     if (jsonApiRequest == null || !resource.supports(jsonApiRequest.type)) {
       return ServerResponse(404);
     }
@@ -27,13 +28,12 @@ class JsonApiServer implements JsonApiController {
     final collection =
         await resource.fetchCollection(rq.type, rq.queryParameters);
 
-    final pagination = PaginationLinks.fromMap(collection.page.asMap.map((name,
-            page) =>
-        MapEntry(name, route.collection(rq.type, params: page?.parameters))));
+    final pagination = PaginationLinks.fromMap(collection.page
+        .mapPages((_) => routing.collection(rq.type, params: _?.parameters)));
 
     return ServerResponse.ok(CollectionDocument(
         collection.elements.map(_addResourceLinks),
-        self: route.collection(rq.type, params: collection.page?.parameters),
+        self: routing.collection(rq.type, params: collection.page?.parameters),
         pagination: pagination));
   }
 
@@ -58,7 +58,7 @@ class JsonApiServer implements JsonApiController {
           .toList();
 
       return ServerResponse.ok(CollectionDocument(list,
-          self: route.related(rq.type, rq.id, rq.name)));
+          self: routing.related(rq.type, rq.id, rq.name)));
     }
 
     throw StateError('Unknown relationship type ${rel.runtimeType}');
@@ -93,15 +93,15 @@ class JsonApiServer implements JsonApiController {
   }
 
   Resource _addResourceLinks(Resource r) => r.replace(
-      self: route.resource(r.type, r.id),
+      self: routing.resource(r.type, r.id),
       relationships: r.relationships.map((name, _) =>
           MapEntry(name, _addRelationshipLinks(_, r.type, r.id, name))));
 
   Relationship _addRelationshipLinks(
           Relationship r, String type, String id, String name) =>
       r.replace(
-          related: route.related(type, id, name),
-          self: route.relationship(type, id, name));
+          related: routing.related(type, id, name),
+          self: routing.relationship(type, id, name));
 }
 
 class Collection<T> {
@@ -145,6 +145,9 @@ abstract class Page implements QueryParameters {
 
   /// Last page or null
   Page get last;
+
+  Map<String, T> mapPages<T>(T f(Page p)) =>
+      asMap.map((name, page) => MapEntry(name, f(page)));
 
   Map<String, Page> get asMap =>
       {'first': first, 'last': last, 'prev': prev, 'next': next};

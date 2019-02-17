@@ -1,0 +1,1 @@
+U nullable<V, U>(V v, U f(V v)) => v == null ? null : f(v);

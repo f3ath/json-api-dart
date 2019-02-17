@@ -29,7 +29,7 @@ class ResourceDocument implements Document {
     return resource.validate(naming);
   }
 
-  factory ResourceDocument.fromJson(Object json) {
+  static ResourceDocument fromJson(Object json) {
     if (json is Map) {
       final data = json['data'];
       if (data is Map) {
@@ -80,7 +80,7 @@ class CollectionDocument implements Document {
     return resources.expand((_) => _.validate(naming)).toList();
   }
 
-  factory CollectionDocument.fromJson(Object json) {
+  static CollectionDocument fromJson(Object json) {
     if (json is Map) {
       final data = json['data'];
       if (data is List) {

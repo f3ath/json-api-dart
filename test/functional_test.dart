@@ -39,14 +39,6 @@ void main() {
 
       final city = await hq.document.fetchRelated(client);
       expect(city.document.resource.attributes['name'], 'Palo Alto');
-
-      final models = await client.fetchToMany(
-          Uri.parse('http://localhost:8080/brands/1/relationships/models'));
-
-      final cars = await models.document.fetchRelated(client);
-      expect(cars.document.resources.length, 4);
-      expect(cars.document.resources.map((_) => _.attributes['name']),
-          contains('Model 3'));
     });
 
     test('fetching pages', () async {
