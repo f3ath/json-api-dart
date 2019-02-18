@@ -9,8 +9,8 @@ import 'package:json_api/src/nullable.dart';
 abstract class Relationship extends Document {
   Object get data;
 
-  final Link self;
-  final Link related;
+  Link self;
+  Link related;
 
   Relationship({this.self, this.related});
 
@@ -63,7 +63,7 @@ class ToMany extends Relationship {
       self: self ?? this.self, related: related ?? this.related);
 
   Future<Response<CollectionDocument>> fetchRelated(Client client) =>
-      client.fetchCollection(related.uri);
+      client.fetchCollection(related.href);
 
   static ToMany fromJson(Object json) {
     if (json is Map) {
@@ -92,7 +92,7 @@ class ToOne extends Relationship {
       self: self ?? this.self, related: related ?? this.related);
 
   Future<Response<ResourceDocument>> fetchRelated(Client client) =>
-      client.fetchResource(related.uri);
+      client.fetchResource(related.href);
 
   static ToOne fromJson(Object json) {
     if (json is Map) {

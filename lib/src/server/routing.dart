@@ -1,15 +1,14 @@
 import 'package:collection/collection.dart';
-import 'package:json_api/document.dart';
 import 'package:json_api/src/server/request.dart';
 
 abstract class Routing {
-  Link collection(String type, {Map<String, String> params});
+  Uri collection(String type, {Map<String, String> params});
 
-  Link resource(String type, String id);
+  Uri resource(String type, String id);
 
-  Link related(String type, String id, String name);
+  Uri related(String type, String id, String name);
 
-  Link relationship(String type, String id, String name);
+  Uri relationship(String type, String id, String name);
 
   Future<JsonApiRequest> resolve(String method, Uri uri, String body);
 }
@@ -29,24 +28,19 @@ class StandardRouting implements Routing {
     ArgumentError.checkNotNull(base, 'base');
   }
 
-  collection(String type, {Map<String, String> params}) => Link(base
-      .replace(
-          pathSegments: base.pathSegments + [type],
-          queryParameters:
-              _nonEmpty(CombinedMapView([base.queryParameters, params ?? {}])))
-      .toString());
+  collection(String type, {Map<String, String> params}) => base.replace(
+      pathSegments: base.pathSegments + [type],
+      queryParameters:
+          _nonEmpty(CombinedMapView([base.queryParameters, params ?? {}])));
 
-  related(String type, String id, String name) => Link(base
-      .replace(pathSegments: base.pathSegments + [type, id, name])
-      .toString());
+  related(String type, String id, String name) =>
+      base.replace(pathSegments: base.pathSegments + [type, id, name]);
 
-  relationship(String type, String id, String name) => Link(base
-      .replace(
-          pathSegments: base.pathSegments + [type, id, 'relationships', name])
-      .toString());
+  relationship(String type, String id, String name) => base.replace(
+      pathSegments: base.pathSegments + [type, id, 'relationships', name]);
 
-  resource(String type, String id) => Link(
-      base.replace(pathSegments: base.pathSegments + [type, id]).toString());
+  resource(String type, String id) =>
+      base.replace(pathSegments: base.pathSegments + [type, id]);
 
   Future<JsonApiRequest> resolve(String method, Uri uri, String body) async {
     final seg = uri.pathSegments;

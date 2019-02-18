@@ -4,16 +4,16 @@ import 'package:json_api/src/document/validation.dart';
 /// A JSON:API link
 /// https://jsonapi.org/format/#document-links
 class Link implements Validatable {
-  final String href;
+  final Uri href;
 
-  Link(String this.href) {
+  Link(this.href) {
     ArgumentError.checkNotNull(href, 'href');
   }
 
-  Uri get uri => Uri.parse(href);
+  static Link fromString(String href) => Link(Uri.parse(href));
 
-  factory Link.fromJson(Object json) {
-    if (json is String) return Link(json);
+  static Link fromJson(Object json) {
+    if (json is String) return Link(Uri.parse(json));
     if (json is Map) return LinkObject.fromJson(json);
     throw ParseError(Link, json);
   }
@@ -24,7 +24,7 @@ class Link implements Validatable {
     return links;
   }
 
-  toJson() => href;
+  toJson() => href.toString();
 
   validate(Naming naming) => [];
 }
@@ -34,14 +34,14 @@ class Link implements Validatable {
 class LinkObject extends Link {
   final meta = <String, Object>{};
 
-  LinkObject(String href, {Map<String, Object> meta}) : super(href) {
+  LinkObject(Uri href, {Map<String, Object> meta}) : super(href) {
     this.meta.addAll(meta ?? {});
   }
 
-  LinkObject.fromJson(Map json) : this(json['href'], meta: json['meta']);
+  LinkObject.fromJson(Map json) : this(Uri.parse(json['href']), meta: json['meta']);
 
   toJson() {
-    final json = <String, Object>{'href': href};
+    final json = <String, Object>{'href': href.toString()};
     if (meta != null && meta.isNotEmpty) json['meta'] = meta;
     return json;
   }

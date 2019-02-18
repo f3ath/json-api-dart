@@ -4,12 +4,12 @@ import 'package:json_matcher/json_matcher.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final url = 'http://example.com';
+  final url = Uri.parse('http://example.com');
   final json1 = {
-    'href': url,
+    'href': url.toString(),
     'meta': {'foo': 'bar'}
   };
-  final json2 = {'href': url};
+  final json2 = {'href': url.toString()};
 
   group('Link', () {
     test('can create from url', () {
@@ -22,7 +22,7 @@ void main() {
     });
 
     test('json conversion', () {
-      expect(Link.fromJson(url), encodesToJson(url));
+      expect(Link.fromJson(url.toString()), encodesToJson(url.toString()));
       expect(Link.fromJson(json1), encodesToJson(json1));
     });
 
@@ -41,8 +41,9 @@ void main() {
       final link = LinkObject(url);
       expect(link.href, url);
       expect(link.meta, isEmpty);
-      expect(link, encodesToJson({'href': url}));
+      expect(link, encodesToJson(json2));
     });
+
     test('href can not be null', () {
       expect(() => LinkObject(null), throwsArgumentError);
     });

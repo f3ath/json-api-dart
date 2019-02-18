@@ -126,7 +126,7 @@ class PaginationLinks {
   Future<CollectionDocument> fetch(String name, Client client) async {
     final page = asMap[name];
     if (page == null) throw StateError('Page $name is not set');
-    final response = await client.fetchCollection(page.uri);
+    final response = await client.fetchCollection(page.href);
     return response.document;
   }
 }

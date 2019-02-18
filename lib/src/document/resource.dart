@@ -6,7 +6,7 @@ import 'package:json_api/src/document/validation.dart';
 class Resource implements Validatable {
   final String type;
   final String id;
-  final Link self;
+  Link self;
   final attributes = <String, Object>{};
   final meta = <String, Object>{};
   final relationships = <String, Relationship>{};

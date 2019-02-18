@@ -26,48 +26,48 @@ void main() {
           'lastName': 'Gebhardt',
           'twitter': 'dgeb'
         },
-        self: Link('http://example.com/people/9'));
+        self: Link.fromString('http://example.com/people/9'));
 
     final firstComment = Resource('comments', '5',
         attributes: {'body': 'First!'},
         relationships: {'author': ToOne(Identifier('people', '2'))},
-        self: Link('http://example.com/comments/5'));
+        self: Link.fromString('http://example.com/comments/5'));
 
     final secondComment = Resource('comments', '12',
         attributes: {'body': 'I like XML better'},
         relationships: {'author': ToOne(Identifier('people', '9'))},
-        self: Link('http://example.com/comments/12'));
+        self: Link.fromString('http://example.com/comments/12'));
 
     final article = Resource(
       'articles',
       '1',
       attributes: {'title': 'JSON:API paints my bikeshed!'},
-      self: Link('http://example.com/articles/1'),
+      self: Link.fromString('http://example.com/articles/1'),
       relationships: {
         'author': ToOne(Identifier('people', '9'),
-            self: Link('http://example.com/articles/1/relationships/author'),
-            related: Link('http://example.com/articles/1/author')),
+            self: Link.fromString('http://example.com/articles/1/relationships/author'),
+            related: Link.fromString('http://example.com/articles/1/author')),
         'comments': ToMany(
             [Identifier('comments', '5'), Identifier('comments', '12')],
-            self: Link('http://example.com/articles/1/relationships/comments'),
-            related: Link('http://example.com/articles/1/comments')),
+            self: Link.fromString('http://example.com/articles/1/relationships/comments'),
+            related: Link.fromString('http://example.com/articles/1/comments')),
       },
     );
 
     final doc = CollectionDocument([article],
         included: [dan, firstComment, secondComment],
-        self: Link('http://example.com/articles'),
+        self: Link.fromString('http://example.com/articles'),
         pagination: PaginationLinks(
-            next: Link('http://example.com/articles?page[offset]=2'),
-            last: Link('http://example.com/articles?page[offset]=10')));
+            next: Link.fromString('http://example.com/articles?page[offset]=2'),
+            last: Link.fromString('http://example.com/articles?page[offset]=10')));
 
     expect(
         doc,
         encodesToJson({
           "links": {
             "self": "http://example.com/articles",
-            "next": "http://example.com/articles?page[offset]=2",
-            "last": "http://example.com/articles?page[offset]=10"
+            "next": "http://example.com/articles?page%5Boffset%5D=2",
+            "last": "http://example.com/articles?page%5Boffset%5D=10"
           },
           "data": [
             {
