@@ -1,4 +1,4 @@
-import 'package:json_api/document.dart';
+import 'package:json_api/src/transport/document.dart';
 
 /// A response of JSON:API server
 class Response<D extends Document> {

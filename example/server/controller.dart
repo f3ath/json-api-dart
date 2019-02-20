@@ -1,4 +1,4 @@
-import 'package:json_api/document.dart';
+import 'package:json_api/core.dart';
 import 'package:json_api/server.dart';
 
 import 'dao.dart';
@@ -12,8 +12,8 @@ class CarsController implements ResourceController {
   bool supports(String type) => dao.containsKey(type);
 
   Future<Collection<Resource>> fetchCollection(
-      String type, Map<String, String> queryParameters) async {
-    final page = NumberedPage.fromQueryParameters(queryParameters,
+      String type, Map<String, String> params) async {
+    final page = NumberedPage.fromQueryParameters(params,
         total: dao[type].length);
     return Collection(
         dao[type]
@@ -30,20 +30,20 @@ class CarsController implements ResourceController {
     }
   }
 
-  @override
-  Future createResource(String type, Resource resource) async {
-    final obj = dao[type].fromResource(resource);
-    dao[type].insert(obj);
-    return null;
-  }
-
-  @override
-  Future mergeToMany(Identifier id, String name, ToMany rel) async {
-    final obj = dao[id.type].fetchById(id.id);
-    rel.identifiers
-        .map((id) => dao[id.type].fetchById(id.id))
-        .forEach((related) => dao[id.type].addRelationship(obj, name, related));
-
-    return null;
-  }
+//  @override
+//  Future createResource(String type, Resource resource) async {
+//    final obj = dao[type].fromResource(resource);
+//    dao[type].insert(obj);
+//    return null;
+//  }
+//
+//  @override
+//  Future mergeToMany(Identifier id, String name, ToMany rel) async {
+//    final obj = dao[id.type].fetchById(id.id);
+//    rel.identifiers
+//        .map((id) => dao[id.type].fetchById(id.id))
+//        .forEach((related) => dao[id.type].addRelationship(obj, name, related));
+//
+//    return null;
+//  }
 }
