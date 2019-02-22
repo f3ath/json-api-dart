@@ -1,4 +1,4 @@
-import 'package:json_api/core.dart';
+import 'package:json_api/resource.dart';
 import 'package:json_api/server.dart';
 
 import 'dao.dart';
@@ -13,8 +13,8 @@ class CarsController implements ResourceController {
 
   Future<Collection<Resource>> fetchCollection(
       String type, Map<String, String> params) async {
-    final page = NumberedPage.fromQueryParameters(params,
-        total: dao[type].length);
+    final page =
+        NumberedPage.fromQueryParameters(params, total: dao[type].length);
     return Collection(
         dao[type]
             .fetchCollection(offset: page.number - 1)
@@ -30,20 +30,14 @@ class CarsController implements ResourceController {
     }
   }
 
-//  @override
-//  Future createResource(String type, Resource resource) async {
-//    final obj = dao[type].fromResource(resource);
-//    dao[type].insert(obj);
-//    return null;
-//  }
-//
-//  @override
-//  Future mergeToMany(Identifier id, String name, ToMany rel) async {
-//    final obj = dao[id.type].fetchById(id.id);
-//    rel.identifiers
-//        .map((id) => dao[id.type].fetchById(id.id))
-//        .forEach((related) => dao[id.type].addRelationship(obj, name, related));
-//
-//    return null;
-//  }
+  @override
+  Future<void> createResource(Resource resource) async {
+    final obj = dao[resource.type].fromResource(resource);
+    dao[resource.type].insert(obj);
+  }
+
+  @override
+  Future<void> mergeToMany(Identifier r, String rel, Iterable<Identifier> ids) async {
+    dao[r.type].addToMany(r.id, rel, ids);
+  }
 }

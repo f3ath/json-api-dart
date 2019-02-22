@@ -1,18 +1,17 @@
-import 'package:json_api/core.dart';
 import 'package:json_api/src/server/response.dart';
 
 abstract class JsonApiController {
   Future<ServerResponse> fetchCollection(CollectionRequest rq);
-//
-//  Future<ServerResponse> fetchResource(ResourceRequest rq);
-//
-//  Future<ServerResponse> createResource(CollectionRequest rq);
-//
-//  Future<ServerResponse> fetchRelationship(RelationshipRequest rq);
-//
-//  Future<ServerResponse> addRelationship(RelationshipRequest rq);
+
+  Future<ServerResponse> fetchResource(ResourceRequest rq);
+
+  Future<ServerResponse> createResource(CollectionRequest rq);
+
+  Future<ServerResponse> fetchRelationship(RelationshipRequest rq);
+  Future<ServerResponse> addRelationship(RelationshipRequest rq);
 
   Future<ServerResponse> fetchRelated(RelatedRequest rq);
+
 }
 
 abstract class JsonApiRequest {
@@ -33,24 +32,22 @@ class CollectionRequest implements JsonApiRequest {
     switch (method.toUpperCase()) {
       case 'GET':
         return controller.fetchCollection(this);
-//      case 'POST':
-//        return controller.createResource(this);
+      case 'POST':
+        return controller.createResource(this);
     }
     return ServerResponse(405);
   }
 }
-//
-//class ResourceRequest<R> implements JsonApiRequest {
-//  final String type;
-//  final String id;
-//
-//  ResourceRequest(this.type, this.id);
-//
-//  Identifier get identifier => Identifier(type, id);
-//
-//  Future<ServerResponse> fulfill(JsonApiController controller) =>
-//      controller.fetchResource(this);
-//}
+
+class ResourceRequest<R> implements JsonApiRequest {
+  final String type;
+  final String id;
+
+  ResourceRequest(this.type, this.id);
+
+  Future<ServerResponse> fulfill(JsonApiController controller) =>
+      controller.fetchResource(this);
+}
 
 class RelatedRequest implements JsonApiRequest {
   final String type;
@@ -64,24 +61,22 @@ class RelatedRequest implements JsonApiRequest {
       controller.fetchRelated(this);
 }
 
-//class RelationshipRequest<R> implements JsonApiRequest {
-//  final String method;
-//  final String body;
-//  final String type;
-//  final String id;
-//  final String name;
-//
-//  RelationshipRequest(this.method, this.type, this.id, this.name, {this.body});
-//
-//  Identifier get identifier => Identifier(type, id);
-//
-//  Future<ServerResponse> fulfill(JsonApiController controller) async {
-//    switch (method.toUpperCase()) {
-//      case 'GET':
-//        return controller.fetchRelationship(this);
-//      case 'POST':
-//        return controller.addRelationship(this);
-//    }
-//    return ServerResponse(405);
-//  }
-//}
+class RelationshipRequest<R> implements JsonApiRequest {
+  final String method;
+  final String body;
+  final String type;
+  final String id;
+  final String name;
+
+  RelationshipRequest(this.method, this.type, this.id, this.name, {this.body});
+
+  Future<ServerResponse> fulfill(JsonApiController controller) async {
+    switch (method.toUpperCase()) {
+      case 'GET':
+        return controller.fetchRelationship(this);
+      case 'POST':
+        return controller.addRelationship(this);
+    }
+    return ServerResponse(405);
+  }
+}

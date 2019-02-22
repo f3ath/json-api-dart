@@ -29,8 +29,8 @@ class Resource {
   /// Unmodifiable map of to-many relationships
   final Map<String, List<Identifier>> toMany;
 
-  Resource(this.type, this.id, Map<String, Object> attributes,
-      {Map<String, Identifier> toOne, Map<String, List<Identifier>> toMany})
+  Resource(this.type, this.id, {Map<String, Object> attributes,
+      Map<String, Identifier> toOne, Map<String, List<Identifier>> toMany})
       : attributes = Map.unmodifiable(attributes),
         toOne = Map.unmodifiable(toOne ?? {}),
         toMany = Map.unmodifiable(toMany ?? {}) {

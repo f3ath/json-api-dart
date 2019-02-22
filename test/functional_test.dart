@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:json_api/client.dart';
+import 'package:json_api/resource.dart';
 import 'package:json_api/simple_server.dart';
 import 'package:json_api/src/transport/relationship.dart';
 import 'package:test/test.dart';
@@ -27,46 +28,39 @@ void main() {
       final tesla = page.document.collection.first;
       expect(tesla.attributes['name'], 'Tesla');
 
-      final rel = tesla.relationships['headquarters'];
-      if (rel is ToOne) {
-        final city = await rel.fetchRelated(client);
-        expect(city.document.resource.attributes['name'], 'Palo Alto');
-      }
+      final hqRel = tesla.relationships['headquarters'];
+      final city = await (hqRel as ToOne).fetchRelated(client);
+      expect(city.attributes['name'], 'Palo Alto');
+
+      final modelsRel = tesla.relationships['models'];
+      final models = await (modelsRel as ToMany).fetchRelated(client);
+      expect(models.first.attributes['name'], 'Roadster');
     });
 
-//    test('fetching relationships', () async {
-//      final hq = await client.fetchToOne(Uri.parse(
-//          'http://localhost:8080/brands/1/relationships/headquarters'));
-//
-//      final city = await hq.document.fetchRelated(client);
-//      expect(city.document.resource.attributes['name'], 'Palo Alto');
-//    });
-//
-//    test('fetching pages', () async {
-//      final page1 = (await client
-//              .fetchCollection(Uri.parse('http://localhost:8080/brands')))
-//          .document;
-//      final page2 = await page1.fetchNext(client);
-//      final first = await page2.fetchFirst(client);
-//      expect(json.encode(page1), json.encode(first));
-//      expect(json.encode(await page2.fetchPrev(client)), json.encode(first));
-//      expect(json.encode(await page2.fetchLast(client)),
-//          json.encode(await page1.fetchLast(client)));
-//    });
-//
-//    test('creating resources', () async {
-//      final modelY = Resource('cars', '100', attributes: {'name': 'Model Y'});
-//      final result = await client.createResource(
-//          Uri.parse('http://localhost:8080/cars'), modelY);
-//
-//      expect(result.isSuccessful, true);
-//
-//      final models = await client.addToMany(
-//          Uri.parse('http://localhost:8080/brands/1/relationships/models'),
-//          [Identifier('cars', '100')]);
-//
-//      expect(models.document.identifiers.map((_) => _.id), contains('100'));
-//    });
+    test('fetching pages', () async {
+      final page1 = (await client
+              .fetchCollection(Uri.parse('http://localhost:8080/brands')))
+          .document;
+      final page2 = await page1.fetchNext(client);
+      final lastPage = await page2.fetchLast(client);
+
+      expect(page2.collection.first.attributes['name'], 'BMW');
+      expect(lastPage.collection.first.attributes['name'], 'Toyota');
+    });
+
+    test('creating resources', () async {
+      final modelY = Resource('cars', '100', attributes: {'name': 'Model Y'});
+      final result = await client.createResource(
+          Uri.parse('http://localhost:8080/cars'), modelY);
+
+      expect(result.isSuccessful, true);
+
+      final models = await client.addToMany(
+          Uri.parse('http://localhost:8080/brands/1/relationships/models'),
+          [Identifier('cars', '100')]);
+
+      expect(models.document.identifiers.map((_) => _.id), contains('100'));
+    });
 
     test('get collection - 404', () async {
       final res = await client

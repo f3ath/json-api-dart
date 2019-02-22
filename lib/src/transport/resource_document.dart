@@ -1,13 +1,13 @@
 import 'package:json_api/src/transport/document.dart';
 import 'package:json_api/src/transport/link.dart';
-import 'package:json_api/src/transport/resource_container.dart';
+import 'package:json_api/src/transport/resource_envelope.dart';
 
 class ResourceDocument implements Document {
-  final ResourceContainer resource;
-  final List<ResourceContainer> included;
+  final ResourceEnvelope resource;
+  final List<ResourceEnvelope> included;
   final Link self;
 
-  ResourceDocument(this.resource, {List<ResourceContainer> included, this.self})
+  ResourceDocument(this.resource, {List<ResourceEnvelope> included, this.self})
       : included = List.unmodifiable(included ?? []);
 
   toJson() {
@@ -25,7 +25,7 @@ class ResourceDocument implements Document {
     if (json is Map) {
       final data = json['data'];
       if (data is Map) {
-        return ResourceDocument(ResourceContainer.fromJson(data));
+        return ResourceDocument(ResourceEnvelope.fromJson(data));
       }
       if (data == null) {
         return ResourceDocument(null);

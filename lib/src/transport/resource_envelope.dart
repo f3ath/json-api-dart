@@ -1,8 +1,11 @@
+import 'package:json_api/resource.dart';
+import 'package:json_api/src/nullable.dart';
+import 'package:json_api/src/transport/identifier_envelope.dart';
 import 'package:json_api/src/transport/link.dart';
 import 'package:json_api/src/transport/relationship.dart';
 
 /// Resource object
-class ResourceContainer {
+class ResourceEnvelope {
   final String type;
   final String id;
   final Link self;
@@ -10,7 +13,7 @@ class ResourceContainer {
   final Map<String, Object> meta;
   final Map<String, Relationship> relationships;
 
-  ResourceContainer(this.type, this.id,
+  ResourceEnvelope(this.type, this.id,
       {this.self,
       Map<String, Object> meta,
       Map<String, Object> attributes,
@@ -19,11 +22,37 @@ class ResourceContainer {
         attributes = Map.unmodifiable(attributes ?? {}),
         relationships = Map.unmodifiable(relationships ?? {});
 
-  static ResourceContainer fromJson(Object json) {
+  Resource toResource() {
+    final toOne = <String, Identifier>{};
+    final toMany = <String, List<Identifier>>{};
+    relationships.forEach((name, rel) {
+      if (rel is ToOne) toOne[name] = rel.identifier;
+      if (rel is ToMany) toMany[name] = rel.identifiers;
+    });
+    return Resource(type, id,
+        attributes: attributes, toMany: toMany, toOne: toOne);
+  }
+
+  static ResourceEnvelope enclose(Resource r) {
+    final toOne = r.toOne.map((name, v) =>
+        MapEntry(name, ToOne(nullable(IdentifierEnvelope.fromIdentifier)(v))));
+
+    final toMany = r.toMany.map((name, v) => MapEntry(
+        name,
+        ToMany(
+          v.map(nullable(IdentifierEnvelope.fromIdentifier)).toList(),
+        )));
+
+    return ResourceEnvelope(r.type, r.id,
+        attributes: r.attributes,
+        relationships: <String, Relationship>{}..addAll(toOne)..addAll(toMany));
+  }
+
+  static ResourceEnvelope fromJson(Object json) {
     if (json is Map) {
       final links = Link.parseMap(json['links'] ?? {});
 
-      return ResourceContainer(
+      return ResourceEnvelope(
         json['type'],
         json['id'],
         attributes: json['attributes'],
