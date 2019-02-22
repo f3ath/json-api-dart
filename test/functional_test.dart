@@ -21,7 +21,7 @@ void main() {
       await s.stop();
     });
 
-    test('fetch resources', () async {
+    test('can fetch resources', () async {
       final page = await client
           .fetchCollection(Uri.parse('http://localhost:8080/brands'));
 
@@ -37,13 +37,14 @@ void main() {
       expect(models.first.attributes['name'], 'Roadster');
     });
 
-    test('fetch relationships', () async {
+    test('can fetch relationships', () async {
       final hqUri = Uri.parse(
           'http://localhost:8080/brands/1/relationships/headquarters');
       final rel = await client.fetchToOne(hqUri);
+      expect(rel.document.identifier.type, 'cities');
     });
 
-    test('fetching pages', () async {
+    test('can paginate through a collection', () async {
       final page1 = (await client
               .fetchCollection(Uri.parse('http://localhost:8080/brands')))
           .document;
@@ -54,7 +55,7 @@ void main() {
       expect(lastPage.collection.first.attributes['name'], 'Toyota');
     });
 
-    test('creating resources', () async {
+    test('can create a resource', () async {
       final modelY = Resource('cars', '100', attributes: {'name': 'Model Y'});
       final result = await client.createResource(
           Uri.parse('http://localhost:8080/cars'), modelY);
@@ -66,6 +67,12 @@ void main() {
           [Identifier('cars', '100')]);
 
       expect(models.document.identifiers.map((_) => _.id), contains('100'));
+    });
+
+    test('can update a resource', () async {
+      final brand = (await client
+              .fetchResource(Uri.parse('http://localhost:8080/brands/1')))
+      .document.resourceEnvelope.toResource();
     });
 
     test('get collection - 404', () async {

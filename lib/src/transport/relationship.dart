@@ -95,7 +95,7 @@ class ToOne extends Relationship {
   Future<ResourceEnvelope> fetchRelated(Client client) async {
     if (related == null) throw StateError('The "related" link is null');
     final response = await client.fetchResource(related.uri);
-    if (response.isSuccessful) return response.document.resource;
+    if (response.isSuccessful) return response.document.resourceEnvelope;
     throw 'Error'; // TODO define exceptions
   }
 }

@@ -90,7 +90,7 @@ class JsonApiServer implements JsonApiController {
 
   Future<ServerResponse> createResource(String body) async {
     final doc = ResourceDocument.fromJson(json.decode(body));
-    await resource.createResource(doc.resource.toResource());
+    await resource.createResource(doc.resourceEnvelope.toResource());
     return ServerResponse(204);
   }
 

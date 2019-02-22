@@ -1,4 +1,3 @@
-import 'package:json_api/resource.dart';
 import 'package:json_api/src/client/client.dart';
 import 'package:json_api/src/transport/document.dart';
 import 'package:json_api/src/transport/link.dart';

@@ -3,15 +3,15 @@ import 'package:json_api/src/transport/link.dart';
 import 'package:json_api/src/transport/resource_envelope.dart';
 
 class ResourceDocument implements Document {
-  final ResourceEnvelope resource;
+  final ResourceEnvelope resourceEnvelope;
   final List<ResourceEnvelope> included;
   final Link self;
 
-  ResourceDocument(this.resource, {List<ResourceEnvelope> included, this.self})
+  ResourceDocument(this.resourceEnvelope, {List<ResourceEnvelope> included, this.self})
       : included = List.unmodifiable(included ?? []);
 
   toJson() {
-    final json = <String, Object>{'data': resource};
+    final json = <String, Object>{'data': resourceEnvelope};
 
     final links = {'self': self}..removeWhere((k, v) => v == null);
     if (links.isNotEmpty) {
