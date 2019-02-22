@@ -8,4 +8,6 @@ class ServerResponse {
 
   ServerResponse.ok([Object doc])
       : this(200, body: doc != null ? json.encode(doc) : null);
+
+  ServerResponse.notFound() : this(400);
 }

@@ -1,6 +1,6 @@
 import 'package:json_api/src/transport/document.dart';
 
-/// A response of JSON:API server
+/// A response returned by JSON:API server
 class Response<D extends Document> {
   /// HTTP status code
   final int status;

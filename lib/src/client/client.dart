@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -12,6 +13,8 @@ import 'package:json_api/src/transport/resource_envelope.dart';
 
 typedef D ResponseParser<D extends Document>(Object j);
 
+typedef http.Client HttpClientFactory();
+
 class Client {
   static const contentType = 'application/vnd.api+json';
 
@@ -20,21 +23,27 @@ class Client {
   Client({HttpClientFactory factory})
       : _factory = factory ?? (() => http.Client());
 
+  /// Fetches a resource collection
   Future<Response<CollectionDocument>> fetchCollection(Uri uri,
           {Map<String, String> headers}) =>
       _get(CollectionDocument.fromJson, uri, headers);
 
+  /// Fetches a single resource
   Future<Response<ResourceDocument>> fetchResource(Uri uri,
           {Map<String, String> headers}) =>
       _get(ResourceDocument.fromJson, uri, headers);
 
-//  Future<Response<ToOne>> fetchToOne(Uri uri, {Map<String, String> headers}) =>
-//      _get(ToOne.fromJson, uri, headers);
-//
-//  Future<Response<ToMany>> fetchToMany(Uri uri,
-//          {Map<String, String> headers}) =>
-//      _get(ToMany.fromJson, uri, headers);
+  /// Fetches a to-one relationship
+  Future<Response<ToOne>> fetchToOne(Uri uri, {Map<String, String> headers}) =>
+      _get(ToOne.fromJson, uri, headers);
 
+  /// Fetches a to-many relationship
+  Future<Response<ToMany>> fetchToMany(Uri uri,
+          {Map<String, String> headers}) =>
+      _get(ToMany.fromJson, uri, headers);
+
+  /// Creates a new resource. The resource will be added to a collection
+  /// according to its type.
   Future<Response<ResourceDocument>> createResource(Uri uri, Resource r,
           {Map<String, String> headers}) =>
       _post(
@@ -44,10 +53,11 @@ class Client {
               ResourceEnvelope(r.type, r.id, attributes: r.attributes)),
           headers);
 
-  Future<Response<ToMany>> addToMany(Uri uri, Iterable<Identifier> ids,
+  /// Adds the [identifiers] to a to-many relationship identified by [uri]
+  Future<Response<ToMany>> addToMany(Uri uri, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       _post(ToMany.fromJson, uri,
-          ToMany(ids.map(IdentifierEnvelope.fromIdentifier)), headers);
+          ToMany(identifiers.map(IdentifierEnvelope.fromIdentifier)), headers);
 
   Future<Response<D>> _get<D extends Document>(
           ResponseParser<D> parse, uri, Map<String, String> headers) =>
@@ -83,5 +93,3 @@ class Client {
     }
   }
 }
-
-typedef http.Client HttpClientFactory();

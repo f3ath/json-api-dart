@@ -1,19 +1,27 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:json_api/src/server/request.dart';
 
+/// Routing defines the design of URLs.
 abstract class Routing {
+  /// Builds a URI for a resource collection
   Uri collection(String type, {Map<String, String> params});
 
+  /// Builds a URI for a single resource
   Uri resource(String type, String id);
 
-  Uri related(String type, String id, String name);
+  /// Builds a URI for a related resource
+  Uri related(String type, String id, String relationship);
 
-  Uri relationship(String type, String id, String name);
+  /// Builds a URI for a relationship object
+  Uri relationship(String type, String id, String relationship);
 
+  /// Resolves HTTP request to [JsonAiRequest] object
   Future<JsonApiRequest> resolve(String method, Uri uri, String body);
 }
 
-/// Recommended URL design schema:
+/// StandardRouting implements the recommended URL design schema:
 ///
 /// /photos - for a collection
 /// /photos/1 - for a resource
@@ -33,11 +41,12 @@ class StandardRouting implements Routing {
       queryParameters:
           _nonEmpty(CombinedMapView([base.queryParameters, params ?? {}])));
 
-  related(String type, String id, String name) =>
-      base.replace(pathSegments: base.pathSegments + [type, id, name]);
+  related(String type, String id, String relationship) =>
+      base.replace(pathSegments: base.pathSegments + [type, id, relationship]);
 
-  relationship(String type, String id, String name) => base.replace(
-      pathSegments: base.pathSegments + [type, id, 'relationships', name]);
+  relationship(String type, String id, String relationship) => base.replace(
+      pathSegments:
+          base.pathSegments + [type, id, 'relationships', relationship]);
 
   resource(String type, String id) =>
       base.replace(pathSegments: base.pathSegments + [type, id]);
@@ -58,7 +67,7 @@ class StandardRouting implements Routing {
               body: body);
         }
     }
-    return null;
+    return null; // TODO: replace with a null-object
   }
 
   Map<K, V> _nonEmpty<K, V>(Map<K, V> map) => map.isEmpty ? null : map;

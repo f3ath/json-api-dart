@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:json_api/resource.dart';
 import 'package:json_api/src/server/page.dart';
 
@@ -18,6 +20,6 @@ abstract class ResourceController {
 
   Future<void> createResource(Resource resource);
 
-  Future<void> mergeToMany(
+  Future<void> addToMany(
       Identifier resource, String rel, Iterable<Identifier> ids);
 }

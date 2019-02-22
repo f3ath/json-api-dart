@@ -21,7 +21,7 @@ void main() {
       await s.stop();
     });
 
-    test('traversing a collection', () async {
+    test('fetch resources', () async {
       final page = await client
           .fetchCollection(Uri.parse('http://localhost:8080/brands'));
 
@@ -35,6 +35,12 @@ void main() {
       final modelsRel = tesla.relationships['models'];
       final models = await (modelsRel as ToMany).fetchRelated(client);
       expect(models.first.attributes['name'], 'Roadster');
+    });
+
+    test('fetch relationships', () async {
+      final hqUri = Uri.parse(
+          'http://localhost:8080/brands/1/relationships/headquarters');
+      final rel = await client.fetchToOne(hqUri);
     });
 
     test('fetching pages', () async {

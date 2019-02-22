@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:json_api/resource.dart';
 import 'package:json_api/server.dart';
 
@@ -37,7 +39,7 @@ class CarsController implements ResourceController {
   }
 
   @override
-  Future<void> mergeToMany(Identifier r, String rel, Iterable<Identifier> ids) async {
+  Future<void> addToMany(Identifier r, String rel, Iterable<Identifier> ids) async {
     dao[r.type].addToMany(r.id, rel, ids);
   }
 }
