@@ -7,7 +7,8 @@ class ResourceDocument implements Document {
   final List<ResourceEnvelope> included;
   final Link self;
 
-  ResourceDocument(this.resourceEnvelope, {List<ResourceEnvelope> included, this.self})
+  ResourceDocument(this.resourceEnvelope,
+      {List<ResourceEnvelope> included, this.self})
       : included = List.unmodifiable(included ?? []);
 
   toJson() {

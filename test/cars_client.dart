@@ -29,8 +29,8 @@ class CarsClient {
   }
 
   Future<ResourceEnvelope> fetchResource(String type, String id) async {
-    final rel = await c.fetchResource(
-        Uri.parse('http://localhost:8080/$type/$id'));
+    final rel =
+        await c.fetchResource(Uri.parse('http://localhost:8080/$type/$id'));
     return rel.document.resourceEnvelope;
   }
 }

@@ -47,7 +47,5 @@ class CarsController implements ResourceController {
   @override
   Future<Resource> updateResource(Identifier id, Resource resource) {
     dao[resource.type].update(resource);
-
-
   }
 }

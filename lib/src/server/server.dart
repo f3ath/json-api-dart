@@ -94,10 +94,12 @@ class JsonApiServer implements JsonApiController {
     return ServerResponse(204);
   }
 
-  Future<ServerResponse> updateResource(String type, String id, String body) async {
+  Future<ServerResponse> updateResource(
+      String type, String id, String body) async {
     // TODO: check that [type] matcher [resource.type]
     final doc = ResourceDocument.fromJson(json.decode(body));
-    await controller.updateResource(Identifier(type, id), doc.resourceEnvelope.toResource());
+    await controller.updateResource(
+        Identifier(type, id), doc.resourceEnvelope.toResource());
     return ServerResponse(204);
   }
 
