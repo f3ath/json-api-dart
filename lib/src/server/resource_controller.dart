@@ -21,5 +21,7 @@ abstract class ResourceController {
   Future<void> createResource(Resource resource);
 
   Future<void> addToMany(
-      Identifier resource, String rel, Iterable<Identifier> ids);
+      Identifier id, String rel, Iterable<Identifier> ids);
+
+  Future<Resource> updateResource(Identifier id, Resource resource);
 }

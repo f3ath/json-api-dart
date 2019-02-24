@@ -19,4 +19,6 @@ abstract class JsonApiController {
 
   Future<ServerResponse> fetchRelated(
       String type, String id, String relationship);
+
+  Future<ServerResponse> updateResource(String type, String id, String body);
 }

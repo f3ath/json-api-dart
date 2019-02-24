@@ -58,9 +58,9 @@ class StandardRouting implements Routing {
         return CollectionRequest(method, seg[0],
             body: body, params: uri.queryParameters);
       case 2:
-        return ResourceRequest(seg[0], seg[1]);
+        return ResourceRequest(method, seg[0], seg[1], body: body);
       case 3:
-        return RelatedRequest(seg[0], seg[1], seg[2]);
+        return RelatedRequest(method, seg[0], seg[1], seg[2]);
       case 4:
         if (seg[2] == 'relationships') {
           return RelationshipRequest(method, seg[0], seg[1], seg[3],

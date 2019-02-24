@@ -15,14 +15,14 @@ import 'package:json_api/src/transport/resource_document.dart';
 import 'package:json_api/src/transport/resource_envelope.dart';
 
 class JsonApiServer implements JsonApiController {
-  final ResourceController resource;
+  final ResourceController controller;
   final Routing routing;
 
-  JsonApiServer(this.resource, this.routing);
+  JsonApiServer(this.controller, this.routing);
 
   Future<ServerResponse> handle(String method, Uri uri, String body) async {
     final jsonApiRequest = await routing.resolve(method, uri, body);
-    if (jsonApiRequest == null || !resource.supports(jsonApiRequest.type)) {
+    if (jsonApiRequest == null || !controller.supports(jsonApiRequest.type)) {
       return ServerResponse(404);
     }
     return jsonApiRequest.fulfill(this);
@@ -30,7 +30,7 @@ class JsonApiServer implements JsonApiController {
 
   Future<ServerResponse> fetchCollection(
       String type, Map<String, String> params) async {
-    final collection = await resource.fetchCollection(type, params);
+    final collection = await controller.fetchCollection(type, params);
 
     final pagination = Pagination.fromMap(collection.page.mapPages(
         (_) => Link(routing.collection(type, params: _?.parameters))));
@@ -49,18 +49,18 @@ class JsonApiServer implements JsonApiController {
 
   Future<ServerResponse> fetchRelated(
       String type, String id, String relationship) async {
-    final res = await resource.fetchResources([Identifier(type, id)]).first;
+    final res = await controller.fetchResources([Identifier(type, id)]).first;
 
     if (res.toOne.containsKey(relationship)) {
       final id = res.toOne[relationship];
       // TODO check if id == null
-      final related = await resource.fetchResources([id]).first;
+      final related = await controller.fetchResources([id]).first;
       return ServerResponse.ok(ResourceDocument(_enclose(related)));
     }
 
     if (res.toMany.containsKey(relationship)) {
       final ids = res.toMany[relationship];
-      final related = await resource.fetchResources(ids).toList();
+      final related = await controller.fetchResources(ids).toList();
       return ServerResponse.ok(
           CollectionDocument(related.map(_enclose).toList()));
     }
@@ -90,7 +90,14 @@ class JsonApiServer implements JsonApiController {
 
   Future<ServerResponse> createResource(String body) async {
     final doc = ResourceDocument.fromJson(json.decode(body));
-    await resource.createResource(doc.resourceEnvelope.toResource());
+    await controller.createResource(doc.resourceEnvelope.toResource());
+    return ServerResponse(204);
+  }
+
+  Future<ServerResponse> updateResource(String type, String id, String body) async {
+    // TODO: check that [type] matcher [resource.type]
+    final doc = ResourceDocument.fromJson(json.decode(body));
+    await controller.updateResource(Identifier(type, id), doc.resourceEnvelope.toResource());
     return ServerResponse(204);
   }
 
@@ -98,7 +105,7 @@ class JsonApiServer implements JsonApiController {
       String type, String id, String relationship, String body) async {
     final rel = Relationship.fromJson(json.decode(body));
     if (rel is ToMany) {
-      await resource.addToMany(
+      await controller.addToMany(
           Identifier(type, id), relationship, rel.identifiers);
       final res = await _resource(type, id);
       return ServerResponse.ok(ToMany(
@@ -131,5 +138,5 @@ class JsonApiServer implements JsonApiController {
   }
 
   Future<Resource> _resource(String type, String id) =>
-      resource.fetchResources([Identifier(type, id)]).first;
+      controller.fetchResources([Identifier(type, id)]).first;
 }

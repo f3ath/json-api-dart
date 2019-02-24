@@ -44,13 +44,13 @@ class Client {
 
   /// Creates a new resource. The resource will be added to a collection
   /// according to its type.
-  Future<Response<ResourceDocument>> createResource(Uri uri, Resource r,
+  Future<Response<ResourceDocument>> createResource(Uri uri, Resource resource,
           {Map<String, String> headers}) =>
       _post(
           ResourceDocument.fromJson,
           uri,
-          ResourceDocument(
-              ResourceEnvelope(r.type, r.id, attributes: r.attributes)),
+          ResourceDocument(ResourceEnvelope(resource.type, resource.id,
+              attributes: resource.attributes)),
           headers);
 
   /// Adds the [identifiers] to a to-many relationship identified by [uri]
@@ -58,6 +58,15 @@ class Client {
           {Map<String, String> headers}) =>
       _post(ToMany.fromJson, uri,
           ToMany(identifiers.map(IdentifierEnvelope.fromIdentifier)), headers);
+
+  Future<Response<ResourceDocument>> updateResource(Uri uri, Resource resource,
+          {Map<String, String> headers}) async =>
+      _patch(
+          ResourceDocument.fromJson,
+          uri,
+          ResourceDocument(ResourceEnvelope(resource.type, resource.id,
+              attributes: resource.attributes)),
+          headers);
 
   Future<Response<D>> _get<D extends Document>(
           ResponseParser<D> parse, uri, Map<String, String> headers) =>
@@ -73,6 +82,19 @@ class Client {
       _call(
           parse,
           (_) => _.post(uri,
+              body: json.encode(document),
+              headers: {}
+                ..addAll(headers ?? {})
+                ..addAll({
+                  'Accept': contentType,
+                  'Content-Type': contentType,
+                })));
+
+  Future<Response<D>> _patch<D extends Document>(ResponseParser<D> parse, uri,
+          Document document, Map<String, String> headers) =>
+      _call(
+          parse,
+          (_) => _.patch(uri,
               body: json.encode(document),
               headers: {}
                 ..addAll(headers ?? {})

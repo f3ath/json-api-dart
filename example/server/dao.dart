@@ -21,6 +21,10 @@ abstract class DAO<T extends HasId> {
   void addToMany(String id, String rel, Iterable<Identifier> ids) {
     throw UnimplementedError();
   }
+
+  void update(Resource resource) {
+    throw UnimplementedError();
+  }
 }
 
 class CarDAO extends DAO<Car> {
@@ -67,5 +71,22 @@ class BrandDAO extends DAO<Brand> {
       default:
         throw ArgumentError.value(rel, 'rel');
     }
+  }
+
+  @override
+  void update(Resource resource) {
+    final brand = fetchById(resource.id);
+    resource.attributes.forEach((name, val) {
+      switch (name) {
+        case 'name':
+          if (val is String) {
+            brand.name = val;
+          } else {
+            throw ArgumentError.value(
+                val, 'name', 'Value for "name" must be a string');
+          }
+          break;
+      }
+    });
   }
 }

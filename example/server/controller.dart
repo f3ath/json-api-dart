@@ -40,7 +40,14 @@ class CarsController implements ResourceController {
 
   @override
   Future<void> addToMany(
-      Identifier r, String rel, Iterable<Identifier> ids) async {
-    dao[r.type].addToMany(r.id, rel, ids);
+      Identifier id, String rel, Iterable<Identifier> ids) async {
+    dao[id.type].addToMany(id.id, rel, ids);
+  }
+
+  @override
+  Future<Resource> updateResource(Identifier id, Resource resource) {
+    dao[resource.type].update(resource);
+
+
   }
 }
