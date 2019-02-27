@@ -7,9 +7,9 @@ void main() async {
   test('can fetch collection', () async {
     final channel = spawnHybridUri('test_server.dart');
     final client = JsonApiClient(factory: () => BrowserClient());
-    await channel.stream.first;
+    final port = await channel.stream.first;
     final r =
-        await client.fetchCollection(Uri.parse('http://localhost:8080/brands'));
+        await client.fetchCollection(Uri.parse('http://localhost:$port/brands'));
     expect(r.status, 200);
     expect(r.isSuccessful, true);
     expect(r.document.collection.first.attributes['name'], 'Tesla');
