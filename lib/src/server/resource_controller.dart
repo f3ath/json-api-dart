@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:json_api/resource.dart';
+import 'package:json_api/src/identifier.dart';
+import 'package:json_api/src/resource.dart';
 import 'package:json_api/src/server/page.dart';
 
 class Collection<T> {
@@ -18,9 +19,9 @@ abstract class ResourceController {
 
   Stream<Resource> fetchResources(Iterable<Identifier> ids);
 
-  Future<void> createResource(Resource resource);
+//  Future<void> createResource(Resource resource);
 
-  Future<void> addToMany(Identifier id, String rel, Iterable<Identifier> ids);
+//  Future<void> addToMany(Identifier id, String rel, Iterable<Identifier> ids);
 
-  Future<Resource> updateResource(Identifier id, Resource resource);
+//  Future<Resource> updateResource(Identifier id, Resource resource);
 }

@@ -1,8 +1,4 @@
-abstract class HasId {
-  String get id;
-}
-
-class Brand implements HasId {
+class Brand {
   final String id;
   final String headquarters;
   final List<String> models;
@@ -11,14 +7,14 @@ class Brand implements HasId {
   Brand(this.id, this.name, {this.headquarters, this.models = const []});
 }
 
-class City implements HasId {
+class City {
   final String id;
   String name;
 
   City(this.id, this.name);
 }
 
-class Car implements HasId {
+class Car {
   final String id;
   String name;
 

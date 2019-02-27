@@ -1,7 +1,9 @@
 import 'dart:async';
 
-import 'package:json_api/resource.dart';
-import 'package:json_api/server.dart';
+import 'package:json_api/src/identifier.dart';
+import 'package:json_api/src/resource.dart';
+import 'package:json_api/src/server/numbered_page.dart';
+import 'package:json_api/src/server/resource_controller.dart';
 
 import 'dao.dart';
 
@@ -30,22 +32,5 @@ class CarsController implements ResourceController {
       final obj = dao[id.type].fetchById(id.id);
       yield obj == null ? null : dao[id.type].toResource(obj);
     }
-  }
-
-  @override
-  Future<void> createResource(Resource resource) async {
-    final obj = dao[resource.type].fromResource(resource);
-    dao[resource.type].insert(obj);
-  }
-
-  @override
-  Future<void> addToMany(
-      Identifier id, String rel, Iterable<Identifier> ids) async {
-    dao[id.type].addToMany(id.id, rel, ids);
-  }
-
-  @override
-  Future<Resource> updateResource(Identifier id, Resource resource) {
-    dao[resource.type].update(resource);
   }
 }

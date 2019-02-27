@@ -1,18 +1,40 @@
 # Implementation of [JSON:API v1.0](http://jsonapi.org) in Dart
 
-**This is a work in progress. The API may change.**
+#### Feature roadmap
+##### Client
+- [x] Fetching single resources and resource collections
+- [x] Fetching relationships and related resources and collections
+- [x] Fetching single resources
+- [ ] Creating resources
+- [ ] Updating resource's attributes
+- [ ] Updating resource's relationships
+- [ ] Updating relationships
+- [ ] Deleting resources
+- [ ] Asynchronous processing 
 
-## General architecture
+##### Server (The Server API is not stable yet!)
+- [x] Fetching single resources and resource collections
+- [x] Fetching relationships and related resources and collections
+- [x] Fetching single resources
+- [ ] Creating resources
+- [ ] Updating resource's attributes
+- [ ] Updating resource's relationships
+- [ ] Updating relationships
+- [ ] Deleting resources
+- [ ] Inclusion of related resources 
+- [ ] Sparse fieldsets 
+- [ ] Sorting, pagination, filtering
+- [ ] Asynchronous processing 
 
-The library consists of three major parts: Document, Server, and Client.
+##### Document
+- [ ] Support `meta` and `jsonapi` members
+- [ ] Structure Validation
+- [ ] Naming Validation
+- [ ] JSON:API v1.1 features
 
-### Document
-This is the core part. 
-It describes JSON:API Document and its components (e.g. Resource Objects, Identifiers, Relationships, Links), 
-validation rules (naming conventions, full linkage), and service discovery (e.g. fetching pages and related resources).
-
-### Client
-This is a JSON:API client based on Dart's native HttpClient.
-
-### Server
-A JSON:API server. Routes requests, builds responses.
+### Usage
+```dart
+import 'package:json_api/client.dart';
+final client = JsonApiClient();
+```
+For usage examples see a corresponding test in `test/functional`.

@@ -9,16 +9,9 @@ abstract class JsonApiController {
 
   Future<ServerResponse> fetchResource(String type, String id);
 
-  Future<ServerResponse> createResource(String body);
-
   Future<ServerResponse> fetchRelationship(
       String type, String id, String relationship);
 
-  Future<ServerResponse> addToMany(
-      String type, String id, String relationship, String body);
-
   Future<ServerResponse> fetchRelated(
       String type, String id, String relationship);
-
-  Future<ServerResponse> updateResource(String type, String id, String body);
 }

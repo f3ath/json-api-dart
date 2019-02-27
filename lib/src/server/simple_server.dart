@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/server.dart';
+import 'package:json_api/src/server/resource_controller.dart';
+import 'package:json_api/src/server/routing.dart';
+import 'package:json_api/src/server/server.dart';
 
-/// A simple JSON:API server ot top of Dart's [HttpServer]
+/// A simple JSON:API cars_server ot top of Dart's [HttpServer]
 class SimpleServer {
   HttpServer _httpServer;
   final ResourceController _controller;

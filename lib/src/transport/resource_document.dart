@@ -1,18 +1,18 @@
 import 'package:json_api/src/transport/document.dart';
 import 'package:json_api/src/transport/link.dart';
-import 'package:json_api/src/transport/resource_envelope.dart';
+import 'package:json_api/src/transport/resource_object.dart';
 
 class ResourceDocument implements Document {
-  final ResourceEnvelope resourceEnvelope;
-  final List<ResourceEnvelope> included;
+  final ResourceObject resourceObject;
+  final List<ResourceObject> included;
   final Link self;
 
-  ResourceDocument(this.resourceEnvelope,
-      {List<ResourceEnvelope> included, this.self})
+  ResourceDocument(this.resourceObject,
+      {List<ResourceObject> included, this.self})
       : included = List.unmodifiable(included ?? []);
 
   toJson() {
-    final json = <String, Object>{'data': resourceEnvelope};
+    final json = <String, Object>{'data': resourceObject};
 
     final links = {'self': self}..removeWhere((k, v) => v == null);
     if (links.isNotEmpty) {
@@ -26,7 +26,7 @@ class ResourceDocument implements Document {
     if (json is Map) {
       final data = json['data'];
       if (data is Map) {
-        return ResourceDocument(ResourceEnvelope.fromJson(data));
+        return ResourceDocument(ResourceObject.fromJson(data));
       }
       if (data == null) {
         return ResourceDocument(null);

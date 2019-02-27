@@ -23,8 +23,8 @@ class CollectionRequest implements JsonApiRequest {
     switch (method.toUpperCase()) {
       case 'GET':
         return controller.fetchCollection(type, params);
-      case 'POST':
-        return controller.createResource(body);
+//      case 'POST':
+//        return controller.createResource(body);
     }
     return ServerResponse(405); // TODO: meaningful error
   }
@@ -42,8 +42,8 @@ class ResourceRequest<R> implements JsonApiRequest {
     switch (method.toUpperCase()) {
       case 'GET':
         return controller.fetchResource(type, id);
-      case 'PATCH':
-        return controller.updateResource(type, id, body);
+//      case 'PATCH':
+//        return controller.updateResource(type, id, body);
     }
     return ServerResponse(405); // TODO: meaningful error
   }
@@ -77,8 +77,8 @@ class RelationshipRequest<R> implements JsonApiRequest {
     switch (method.toUpperCase()) {
       case 'GET':
         return controller.fetchRelationship(type, id, relationship);
-      case 'POST':
-        return controller.addToMany(type, id, relationship, body);
+//      case 'POST':
+//        return controller.addToMany(type, id, relationship, body);
     }
     return ServerResponse(405); // TODO: meaningful error
   }

@@ -1,18 +1,19 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:json_api/resource.dart';
+import 'package:json_api/src/identifier.dart';
 import 'package:json_api/src/nullable.dart';
+import 'package:json_api/src/resource.dart';
 import 'package:json_api/src/server/json_api_controller.dart';
 import 'package:json_api/src/server/resource_controller.dart';
 import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/routing.dart';
 import 'package:json_api/src/transport/collection_document.dart';
-import 'package:json_api/src/transport/identifier_envelope.dart';
+import 'package:json_api/src/transport/error_object.dart';
+import 'package:json_api/src/transport/identifier_object.dart';
 import 'package:json_api/src/transport/link.dart';
 import 'package:json_api/src/transport/relationship.dart';
 import 'package:json_api/src/transport/resource_document.dart';
-import 'package:json_api/src/transport/resource_envelope.dart';
+import 'package:json_api/src/transport/resource_object.dart';
 
 class JsonApiServer implements JsonApiController {
   final ResourceController controller;
@@ -22,8 +23,14 @@ class JsonApiServer implements JsonApiController {
 
   Future<ServerResponse> handle(String method, Uri uri, String body) async {
     final jsonApiRequest = await routing.resolve(method, uri, body);
-    if (jsonApiRequest == null || !controller.supports(jsonApiRequest.type)) {
-      return ServerResponse(404);
+    if (jsonApiRequest == null) {
+      return ServerResponse.notFound(
+          errors: [ErrorObject(status: '404', detail: 'Unknown route')]);
+    }
+    if (!controller.supports(jsonApiRequest.type)) {
+      return ServerResponse.notFound(errors: [
+        ErrorObject(status: '404', detail: 'Unknown resource type')
+      ]);
     }
     return jsonApiRequest.fulfill(this);
   }
@@ -73,14 +80,14 @@ class JsonApiServer implements JsonApiController {
     final res = await _resource(type, id);
     if (res.toOne.containsKey(relationship)) {
       return ServerResponse.ok(ToOne(
-          nullable(IdentifierEnvelope.fromIdentifier)(res.toOne[relationship]),
+          nullable(IdentifierObject.fromIdentifier)(res.toOne[relationship]),
           self: Link(routing.relationship(res.type, res.id, relationship)),
           related: Link(routing.related(res.type, res.id, relationship))));
     }
     if (res.toMany.containsKey(relationship)) {
       return ServerResponse.ok(ToMany(
           res.toMany[relationship]
-              .map(IdentifierEnvelope.fromIdentifier)
+              .map(IdentifierObject.fromIdentifier)
               .toList(),
           self: Link(routing.relationship(res.type, res.id, relationship)),
           related: Link(routing.related(res.type, res.id, relationship))));
@@ -88,52 +95,52 @@ class JsonApiServer implements JsonApiController {
     return ServerResponse.notFound();
   }
 
-  Future<ServerResponse> createResource(String body) async {
-    final doc = ResourceDocument.fromJson(json.decode(body));
-    await controller.createResource(doc.resourceEnvelope.toResource());
-    return ServerResponse(204);
-  }
+//  Future<ServerResponse> createResource(String body) async {
+//    final doc = ResourceDocument.fromJson(json.decode(body));
+//    await controller.createResource(doc.resourceEnvelope.toResource());
+//    return ServerResponse(204);
+//  }
+//
+//  Future<ServerResponse> updateResource(
+//      String type, String id, String body) async {
+//    // TODO: check that [type] matcher [resource.type]
+//    final doc = ResourceDocument.fromJson(json.decode(body));
+//    await controller.updateResource(
+//        Identifier(type, id), doc.resourceEnvelope.toResource());
+//    return ServerResponse(204);
+//  }
+//
+//  Future<ServerResponse> addToMany(
+//      String type, String id, String relationship, String body) async {
+//    final rel = Relationship.fromJson(json.decode(body));
+//    if (rel is ToMany) {
+//      await controller.addToMany(
+//          Identifier(type, id), relationship, rel.identifiers);
+//      final res = await _resource(type, id);
+//      return ServerResponse.ok(ToMany(
+//          res.toMany[relationship]
+//              .map(IdentifierEnvelope.fromIdentifier)
+//              .toList(),
+//          self: Link(routing.relationship(res.type, res.id, relationship)),
+//          related: Link(routing.related(res.type, res.id, relationship))));
+//    }
+//    // TODO: Return a meaningful response
+//    return ServerResponse.notFound();
+//  }
 
-  Future<ServerResponse> updateResource(
-      String type, String id, String body) async {
-    // TODO: check that [type] matcher [resource.type]
-    final doc = ResourceDocument.fromJson(json.decode(body));
-    await controller.updateResource(
-        Identifier(type, id), doc.resourceEnvelope.toResource());
-    return ServerResponse(204);
-  }
-
-  Future<ServerResponse> addToMany(
-      String type, String id, String relationship, String body) async {
-    final rel = Relationship.fromJson(json.decode(body));
-    if (rel is ToMany) {
-      await controller.addToMany(
-          Identifier(type, id), relationship, rel.identifiers);
-      final res = await _resource(type, id);
-      return ServerResponse.ok(ToMany(
-          res.toMany[relationship]
-              .map(IdentifierEnvelope.fromIdentifier)
-              .toList(),
-          self: Link(routing.relationship(res.type, res.id, relationship)),
-          related: Link(routing.related(res.type, res.id, relationship))));
-    }
-    // TODO: Return a meaningful response
-    return ServerResponse.notFound();
-  }
-
-  ResourceEnvelope _enclose(Resource r) {
+  ResourceObject _enclose(Resource r) {
     final toOne = r.toOne.map((name, v) => MapEntry(
         name,
-        ToOne(nullable(IdentifierEnvelope.fromIdentifier)(v),
+        ToOne(nullable(IdentifierObject.fromIdentifier)(v),
             self: Link(routing.relationship(r.type, r.id, name)),
             related: Link(routing.related(r.type, r.id, name)))));
 
     final toMany = r.toMany.map((name, v) => MapEntry(
         name,
-        ToMany(v.map(nullable(IdentifierEnvelope.fromIdentifier)).toList(),
+        ToMany(v.map(nullable(IdentifierObject.fromIdentifier)).toList(),
             self: Link(routing.relationship(r.type, r.id, name)),
             related: Link(routing.related(r.type, r.id, name)))));
-    return ResourceEnvelope(r.type, r.id,
+    return ResourceObject(r.type, r.id,
         attributes: r.attributes,
         self: Link(routing.resource(r.type, r.id)),
         relationships: <String, Relationship>{}..addAll(toOne)..addAll(toMany));

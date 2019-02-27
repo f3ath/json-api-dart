@@ -1,0 +1,13 @@
+# JSON:API examples
+
+## [Cars Server](./cars_server)
+This is a simple JSON:API server which is used in the tests. It provides an API to a collection to car brands ad models.
+You can run it locally to play around.
+
+- In you console run `dart example/cars_server.dart`, this will start the server at port 8080.
+- Open http://localhost:8080/brands in the browser.
+
+**Warning: Server API is not stable yet!**
+
+## [Cars Client](./cars_client.dart)
+A simple client for Cars Server API. It is also used in the tests.

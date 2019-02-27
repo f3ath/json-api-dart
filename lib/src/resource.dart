@@ -1,23 +1,14 @@
-/// JSON:API identifier object
-/// https://jsonapi.org/format/#document-resource-identifier-objects
-class Identifier {
-  final String type;
-  final String id;
+import 'package:json_api/src/identifier.dart';
 
-  Identifier(this.type, this.id) {
-    ArgumentError.checkNotNull(id, 'id');
-    ArgumentError.checkNotNull(type, 'type');
-  }
-}
-
-/// Resource object
+/// The core of the Resource object
+/// https://jsonapi.org/format/#document-resource-objects
 class Resource {
   /// Resource type
   final String type;
 
   /// Resource id
   ///
-  /// May be null for resources to be created on the server
+  /// May be null for resources to be created on the cars_server
   final String id;
 
   /// Resource attributes
