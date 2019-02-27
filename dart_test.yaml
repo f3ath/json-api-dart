@@ -1,2 +1,3 @@
 tags:
   vm-only: {test_on: "vm"}
+  browser-only: {test_on: "browser"}
