@@ -1,23 +1,15 @@
-import 'dart:io';
-
 import 'package:json_api/client.dart';
-import 'package:json_api/src/server/simple_server.dart';
 import 'package:json_api/src/transport/relationship.dart';
+import 'package:stream_channel/stream_channel.dart';
 import 'package:test/test.dart';
-
-import '../../example/cars_server.dart';
 
 void main() {
   group('Fetch', () {
     final client = JsonApiClient();
-    SimpleServer s;
+    StreamChannel channel;
     setUp(() async {
-      s = createServer();
-      await s.start(InternetAddress.loopbackIPv4, 8080);
-    });
-
-    tearDown(() async {
-      await s.stop();
+      channel = spawnHybridUri("../test_server.dart");
+      await channel.stream.first;
     });
 
     final baseUri = Uri.parse('http://localhost:8080');
@@ -113,5 +105,5 @@ void main() {
         expect((r.document as ToMany).toIdentifiers().first.type, 'cars');
       });
     });
-  }, tags: ['vm-only']);
+  });
 }
