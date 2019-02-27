@@ -33,8 +33,19 @@
 - [ ] JSON:API v1.1 features
 
 ### Usage
+In the VM:
 ```dart
 import 'package:json_api/client.dart';
+
 final client = JsonApiClient();
 ```
+
+In a browser:
+```dart
+import 'package:json_api/client.dart';
+import 'package:http/browser_client.dart';
+
+final client = JsonApiClient(factory: () => BrowserClient());
+```
+
 For usage examples see a corresponding test in `test/functional`.

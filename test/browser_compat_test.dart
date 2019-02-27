@@ -8,11 +8,11 @@ void main() async {
     final channel = spawnHybridUri('test_server.dart');
     final client = JsonApiClient(factory: () => BrowserClient());
     final port = await channel.stream.first;
+    print('Port: $port');
     final r =
         await client.fetchCollection(Uri.parse('http://localhost:$port/brands'));
     expect(r.status, 200);
     expect(r.isSuccessful, true);
     expect(r.document.collection.first.attributes['name'], 'Tesla');
-    expect(r.document.included, isEmpty);
-  }, tags: ['browser-only']);
+  });
 }

@@ -23,6 +23,7 @@ class SimpleServer {
       final rs = await jsonApiServer.handle(
           rq.method, rq.uri, await rq.transform(utf8.decoder).join());
       rq.response.statusCode = rs.status;
+      rq.response.headers.set('Access-Control-Allow-Origin', '*');
       if (rs.body != null) {
         rq.response.write(rs.body);
       }
