@@ -83,7 +83,7 @@ class ErrorObject {
     final source = Map<String, String>();
     if (sourcePointer != null) source['pointer'] = sourcePointer;
     if (sourceParameter != null) source['parameter'] = sourceParameter;
-    if (source.length > 0) json['source'] = source;
+    if (source.isNotEmpty) json['source'] = source;
     return json;
   }
 }
