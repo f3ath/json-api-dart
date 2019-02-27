@@ -6,4 +6,5 @@ dart_task:
 - test: --platform chrome --exclude-tags vm-only
 - dartfmt: true
 - dartanalyzer: --fatal-infos --fatal-warnings lib test
-- script: id && pwd
+
+script: id && pwd
