@@ -1,3 +1,4 @@
+@TestOn('vm')
 import 'dart:io';
 
 import 'package:json_api/client.dart';
@@ -113,5 +114,5 @@ void main() {
         expect((r.document as ToMany).toIdentifiers().first.type, 'cars');
       });
     });
-  }, tags: ['vm-only']);
+  });
 }
