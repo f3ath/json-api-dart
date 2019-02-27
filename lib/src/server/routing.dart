@@ -1,20 +1,27 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
-import 'package:json_api/document.dart';
 import 'package:json_api/src/server/request.dart';
 
+/// Routing defines the design of URLs.
 abstract class Routing {
-  Link collection(String type, {Map<String, String> params});
+  /// Builds a URI for a resource collection
+  Uri collection(String type, {Map<String, String> params});
 
-  Link resource(String type, String id);
+  /// Builds a URI for a single resource
+  Uri resource(String type, String id);
 
-  Link related(String type, String id, String name);
+  /// Builds a URI for a related resource
+  Uri related(String type, String id, String relationship);
 
-  Link relationship(String type, String id, String name);
+  /// Builds a URI for a relationship object
+  Uri relationship(String type, String id, String relationship);
 
+  /// Resolves HTTP request to [JsonAiRequest] object
   Future<JsonApiRequest> resolve(String method, Uri uri, String body);
 }
 
-/// Recommended URL design schema:
+/// StandardRouting implements the recommended URL design schema:
 ///
 /// /photos - for a collection
 /// /photos/1 - for a resource
@@ -29,42 +36,38 @@ class StandardRouting implements Routing {
     ArgumentError.checkNotNull(base, 'base');
   }
 
-  collection(String type, {Map<String, String> params}) => Link(base
-      .replace(
-          pathSegments: base.pathSegments + [type],
-          queryParameters:
-              _nonEmpty(CombinedMapView([base.queryParameters, params ?? {}])))
-      .toString());
+  collection(String type, {Map<String, String> params}) => base.replace(
+      pathSegments: base.pathSegments + [type],
+      queryParameters:
+          _nonEmpty(CombinedMapView([base.queryParameters, params ?? {}])));
 
-  related(String type, String id, String name) => Link(base
-      .replace(pathSegments: base.pathSegments + [type, id, name])
-      .toString());
+  related(String type, String id, String relationship) =>
+      base.replace(pathSegments: base.pathSegments + [type, id, relationship]);
 
-  relationship(String type, String id, String name) => Link(base
-      .replace(
-          pathSegments: base.pathSegments + [type, id, 'relationships', name])
-      .toString());
+  relationship(String type, String id, String relationship) => base.replace(
+      pathSegments:
+          base.pathSegments + [type, id, 'relationships', relationship]);
 
-  resource(String type, String id) => Link(
-      base.replace(pathSegments: base.pathSegments + [type, id]).toString());
+  resource(String type, String id) =>
+      base.replace(pathSegments: base.pathSegments + [type, id]);
 
   Future<JsonApiRequest> resolve(String method, Uri uri, String body) async {
     final seg = uri.pathSegments;
     switch (seg.length) {
       case 1:
         return CollectionRequest(method, seg[0],
-            body: body, queryParameters: uri.queryParameters);
+            body: body, params: uri.queryParameters);
       case 2:
-        return ResourceRequest(seg[0], seg[1]);
+        return ResourceRequest(method, seg[0], seg[1], body: body);
       case 3:
-        return RelatedRequest(seg[0], seg[1], seg[2]);
+        return RelatedRequest(method, seg[0], seg[1], seg[2]);
       case 4:
         if (seg[2] == 'relationships') {
           return RelationshipRequest(method, seg[0], seg[1], seg[3],
               body: body);
         }
     }
-    return null;
+    return null; // TODO: replace with a null-object
   }
 
   Map<K, V> _nonEmpty<K, V>(Map<K, V> map) => map.isEmpty ? null : map;

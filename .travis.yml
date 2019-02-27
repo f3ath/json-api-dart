@@ -3,6 +3,7 @@ dart:
 - stable
 dart_task:
 - test: --platform vm
-- test: --platform chrome --exclude-tags vm-only
+- test: --platform chrome
+- test: --platform firefox
 - dartfmt: true
-- dartanalyzer: --fatal-infos --fatal-warnings lib test
+- dartanalyzer: --fatal-infos --fatal-warnings lib test example

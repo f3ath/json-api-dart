@@ -1,22 +1,12 @@
-import 'package:json_api/document.dart';
+import 'dart:async';
+
+import 'package:json_api/src/server/json_api_controller.dart';
 import 'package:json_api/src/server/response.dart';
-
-abstract class JsonApiController {
-  Future<ServerResponse> fetchCollection(CollectionRequest rq);
-
-  Future<ServerResponse> fetchResource(ResourceRequest rq);
-
-  Future<ServerResponse> createResource(CollectionRequest rq);
-
-  Future<ServerResponse> fetchRelationship(RelationshipRequest rq);
-
-  Future<ServerResponse> addRelationship(RelationshipRequest rq);
-
-  Future<ServerResponse> fetchRelated(RelatedRequest rq);
-}
 
 abstract class JsonApiRequest {
   String get type;
+
+  String get method;
 
   Future<ServerResponse> fulfill(JsonApiController controller);
 }
@@ -25,44 +15,52 @@ class CollectionRequest implements JsonApiRequest {
   final String method;
   final String body;
   final String type;
-  final Map<String, String> queryParameters;
+  final Map<String, String> params;
 
-  CollectionRequest(this.method, this.type, {this.body, this.queryParameters});
+  CollectionRequest(this.method, this.type, {this.body, this.params});
 
   Future<ServerResponse> fulfill(JsonApiController controller) async {
     switch (method.toUpperCase()) {
       case 'GET':
-        return controller.fetchCollection(this);
-      case 'POST':
-        return controller.createResource(this);
+        return controller.fetchCollection(type, params);
+//      case 'POST':
+//        return controller.createResource(body);
     }
-    return ServerResponse(405);
+    return ServerResponse(405); // TODO: meaningful error
   }
 }
 
 class ResourceRequest<R> implements JsonApiRequest {
+  final String method;
+  final String body;
   final String type;
   final String id;
 
-  ResourceRequest(this.type, this.id);
+  ResourceRequest(this.method, this.type, this.id, {this.body});
 
-  Identifier get identifier => Identifier(type, id);
-
-  Future<ServerResponse> fulfill(JsonApiController controller) =>
-      controller.fetchResource(this);
+  Future<ServerResponse> fulfill(JsonApiController controller) async {
+    switch (method.toUpperCase()) {
+      case 'GET':
+        return controller.fetchResource(type, id);
+//      case 'PATCH':
+//        return controller.updateResource(type, id, body);
+    }
+    return ServerResponse(405); // TODO: meaningful error
+  }
 }
 
 class RelatedRequest implements JsonApiRequest {
+  final String method;
   final String type;
   final String id;
-  final String name;
+  final String relationship;
+  final Map<String, String> params;
 
-  RelatedRequest(this.type, this.id, this.name);
-
-  Identifier get identifier => Identifier(type, id);
+  RelatedRequest(this.method, this.type, this.id, this.relationship,
+      {this.params});
 
   Future<ServerResponse> fulfill(JsonApiController controller) =>
-      controller.fetchRelated(this);
+      controller.fetchRelated(type, id, relationship);
 }
 
 class RelationshipRequest<R> implements JsonApiRequest {
@@ -70,19 +68,18 @@ class RelationshipRequest<R> implements JsonApiRequest {
   final String body;
   final String type;
   final String id;
-  final String name;
+  final String relationship;
 
-  RelationshipRequest(this.method, this.type, this.id, this.name, {this.body});
-
-  Identifier get identifier => Identifier(type, id);
+  RelationshipRequest(this.method, this.type, this.id, this.relationship,
+      {this.body});
 
   Future<ServerResponse> fulfill(JsonApiController controller) async {
     switch (method.toUpperCase()) {
       case 'GET':
-        return controller.fetchRelationship(this);
-      case 'POST':
-        return controller.addRelationship(this);
+        return controller.fetchRelationship(type, id, relationship);
+//      case 'POST':
+//        return controller.addToMany(type, id, relationship, body);
     }
-    return ServerResponse(405);
+    return ServerResponse(405); // TODO: meaningful error
   }
 }

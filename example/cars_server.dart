@@ -1,8 +1,17 @@
-import 'package:json_api/simple_server.dart';
+import 'dart:io';
 
-import 'controller.dart';
-import 'dao.dart';
-import 'model.dart';
+import 'package:json_api/src/server/simple_server.dart';
+
+import 'cars_server/controller.dart';
+import 'cars_server/dao.dart';
+import 'cars_server/model.dart';
+
+void main() async {
+  final addr = InternetAddress.loopbackIPv4;
+  final port = 8080;
+  await createServer().start(addr, port);
+  print('Listening on ${addr.host}:$port');
+}
 
 SimpleServer createServer() {
   final cars = CarDAO();
@@ -29,8 +38,6 @@ SimpleServer createServer() {
     Brand('5', 'Toyota')
   ].forEach(brands.insert);
 
-  final controller =
-      CarsController({'brands': brands, 'cities': cities, 'cars': cars});
-
-  return SimpleServer(controller);
+  return SimpleServer(
+      CarsController({'brands': brands, 'cities': cities, 'cars': cars}));
 }
