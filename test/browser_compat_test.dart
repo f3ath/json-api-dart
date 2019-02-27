@@ -1,4 +1,3 @@
-@TestOn('browser')
 import 'package:http/browser_client.dart';
 import 'package:json_api/client.dart';
 import 'package:test/test.dart';
@@ -14,5 +13,5 @@ void main() async {
     expect(r.status, 200);
     expect(r.isSuccessful, true);
     expect(r.document.collection.first.attributes['name'], 'Tesla');
-  });
+  }, tags: ['browser-only']);
 }
