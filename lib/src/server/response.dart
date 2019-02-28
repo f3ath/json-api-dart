@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/transport/document.dart';
-import 'package:json_api/src/transport/error_document.dart';
+import 'package:json_api/src/document/document.dart';
+import 'package:json_api/src/document/error_document.dart';
 
 class ServerResponse {
   final String body;

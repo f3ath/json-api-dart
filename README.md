@@ -29,6 +29,7 @@
 ##### Document
 - [ ] Support `meta` and `jsonapi` members
 - [ ] Structure Validation
+- [ ] Support relationship objects lacking the `data` member
 - [ ] Naming Validation
 - [ ] JSON:API v1.1 features
 
@@ -48,4 +49,4 @@ import 'package:http/browser_client.dart';
 final client = JsonApiClient(factory: () => BrowserClient());
 ```
 
-For usage examples see a corresponding test in `test/functional`.
+For usage examples see the [functional tests](https://github.com/f3ath/json-api-dart/tree/master/test/functional).

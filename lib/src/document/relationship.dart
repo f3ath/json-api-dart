@@ -3,11 +3,14 @@ import 'dart:async';
 import 'package:json_api/src/client/client.dart';
 import 'package:json_api/src/identifier.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/transport/document.dart';
-import 'package:json_api/src/transport/identifier_object.dart';
-import 'package:json_api/src/transport/link.dart';
-import 'package:json_api/src/transport/resource_object.dart';
+import 'package:json_api/src/document/document.dart';
+import 'package:json_api/src/document/identifier_object.dart';
+import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/resource_object.dart';
 
+/// A relationship. Can be to-one or to-many.
+///
+/// https://jsonapi.org/format/#document-resource-object-linkage
 abstract class Relationship implements Document {
   final Link self;
   final Link related;
@@ -46,7 +49,9 @@ abstract class Relationship implements Document {
     throw 'Can not parse Relationship from $json';
   }
 }
-
+/// A to-many relationship
+///
+/// https://jsonapi.org/format/#document-resource-object-linkage
 class ToMany extends Relationship {
   final List<IdentifierObject> _data;
 
@@ -82,6 +87,9 @@ class ToMany extends Relationship {
   bool get isEmpty => collection.isEmpty;
 }
 
+/// A to-one relationship
+///
+/// https://jsonapi.org/format/#document-resource-object-linkage
 class ToOne extends Relationship {
   final IdentifierObject _data;
 

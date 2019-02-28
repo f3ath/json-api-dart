@@ -1,5 +1,5 @@
-import 'package:json_api/src/transport/document.dart';
-import 'package:json_api/src/transport/error_object.dart';
+import 'package:json_api/src/document/document.dart';
+import 'package:json_api/src/document/error_object.dart';
 
 class ErrorDocument implements Document {
   final errors = <ErrorObject>[];

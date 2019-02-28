@@ -1,6 +1,6 @@
 import 'package:json_api/src/client/status_code.dart';
-import 'package:json_api/src/transport/document.dart';
-import 'package:json_api/src/transport/error_document.dart';
+import 'package:json_api/src/document/document.dart';
+import 'package:json_api/src/document/error_document.dart';
 
 /// A response returned by JSON:API cars_server
 class Response<D extends Document> {

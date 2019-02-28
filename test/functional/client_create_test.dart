@@ -2,7 +2,6 @@
 import 'dart:io';
 
 import 'package:json_api/client.dart';
-import 'package:json_api/core.dart';
 import 'package:json_api/src/server/simple_server.dart';
 import 'package:test/test.dart';
 

@@ -1,5 +1,5 @@
 import 'package:json_api/src/server/resource_controller.dart';
-import 'package:json_api/src/transport/link.dart';
+import 'package:json_api/src/document/link.dart';
 
 /// Error Object
 /// Error objects provide additional information about problems encountered while performing an operation.

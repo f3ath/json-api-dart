@@ -9,14 +9,14 @@ import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/resource_controller.dart';
 import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/routing.dart';
-import 'package:json_api/src/transport/collection_document.dart';
-import 'package:json_api/src/transport/error_document.dart';
-import 'package:json_api/src/transport/error_object.dart';
-import 'package:json_api/src/transport/identifier_object.dart';
-import 'package:json_api/src/transport/link.dart';
-import 'package:json_api/src/transport/relationship.dart';
-import 'package:json_api/src/transport/resource_document.dart';
-import 'package:json_api/src/transport/resource_object.dart';
+import 'package:json_api/src/document/collection_document.dart';
+import 'package:json_api/src/document/error_document.dart';
+import 'package:json_api/src/document/error_object.dart';
+import 'package:json_api/src/document/identifier_object.dart';
+import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/relationship.dart';
+import 'package:json_api/src/document/resource_document.dart';
+import 'package:json_api/src/document/resource_object.dart';
 
 class JsonApiServer implements JsonApiController {
   final ResourceController controller;

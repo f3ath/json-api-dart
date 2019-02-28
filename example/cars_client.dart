@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:json_api/client.dart';
-import 'package:json_api/src/transport/collection_document.dart';
-import 'package:json_api/src/transport/relationship.dart';
-import 'package:json_api/src/transport/resource_object.dart';
+import 'package:json_api/src/document/collection_document.dart';
+import 'package:json_api/src/document/relationship.dart';
+import 'package:json_api/src/document/resource_object.dart';
 
 class CarsClient {
   final JsonApiClient c;
