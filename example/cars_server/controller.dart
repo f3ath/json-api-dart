@@ -42,8 +42,7 @@ class CarsController implements ResourceController {
   Future<Resource> createResource(
       String type, Resource resource, Map<String, String> params) async {
     if (type != resource.type) {
-      throw ResourceControllerException(409,
-          detail: 'Incompatible type');
+      throw ResourceControllerException(409, detail: 'Incompatible type');
     }
     Object obj;
     if (resource.hasId) {

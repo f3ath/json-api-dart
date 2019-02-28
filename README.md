@@ -5,7 +5,7 @@
 - [x] Fetching single resources and resource collections
 - [x] Fetching relationships and related resources and collections
 - [x] Fetching single resources
-- [ ] Creating resources
+- [x] Creating resources
 - [ ] Updating resource's attributes
 - [ ] Updating resource's relationships
 - [ ] Updating relationships
@@ -16,7 +16,7 @@
 - [x] Fetching single resources and resource collections
 - [x] Fetching relationships and related resources and collections
 - [x] Fetching single resources
-- [ ] Creating resources
+- [x] Creating resources
 - [ ] Updating resource's attributes
 - [ ] Updating resource's relationships
 - [ ] Updating relationships

@@ -62,11 +62,8 @@ class JsonApiClient {
   /// according to its type.
   Future<Response<ResourceDocument>> createResource(Uri uri, Resource resource,
           {Map<String, String> headers}) =>
-      _post(
-          ResourceDocument.fromJson,
-          uri,
-          ResourceDocument(ResourceObject.fromResource(resource)),
-          headers);
+      _post(ResourceDocument.fromJson, uri,
+          ResourceDocument(ResourceObject.fromResource(resource)), headers);
 
 //  /// Adds the [identifiers] to a to-many relationship identified by [uri]
 //  Future<Response<ToMany>> addToMany(Uri uri, Iterable<Identifier> identifiers,

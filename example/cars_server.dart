@@ -36,8 +36,8 @@ SimpleServer createServer() {
     Company('3', 'Audi'),
   ].forEach(companies.insert);
 
-  return SimpleServer(
-      CarsController({'companies': companies, 'cities': cities, 'models': models}));
+  return SimpleServer(CarsController(
+      {'companies': companies, 'cities': cities, 'models': models}));
 }
 
 class Url {

@@ -85,7 +85,8 @@ void main() async {
     });
 
     test('404 on relationship', () async {
-      final r = await client.fetchResource(Url.related('companies', '1', 'unicorn'));
+      final r =
+          await client.fetchResource(Url.related('companies', '1', 'unicorn'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });
@@ -164,6 +165,5 @@ void main() async {
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });
-
   });
 }
