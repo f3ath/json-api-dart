@@ -22,9 +22,9 @@ class CollectionRequest implements JsonApiRequest {
   Future<ServerResponse> fulfill(JsonApiController controller) async {
     switch (method.toUpperCase()) {
       case 'GET':
-        return controller.fetchCollection(type, params);
-//      case 'POST':
-//        return controller.createResource(body);
+        return controller.fetchCollection(this);
+      case 'POST':
+        return controller.createResource(this);
     }
     return ServerResponse(405); // TODO: meaningful error
   }
@@ -41,7 +41,7 @@ class ResourceRequest<R> implements JsonApiRequest {
   Future<ServerResponse> fulfill(JsonApiController controller) async {
     switch (method.toUpperCase()) {
       case 'GET':
-        return controller.fetchResource(type, id);
+        return controller.fetchResource(this);
 //      case 'PATCH':
 //        return controller.updateResource(type, id, body);
     }
@@ -60,7 +60,7 @@ class RelatedRequest implements JsonApiRequest {
       {this.params});
 
   Future<ServerResponse> fulfill(JsonApiController controller) =>
-      controller.fetchRelated(type, id, relationship);
+      controller.fetchRelated(this);
 }
 
 class RelationshipRequest<R> implements JsonApiRequest {
@@ -76,7 +76,7 @@ class RelationshipRequest<R> implements JsonApiRequest {
   Future<ServerResponse> fulfill(JsonApiController controller) async {
     switch (method.toUpperCase()) {
       case 'GET':
-        return controller.fetchRelationship(type, id, relationship);
+        return controller.fetchRelationship(this);
 //      case 'POST':
 //        return controller.addToMany(type, id, relationship, body);
     }

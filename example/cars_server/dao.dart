@@ -10,6 +10,8 @@ abstract class DAO<T> {
 
   Resource toResource(T t);
 
+  T create(Resource resource);
+
   T fetchById(String id) => _collection[id];
 
   void insert(T t); // => collection[t.id] = t;
@@ -18,11 +20,15 @@ abstract class DAO<T> {
       _collection.values.skip(offset).take(limit);
 }
 
-class CarDAO extends DAO<Car> {
-  Resource toResource(Car _) =>
-      Resource('cars', _.id, attributes: {'name': _.name});
+class ModelDAO extends DAO<Model> {
+  Resource toResource(Model _) =>
+      Resource('models', _.id, attributes: {'name': _.name});
 
-  void insert(Car car) => _collection[car.id] = car;
+  void insert(Model model) => _collection[model.id] = model;
+
+  Model create(Resource r) {
+    return Model(r.id, r.attributes['name']);
+  }
 }
 
 class CityDAO extends DAO<City> {
@@ -30,18 +36,27 @@ class CityDAO extends DAO<City> {
       Resource('cities', _.id, attributes: {'name': _.name});
 
   void insert(City city) => _collection[city.id] = city;
+
+  City create(Resource r) {
+    return City(r.id, r.attributes['name']);
+  }
 }
 
-class BrandDAO extends DAO<Brand> {
-  Resource toResource(Brand brand) => Resource('brands', brand.id, attributes: {
-        'name': brand.name
+class CompanyDAO extends DAO<Company> {
+  Resource toResource(Company company) =>
+      Resource('companies', company.id, attributes: {
+        'name': company.name
       }, toOne: {
-        'hq': brand.headquarters == null
+        'hq': company.headquarters == null
             ? null
-            : Identifier('cities', brand.headquarters)
+            : Identifier('cities', company.headquarters)
       }, toMany: {
-        'models': brand.models.map((_) => Identifier('cars', _)).toList()
+        'models': company.models.map((_) => Identifier('models', _)).toList()
       });
 
-  void insert(Brand brand) => _collection[brand.id] = brand;
+  void insert(Company company) => _collection[company.id] = company;
+
+  Company create(Resource r) {
+    return Company(r.id, r.attributes['name']);
+  }
 }

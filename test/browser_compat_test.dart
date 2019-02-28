@@ -10,7 +10,7 @@ void main() async {
     final port = await channel.stream.first;
     print('Port: $port');
     final r = await client
-        .fetchCollection(Uri.parse('http://localhost:$port/brands'));
+        .fetchCollection(Uri.parse('http://localhost:$port/companies'));
     expect(r.status, 200);
     expect(r.isSuccessful, true);
     expect(r.document.collection.first.attributes['name'], 'Tesla');

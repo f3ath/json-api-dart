@@ -9,7 +9,7 @@ class CollectionDocument implements Document {
   final Link self;
   final Pagination pagination;
 
-  CollectionDocument(List<ResourceObject> collection,
+  CollectionDocument(Iterable<ResourceObject> collection,
       {List<ResourceObject> included, this.self, this.pagination})
       : collection = List.unmodifiable(collection),
         included = List.unmodifiable(included ?? []);

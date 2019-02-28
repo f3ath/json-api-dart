@@ -37,7 +37,7 @@ class ResourceObject {
         attributes: attributes, toMany: toMany, toOne: toOne);
   }
 
-  static ResourceObject enclose(Resource r) {
+  static ResourceObject fromResource(Resource r) {
     final toOne = r.toOne.map((name, v) =>
         MapEntry(name, ToOne(nullable(IdentifierObject.fromIdentifier)(v))));
 

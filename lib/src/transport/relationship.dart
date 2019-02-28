@@ -12,6 +12,8 @@ abstract class Relationship implements Document {
   final Link self;
   final Link related;
 
+  bool get isEmpty;
+
   Object get _data;
 
   Relationship._({this.self, this.related});
@@ -76,6 +78,8 @@ class ToMany extends Relationship {
     if (response.isSuccessful) return response.document.collection;
     throw 'Error'; // TODO define exceptions
   }
+
+  bool get isEmpty => collection.isEmpty;
 }
 
 class ToOne extends Relationship {
@@ -83,6 +87,8 @@ class ToOne extends Relationship {
 
   ToOne(this._data, {Link self, Link related})
       : super._(self: self, related: related);
+
+  get isEmpty => identifierObject == null;
 
   static ToOne fromJson(Object json) {
     if (json is Map) {
@@ -96,7 +102,7 @@ class ToOne extends Relationship {
 
   IdentifierObject get identifierObject => _data;
 
-  Identifier toIdentifier() => identifierObject.toIdentifier();
+  Identifier toIdentifier() => identifierObject?.toIdentifier();
 
   Future<ResourceObject> fetchRelated(JsonApiClient client) async {
     if (related == null) throw StateError('The "related" link is null');

@@ -43,4 +43,6 @@ class Response<D extends Document> {
   /// Any non 2** status code is considered a failed operation.
   /// For failed requests, [document] is expected to contain [ErrorDocument]
   bool get isFailed => StatusCode(status).isFailed;
+
+  String get location => headers['location'];
 }

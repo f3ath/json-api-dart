@@ -1,3 +1,4 @@
+import 'package:json_api/src/server/resource_controller.dart';
 import 'package:json_api/src/transport/link.dart';
 
 /// Error Object
@@ -71,6 +72,17 @@ class ErrorObject {
     throw 'Can not parse ErrorObject from $json';
   }
 
+  static ErrorObject fromResourceControllerException(
+          ResourceControllerException e) =>
+      ErrorObject(
+          id: e.id,
+          status: e.httpStatus.toString(),
+          code: e.code,
+          title: e.title,
+          detail: e.detail,
+          sourceParameter: e.sourceParameter,
+          sourcePointer: e.sourcePointer);
+
   toJson() {
     final json = <String, Object>{};
     if (id != null) json['id'] = id;
@@ -78,7 +90,7 @@ class ErrorObject {
     if (code != null) json['code'] = code;
     if (title != null) json['title'] = title;
     if (detail != null) json['detail'] = detail;
-    if (meta != null) json['meta'] = meta;
+    if (meta.isNotEmpty) json['meta'] = meta;
     if (about != null) json['links'] = {'about': about};
     final source = Map<String, String>();
     if (sourcePointer != null) source['pointer'] = sourcePointer;

@@ -14,13 +14,13 @@ void main() async {
 }
 
 SimpleServer createServer() {
-  final cars = CarDAO();
+  final models = ModelDAO();
   [
-    Car('1', 'Roadster'),
-    Car('2', 'Model S'),
-    Car('3', 'Model X'),
-    Car('4', 'Model 3'),
-  ].forEach(cars.insert);
+    Model('1', 'Roadster'),
+    Model('2', 'Model S'),
+    Model('3', 'Model X'),
+    Model('4', 'Model 3'),
+  ].forEach(models.insert);
 
   final cities = CityDAO();
   [
@@ -29,15 +29,27 @@ SimpleServer createServer() {
     City('3', 'Ingolstadt'),
   ].forEach(cities.insert);
 
-  final brands = BrandDAO();
+  final companies = CompanyDAO();
   [
-    Brand('1', 'Tesla', headquarters: '2', models: ['1', '2', '3', '4']),
-    Brand('2', 'BMW', headquarters: '1'),
-    Brand('3', 'Audi', headquarters: '3'),
-    Brand('4', 'Ford'),
-    Brand('5', 'Toyota')
-  ].forEach(brands.insert);
+    Company('1', 'Tesla', headquarters: '2', models: ['1', '2', '3', '4']),
+    Company('2', 'BMW', headquarters: '1'),
+    Company('3', 'Audi'),
+  ].forEach(companies.insert);
 
   return SimpleServer(
-      CarsController({'brands': brands, 'cities': cities, 'cars': cars}));
+      CarsController({'companies': companies, 'cities': cities, 'models': models}));
+}
+
+class Url {
+  static final _base = Uri.parse('http://localhost:8080');
+
+  static collection(String type) => _base.replace(path: '/$type');
+
+  static resource(String type, String id) => _base.replace(path: '/$type/$id');
+
+  static related(String type, String id, String rel) =>
+      _base.replace(path: '/$type/$id/$rel');
+
+  static relationship(String type, String id, String rel) =>
+      _base.replace(path: '/$type/$id/relationships/$rel');
 }

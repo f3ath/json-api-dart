@@ -19,17 +19,18 @@ class SimpleServer {
 
     _httpServer = await HttpServer.bind(address, port);
 
-    await _httpServer.forEach((rq) async {
-      final rs = await jsonApiServer.handle(
-          rq.method, rq.uri, await rq.transform(utf8.decoder).join());
-      rq.response.statusCode = rs.status;
-      rq.response.headers.set('Access-Control-Allow-Origin', '*');
-      if (rs.body != null) {
-        rq.response.write(rs.body);
+    _httpServer.forEach((request) async {
+      final serverResponse = await jsonApiServer.handle(request.method,
+          request.uri, await request.transform(utf8.decoder).join());
+      request.response.statusCode = serverResponse.status;
+      serverResponse.headers.forEach(request.response.headers.set);
+      request.response.headers.set('Access-Control-Allow-Origin', '*');
+      if (serverResponse.body != null) {
+        request.response.write(serverResponse.body);
       }
-      await rq.response.close();
+      await request.response.close();
     });
   }
 
-  Future stop() => _httpServer.close();
+  Future stop() => _httpServer.close(force: true);
 }
