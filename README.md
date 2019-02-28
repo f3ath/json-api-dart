@@ -11,6 +11,7 @@
 - [ ] Updating relationships
 - [ ] Deleting resources
 - [ ] Asynchronous processing 
+- [ ] Optional check for `Content-Type` header in incoming responses 
 
 ##### Server (The Server API is not stable yet!)
 - [x] Fetching single resources and resource collections
@@ -25,10 +26,12 @@
 - [ ] Sparse fieldsets 
 - [ ] Sorting, pagination, filtering
 - [ ] Asynchronous processing 
+- [ ] Optional check for `Content-Type` header in incoming requests 
+- [ ] Support annotations in resource mappers (?) 
 
 ##### Document
 - [ ] Support `meta` and `jsonapi` members
-- [ ] Structure Validation
+- [ ] Structure Validation including compound documents
 - [ ] Support relationship objects lacking the `data` member
 - [ ] Naming Validation
 - [ ] JSON:API v1.1 features
