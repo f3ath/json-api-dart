@@ -1,9 +1,9 @@
-import 'package:json_api/src/identifier.dart';
-import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/resource.dart';
 import 'package:json_api/src/document/identifier_object.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/relationship.dart';
+import 'package:json_api/src/identifier.dart';
+import 'package:json_api/src/nullable.dart';
+import 'package:json_api/src/resource.dart';
 
 /// Resource object
 class ResourceObject {

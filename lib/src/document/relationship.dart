@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:json_api/src/client/client.dart';
-import 'package:json_api/src/identifier.dart';
-import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/identifier_object.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/resource_object.dart';
+import 'package:json_api/src/identifier.dart';
+import 'package:json_api/src/nullable.dart';
 
 /// A relationship. Can be to-one or to-many.
 ///
@@ -49,6 +49,7 @@ abstract class Relationship implements Document {
     throw 'Can not parse Relationship from $json';
   }
 }
+
 /// A to-many relationship
 ///
 /// https://jsonapi.org/format/#document-resource-object-linkage

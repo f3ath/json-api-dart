@@ -1,14 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:json_api/src/identifier.dart';
-import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/resource.dart';
-import 'package:json_api/src/server/json_api_controller.dart';
-import 'package:json_api/src/server/request.dart';
-import 'package:json_api/src/server/resource_controller.dart';
-import 'package:json_api/src/server/response.dart';
-import 'package:json_api/src/server/routing.dart';
 import 'package:json_api/src/document/collection_document.dart';
 import 'package:json_api/src/document/error_document.dart';
 import 'package:json_api/src/document/error_object.dart';
@@ -17,6 +9,14 @@ import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource_document.dart';
 import 'package:json_api/src/document/resource_object.dart';
+import 'package:json_api/src/identifier.dart';
+import 'package:json_api/src/nullable.dart';
+import 'package:json_api/src/resource.dart';
+import 'package:json_api/src/server/json_api_controller.dart';
+import 'package:json_api/src/server/request.dart';
+import 'package:json_api/src/server/resource_controller.dart';
+import 'package:json_api/src/server/response.dart';
+import 'package:json_api/src/server/routing.dart';
 
 class JsonApiServer implements JsonApiController {
   final ResourceController controller;
