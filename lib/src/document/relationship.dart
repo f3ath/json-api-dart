@@ -11,7 +11,7 @@ import 'package:json_api/src/nullable.dart';
 /// A relationship. Can be to-one or to-many.
 ///
 /// https://jsonapi.org/format/#document-resource-object-linkage
-abstract class Relationship implements Document {
+abstract class Relationship extends Document {
   final Link self;
   final Link related;
 

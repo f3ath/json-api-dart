@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:json_api/src/document/collection_document.dart';
+import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/error_document.dart';
 import 'package:json_api/src/document/error_object.dart';
 import 'package:json_api/src/document/identifier_object.dart';
@@ -18,14 +20,19 @@ import 'package:json_api/src/server/resource_controller.dart';
 import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/routing.dart';
 
+typedef void MetaDecorator(JsonApiRequest rq, Document doc);
+
 class JsonApiServer implements JsonApiController {
   final ResourceController controller;
   final Routing routing;
+  final MetaDecorator meta;
 
-  JsonApiServer(this.controller, this.routing);
+  JsonApiServer(this.controller, this.routing, {MetaDecorator meta})
+      : meta = meta ?? ((JsonApiRequest rq, Document doc) {});
 
-  Future<ServerResponse> handle(String method, Uri uri, String body) async {
-    final jsonApiRequest = await routing.resolve(method, uri, body);
+  Future<ServerResponse> handle(HttpRequest httpRequest) async {
+
+    final jsonApiRequest = await routing.resolve(httpRequest);
     if (jsonApiRequest == null) {
       return ServerResponse.notFound(
           ErrorDocument([ErrorObject(status: '404', detail: 'Unknown route')]));
@@ -129,6 +136,17 @@ class JsonApiServer implements JsonApiController {
               .resource(createdResource.type, createdResource.id)
               .toString();
       }
+    } on ResourceControllerException catch (e) {
+      return ServerResponse(e.httpStatus,
+          ErrorDocument([ErrorObject.fromResourceControllerException(e)]));
+    }
+  }
+
+  @override
+  Future<ServerResponse> deleteResource(ResourceRequest rq) async {
+    try {
+      await controller.deleteResource(rq.type, rq.id, rq.params);
+      return ServerResponse.noContent();
     } on ResourceControllerException catch (e) {
       return ServerResponse(e.httpStatus,
           ErrorDocument([ErrorObject.fromResourceControllerException(e)]));

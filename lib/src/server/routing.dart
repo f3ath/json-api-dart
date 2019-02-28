@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:json_api/src/server/request.dart';
@@ -18,7 +20,7 @@ abstract class Routing {
   Uri relationship(String type, String id, String relationship);
 
   /// Resolves HTTP request to [JsonAiRequest] object
-  Future<JsonApiRequest> resolve(String method, Uri uri, String body);
+  Future<JsonApiRequest> resolve(HttpRequest httpRequest);
 }
 
 /// StandardRouting implements the recommended URL design schema:
@@ -51,19 +53,21 @@ class StandardRouting implements Routing {
   resource(String type, String id) =>
       base.replace(pathSegments: base.pathSegments + [type, id]);
 
-  Future<JsonApiRequest> resolve(String method, Uri uri, String body) async {
-    final seg = uri.pathSegments;
+  Future<JsonApiRequest> resolve(HttpRequest httpRequest) async {
+    final body = await httpRequest.transform(utf8.decoder).join();
+
+    final seg = httpRequest.uri.pathSegments;
     switch (seg.length) {
       case 1:
-        return CollectionRequest(method, seg[0],
-            body: body, params: uri.queryParameters);
+        return CollectionRequest(httpRequest.method, seg[0],
+            body: body, params: httpRequest.uri.queryParameters);
       case 2:
-        return ResourceRequest(method, seg[0], seg[1], body: body);
+        return ResourceRequest(httpRequest.method, seg[0], seg[1], body: body);
       case 3:
-        return RelatedRequest(method, seg[0], seg[1], seg[2]);
+        return RelatedRequest(httpRequest.method, seg[0], seg[1], seg[2]);
       case 4:
         if (seg[2] == 'relationships') {
-          return RelationshipRequest(method, seg[0], seg[1], seg[3],
+          return RelationshipRequest(httpRequest.method, seg[0], seg[1], seg[3],
               body: body);
         }
     }

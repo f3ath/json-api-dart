@@ -18,6 +18,10 @@ abstract class DAO<T> {
 
   Iterable<T> fetchCollection({int offset = 0, int limit = 1}) =>
       _collection.values.skip(offset).take(limit);
+
+  void deleteById(String id) {
+    _collection.remove(id);
+  }
 }
 
 class ModelDAO extends DAO<Model> {

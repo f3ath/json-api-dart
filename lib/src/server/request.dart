@@ -8,6 +8,8 @@ abstract class JsonApiRequest {
 
   String get method;
 
+  Map<String, String> get params;
+
   Future<ServerResponse> fulfill(JsonApiController controller);
 }
 
@@ -35,13 +37,16 @@ class ResourceRequest<R> implements JsonApiRequest {
   final String body;
   final String type;
   final String id;
+  final Map<String, String> params;
 
-  ResourceRequest(this.method, this.type, this.id, {this.body});
+  ResourceRequest(this.method, this.type, this.id, {this.body, this.params});
 
   Future<ServerResponse> fulfill(JsonApiController controller) async {
     switch (method.toUpperCase()) {
       case 'GET':
         return controller.fetchResource(this);
+      case 'DELETE':
+        return controller.deleteResource(this);
 //      case 'PATCH':
 //        return controller.updateResource(type, id, body);
     }
@@ -69,9 +74,10 @@ class RelationshipRequest<R> implements JsonApiRequest {
   final String type;
   final String id;
   final String relationship;
+  final Map<String, String> params;
 
   RelationshipRequest(this.method, this.type, this.id, this.relationship,
-      {this.body});
+      {this.body, this.params});
 
   Future<ServerResponse> fulfill(JsonApiController controller) async {
     switch (method.toUpperCase()) {

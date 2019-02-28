@@ -7,6 +7,7 @@ import 'package:json_api/src/client/status_code.dart';
 import 'package:json_api/src/document/collection_document.dart';
 import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/error_document.dart';
+import 'package:json_api/src/document/meta_document.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource_document.dart';
 import 'package:json_api/src/document/resource_object.dart';
@@ -65,6 +66,11 @@ class JsonApiClient {
       _post(ResourceDocument.fromJson, uri,
           ResourceDocument(ResourceObject.fromResource(resource)), headers);
 
+  /// Deletes the resource.
+  Future<Response<MetaDocument>> deleteResource(Uri uri,
+          {Map<String, String> headers}) =>
+      _delete(MetaDocument.fromJson, uri, headers);
+
 //  /// Adds the [identifiers] to a to-many relationship identified by [uri]
 //  Future<Response<ToMany>> addToMany(Uri uri, Iterable<Identifier> identifiers,
 //          {Map<String, String> headers}) =>
@@ -85,6 +91,15 @@ class JsonApiClient {
       _call(
           parse,
           (_) => _.get(uri,
+              headers: {}
+                ..addAll(headers ?? {})
+                ..addAll({'Accept': contentType})));
+
+  Future<Response<D>> _delete<D extends Document>(
+          ResponseParser<D> parse, uri, Map<String, String> headers) =>
+      _call(
+          parse,
+          (_) => _.delete(uri,
               headers: {}
                 ..addAll(headers ?? {})
                 ..addAll({'Accept': contentType})));

@@ -14,4 +14,6 @@ abstract class JsonApiController {
   Future<ServerResponse> fetchRelated(RelatedRequest rq);
 
   Future<ServerResponse> createResource(CollectionRequest rq);
+
+  Future<ServerResponse> deleteResource(ResourceRequest rq);
 }

@@ -57,4 +57,13 @@ class CarsController implements ResourceController {
     dao[type].insert(obj);
     return dao[type].toResource(obj);
   }
+
+  @override
+  Future<void> deleteResource(String type, String id, Map<String, String> params) {
+    if (dao[type].fetchById(id) == null) {
+      throw ResourceControllerException(404, detail: 'Resource not found');
+    }
+    dao[type].deleteById(id);
+    return null;
+  }
 }

@@ -2,7 +2,7 @@ import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/resource_object.dart';
 
-class CollectionDocument implements Document {
+class CollectionDocument extends Document {
   final List<ResourceObject> collection;
   final List<ResourceObject> included;
 

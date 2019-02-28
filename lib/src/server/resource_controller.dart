@@ -22,6 +22,9 @@ abstract class ResourceController {
   Future<Resource> createResource(
       String type, Resource resource, Map<String, String> params);
 
+  Future<void> deleteResource(
+      String type, String id, Map<String, String> params);
+
 //  Future<void> addToMany(Identifier id, String rel, Iterable<Identifier> ids);
 
 //  Future<Resource> updateResource(Identifier id, Resource resource);
