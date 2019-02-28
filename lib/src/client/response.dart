@@ -1,6 +1,6 @@
 import 'package:json_api/src/client/status_code.dart';
-import 'package:json_api/src/transport/document.dart';
-import 'package:json_api/src/transport/error_document.dart';
+import 'package:json_api/src/document/document.dart';
+import 'package:json_api/src/document/error_document.dart';
 
 /// A response returned by JSON:API cars_server
 class Response<D extends Document> {
@@ -43,4 +43,6 @@ class Response<D extends Document> {
   /// Any non 2** status code is considered a failed operation.
   /// For failed requests, [document] is expected to contain [ErrorDocument]
   bool get isFailed => StatusCode(status).isFailed;
+
+  String get location => headers['location'];
 }

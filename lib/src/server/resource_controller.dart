@@ -19,9 +19,30 @@ abstract class ResourceController {
 
   Stream<Resource> fetchResources(Iterable<Identifier> ids);
 
-//  Future<void> createResource(Resource resource);
+  Future<Resource> createResource(
+      String type, Resource resource, Map<String, String> params);
 
 //  Future<void> addToMany(Identifier id, String rel, Iterable<Identifier> ids);
 
 //  Future<Resource> updateResource(Identifier id, Resource resource);
+}
+
+class ResourceControllerException implements Exception {
+  final int httpStatus;
+  final String id;
+  final String code;
+  final String title;
+  final String detail;
+  final String sourcePointer;
+  final String sourceParameter;
+
+  ResourceControllerException(this.httpStatus,
+      {this.id,
+      this.code,
+      this.sourceParameter,
+      this.sourcePointer,
+      this.detail,
+      this.title}) {
+    ArgumentError.checkNotNull(this.httpStatus);
+  }
 }

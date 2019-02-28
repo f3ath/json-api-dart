@@ -1,10 +1,10 @@
-class Brand {
+class Company {
   final String id;
   final String headquarters;
   final List<String> models;
   String name;
 
-  Brand(this.id, this.name, {this.headquarters, this.models = const []});
+  Company(this.id, this.name, {this.headquarters, this.models = const []});
 }
 
 class City {
@@ -14,9 +14,9 @@ class City {
   City(this.id, this.name);
 }
 
-class Car {
+class Model {
   final String id;
   String name;
 
-  Car(this.id, this.name);
+  Model(this.id, this.name);
 }

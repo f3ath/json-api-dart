@@ -1,16 +1,21 @@
 import 'dart:async';
 
 import 'package:json_api/src/client/client.dart';
+import 'package:json_api/src/document/document.dart';
+import 'package:json_api/src/document/identifier_object.dart';
+import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/identifier.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/transport/document.dart';
-import 'package:json_api/src/transport/identifier_object.dart';
-import 'package:json_api/src/transport/link.dart';
-import 'package:json_api/src/transport/resource_object.dart';
 
+/// A relationship. Can be to-one or to-many.
+///
+/// https://jsonapi.org/format/#document-resource-object-linkage
 abstract class Relationship implements Document {
   final Link self;
   final Link related;
+
+  bool get isEmpty;
 
   Object get _data;
 
@@ -45,6 +50,9 @@ abstract class Relationship implements Document {
   }
 }
 
+/// A to-many relationship
+///
+/// https://jsonapi.org/format/#document-resource-object-linkage
 class ToMany extends Relationship {
   final List<IdentifierObject> _data;
 
@@ -76,13 +84,20 @@ class ToMany extends Relationship {
     if (response.isSuccessful) return response.document.collection;
     throw 'Error'; // TODO define exceptions
   }
+
+  bool get isEmpty => collection.isEmpty;
 }
 
+/// A to-one relationship
+///
+/// https://jsonapi.org/format/#document-resource-object-linkage
 class ToOne extends Relationship {
   final IdentifierObject _data;
 
   ToOne(this._data, {Link self, Link related})
       : super._(self: self, related: related);
+
+  get isEmpty => identifierObject == null;
 
   static ToOne fromJson(Object json) {
     if (json is Map) {
@@ -96,7 +111,7 @@ class ToOne extends Relationship {
 
   IdentifierObject get identifierObject => _data;
 
-  Identifier toIdentifier() => identifierObject.toIdentifier();
+  Identifier toIdentifier() => identifierObject?.toIdentifier();
 
   Future<ResourceObject> fetchRelated(JsonApiClient client) async {
     if (related == null) throw StateError('The "related" link is null');

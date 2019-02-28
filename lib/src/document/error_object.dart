@@ -1,4 +1,5 @@
-import 'package:json_api/src/transport/link.dart';
+import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/server/resource_controller.dart';
 
 /// Error Object
 /// Error objects provide additional information about problems encountered while performing an operation.
@@ -71,6 +72,17 @@ class ErrorObject {
     throw 'Can not parse ErrorObject from $json';
   }
 
+  static ErrorObject fromResourceControllerException(
+          ResourceControllerException e) =>
+      ErrorObject(
+          id: e.id,
+          status: e.httpStatus.toString(),
+          code: e.code,
+          title: e.title,
+          detail: e.detail,
+          sourceParameter: e.sourceParameter,
+          sourcePointer: e.sourcePointer);
+
   toJson() {
     final json = <String, Object>{};
     if (id != null) json['id'] = id;
@@ -78,12 +90,12 @@ class ErrorObject {
     if (code != null) json['code'] = code;
     if (title != null) json['title'] = title;
     if (detail != null) json['detail'] = detail;
-    if (meta != null) json['meta'] = meta;
+    if (meta.isNotEmpty) json['meta'] = meta;
     if (about != null) json['links'] = {'about': about};
     final source = Map<String, String>();
     if (sourcePointer != null) source['pointer'] = sourcePointer;
     if (sourceParameter != null) source['parameter'] = sourceParameter;
-    if (source.length > 0) json['source'] = source;
+    if (source.isNotEmpty) json['source'] = source;
     return json;
   }
 }

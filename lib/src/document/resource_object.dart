@@ -1,9 +1,9 @@
+import 'package:json_api/src/document/identifier_object.dart';
+import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/identifier.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/resource.dart';
-import 'package:json_api/src/transport/identifier_object.dart';
-import 'package:json_api/src/transport/link.dart';
-import 'package:json_api/src/transport/relationship.dart';
 
 /// Resource object
 class ResourceObject {
@@ -37,7 +37,7 @@ class ResourceObject {
         attributes: attributes, toMany: toMany, toOne: toOne);
   }
 
-  static ResourceObject enclose(Resource r) {
+  static ResourceObject fromResource(Resource r) {
     final toOne = r.toOne.map((name, v) =>
         MapEntry(name, ToOne(nullable(IdentifierObject.fromIdentifier)(v))));
 

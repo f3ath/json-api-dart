@@ -1,6 +1,6 @@
-import 'package:json_api/src/transport/document.dart';
-import 'package:json_api/src/transport/link.dart';
-import 'package:json_api/src/transport/resource_object.dart';
+import 'package:json_api/src/document/document.dart';
+import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/resource_object.dart';
 
 class CollectionDocument implements Document {
   final List<ResourceObject> collection;
@@ -9,7 +9,7 @@ class CollectionDocument implements Document {
   final Link self;
   final Pagination pagination;
 
-  CollectionDocument(List<ResourceObject> collection,
+  CollectionDocument(Iterable<ResourceObject> collection,
       {List<ResourceObject> included, this.self, this.pagination})
       : collection = List.unmodifiable(collection),
         included = List.unmodifiable(included ?? []);

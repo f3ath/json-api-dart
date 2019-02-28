@@ -1,6 +1,6 @@
-import 'package:json_api/src/transport/document.dart';
-import 'package:json_api/src/transport/link.dart';
-import 'package:json_api/src/transport/resource_object.dart';
+import 'package:json_api/src/document/document.dart';
+import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/resource_object.dart';
 
 class ResourceDocument implements Document {
   final ResourceObject resourceObject;
