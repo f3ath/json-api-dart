@@ -1,85 +1,34 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
-import 'package:json_api/src/server/json_api_controller.dart';
-import 'package:json_api/src/server/response.dart';
+enum HttpMethod { get, post, put, delete }
 
-abstract class JsonApiRequest {
-  String get type;
+abstract class JsonApiHttpRequest {
+  HttpMethod get method;
 
-  String get method;
+  Uri get uri;
 
-  Future<ServerResponse> fulfill(JsonApiController controller);
+  Future<String> body();
+
+  List<String> headers(String key);
 }
 
-class CollectionRequest implements JsonApiRequest {
-  final String method;
-  final String body;
-  final String type;
-  final Map<String, String> params;
+class NativeHttpRequestAdapter implements JsonApiHttpRequest {
+  final HttpRequest request;
 
-  CollectionRequest(this.method, this.type, {this.body, this.params});
+  NativeHttpRequestAdapter(this.request);
 
-  Future<ServerResponse> fulfill(JsonApiController controller) async {
-    switch (method.toUpperCase()) {
-      case 'GET':
-        return controller.fetchCollection(this);
-      case 'POST':
-        return controller.createResource(this);
-    }
-    return ServerResponse(405); // TODO: meaningful error
-  }
-}
+  HttpMethod get method => {
+        'get': HttpMethod.get,
+        'post': HttpMethod.post,
+        'delete': HttpMethod.delete,
+        'put': HttpMethod.put
+      }[request.method.toLowerCase()];
 
-class ResourceRequest<R> implements JsonApiRequest {
-  final String method;
-  final String body;
-  final String type;
-  final String id;
+  Uri get uri => request.uri;
 
-  ResourceRequest(this.method, this.type, this.id, {this.body});
+  List<String> headers(String key) => request.headers[key];
 
-  Future<ServerResponse> fulfill(JsonApiController controller) async {
-    switch (method.toUpperCase()) {
-      case 'GET':
-        return controller.fetchResource(this);
-//      case 'PATCH':
-//        return controller.updateResource(type, id, body);
-    }
-    return ServerResponse(405); // TODO: meaningful error
-  }
-}
-
-class RelatedRequest implements JsonApiRequest {
-  final String method;
-  final String type;
-  final String id;
-  final String relationship;
-  final Map<String, String> params;
-
-  RelatedRequest(this.method, this.type, this.id, this.relationship,
-      {this.params});
-
-  Future<ServerResponse> fulfill(JsonApiController controller) =>
-      controller.fetchRelated(this);
-}
-
-class RelationshipRequest<R> implements JsonApiRequest {
-  final String method;
-  final String body;
-  final String type;
-  final String id;
-  final String relationship;
-
-  RelationshipRequest(this.method, this.type, this.id, this.relationship,
-      {this.body});
-
-  Future<ServerResponse> fulfill(JsonApiController controller) async {
-    switch (method.toUpperCase()) {
-      case 'GET':
-        return controller.fetchRelationship(this);
-//      case 'POST':
-//        return controller.addToMany(type, id, relationship, body);
-    }
-    return ServerResponse(405); // TODO: meaningful error
-  }
+  Future<String> body() => request.transform(utf8.decoder).join();
 }

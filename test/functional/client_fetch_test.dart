@@ -2,8 +2,8 @@
 import 'dart:io';
 
 import 'package:json_api/client.dart';
-import 'package:json_api/src/server/simple_server.dart';
 import 'package:json_api/src/document/relationship.dart';
+import 'package:json_api/src/server/simple_server.dart';
 import 'package:test/test.dart';
 
 import '../../example/cars_server.dart';

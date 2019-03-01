@@ -1,4 +1,4 @@
-import 'package:json_api/src/identifier.dart';
+import 'package:json_api/src/document/identifier.dart';
 
 /// The core of the Resource object
 /// https://jsonapi.org/format/#document-resource-objects

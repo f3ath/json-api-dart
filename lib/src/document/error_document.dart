@@ -1,7 +1,7 @@
 import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/error_object.dart';
 
-class ErrorDocument implements Document {
+class ErrorDocument extends Document {
   final errors = <ErrorObject>[];
 
   ErrorDocument(Iterable<ErrorObject> errors) {

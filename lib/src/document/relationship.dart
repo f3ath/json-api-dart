@@ -2,16 +2,16 @@ import 'dart:async';
 
 import 'package:json_api/src/client/client.dart';
 import 'package:json_api/src/document/document.dart';
+import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/identifier_object.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/resource_object.dart';
-import 'package:json_api/src/identifier.dart';
 import 'package:json_api/src/nullable.dart';
 
 /// A relationship. Can be to-one or to-many.
 ///
 /// https://jsonapi.org/format/#document-resource-object-linkage
-abstract class Relationship implements Document {
+abstract class Relationship extends Document {
   final Link self;
   final Link related;
 

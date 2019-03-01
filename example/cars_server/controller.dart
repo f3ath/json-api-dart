@@ -1,8 +1,9 @@
 import 'dart:async';
 
-import 'package:json_api/src/identifier.dart';
-import 'package:json_api/src/resource.dart';
+import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/numbered_page.dart';
+import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/resource_controller.dart';
 import 'package:uuid/uuid.dart';
 
@@ -17,9 +18,9 @@ class CarsController implements ResourceController {
   bool supports(String type) => dao.containsKey(type);
 
   Future<Collection<Resource>> fetchCollection(
-      String type, Map<String, String> params) async {
-    final page =
-        NumberedPage.fromQueryParameters(params, total: dao[type].length);
+      String type, JsonApiHttpRequest request) async {
+    final page = NumberedPage.fromQueryParameters(request.uri.queryParameters,
+        total: dao[type].length);
     return Collection(
         dao[type]
             .fetchCollection(offset: page.number - 1)
@@ -40,7 +41,7 @@ class CarsController implements ResourceController {
 
   @override
   Future<Resource> createResource(
-      String type, Resource resource, Map<String, String> params) async {
+      String type, Resource resource, JsonApiHttpRequest request) async {
     if (type != resource.type) {
       throw ResourceControllerException(409, detail: 'Incompatible type');
     }
@@ -56,5 +57,18 @@ class CarsController implements ResourceController {
     }
     dao[type].insert(obj);
     return dao[type].toResource(obj);
+  }
+
+  @override
+  Future<Map<String, Object>> deleteResource(
+      String type, String id, JsonApiHttpRequest request) async {
+    if (dao[type].fetchById(id) == null) {
+      throw ResourceControllerException(404, detail: 'Resource not found');
+    }
+    final deps = dao[type].deleteById(id);
+    if (deps > 0) {
+      return {'deps': deps};
+    }
+    return null;
   }
 }

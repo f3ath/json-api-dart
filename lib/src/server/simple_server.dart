@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
+import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/resource_controller.dart';
-import 'package:json_api/src/server/routing.dart';
+import 'package:json_api/src/server/router.dart';
 import 'package:json_api/src/server/server.dart';
 
 /// A simple JSON:API cars_server ot top of Dart's [HttpServer]
@@ -20,8 +20,9 @@ class SimpleServer {
     _httpServer = await HttpServer.bind(address, port);
 
     _httpServer.forEach((request) async {
-      final serverResponse = await jsonApiServer.handle(request.method,
-          request.uri, await request.transform(utf8.decoder).join());
+      final serverResponse =
+          await jsonApiServer.handle(NativeHttpRequestAdapter(request));
+
       request.response.statusCode = serverResponse.status;
       serverResponse.headers.forEach(request.response.headers.set);
       request.response.headers.set('Access-Control-Allow-Origin', '*');
