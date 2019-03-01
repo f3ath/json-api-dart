@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:json_api/src/identifier.dart';
 import 'package:json_api/src/resource.dart';
 import 'package:json_api/src/server/page.dart';
+import 'package:json_api/src/server/request.dart';
 
 class Collection<T> {
   Iterable<T> elements;
@@ -15,19 +16,15 @@ abstract class ResourceController {
   bool supports(String type);
 
   Future<Collection<Resource>> fetchCollection(
-      String type, Map<String, String> params);
+      String type, JsonApiHttpRequest request);
 
   Stream<Resource> fetchResources(Iterable<Identifier> ids);
 
   Future<Resource> createResource(
-      String type, Resource resource, Map<String, String> params);
+      String type, Resource resource, JsonApiHttpRequest request);
 
   Future<void> deleteResource(
-      String type, String id, Map<String, String> params);
-
-//  Future<void> addToMany(Identifier id, String rel, Iterable<Identifier> ids);
-
-//  Future<Resource> updateResource(Identifier id, Resource resource);
+      String type, String id, JsonApiHttpRequest request);
 }
 
 class ResourceControllerException implements Exception {

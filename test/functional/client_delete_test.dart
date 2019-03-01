@@ -34,20 +34,20 @@ void main() async {
       expect(r1.status, 404);
     });
 
-//    test('200 OK', () async {
-//      // Json-Api-Options header is not a part of the standard!
-//      final r0 = await client.deleteResource(Url.resource('models', '1'),
-//          headers: {'Json-Api-Options': 'meta'});
-//
-//      expect(r0.status, 200);
-//      expect(r0.isSuccessful, true);
-//      expect(r0.document.meta['Server'],
-//          'Dart JSON:API Server. https://pub.dartlang.org/packages/json_api');
-//
-//      // Make sure the resource is not available anymore
-//      final r1 = await client.fetchResource(Url.resource('models', '1'));
-//      expect(r1.status, 404);
-//    });
+    test('200 OK', () async {
+      // Json-Api-Options header is not a part of the standard!
+      final r0 = await client.deleteResource(Url.resource('models', '1'),
+          headers: {'Json-Api-Options': 'meta'});
+
+      expect(r0.status, 200);
+      expect(r0.isSuccessful, true);
+      expect(r0.document.meta['Server'],
+          'Dart JSON:API Server. https://pub.dartlang.org/packages/json_api');
+
+      // Make sure the resource is not available anymore
+      final r1 = await client.fetchResource(Url.resource('models', '1'));
+      expect(r1.status, 404);
+    });
 
     /// https://jsonapi.org/format/#crud-deleting-responses-404
     ///

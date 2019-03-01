@@ -5,15 +5,21 @@ import 'package:json_api/src/server/response.dart';
 
 /// JSON:API Controller
 abstract class JsonApiController {
-  Future<ServerResponse> fetchCollection(CollectionRequest rq);
+  Future<ServerResponse> fetchCollection(
+      String type, JsonApiHttpRequest request);
 
-  Future<ServerResponse> fetchResource(ResourceRequest rq);
+  Future<ServerResponse> fetchResource(
+      String type, String id, JsonApiHttpRequest request);
 
-  Future<ServerResponse> fetchRelationship(RelationshipRequest rq);
+  Future<ServerResponse> fetchRelationship(
+      String type, String id, String relationship, JsonApiHttpRequest request);
 
-  Future<ServerResponse> fetchRelated(RelatedRequest rq);
+  Future<ServerResponse> fetchRelated(
+      String type, String id, String relationship, JsonApiHttpRequest request);
 
-  Future<ServerResponse> createResource(CollectionRequest rq);
+  Future<ServerResponse> createResource(
+      String type, JsonApiHttpRequest request);
 
-  Future<ServerResponse> deleteResource(ResourceRequest rq);
+  Future<ServerResponse> deleteResource(
+      String type, String id, JsonApiHttpRequest request);
 }

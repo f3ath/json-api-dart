@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:json_api/src/identifier.dart';
 import 'package:json_api/src/resource.dart';
 import 'package:json_api/src/server/numbered_page.dart';
+import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/resource_controller.dart';
 import 'package:uuid/uuid.dart';
 
@@ -17,9 +18,9 @@ class CarsController implements ResourceController {
   bool supports(String type) => dao.containsKey(type);
 
   Future<Collection<Resource>> fetchCollection(
-      String type, Map<String, String> params) async {
-    final page =
-        NumberedPage.fromQueryParameters(params, total: dao[type].length);
+      String type, JsonApiHttpRequest request) async {
+    final page = NumberedPage.fromQueryParameters(request.uri.queryParameters,
+        total: dao[type].length);
     return Collection(
         dao[type]
             .fetchCollection(offset: page.number - 1)
@@ -40,7 +41,7 @@ class CarsController implements ResourceController {
 
   @override
   Future<Resource> createResource(
-      String type, Resource resource, Map<String, String> params) async {
+      String type, Resource resource, JsonApiHttpRequest request) async {
     if (type != resource.type) {
       throw ResourceControllerException(409, detail: 'Incompatible type');
     }
@@ -59,7 +60,8 @@ class CarsController implements ResourceController {
   }
 
   @override
-  Future<void> deleteResource(String type, String id, Map<String, String> params) {
+  Future<void> deleteResource(
+      String type, String id, JsonApiHttpRequest request) {
     if (dao[type].fetchById(id) == null) {
       throw ResourceControllerException(404, detail: 'Resource not found');
     }
