@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:json_api/src/identifier.dart';
-import 'package:json_api/src/resource.dart';
+import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/page.dart';
 import 'package:json_api/src/server/request.dart';
 
@@ -12,7 +12,13 @@ class Collection<T> {
   Collection(this.elements, {this.page});
 }
 
+/// The [ResourceController] manages resources at application level.
+/// It is responsible for CRUD operations over resources.
+/// When the operation succeeds, the method should return the value specified in
+/// its return type. It may also throw a [ResourceControllerException] which
+/// will be converted to an [ErrorObject] and returned to the client in an [ErrorDocument]
 abstract class ResourceController {
+  /// Returns true if the resource type is supported by the controller
   bool supports(String type);
 
   Future<Collection<Resource>> fetchCollection(
@@ -23,7 +29,10 @@ abstract class ResourceController {
   Future<Resource> createResource(
       String type, Resource resource, JsonApiHttpRequest request);
 
-  Future<void> deleteResource(
+  /// This method should delete the resource specified by [type] and [id].
+  /// It may return metadata to be sent back as 200 OK response.
+  /// If an empty map or null is returned, the server will respond with 204 No Content.
+  Future<Map<String, Object>> deleteResource(
       String type, String id, JsonApiHttpRequest request);
 }
 

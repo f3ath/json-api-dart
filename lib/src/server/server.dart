@@ -2,35 +2,19 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/src/document/collection_document.dart';
-import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/document/error_document.dart';
-import 'package:json_api/src/document/error_object.dart';
-import 'package:json_api/src/document/identifier_object.dart';
-import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/relationship.dart';
-import 'package:json_api/src/document/resource_document.dart';
-import 'package:json_api/src/document/resource_object.dart';
-import 'package:json_api/src/identifier.dart';
+import 'package:json_api/src/document.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/resource.dart';
 import 'package:json_api/src/server/json_api_controller.dart';
 import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/resource_controller.dart';
 import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/router.dart';
 
-typedef void MetaDecorator(
-    JsonApiRoute route, JsonApiHttpRequest request, Document doc);
-
 class JsonApiServer implements JsonApiController {
   final ResourceController controller;
   final Router router;
-  final MetaDecorator meta;
 
-  JsonApiServer(this.controller, this.router, {MetaDecorator meta})
-      : meta = meta ??
-            ((JsonApiRoute route, JsonApiHttpRequest request, Document doc) {});
+  JsonApiServer(this.controller, this.router);
 
   Future<ServerResponse> handle(JsonApiHttpRequest request) async {
     final route = await router.resolve(request);
@@ -150,8 +134,12 @@ class JsonApiServer implements JsonApiController {
   Future<ServerResponse> deleteResource(
       String type, String id, JsonApiHttpRequest request) async {
     try {
-      await controller.deleteResource(type, id, request);
-      return ServerResponse.noContent();
+      final meta = await controller.deleteResource(type, id, request);
+      if (meta?.isNotEmpty == true) {
+        return ServerResponse.ok(MetaDocument(meta));
+      } else {
+        return ServerResponse.noContent();
+      }
     } on ResourceControllerException catch (e) {
       return ServerResponse(e.httpStatus,
           ErrorDocument([ErrorObject.fromResourceControllerException(e)]));

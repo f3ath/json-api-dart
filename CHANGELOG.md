@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Improved ResourceController error handling
 - Resource creation
+- Resource deletion
 
 ## 0.1.0 - 2019-02-27
 ### Added

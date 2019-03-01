@@ -18,8 +18,6 @@ void main() async {
   tearDown(() => s.stop());
 
   group('resource', () {
-    /// https://jsonapi.org/format/#crud-creating-responses-201
-    ///
     /// If a POST request did not include a Client-Generated ID and the requested
     /// resource has been created successfully, the server MUST return a 201 Created status code.
     ///
@@ -29,6 +27,8 @@ void main() async {
     ///
     /// If the resource object returned by the response contains a self key in its links member
     /// and a Location header is provided, the value of the self member MUST match the value of the Location header.
+    ///
+    /// https://jsonapi.org/format/#crud-creating-responses-201
     test('201 Created', () async {
       final modelY = Resource('models', null, attributes: {'name': 'Model Y'});
       final r0 = await client.createResource(Url.collection('models'), modelY);
@@ -46,12 +46,12 @@ void main() async {
       expect(r1.document.resourceObject.attributes['name'], 'Model Y');
     });
 
-    /// https://jsonapi.org/format/#crud-creating-responses-204
-    ///
     /// If a POST request did include a Client-Generated ID and the requested
     /// resource has been created successfully, the server MUST return either
     /// a 201 Created status code and response document (as described above)
     /// or a 204 No Content status code with no response document.
+    ///
+    /// https://jsonapi.org/format/#crud-creating-responses-204
     test('204 No Content', () async {
       final modelY = Resource('models', '555', attributes: {'name': 'Model Y'});
       final r0 = await client.createResource(Url.collection('models'), modelY);
@@ -65,10 +65,10 @@ void main() async {
       expect(r1.document.resourceObject.attributes['name'], 'Model Y');
     });
 
-    /// https://jsonapi.org/format/#crud-creating-responses-409
-    ///
     /// A server MUST return 409 Conflict when processing a POST request to
     /// create a resource with a client-generated ID that already exists.
+    ///
+    /// https://jsonapi.org/format/#crud-creating-responses-409
     test('409 Conflict - Resource already exists', () async {
       final modelY = Resource('models', '1', attributes: {'name': 'Model Y'});
       final r0 = await client.createResource(Url.collection('models'), modelY);
@@ -79,11 +79,11 @@ void main() async {
       expect(r0.errorDocument.errors.first.detail, 'Resource already exists');
     });
 
-    /// https://jsonapi.org/format/#crud-creating-responses-409
-    ///
     /// A server MUST return 409 Conflict when processing a POST request in
     /// which the resource object’s type is not among the type(s) that
     /// constitute the collection represented by the endpoint.
+    ///
+    /// https://jsonapi.org/format/#crud-creating-responses-409
     test('409 Conflict - Incompatible type', () async {
       final modelY = Resource('models', '555', attributes: {'name': 'Model Y'});
       final r0 =

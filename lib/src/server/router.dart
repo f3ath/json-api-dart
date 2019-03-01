@@ -73,7 +73,6 @@ class StandardRouting implements Router {
   Map<K, V> _nonEmpty<K, V>(Map<K, V> map) => map.isEmpty ? null : map;
 }
 
-
 abstract class JsonApiRoute {
   String get type;
 

@@ -18,10 +18,10 @@ void main() async {
   tearDown(() => s.stop());
 
   group('resource', () {
-    /// https://jsonapi.org/format/#crud-deleting-responses-204
-    ///
     /// A server MUST return a 204 No Content status code if a deletion request
     /// is successful and no content is returned.
+    ///
+    /// https://jsonapi.org/format/#crud-deleting-responses-204
     test('204 No Content', () async {
       final r0 = await client.deleteResource(Url.resource('models', '1'));
 
@@ -34,18 +34,19 @@ void main() async {
       expect(r1.status, 404);
     });
 
+    /// A server MUST return a 200 OK status code if a deletion request
+    /// is successful and the server responds with only top-level meta data.
+    ///
+    /// https://jsonapi.org/format/#crud-deleting-responses-200
     test('200 OK', () async {
-      // Json-Api-Options header is not a part of the standard!
-      final r0 = await client.deleteResource(Url.resource('models', '1'),
-          headers: {'Json-Api-Options': 'meta'});
+      final r0 = await client.deleteResource(Url.resource('companies', '1'));
 
       expect(r0.status, 200);
       expect(r0.isSuccessful, true);
-      expect(r0.document.meta['Server'],
-          'Dart JSON:API Server. https://pub.dartlang.org/packages/json_api');
+      expect(r0.document.meta['deps'], 5);
 
       // Make sure the resource is not available anymore
-      final r1 = await client.fetchResource(Url.resource('models', '1'));
+      final r1 = await client.fetchResource(Url.resource('companies', '1'));
       expect(r1.status, 404);
     });
 

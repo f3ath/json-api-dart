@@ -1,27 +1,27 @@
 # Implementation of [JSON:API v1.0](http://jsonapi.org) in Dart
 
-#### Feature roadmap
-##### Client
+### Feature roadmap
+#### Client
 - [x] Fetching single resources and resource collections
 - [x] Fetching relationships and related resources and collections
 - [x] Fetching single resources
 - [x] Creating resources
+- [x] Deleting resources
 - [ ] Updating resource's attributes
 - [ ] Updating resource's relationships
 - [ ] Updating relationships
-- [ ] Deleting resources
 - [ ] Asynchronous processing 
 - [ ] Optional check for `Content-Type` header in incoming responses 
 
-##### Server (The Server API is not stable yet!)
+#### Server (The Server API is not stable yet!)
 - [x] Fetching single resources and resource collections
 - [x] Fetching relationships and related resources and collections
 - [x] Fetching single resources
 - [x] Creating resources
+- [x] Deleting resources
 - [ ] Updating resource's attributes
 - [ ] Updating resource's relationships
 - [ ] Updating relationships
-- [ ] Deleting resources
 - [ ] Inclusion of related resources 
 - [ ] Sparse fieldsets 
 - [ ] Sorting, pagination, filtering
@@ -29,8 +29,9 @@
 - [ ] Optional check for `Content-Type` header in incoming requests 
 - [ ] Support annotations in resource mappers (?) 
 
-##### Document
-- [ ] Support `meta` and `jsonapi` members
+#### Document (The Document API is not stable yet!)
+- [ ] Support `meta` members
+- [ ] Support `jsonapi` members
 - [ ] Structure Validation including compound documents
 - [ ] Support relationship objects lacking the `data` member
 - [ ] Naming Validation

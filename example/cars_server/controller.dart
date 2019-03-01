@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:json_api/src/identifier.dart';
-import 'package:json_api/src/resource.dart';
+import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/numbered_page.dart';
 import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/resource_controller.dart';
@@ -60,12 +60,15 @@ class CarsController implements ResourceController {
   }
 
   @override
-  Future<void> deleteResource(
-      String type, String id, JsonApiHttpRequest request) {
+  Future<Map<String, Object>> deleteResource(
+      String type, String id, JsonApiHttpRequest request) async {
     if (dao[type].fetchById(id) == null) {
       throw ResourceControllerException(404, detail: 'Resource not found');
     }
-    dao[type].deleteById(id);
+    final deps = dao[type].deleteById(id);
+    if (deps > 0) {
+      return {'deps': deps};
+    }
     return null;
   }
 }

@@ -9,10 +9,10 @@ import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/error_document.dart';
 import 'package:json_api/src/document/meta_document.dart';
 import 'package:json_api/src/document/relationship.dart';
+import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/resource_document.dart';
 import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/resource.dart';
 
 typedef D ResponseParser<D extends Document>(Object j);
 

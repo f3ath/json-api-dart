@@ -1,5 +1,5 @@
-import 'package:json_api/src/identifier.dart';
-import 'package:json_api/src/resource.dart';
+import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/resource.dart';
 
 import 'model.dart';
 
@@ -19,8 +19,10 @@ abstract class DAO<T> {
   Iterable<T> fetchCollection({int offset = 0, int limit = 1}) =>
       _collection.values.skip(offset).take(limit);
 
-  void deleteById(String id) {
+  /// Returns the number of depending objects the entity had
+  int deleteById(String id) {
     _collection.remove(id);
+    return 0;
   }
 }
 
@@ -62,5 +64,14 @@ class CompanyDAO extends DAO<Company> {
 
   Company create(Resource r) {
     return Company(r.id, r.attributes['name']);
+  }
+
+  @override
+  int deleteById(String id) {
+    final company = fetchById(id);
+    int deps = company.headquarters == null ? 0 : 1;
+    deps += company.models.length;
+    _collection.remove(id);
+    return deps;
   }
 }

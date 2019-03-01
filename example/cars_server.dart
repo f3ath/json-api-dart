@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/simple_server.dart';
 
 import 'cars_server/controller.dart';

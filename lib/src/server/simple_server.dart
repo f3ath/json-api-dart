@@ -10,14 +10,12 @@ import 'package:json_api/src/server/server.dart';
 class SimpleServer {
   HttpServer _httpServer;
   final ResourceController _controller;
-  final MetaDecorator meta;
 
-  SimpleServer(this._controller, {this.meta});
+  SimpleServer(this._controller);
 
   Future start(InternetAddress address, int port) async {
-    final jsonApiServer = JsonApiServer(
-        _controller, StandardRouting(Uri.parse('http://${address.host}:$port')),
-        meta: meta);
+    final jsonApiServer = JsonApiServer(_controller,
+        StandardRouting(Uri.parse('http://${address.host}:$port')));
 
     _httpServer = await HttpServer.bind(address, port);
 
