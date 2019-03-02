@@ -76,15 +76,14 @@ class JsonApiClient {
 //          {Map<String, String> headers}) =>
 //      _post(ToMany.fromJson, uri,
 //          ToMany(identifiers.map(IdentifierObject.fromIdentifier)), headers);
-//
-//  Future<Response<ResourceDocument>> updateResource(Uri uri, Resource resource,
-//          {Map<String, String> headers}) async =>
-//      _patch(
-//          ResourceDocument.fromJson,
-//          uri,
-//          ResourceDocument(ResourceObject(resource.type, resource.id,
-//              attributes: resource.attributes)),
-//          headers);
+
+  /// Updates the resource via PATH request.
+  ///
+  /// https://jsonapi.org/format/#crud-updating
+  Future<Response<ResourceDocument>> updateResource(Uri uri, Resource resource,
+          {Map<String, String> headers}) async =>
+      _patch(ResourceDocument.fromJson, uri,
+          ResourceDocument(ResourceObject.fromResource(resource)), headers);
 
   Future<Response<D>> _get<D extends Document>(
           ResponseParser<D> parse, uri, Map<String, String> headers) =>
@@ -117,18 +116,18 @@ class JsonApiClient {
                   'Content-Type': contentType,
                 })));
 
-//  Future<Response<D>> _patch<D extends Document>(ResponseParser<D> parse, uri,
-//          Document document, Map<String, String> headers) =>
-//      _call(
-//          parse,
-//          (_) => _.patch(uri,
-//              body: json.encode(document),
-//              headers: {}
-//                ..addAll(headers ?? {})
-//                ..addAll({
-//                  'Accept': contentType,
-//                  'Content-Type': contentType,
-//                })));
+  Future<Response<D>> _patch<D extends Document>(ResponseParser<D> parse, uri,
+          Document document, Map<String, String> headers) =>
+      _call(
+          parse,
+          (_) => _.patch(uri,
+              body: json.encode(document),
+              headers: {}
+                ..addAll(headers ?? {})
+                ..addAll({
+                  'Accept': contentType,
+                  'Content-Type': contentType,
+                })));
 
   Future<Response<D>> _call<D extends Document>(ResponseParser<D> parse,
       Future<http.Response> fn(http.Client client)) async {

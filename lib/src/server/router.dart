@@ -111,6 +111,8 @@ class ResourceRoute implements JsonApiRoute {
         return controller.fetchResource(type, id, request);
       case HttpMethod.delete:
         return controller.deleteResource(type, id, request);
+      case HttpMethod.patch:
+        return controller.updateResource(type, id, request);
       default:
         return Future.value(ServerResponse(405)); // TODO: meaningful error
     }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:json_api/document.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/page.dart';
@@ -21,7 +22,7 @@ abstract class ResourceController {
   /// Returns true if the resource type is supported by the controller
   bool supports(String type);
 
-  Future<Collection<Resource>> fetchCollection(
+  Future<OperationResult<Collection<Resource>>> fetchCollection(
       String type, JsonApiHttpRequest request);
 
   Stream<Resource> fetchResources(Iterable<Identifier> ids);
@@ -29,11 +30,33 @@ abstract class ResourceController {
   Future<Resource> createResource(
       String type, Resource resource, JsonApiHttpRequest request);
 
+  Future<Resource> updateResource(
+      String type, String id, Resource resource, JsonApiHttpRequest request);
+
   /// This method should delete the resource specified by [type] and [id].
   /// It may return metadata to be sent back as 200 OK response.
   /// If an empty map or null is returned, the server will respond with 204 No Content.
   Future<Map<String, Object>> deleteResource(
       String type, String id, JsonApiHttpRequest request);
+}
+
+class OperationResult<T> {
+  final T result;
+  final bool complete;
+  final errors = <ErrorObject>[];
+  final int httpStatus;
+
+  bool get failed => !complete;
+
+  OperationResult.ok(this.result)
+      : complete = true,
+        httpStatus = 200;
+
+  OperationResult.fail(this.httpStatus, Iterable<ErrorObject> errors)
+      : complete = false,
+        result = null {
+    this.errors.addAll(errors);
+  }
 }
 
 class ResourceControllerException implements Exception {

@@ -17,15 +17,15 @@ class CarsController implements ResourceController {
   @override
   bool supports(String type) => dao.containsKey(type);
 
-  Future<Collection<Resource>> fetchCollection(
+  Future<OperationResult<Collection<Resource>>> fetchCollection(
       String type, JsonApiHttpRequest request) async {
     final page = NumberedPage.fromQueryParameters(request.uri.queryParameters,
         total: dao[type].length);
-    return Collection(
+    return OperationResult.ok(Collection(
         dao[type]
             .fetchCollection(offset: page.number - 1)
             .map(dao[type].toResource),
-        page: page);
+        page: page));
   }
 
   @override
@@ -70,5 +70,14 @@ class CarsController implements ResourceController {
       return {'deps': deps};
     }
     return null;
+  }
+
+  @override
+  Future<Resource> updateResource(String type, String id, Resource resource,
+      JsonApiHttpRequest request) async {
+    if (dao[type].fetchById(id) == null) {
+      throw ResourceControllerException(404, detail: 'Resource not found');
+    }
+    return dao[type].update(id, resource);
   }
 }

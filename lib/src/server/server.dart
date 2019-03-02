@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/src/document.dart';
+import 'package:json_api/document.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/server/json_api_controller.dart';
 import 'package:json_api/src/server/request.dart';
@@ -31,7 +31,14 @@ class JsonApiServer implements JsonApiController {
 
   Future<ServerResponse> fetchCollection(
       String type, JsonApiHttpRequest request) async {
-    final collection = await controller.fetchCollection(type, request);
+    final operation = await controller.fetchCollection(type, request);
+
+    if (operation.failed) {
+      return ServerResponse(
+          operation.httpStatus, ErrorDocument(operation.errors));
+    }
+
+    final collection = operation.result;
 
     final pagination = Pagination.fromMap(collection.page
         .mapPages((_) => Link(router.collection(type, params: _?.parameters))));
@@ -140,6 +147,26 @@ class JsonApiServer implements JsonApiController {
       } else {
         return ServerResponse.noContent();
       }
+    } on ResourceControllerException catch (e) {
+      return ServerResponse(e.httpStatus,
+          ErrorDocument([ErrorObject.fromResourceControllerException(e)]));
+    }
+  }
+
+  Future<ServerResponse> updateResource(
+      String type, String id, JsonApiHttpRequest request) async {
+    try {
+      final resource =
+          ResourceDocument.fromJson(json.decode(await request.body()))
+              .resourceObject
+              .toResource();
+      final updated =
+          await controller.updateResource(type, id, resource, request);
+      if (updated == null) {
+        return ServerResponse.noContent();
+      }
+      return ServerResponse.ok(
+          ResourceDocument(ResourceObject.fromResource(updated)));
     } on ResourceControllerException catch (e) {
       return ServerResponse(e.httpStatus,
           ErrorDocument([ErrorObject.fromResourceControllerException(e)]));
