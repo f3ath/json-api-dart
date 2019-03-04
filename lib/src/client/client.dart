@@ -61,12 +61,16 @@ class JsonApiClient {
 
   /// Creates a new resource. The resource will be added to a collection
   /// according to its type.
+  ///
+  /// https://jsonapi.org/format/#crud-creating
   Future<Response<ResourceDocument>> createResource(Uri uri, Resource resource,
           {Map<String, String> headers}) =>
       _post(ResourceDocument.fromJson, uri,
           ResourceDocument(ResourceObject.fromResource(resource)), headers);
 
   /// Deletes the resource.
+  ///
+  /// https://jsonapi.org/format/#crud-deleting
   Future<Response<MetaDocument>> deleteResource(Uri uri,
           {Map<String, String> headers}) =>
       _delete(MetaDocument.fromJson, uri, headers);
@@ -77,7 +81,7 @@ class JsonApiClient {
 //      _post(ToMany.fromJson, uri,
 //          ToMany(identifiers.map(IdentifierObject.fromIdentifier)), headers);
 
-  /// Updates the resource via PATH request.
+  /// Updates the resource via PATCH request.
   ///
   /// https://jsonapi.org/format/#crud-updating
   Future<Response<ResourceDocument>> updateResource(Uri uri, Resource resource,

@@ -22,7 +22,7 @@ abstract class ResourceController {
   /// Returns true if the resource type is supported by the controller
   bool supports(String type);
 
-  Future<OperationResult<Collection<Resource>>> fetchCollection(
+  Future<Collection<Resource>> fetchCollection(
       String type, JsonApiHttpRequest request);
 
   Stream<Resource> fetchResources(Iterable<Identifier> ids);
@@ -38,25 +38,6 @@ abstract class ResourceController {
   /// If an empty map or null is returned, the server will respond with 204 No Content.
   Future<Map<String, Object>> deleteResource(
       String type, String id, JsonApiHttpRequest request);
-}
-
-class OperationResult<T> {
-  final T result;
-  final bool complete;
-  final errors = <ErrorObject>[];
-  final int httpStatus;
-
-  bool get failed => !complete;
-
-  OperationResult.ok(this.result)
-      : complete = true,
-        httpStatus = 200;
-
-  OperationResult.fail(this.httpStatus, Iterable<ErrorObject> errors)
-      : complete = false,
-        result = null {
-    this.errors.addAll(errors);
-  }
 }
 
 class ResourceControllerException implements Exception {

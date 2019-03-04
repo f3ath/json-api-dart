@@ -44,7 +44,6 @@ void main() async {
   tearDown(() => s.stop());
 
   group('resource', () {
-
     /// If a server accepts an update but also changes the resource(s)
     /// in ways other than those specified by the request (for example,
     /// updating the updated-at attribute or a computed sha),
@@ -52,6 +51,8 @@ void main() async {
     ///
     /// The response document MUST include a representation of the
     /// updated resource(s) as if a GET request was made to the request URL.
+    ///
+    /// https://jsonapi.org/format/#crud-updating-responses-200
     test('200 OK', () async {
       final r0 = await client.fetchResource(Url.resource('companies', '1'));
       final original = r0.document.resourceObject.toResource();
@@ -65,7 +66,8 @@ void main() async {
       original.toMany['models'].removeLast();
       original.toOne.clear(); // Not changing these
 
-      final r1 = await client.updateResource(Url.resource('companies', '1'), original);
+      final r1 =
+          await client.updateResource(Url.resource('companies', '1'), original);
       final updated = r1.document.resourceObject.toResource();
 
       expect(r1.status, 200);
@@ -74,6 +76,12 @@ void main() async {
       expect(updated.toMany['models'].length, 3);
     });
 
+    /// If an update is successful and the server doesn’t update any attributes
+    /// besides those provided, the server MUST return either
+    /// a 200 OK status code and response document (as described above)
+    /// or a 204 No Content status code with no response document.
+    ///
+    /// https://jsonapi.org/format/#crud-updating-responses-204
     test('204 No Content', () async {
       final r0 = await client.fetchResource(Url.resource('models', '3'));
       final original = r0.document.resourceObject.toResource();
@@ -82,7 +90,8 @@ void main() async {
 
       original.attributes['name'] = 'Model XXX';
 
-      final r1 = await client.updateResource(Url.resource('models', '3'), original);
+      final r1 =
+          await client.updateResource(Url.resource('models', '3'), original);
       expect(r1.status, 204);
       expect(r1.document, isNull);
 
@@ -91,5 +100,25 @@ void main() async {
       expect(r2.document.resourceObject.attributes['name'], 'Model XXX');
     });
 
+    /// A server MAY return 409 Conflict when processing a PATCH request
+    /// to update a resource if that update would violate other
+    /// server-enforced constraints (such as a uniqueness constraint
+    /// on a property other than id).
+    ///
+    /// A server MUST return 409 Conflict when processing a PATCH request
+    /// in which the resource object’s type and id do not match the server’s endpoint.
+    ///
+    /// https://jsonapi.org/format/#crud-updating-responses-409
+    test('409 Conflict - Endpoint mismatch', () async {
+      final r0 = await client.fetchResource(Url.resource('models', '3'));
+      final original = r0.document.resourceObject.toResource();
+
+      final r1 =
+          await client.updateResource(Url.resource('companies', '1'), original);
+      expect(r1.status, 409);
+      expect(r1.document, isNull);
+      expect(r1.errorDocument.errors.first.detail,
+          'Resource type does not match the endpoint');
+    });
   });
 }

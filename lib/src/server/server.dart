@@ -26,19 +26,17 @@ class JsonApiServer implements JsonApiController {
       return ServerResponse.notFound(ErrorDocument(
           [ErrorObject(status: '404', detail: 'Unknown resource type')]));
     }
-    return route.call(this, request);
+    try {
+      return await route.call(this, request);
+    } on ResourceControllerException catch (e) {
+      return ServerResponse(e.httpStatus,
+          ErrorDocument([ErrorObject.fromResourceControllerException(e)]));
+    }
   }
 
   Future<ServerResponse> fetchCollection(
       String type, JsonApiHttpRequest request) async {
-    final operation = await controller.fetchCollection(type, request);
-
-    if (operation.failed) {
-      return ServerResponse(
-          operation.httpStatus, ErrorDocument(operation.errors));
-    }
-
-    final collection = operation.result;
+    final collection = await controller.fetchCollection(type, request);
 
     final pagination = Pagination.fromMap(collection.page
         .mapPages((_) => Link(router.collection(type, params: _?.parameters))));
@@ -53,126 +51,90 @@ class JsonApiServer implements JsonApiController {
 
   Future<ServerResponse> fetchResource(
       String type, String id, JsonApiHttpRequest request) async {
-    try {
-      final res = await _resource(type, id);
-      return ServerResponse.ok(
-          ResourceDocument(nullable(ResourceObject.fromResource)(res)));
-    } on ResourceControllerException catch (e) {
-      return ServerResponse(e.httpStatus,
-          ErrorDocument([ErrorObject.fromResourceControllerException(e)]));
-    }
+    final res = await controller.fetchResources([Identifier(type, id)]).first;
+    return ServerResponse.ok(
+        ResourceDocument(nullable(ResourceObject.fromResource)(res)));
   }
 
   Future<ServerResponse> fetchRelated(String type, String id,
       String relationship, JsonApiHttpRequest request) async {
-    try {
-      final res = await controller.fetchResources([Identifier(type, id)]).first;
+    final res = await controller.fetchResources([Identifier(type, id)]).first;
 
-      if (res.toOne.containsKey(relationship)) {
-        final id = res.toOne[relationship];
-        // TODO check if id == null
-        final related = await controller.fetchResources([id]).first;
-        return ServerResponse.ok(
-            ResourceDocument(ResourceObject.fromResource(related)));
-      }
-
-      if (res.toMany.containsKey(relationship)) {
-        final ids = res.toMany[relationship];
-        final related = await controller.fetchResources(ids).toList();
-        return ServerResponse.ok(
-            CollectionDocument(related.map(ResourceObject.fromResource)));
-      }
-
-      return ServerResponse(404);
-    } on ResourceControllerException catch (e) {
-      return ServerResponse(e.httpStatus,
-          ErrorDocument([ErrorObject.fromResourceControllerException(e)]));
+    if (res.toOne.containsKey(relationship)) {
+      final id = res.toOne[relationship];
+      // TODO check if id == null
+      final related = await controller.fetchResources([id]).first;
+      return ServerResponse.ok(
+          ResourceDocument(ResourceObject.fromResource(related)));
     }
+
+    if (res.toMany.containsKey(relationship)) {
+      final ids = res.toMany[relationship];
+      final related = await controller.fetchResources(ids).toList();
+      return ServerResponse.ok(
+          CollectionDocument(related.map(ResourceObject.fromResource)));
+    }
+
+    return ServerResponse(404);
   }
 
   Future<ServerResponse> fetchRelationship(String type, String id,
       String relationship, JsonApiHttpRequest request) async {
-    try {
-      final res = await _resource(type, id);
-      if (res.toOne.containsKey(relationship)) {
-        return ServerResponse.ok(ToOne(
-            nullable(IdentifierObject.fromIdentifier)(res.toOne[relationship]),
-            self: Link(router.relationship(res.type, res.id, relationship)),
-            related: Link(router.related(res.type, res.id, relationship))));
-      }
-      if (res.toMany.containsKey(relationship)) {
-        return ServerResponse.ok(ToMany(
-            res.toMany[relationship].map(IdentifierObject.fromIdentifier),
-            self: Link(router.relationship(res.type, res.id, relationship)),
-            related: Link(router.related(res.type, res.id, relationship))));
-      }
-      return ServerResponse(404);
-    } on ResourceControllerException catch (e) {
-      return ServerResponse(e.httpStatus,
-          ErrorDocument([ErrorObject.fromResourceControllerException(e)]));
+    final res = await controller.fetchResources([Identifier(type, id)]).first;
+    if (res.toOne.containsKey(relationship)) {
+      return ServerResponse.ok(ToOne(
+          nullable(IdentifierObject.fromIdentifier)(res.toOne[relationship]),
+          self: Link(router.relationship(res.type, res.id, relationship)),
+          related: Link(router.related(res.type, res.id, relationship))));
     }
+    if (res.toMany.containsKey(relationship)) {
+      return ServerResponse.ok(ToMany(
+          res.toMany[relationship].map(IdentifierObject.fromIdentifier),
+          self: Link(router.relationship(res.type, res.id, relationship)),
+          related: Link(router.related(res.type, res.id, relationship))));
+    }
+    return ServerResponse(404);
   }
 
   Future<ServerResponse> createResource(
       String type, JsonApiHttpRequest request) async {
-    try {
-      final requestedResource =
-          ResourceDocument.fromJson(json.decode(await request.body()))
-              .resourceObject
-              .toResource();
-      final createdResource =
-          await controller.createResource(type, requestedResource, request);
+    final requestedResource =
+        ResourceDocument.fromJson(json.decode(await request.body()))
+            .resourceObject
+            .toResource();
+    final createdResource =
+        await controller.createResource(type, requestedResource, request);
 
-      if (requestedResource.hasId) {
-        return ServerResponse.noContent();
-      } else {
-        return ServerResponse.created(
-            ResourceDocument(ResourceObject.fromResource(createdResource)))
-          ..headers['Location'] = router
-              .resource(createdResource.type, createdResource.id)
-              .toString();
-      }
-    } on ResourceControllerException catch (e) {
-      return ServerResponse(e.httpStatus,
-          ErrorDocument([ErrorObject.fromResourceControllerException(e)]));
+    if (requestedResource.hasId) {
+      return ServerResponse.noContent();
     }
+    return ServerResponse.created(
+        ResourceDocument(ResourceObject.fromResource(createdResource)))
+      ..headers['Location'] =
+          router.resource(createdResource.type, createdResource.id).toString();
   }
 
   Future<ServerResponse> deleteResource(
       String type, String id, JsonApiHttpRequest request) async {
-    try {
-      final meta = await controller.deleteResource(type, id, request);
-      if (meta?.isNotEmpty == true) {
-        return ServerResponse.ok(MetaDocument(meta));
-      } else {
-        return ServerResponse.noContent();
-      }
-    } on ResourceControllerException catch (e) {
-      return ServerResponse(e.httpStatus,
-          ErrorDocument([ErrorObject.fromResourceControllerException(e)]));
+    final meta = await controller.deleteResource(type, id, request);
+    if (meta?.isNotEmpty == true) {
+      return ServerResponse.ok(MetaDocument(meta));
     }
+    return ServerResponse.noContent();
   }
 
   Future<ServerResponse> updateResource(
       String type, String id, JsonApiHttpRequest request) async {
-    try {
-      final resource =
-          ResourceDocument.fromJson(json.decode(await request.body()))
-              .resourceObject
-              .toResource();
-      final updated =
-          await controller.updateResource(type, id, resource, request);
-      if (updated == null) {
-        return ServerResponse.noContent();
-      }
-      return ServerResponse.ok(
-          ResourceDocument(ResourceObject.fromResource(updated)));
-    } on ResourceControllerException catch (e) {
-      return ServerResponse(e.httpStatus,
-          ErrorDocument([ErrorObject.fromResourceControllerException(e)]));
+    final resource =
+        ResourceDocument.fromJson(json.decode(await request.body()))
+            .resourceObject
+            .toResource();
+    final updated =
+        await controller.updateResource(type, id, resource, request);
+    if (updated == null) {
+      return ServerResponse.noContent();
     }
+    return ServerResponse.ok(
+        ResourceDocument(ResourceObject.fromResource(updated)));
   }
-
-  Future<Resource> _resource(String type, String id) =>
-      controller.fetchResources([Identifier(type, id)]).first;
 }
