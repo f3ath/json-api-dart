@@ -25,4 +25,10 @@ abstract class JsonApiController {
 
   Future<ServerResponse> updateResource(
       String type, String id, JsonApiHttpRequest request);
+
+  Future<ServerResponse> replaceRelationship(
+      String type, String id, String relationship, JsonApiHttpRequest request);
+
+  Future<ServerResponse> addToMany(
+      String type, String id, String relationship, JsonApiHttpRequest request);
 }

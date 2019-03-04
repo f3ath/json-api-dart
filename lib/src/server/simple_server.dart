@@ -13,6 +13,7 @@ class SimpleServer {
 
   SimpleServer(this._controller);
 
+
   Future start(InternetAddress address, int port) async {
     final jsonApiServer = JsonApiServer(_controller,
         StandardRouting(Uri.parse('http://${address.host}:$port')));

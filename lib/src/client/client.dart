@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:json_api/document.dart';
 import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/client/status_code.dart';
 import 'package:json_api/src/document/collection_document.dart';
 import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/error_document.dart';
+import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/meta_document.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
@@ -75,19 +77,61 @@ class JsonApiClient {
           {Map<String, String> headers}) =>
       _delete(MetaDocument.fromJson, uri, headers);
 
-//  /// Adds the [identifiers] to a to-many relationship identified by [uri]
-//  Future<Response<ToMany>> addToMany(Uri uri, Iterable<Identifier> identifiers,
-//          {Map<String, String> headers}) =>
-//      _post(ToMany.fromJson, uri,
-//          ToMany(identifiers.map(IdentifierObject.fromIdentifier)), headers);
-
   /// Updates the resource via PATCH request.
   ///
   /// https://jsonapi.org/format/#crud-updating
   Future<Response<ResourceDocument>> updateResource(Uri uri, Resource resource,
-          {Map<String, String> headers}) async =>
+          {Map<String, String> headers}) =>
       _patch(ResourceDocument.fromJson, uri,
           ResourceDocument(ResourceObject.fromResource(resource)), headers);
+
+  /// Updates a to-one relationship via PATCH request
+  ///
+  /// https://jsonapi.org/format/#crud-updating-to-one-relationships
+  Future<Response<ToOne>> replaceToOne(Uri uri, Identifier id,
+          {Map<String, String> headers}) =>
+      _patch(ToOne.fromJson, uri, ToOne(IdentifierObject.fromIdentifier(id)),
+          headers);
+
+  /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
+  /// with id = null.
+  Future<Response<ToOne>> removeToOne(Uri uri, {Map<String, String> headers}) =>
+      _patch(ToOne.fromJson, uri, ToOne(null), headers);
+
+  /// Replaces a to-many relationship with the given set of [ids].
+  ///
+  /// The server MUST either completely replace every member of the relationship,
+  /// return an appropriate error response if some resources can not be found or accessed,
+  /// or return a 403 Forbidden response if complete replacement is not allowed by the server.
+  ///
+  /// https://jsonapi.org/format/#crud-updating-to-many-relationships
+  Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> ids,
+          {Map<String, String> headers}) =>
+      _patch(ToMany.fromJson, uri,
+          ToMany(ids.map(IdentifierObject.fromIdentifier)), headers);
+
+  /// Adds the given set of [ids] to a to-many relationship.
+  ///
+  /// The server MUST add the specified members to the relationship
+  /// unless they are already present.
+  /// If a given type and id is already in the relationship, the server MUST NOT add it again.
+  ///
+  /// Note: This matches the semantics of databases that use foreign keys
+  /// for has-many relationships. Document-based storage should check
+  /// the has-many relationship before appending to avoid duplicates.
+  ///
+  /// If all of the specified resources can be added to, or are already present in,
+  /// the relationship then the server MUST return a successful response.
+  ///
+  /// Note: This approach ensures that a request is successful if the server’s state
+  /// matches the requested state, and helps avoid pointless race conditions
+  /// caused by multiple clients making the same changes to a relationship.
+  ///
+  /// https://jsonapi.org/format/#crud-updating-to-many-relationships
+  Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> ids,
+          {Map<String, String> headers}) =>
+      _post(ToMany.fromJson, uri,
+          ToMany(ids.map(IdentifierObject.fromIdentifier)), headers);
 
   Future<Response<D>> _get<D extends Document>(
           ResponseParser<D> parse, uri, Map<String, String> headers) =>

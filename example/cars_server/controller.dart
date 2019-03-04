@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/numbered_page.dart';
 import 'package:json_api/src/server/request.dart';
@@ -84,5 +85,39 @@ class CarsController implements ResourceController {
       throw ResourceControllerException(404, detail: 'Resource not found');
     }
     return dao[type].update(id, resource);
+  }
+
+  @override
+  Future<ResourceControllerResponse<identifier>> replaceToOne(
+      String type,
+      String id,
+      String relationship,
+      Identifier identifier,
+      JsonApiHttpRequest request) async {
+    // TODO: check that target and related resources exist
+    dao[type].replaceToOne(id, relationship, identifier);
+    return ResourceControllerResponse.noContent<identifier>();
+  }
+
+  @override
+  Future<ResourceControllerResponse<List<Identifier>>> replaceToMany(
+      String type,
+      String id,
+      String relationship,
+      Iterable<Identifier> identifiers,
+      JsonApiHttpRequest request) async {
+    // TODO: check that target and related resources exist
+    dao[type].replaceToMany(id, relationship, identifiers);
+    return ResourceControllerResponse.noContent();
+  }
+
+  @override
+  Future<List<Identifier>> addToMany(
+      String type,
+      String id,
+      String relationship,
+      List<Identifier> identifiers,
+      JsonApiHttpRequest request) async {
+    return dao[type].addToMany(id, relationship, identifiers);
   }
 }

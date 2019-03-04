@@ -28,6 +28,20 @@ abstract class DAO<T> {
   Resource update(String id, Resource resource) {
     throw UnimplementedError();
   }
+
+  void replaceToOne(String id, String relationship, Identifier identifier) {
+    throw UnimplementedError();
+  }
+
+  void replaceToMany(
+      String id, String relationship, Iterable<Identifier> identifiers) {
+    throw UnimplementedError();
+  }
+
+  List<Identifier> addToMany(
+      String id, String relationship, List<Identifier> identifiers) {
+    throw UnimplementedError();
+  }
 }
 
 class ModelDAO extends DAO<Model> {
@@ -94,7 +108,7 @@ class CompanyDAO extends DAO<Company> {
 
   @override
   Resource update(String id, Resource resource) {
-    // TODO: What is Resource type or id is changed?
+    // TODO: What if Resource type or id is changed?
     final company = _collection[id];
     if (resource.attributes.containsKey('name')) {
       company.name = resource.attributes['name'];
@@ -111,5 +125,36 @@ class CompanyDAO extends DAO<Company> {
     }
     company.updatedAt = DateTime.now();
     return toResource(company);
+  }
+
+  @override
+  void replaceToOne(String id, String relationship, Identifier identifier) {
+    final company = _collection[id];
+    switch (relationship) {
+      case 'hq':
+        company.headquarters = identifier?.id;
+    }
+  }
+
+  @override
+  void replaceToMany(
+      String id, String relationship, Iterable<Identifier> identifiers) {
+    final company = _collection[id];
+    switch (relationship) {
+      case 'models':
+        company.models.clear();
+        company.models.addAll(identifiers.map((_) => _.id));
+    }
+  }
+
+  @override
+  List<Identifier> addToMany(
+      String id, String relationship, List<Identifier> identifiers) {
+    final company = _collection[id];
+    switch (relationship) {
+      case 'models':
+        company.models.addAll(identifiers.map((_) => _.id));
+        return company.models.map((_) => Identifier('models', _)).toList();
+    }
   }
 }

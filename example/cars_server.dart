@@ -20,6 +20,9 @@ SimpleServer createServer() {
     Model('2')..name = 'Model S',
     Model('3')..name = 'Model X',
     Model('4')..name = 'Model 3',
+    Model('5')..name = 'X1',
+    Model('6')..name = 'X3',
+    Model('7')..name = 'X5',
   ].forEach(models.insert);
 
   final cities = CityDAO();

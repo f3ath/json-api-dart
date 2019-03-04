@@ -96,6 +96,37 @@ class JsonApiServer implements JsonApiController {
     return ServerResponse(404);
   }
 
+  Future<ServerResponse> replaceRelationship(String type, String id,
+      String relationship, JsonApiHttpRequest request) async {
+    final rel = Relationship.fromJson(json.decode(await request.body()));
+    if (rel is ToOne) {
+      final response = await controller.replaceToOne(
+          type, id, relationship, rel.toIdentifier(), request);
+      if (response.isNoContent) {
+        return ServerResponse.noContent();
+      }
+    }
+
+    if (rel is ToMany) {
+      final response = await controller.replaceToMany(
+          type, id, relationship, rel.toIdentifiers(), request);
+      if (response.isNoContent) {
+        return ServerResponse.noContent();
+      }
+    }
+  }
+
+  @override
+  Future<ServerResponse> addToMany(String type, String id, String relationship,
+      JsonApiHttpRequest request) async {
+    final rel = ToMany.fromJson(json.decode(await request.body()));
+    final ids = await controller.addToMany(
+        type, id, relationship, rel.toIdentifiers(), request);
+    return ServerResponse.ok(ToMany(ids.map(IdentifierObject.fromIdentifier),
+        self: Link(router.relationship(type, id, relationship)),
+        related: Link(router.related(type, id, relationship))));
+  }
+
   Future<ServerResponse> createResource(
       String type, JsonApiHttpRequest request) async {
     final requestedResource =

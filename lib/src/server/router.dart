@@ -150,6 +150,12 @@ class RelationshipRoute implements JsonApiRoute {
       case HttpMethod.get:
         return await controller.fetchRelationship(
             type, id, relationship, request);
+      case HttpMethod.patch:
+        return await controller.replaceRelationship(
+            type, id, relationship, request);
+      case HttpMethod.post:
+        return await controller.addToMany(
+            type, id, relationship, request);
       default:
         return ServerResponse(405); // TODO: meaningful error
     }

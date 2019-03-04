@@ -38,6 +38,54 @@ abstract class ResourceController {
   /// If an empty map or null is returned, the server will respond with 204 No Content.
   Future<Map<String, Object>> deleteResource(
       String type, String id, JsonApiHttpRequest request);
+
+  /// Replaces a to-one relationship, referenced by [type], [id] and [relationship],
+  /// with the [identifier]
+  Future<ResourceControllerResponse<Identifier>> replaceToOne(
+      String type,
+      String id,
+      String relationship,
+      Identifier identifier,
+      JsonApiHttpRequest request);
+
+  /// Fully replace a to-many relationship, referenced by [type], [id] and [relationship],
+  /// with the [identifiers]
+  Future<ResourceControllerResponse<List<Identifier>>> replaceToMany(
+      String type,
+      String id,
+      String relationship,
+      Iterable<Identifier> identifiers,
+      JsonApiHttpRequest request);
+
+  Future<List<Identifier>> addToMany(
+      String type,
+      String id,
+      String relationship,
+      List<Identifier> identifiers,
+      JsonApiHttpRequest request);
+}
+
+class ResourceControllerResponse<T> {
+  final T value;
+  final bool isMeta;
+  final meta = <String, Object>{};
+  final bool isNoContent;
+
+  ResourceControllerResponse.value(this.value)
+      : isMeta = false,
+        isNoContent = false;
+
+  ResourceControllerResponse.meta(Map<String, Object> meta)
+      : value = null,
+        isMeta = true,
+        isNoContent = false {
+    this.meta.addAll(meta);
+  }
+
+  ResourceControllerResponse.noContent()
+      : value = null,
+        isMeta = false,
+        isNoContent = true;
 }
 
 class ResourceControllerException implements Exception {
