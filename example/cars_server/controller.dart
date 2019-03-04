@@ -71,4 +71,18 @@ class CarsController implements ResourceController {
     }
     return null;
   }
+
+  @override
+  Future<Resource> updateResource(String type, String id, Resource resource,
+      JsonApiHttpRequest request) async {
+    if (resource.type != type) {
+      throw ResourceControllerException(409,
+          title: 'Type mismatch',
+          detail: 'Resource type does not match the endpoint');
+    }
+    if (dao[type].fetchById(id) == null) {
+      throw ResourceControllerException(404, detail: 'Resource not found');
+    }
+    return dao[type].update(id, resource);
+  }
 }

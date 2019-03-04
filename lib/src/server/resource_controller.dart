@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:json_api/document.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/page.dart';
@@ -28,6 +29,9 @@ abstract class ResourceController {
 
   Future<Resource> createResource(
       String type, Resource resource, JsonApiHttpRequest request);
+
+  Future<Resource> updateResource(
+      String type, String id, Resource resource, JsonApiHttpRequest request);
 
   /// This method should delete the resource specified by [type] and [id].
   /// It may return metadata to be sent back as 200 OK response.

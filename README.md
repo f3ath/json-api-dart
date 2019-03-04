@@ -7,8 +7,8 @@
 - [x] Fetching single resources
 - [x] Creating resources
 - [x] Deleting resources
-- [ ] Updating resource's attributes
-- [ ] Updating resource's relationships
+- [x] Updating resource's attributes
+- [x] Updating resource's relationships
 - [ ] Updating relationships
 - [ ] Asynchronous processing 
 - [ ] Optional check for `Content-Type` header in incoming responses 
@@ -19,8 +19,8 @@
 - [x] Fetching single resources
 - [x] Creating resources
 - [x] Deleting resources
-- [ ] Updating resource's attributes
-- [ ] Updating resource's relationships
+- [x] Updating resource's attributes
+- [x] Updating resource's relationships
 - [ ] Updating relationships
 - [ ] Inclusion of related resources 
 - [ ] Sparse fieldsets 

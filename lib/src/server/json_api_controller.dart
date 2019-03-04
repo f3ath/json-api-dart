@@ -22,4 +22,7 @@ abstract class JsonApiController {
 
   Future<ServerResponse> deleteResource(
       String type, String id, JsonApiHttpRequest request);
+
+  Future<ServerResponse> updateResource(
+      String type, String id, JsonApiHttpRequest request);
 }

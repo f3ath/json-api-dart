@@ -86,14 +86,14 @@ class CollectionRoute implements JsonApiRoute {
   CollectionRoute(this.type);
 
   Future<ServerResponse> call(
-      JsonApiController controller, JsonApiHttpRequest request) {
+      JsonApiController controller, JsonApiHttpRequest request) async {
     switch (request.method) {
       case HttpMethod.get:
-        return controller.fetchCollection(type, request);
+        return await controller.fetchCollection(type, request);
       case HttpMethod.post:
-        return controller.createResource(type, request);
+        return await controller.createResource(type, request);
       default:
-        return Future.value(ServerResponse(405)); // TODO: meaningful error
+        return ServerResponse(405); // TODO: meaningful error
     }
   }
 }
@@ -105,14 +105,16 @@ class ResourceRoute implements JsonApiRoute {
   ResourceRoute(this.type, this.id);
 
   Future<ServerResponse> call(
-      JsonApiController controller, JsonApiHttpRequest request) {
+      JsonApiController controller, JsonApiHttpRequest request) async {
     switch (request.method) {
       case HttpMethod.get:
-        return controller.fetchResource(type, id, request);
+        return await controller.fetchResource(type, id, request);
       case HttpMethod.delete:
-        return controller.deleteResource(type, id, request);
+        return await controller.deleteResource(type, id, request);
+      case HttpMethod.patch:
+        return await controller.updateResource(type, id, request);
       default:
-        return Future.value(ServerResponse(405)); // TODO: meaningful error
+        return ServerResponse(405); // TODO: meaningful error
     }
   }
 }
@@ -125,12 +127,12 @@ class RelatedRoute implements JsonApiRoute {
   RelatedRoute(this.type, this.id, this.relationship);
 
   Future<ServerResponse> call(
-      JsonApiController controller, JsonApiHttpRequest request) {
+      JsonApiController controller, JsonApiHttpRequest request) async {
     switch (request.method) {
       case HttpMethod.get:
-        return controller.fetchRelated(type, id, relationship, request);
+        return await controller.fetchRelated(type, id, relationship, request);
       default:
-        return Future.value(ServerResponse(405)); // TODO: meaningful error
+        return ServerResponse(405); // TODO: meaningful error
     }
   }
 }
@@ -143,12 +145,13 @@ class RelationshipRoute implements JsonApiRoute {
   RelationshipRoute(this.type, this.id, this.relationship);
 
   Future<ServerResponse> call(
-      JsonApiController controller, JsonApiHttpRequest request) {
+      JsonApiController controller, JsonApiHttpRequest request) async {
     switch (request.method) {
       case HttpMethod.get:
-        return controller.fetchRelationship(type, id, relationship, request);
+        return await controller.fetchRelationship(
+            type, id, relationship, request);
       default:
-        return Future.value(ServerResponse(405)); // TODO: meaningful error
+        return ServerResponse(405); // TODO: meaningful error
     }
   }
 }

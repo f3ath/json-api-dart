@@ -16,24 +16,29 @@ void main() async {
 SimpleServer createServer() {
   final models = ModelDAO();
   [
-    Model('1', 'Roadster'),
-    Model('2', 'Model S'),
-    Model('3', 'Model X'),
-    Model('4', 'Model 3'),
+    Model('1')..name = 'Roadster',
+    Model('2')..name = 'Model S',
+    Model('3')..name = 'Model X',
+    Model('4')..name = 'Model 3',
   ].forEach(models.insert);
 
   final cities = CityDAO();
   [
-    City('1', 'Munich'),
-    City('2', 'Palo Alto'),
-    City('3', 'Ingolstadt'),
+    City('1')..name = 'Munich',
+    City('2')..name = 'Palo Alto',
+    City('3')..name = 'Ingolstadt',
   ].forEach(cities.insert);
 
   final companies = CompanyDAO();
   [
-    Company('1', 'Tesla', headquarters: '2', models: ['1', '2', '3', '4']),
-    Company('2', 'BMW', headquarters: '1'),
-    Company('3', 'Audi'),
+    Company('1')
+      ..name = 'Tesla'
+      ..headquarters = '2'
+      ..models.addAll(['1', '2', '3', '4']),
+    Company('2')
+      ..name = 'BMW'
+      ..headquarters = '1',
+    Company('3')..name = 'Audi',
   ].forEach(companies.insert);
 
   return SimpleServer(CarsController(

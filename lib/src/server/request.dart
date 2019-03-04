@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-enum HttpMethod { get, post, put, delete }
+enum HttpMethod { get, post, put, delete, patch }
 
 abstract class JsonApiHttpRequest {
   HttpMethod get method;
@@ -23,7 +23,8 @@ class NativeHttpRequestAdapter implements JsonApiHttpRequest {
         'get': HttpMethod.get,
         'post': HttpMethod.post,
         'delete': HttpMethod.delete,
-        'put': HttpMethod.put
+        'put': HttpMethod.put,
+        'patch': HttpMethod.patch,
       }[request.method.toLowerCase()];
 
   Uri get uri => request.uri;
