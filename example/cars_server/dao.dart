@@ -45,8 +45,6 @@ class ModelDAO extends DAO<Model> {
     _collection[id].name = resource.attributes['name'];
     return null;
   }
-
-
 }
 
 class CityDAO extends DAO<City> {

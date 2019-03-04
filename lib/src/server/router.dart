@@ -148,7 +148,8 @@ class RelationshipRoute implements JsonApiRoute {
       JsonApiController controller, JsonApiHttpRequest request) async {
     switch (request.method) {
       case HttpMethod.get:
-        return await controller.fetchRelationship(type, id, relationship, request);
+        return await controller.fetchRelationship(
+            type, id, relationship, request);
       default:
         return ServerResponse(405); // TODO: meaningful error
     }
