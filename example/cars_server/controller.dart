@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/numbered_page.dart';
 import 'package:json_api/src/server/request.dart';
@@ -88,7 +87,7 @@ class CarsController implements ResourceController {
   }
 
   @override
-  Future<ResourceControllerResponse<identifier>> replaceToOne(
+  Future<ResourceControllerResponse<Identifier>> replaceToOne(
       String type,
       String id,
       String relationship,
@@ -96,7 +95,7 @@ class CarsController implements ResourceController {
       JsonApiHttpRequest request) async {
     // TODO: check that target and related resources exist
     dao[type].replaceToOne(id, relationship, identifier);
-    return ResourceControllerResponse.noContent<identifier>();
+    return ResourceControllerResponse.noContent();
   }
 
   @override

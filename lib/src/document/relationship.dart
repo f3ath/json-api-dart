@@ -78,13 +78,6 @@ class ToMany extends Relationship {
   List<Identifier> toIdentifiers() =>
       collection.map((_) => _.toIdentifier()).toList();
 
-  Future<List<ResourceObject>> fetchRelated(JsonApiClient client) async {
-    if (related == null) throw StateError('The "related" link is null');
-    final response = await client.fetchCollection(related.uri);
-    if (response.isSuccessful) return response.document.collection;
-    throw 'Error'; // TODO define exceptions
-  }
-
   bool get isEmpty => collection.isEmpty;
 }
 
@@ -113,10 +106,4 @@ class ToOne extends Relationship {
 
   Identifier toIdentifier() => identifierObject?.toIdentifier();
 
-  Future<ResourceObject> fetchRelated(JsonApiClient client) async {
-    if (related == null) throw StateError('The "related" link is null');
-    final response = await client.fetchResource(related.uri);
-    if (response.isSuccessful) return response.document.resourceObject;
-    throw 'Error'; // TODO define exceptions
-  }
 }

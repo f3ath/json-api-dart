@@ -2,7 +2,6 @@
 import 'dart:io';
 
 import 'package:json_api/client.dart';
-import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/server/simple_server.dart';
 import 'package:test/test.dart';
 
@@ -23,7 +22,7 @@ void main() async {
       final r = await client.fetchCollection(Url.collection('companies'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.collection.first.attributes['name'], 'Tesla');
+      expect(r.document.data.elements.first.attributes['name'], 'Tesla');
       expect(r.document.included, isEmpty);
     });
 
@@ -32,14 +31,14 @@ void main() async {
           await client.fetchCollection(Url.related('companies', '1', 'models'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.collection.first.attributes['name'], 'Roadster');
+      expect(r.document.data.elements.first.attributes['name'], 'Roadster');
     });
 
     test('404', () async {
       final r = await client.fetchCollection(Url.collection('unicorns'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
-      expect(r.errorDocument.errors.first.detail, 'Unknown resource type');
+      expect(r.document.errors.first.detail, 'Unknown resource type');
     });
   });
 
@@ -48,7 +47,7 @@ void main() async {
       final r = await client.fetchResource(Url.resource('models', '1'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.resourceObject.attributes['name'], 'Roadster');
+      expect(r.document.data.attributes['name'], 'Roadster');
     });
 
     test('404 on type', () async {
@@ -69,7 +68,7 @@ void main() async {
       final r = await client.fetchResource(Url.related('companies', '1', 'hq'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.resourceObject.attributes['name'], 'Palo Alto');
+      expect(r.document.data.attributes['name'], 'Palo Alto');
     });
 
     test('404 on type', () async {
@@ -98,7 +97,7 @@ void main() async {
           await client.fetchToOne(Url.relationship('companies', '1', 'hq'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.toIdentifier().type, 'cities');
+      expect(r.document.data.type, 'cities');
     });
 
     test('empty to-one', () async {
@@ -106,8 +105,7 @@ void main() async {
           await client.fetchToOne(Url.relationship('companies', '3', 'hq'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.isEmpty, true);
-      expect(r.document.toIdentifier(), isNull);
+      expect(r.document.data, isNull);
     });
 
     test('generic to-one', () async {
@@ -115,8 +113,8 @@ void main() async {
           .fetchRelationship(Url.relationship('companies', '1', 'hq'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document, TypeMatcher<ToOne>());
-      expect((r.document as ToOne).toIdentifier().type, 'cities');
+      expect(r.document.data, TypeMatcher<IdentifierObject>());
+      expect((r.document.data as IdentifierObject).type, 'cities');
     });
 
     test('to-many', () async {
@@ -124,7 +122,7 @@ void main() async {
           .fetchToMany(Url.relationship('companies', '1', 'models'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.toIdentifiers().first.type, 'models');
+      expect(r.document.data.elements.first.type, 'models');
     });
 
     test('empty to-many', () async {
@@ -132,8 +130,7 @@ void main() async {
           .fetchToMany(Url.relationship('companies', '3', 'models'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.isEmpty, true);
-      expect(r.document.toIdentifiers().isEmpty, true);
+      expect(r.document.data.elements, isEmpty);
     });
 
     test('generic to-many', () async {
@@ -141,29 +138,9 @@ void main() async {
           .fetchRelationship(Url.relationship('companies', '1', 'models'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document, TypeMatcher<ToMany>());
-      expect((r.document as ToMany).toIdentifiers().first.type, 'models');
-    });
-
-    test('404 on type', () async {
-      final r = await client
-          .fetchRelationship(Url.relationship('unicorns', '555', 'models'));
-      expect(r.status, 404);
-      expect(r.isSuccessful, false);
-    });
-
-    test('404 on id', () async {
-      final r = await client
-          .fetchRelationship(Url.relationship('companies', '555', 'models'));
-      expect(r.status, 404);
-      expect(r.isSuccessful, false);
-    });
-
-    test('404 on relationship', () async {
-      final r = await client
-          .fetchRelationship(Url.relationship('companies', '1', 'unicorn'));
-      expect(r.status, 404);
-      expect(r.isSuccessful, false);
+      expect(r.document.data, TypeMatcher<IdentifierCollection>());
+      expect((r.document.data as IdentifierCollection).elements.first.type,
+          'models');
     });
   });
 }

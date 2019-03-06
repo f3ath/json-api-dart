@@ -27,7 +27,7 @@ void main() async {
 
       expect(r0.status, 204);
       expect(r0.isSuccessful, true);
-      expect(r0.document, isNull);
+      expect(r0.document.data, isNull);
 
       // Make sure the resource is not available anymore
       final r1 = await client.fetchResource(Url.resource('models', '1'));
