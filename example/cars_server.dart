@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
-import 'package:json_api/src/server/simple_server.dart';
+import 'package:json_api/src/server/server.dart';
 
 import 'cars_server/controller.dart';
 import 'cars_server/dao.dart';
@@ -9,11 +10,11 @@ import 'cars_server/model.dart';
 void main() async {
   final addr = InternetAddress.loopbackIPv4;
   final port = 8080;
-  await createServer().start(addr, port);
+  await createServer(addr, port);
   print('Listening on ${addr.host}:$port');
 }
 
-SimpleServer createServer() {
+Future<HttpServer> createServer(InternetAddress addr, int port) async {
   final models = ModelDAO();
   [
     Model('1')..name = 'Roadster',
@@ -44,8 +45,22 @@ SimpleServer createServer() {
     Company('3')..name = 'Audi',
   ].forEach(companies.insert);
 
-  return SimpleServer(CarsController(
-      {'companies': companies, 'cities': cities, 'models': models}));
+  final controller = CarsController(
+      {'companies': companies, 'cities': cities, 'models': models});
+
+  final routing = StandardRouting(Uri.parse('http://localhost'));
+
+  final server = JsonApiServer(routing);
+
+  final httpServer = await HttpServer.bind(addr, port);
+
+  httpServer.forEach((request) async {
+    await routing.getRoute(request.requestedUri).createRequest(request)
+      ..bind(server)
+      ..call(controller);
+  });
+
+  return httpServer;
 }
 
 class Url {

@@ -2,20 +2,18 @@
 import 'dart:io';
 
 import 'package:json_api/client.dart';
-import 'package:json_api/src/server/simple_server.dart';
 import 'package:test/test.dart';
 
 import '../../example/cars_server.dart';
 
 void main() async {
+  HttpServer server;
   final client = JsonApiClient();
-  SimpleServer s;
   setUp(() async {
-    s = createServer();
-    return await s.start(InternetAddress.loopbackIPv4, 8080);
+    server = await createServer(InternetAddress.loopbackIPv4, 8080);
   });
 
-  tearDown(() => s.stop());
+  tearDown(() async => await server.close());
 
   group('resource', () {
     /// If a POST request did not include a Client-Generated ID and the requested

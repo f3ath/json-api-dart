@@ -1,5 +1,4 @@
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/server/resource_controller.dart';
 
 /// Error Object
 /// Error objects provide additional information about problems encountered while performing an operation.
@@ -71,17 +70,6 @@ class ErrorObject {
     }
     throw 'Can not parse ErrorObject from $json';
   }
-
-  static ErrorObject fromResourceControllerException(
-          ResourceControllerException e) =>
-      ErrorObject(
-          id: e.id,
-          status: e.httpStatus.toString(),
-          code: e.code,
-          title: e.title,
-          detail: e.detail,
-          sourceParameter: e.sourceParameter,
-          sourcePointer: e.sourcePointer);
 
   toJson() {
     final json = <String, Object>{};

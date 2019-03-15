@@ -47,7 +47,7 @@ class Document<D extends PrimaryData> {
         }
       }
       if (json.containsKey('data')) {
-        return Document(dataParser(json));
+        return Document(dataParser(json['data']));
       }
       if (json.containsKey('meta')) {
         final meta = json['meta'];
@@ -95,53 +95,77 @@ class ResourceObject implements PrimaryData {
   final String type;
   final String id;
   final attributes = <String, Object>{};
+  final relationships = <String, Relationship>{};
 
-  ResourceObject(this.type, this.id, {Map<String, Object> attributes}) {
+  ResourceObject(this.type, this.id,
+      {Map<String, Object> attributes,
+      Map<String, Relationship> relationships}) {
     this.attributes.addAll(attributes ?? {});
+    this.relationships.addAll(relationships ?? {});
   }
 
   Map<String, Link> get links => {};
 
   static ResourceObject fromJson(Object json) {
     if (json is Map) {
-      return fromData(json['data']);
+      return ResourceObject(json['type'], json['id'],
+          attributes: json['attributes'],
+          relationships: Relationship.parseMap(json['relationships'] ?? {}));
     }
     throw 'Can not parse ResourceObject from $json';
   }
 
-  static ResourceObject fromData(Object data) {
-    if (data is Map) {
-      return ResourceObject(data['type'], data['id'],
-          attributes: data['attributes']);
-    }
-    throw 'Can not parse ResourceObject from $data';
-  }
-
   static ResourceObject fromResource(Resource resource) {
+    final relationships = <String, Relationship>{};
+    resource.toOne.forEach((k, v) => relationships[k] =
+        nullable((_) => Relationship(IdentifierObject.fromIdentifier(_)))(v));
+    resource.toMany.forEach((k, v) => relationships[k] = Relationship(
+        IdentifierCollection(
+            v.map(nullable(IdentifierObject.fromIdentifier)))));
+
     return ResourceObject(resource.type, resource.id,
-        attributes: resource.attributes);
+        attributes: resource.attributes, relationships: relationships);
   }
 
   toJson() {
-    return {'type': type, 'id': id, 'attributes': attributes};
+    return {
+      'type': type,
+      'id': id,
+      'attributes': attributes,
+      'relationships': relationships
+    };
+  }
+
+  Resource toResource() {
+    final toOne = <String, Identifier>{};
+    final toMany = <String, List<Identifier>>{};
+    relationships.forEach((name, rel) {
+      final data = rel.data;
+      // TODO: detect incomplete relationships
+      if (data is IdentifierObject) {
+        toOne[name] = data.toIdentifier();
+      } else if (data is IdentifierCollection) {
+        toMany[name] = data.toIdentifiers();
+      }
+    });
+
+    return Resource(type, id,
+        attributes: attributes, toOne: toOne, toMany: toMany);
   }
 }
 
 class ResourceCollection extends Collection<ResourceObject>
     implements PrimaryData {
-  ResourceCollection(Iterable<ResourceObject> elements, Pagination pagination)
+  ResourceCollection(Iterable<ResourceObject> elements,
+      {Pagination pagination = const Pagination.empty()})
       : super(elements, pagination);
 
   @override
   Map<String, Link> get links => {};
 
   static ResourceCollection fromJson(Object json) {
-    if (json is Map) {
-      final data = json['data'];
-      if (data is List) {
-        return ResourceCollection(
-            data.map(ResourceObject.fromData), Pagination.empty());
-      }
+    if (json is List) {
+      return ResourceCollection(json.map(ResourceObject.fromJson));
     }
     throw 'Can not parse ResourceCollection from $json';
   }
@@ -152,17 +176,29 @@ class ResourceCollection extends Collection<ResourceObject>
   }
 }
 
-abstract class Relationship extends PrimaryData {
+class Relationship<D extends RelationshipData> extends Document<D> {
+  Relationship(D data) : super(data);
+
   static Relationship fromJson(Object json) {
     if (json is Map) {
-      final data = json['data'];
-      if (data is Map) return IdentifierObject.fromData(data);
-      if (data is List) return IdentifierCollection.fromData(data);
+      return Relationship(RelationshipData.fromJson(json['data']));
     }
+    throw 'Can not parse Relationship from $json';
+  }
+
+  static Map<String, Relationship> parseMap(Map map) =>
+      map.map((k, v) => MapEntry(k, fromJson(v)));
+}
+
+abstract class RelationshipData implements PrimaryData {
+  static RelationshipData fromJson(Object json) {
+    if (json is Map) return IdentifierObject.fromJson(json);
+    if (json is List) return IdentifierCollection.fromJson(json);
+    throw 'Can not parse RelationshipData from $json';
   }
 }
 
-class IdentifierObject implements Relationship {
+class IdentifierObject implements RelationshipData {
   final Link related;
   final String type;
   final String id;
@@ -174,55 +210,46 @@ class IdentifierObject implements Relationship {
 
   static IdentifierObject fromJson(Object json) {
     if (json is Map) {
-      return nullable(fromData)(json['data']);
+      return IdentifierObject(json['type'], json['id']);
     }
-  }
-
-  static IdentifierObject fromData(Object data) {
-    if (data is Map) {
-      return IdentifierObject(data['type'], data['id']);
-    }
+    throw 'Can not parse IdentifierObject from $json';
   }
 
   @override
   toJson() {
     return {'type': type, 'id': id};
   }
+
+  Identifier toIdentifier() => Identifier(type, id);
+
+  static IdentifierObject fromIdentifier(Identifier id) =>
+      IdentifierObject(id.type, id.id);
 }
 
 class IdentifierCollection extends Collection<IdentifierObject>
-    implements Relationship {
+    implements RelationshipData {
   final Link related;
 
-  IdentifierCollection(
-      Iterable<IdentifierObject> elements, Pagination pagination,
-      {this.related})
+  IdentifierCollection(Iterable<IdentifierObject> elements,
+      {Pagination pagination = const Pagination.empty(), this.related})
       : super(elements, pagination);
 
   @override
   Map<String, Link> get links => {'related': related};
 
   static IdentifierCollection fromJson(Object json) {
-    if (json is Map) {
-      final data = json['data'];
-      if (data is List) {
-        return IdentifierCollection(
-            data.map(IdentifierObject.fromData), Pagination.empty());
-      }
-    }
-  }
-
-  static IdentifierCollection fromData(Object data) {
-    if (data is List) {
-      return IdentifierCollection(
-          data.map(IdentifierObject.fromData), Pagination.empty());
+    if (json is List) {
+      return IdentifierCollection(json.map(IdentifierObject.fromJson));
     }
   }
 
   @override
   toJson() {
-    return {'data': elements.toList()};
+    return elements.toList();
   }
+
+  List<Identifier> toIdentifiers() =>
+      elements.map((_) => _.toIdentifier()).toList();
 }
 
 class Identifier {

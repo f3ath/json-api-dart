@@ -1,5 +1,6 @@
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/src/nullable.dart';
 
 import 'model.dart';
 
@@ -13,6 +14,9 @@ abstract class DAO<T> {
   T create(Resource resource);
 
   T fetchById(String id) => _collection[id];
+
+  Resource fetchByIdAsResource(String id) =>
+      nullable(toResource)(_collection[id]);
 
   void insert(T t); // => collection[t.id] = t;
 
@@ -117,7 +121,7 @@ class CompanyDAO extends DAO<Company> {
       company.nasdaq = resource.attributes['nasdaq'];
     }
     if (resource.toOne.containsKey('hq')) {
-      company.headquarters = resource.toOne['hq'].id;
+      company.headquarters = resource.toOne['hq']?.id;
     }
     if (resource.toMany.containsKey('models')) {
       company.models.clear();

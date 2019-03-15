@@ -6,7 +6,6 @@ import '../example/cars_server.dart';
 
 hybridMain(StreamChannel channel, Object message) async {
   final port = 8080;
-  final server = createServer();
-  await server.start(InternetAddress.loopbackIPv4, port);
+  final server = await createServer(InternetAddress.loopbackIPv4, port);
   channel.sink.add(port);
 }
