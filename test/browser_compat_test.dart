@@ -14,5 +14,5 @@ void main() async {
     expect(r.status, 200);
     expect(r.isSuccessful, true);
     expect(r.document.data.elements.first.attributes['name'], 'Tesla');
-  }, tags: ['browser-only']);
+  });
 }

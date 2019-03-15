@@ -340,13 +340,17 @@ class UpdateResource extends JsonApiRequest {
 
 class JsonApiServer {
   final UrlBuilder url;
+  final String allowOrigin;
 
-  JsonApiServer(this.url);
+  JsonApiServer(this.url, {this.allowOrigin = '*'});
 
   Future write(HttpResponse response, int status,
       {Document document, Map<String, String> headers = const {}}) {
     response.statusCode = status;
     headers.forEach(response.headers.add);
+    if (allowOrigin != null) {
+      response.headers.set('Access-Control-Allow-Origin', allowOrigin);
+    }
     if (document != null) {
       response.write(json.encode(document));
     }
