@@ -73,8 +73,7 @@ class RelationshipRoute implements JsonApiRoute {
   Uri self(UriBuilder builder, {Map<String, String> params = const {}}) =>
       builder.relationship(type, id, relationship, params: params);
 
-  Uri related(UriBuilder builder,
-          {Map<String, String> params = const {}}) =>
+  Uri related(UriBuilder builder, {Map<String, String> params = const {}}) =>
       builder.related(type, id, relationship, params: params);
 }
 
