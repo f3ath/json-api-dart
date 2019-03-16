@@ -21,8 +21,7 @@ void main() async {
       final r = await client.fetchCollection(Url.collection('companies'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.data.elements.first.attributes['name'], 'Tesla');
-      expect(r.document.included, isEmpty);
+      expect(r.data.resourceObjects.first.attributes['name'], 'Tesla');
     });
 
     test('related collection', () async {
@@ -30,7 +29,7 @@ void main() async {
           await client.fetchCollection(Url.related('companies', '1', 'models'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.data.elements.first.attributes['name'], 'Roadster');
+      expect(r.data.resourceObjects.first.attributes['name'], 'Roadster');
     });
 
     test('404', () async {
@@ -46,7 +45,7 @@ void main() async {
       final r = await client.fetchResource(Url.resource('models', '1'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.data.attributes['name'], 'Roadster');
+      expect(r.data.toResource().attributes['name'], 'Roadster');
     });
 
     test('404 on type', () async {
@@ -67,7 +66,7 @@ void main() async {
       final r = await client.fetchResource(Url.related('companies', '1', 'hq'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.data.attributes['name'], 'Palo Alto');
+      expect(r.data.toResource().attributes['name'], 'Palo Alto');
     });
 
     test('404 on type', () async {
@@ -96,7 +95,7 @@ void main() async {
           await client.fetchToOne(Url.relationship('companies', '1', 'hq'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.data.type, 'cities');
+      expect(r.data.toIdentifier().type, 'cities');
     });
 
     test('empty to-one', () async {
@@ -112,8 +111,8 @@ void main() async {
           .fetchRelationship(Url.relationship('companies', '1', 'hq'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.data, TypeMatcher<IdentifierObject>());
-      expect((r.document.data as IdentifierObject).type, 'cities');
+      expect(r.document.data, TypeMatcher<ToOne>());
+      expect((r.document.data as ToOne).toIdentifier().type, 'cities');
     });
 
     test('to-many', () async {
@@ -121,7 +120,7 @@ void main() async {
           .fetchToMany(Url.relationship('companies', '1', 'models'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.data.elements.first.type, 'models');
+      expect(r.data.identifiers.first.type, 'models');
     });
 
     test('empty to-many', () async {
@@ -129,7 +128,7 @@ void main() async {
           .fetchToMany(Url.relationship('companies', '3', 'models'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.data.elements, isEmpty);
+      expect(r.data.identifiers, isEmpty);
     });
 
     test('generic to-many', () async {
@@ -137,10 +136,8 @@ void main() async {
           .fetchRelationship(Url.relationship('companies', '1', 'models'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.data, TypeMatcher<IdentifierObjectCollection>());
-      expect(
-          (r.document.data as IdentifierObjectCollection).elements.first.type,
-          'models');
+      expect(r.data, TypeMatcher<ToMany>());
+      expect((r.data as ToMany).identifiers.first.type, 'models');
     });
   });
 }

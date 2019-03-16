@@ -34,15 +34,15 @@ void main() async {
 
       expect(r0.status, 201);
       expect(r0.isSuccessful, true);
-      expect(r0.document.data.id, isNotEmpty);
-      expect(r0.document.data.type, 'models');
-      expect(r0.document.data.attributes['name'], 'Model Y');
+      expect(r0.data.toResource().id, isNotEmpty);
+      expect(r0.data.toResource().type, 'models');
+      expect(r0.data.toResource().attributes['name'], 'Model Y');
       expect(r0.location, isNotEmpty);
 
       // Make sure the resource is available
       final r1 = await client
-          .fetchResource(Url.resource('models', r0.document.data.id));
-      expect(r1.document.data.attributes['name'], 'Model Y');
+          .fetchResource(Url.resource('models', r0.data.toResource().id));
+      expect(r1.data.resourceObject.attributes['name'], 'Model Y');
     });
 
     /// If a POST request did include a Client-Generated ID and the requested
@@ -61,7 +61,7 @@ void main() async {
 
       // Make sure the resource is available
       final r1 = await client.fetchResource(Url.resource('models', '555'));
-      expect(r1.document.data.attributes['name'], 'Model Y');
+      expect(r1.data.toResource().attributes['name'], 'Model Y');
     });
 
     /// A server MUST return 409 Conflict when processing a POST request to
@@ -74,7 +74,6 @@ void main() async {
 
       expect(r0.status, 409);
       expect(r0.isSuccessful, false);
-      expect(r0.document.isError, true);
       expect(r0.document.errors.first.detail, 'Resource already exists');
     });
 
@@ -90,7 +89,6 @@ void main() async {
 
       expect(r0.status, 409);
       expect(r0.isSuccessful, false);
-      expect(r0.document.isError, true);
       expect(r0.document.errors.first.detail, 'Incompatible type');
     });
   });

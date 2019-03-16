@@ -18,9 +18,9 @@ class CarsController implements JsonApiController {
     }
 //    final page = NumberedPage.fromQueryParameters(r.queryParameters,
 //        total: dao[r.route.type].length);
-    return r.collection(Collection(dao[r.route.type]
+    return r.collection(dao[r.route.type]
         .fetchCollection(offset: 0)
-        .map(dao[r.route.type].toResource)));
+        .map(dao[r.route.type].toResource));
   }
 
   @override
@@ -42,7 +42,7 @@ class CarsController implements JsonApiController {
     if (res.toMany.containsKey(r.route.relationship)) {
       final resources = res.toMany[r.route.relationship]
           .map((id) => dao[id.type].fetchByIdAsResource(id.id));
-      return r.collection(Collection(resources));
+      return r.collection(resources);
     }
     return r.notFound([ErrorObject(detail: 'Relationship not found')]);
   }
@@ -76,7 +76,7 @@ class CarsController implements JsonApiController {
 
     if (res.toMany.containsKey(r.route.relationship)) {
       final ids = res.toMany[r.route.relationship];
-      return r.toMany(Collection(ids));
+      return r.toMany(ids);
     }
     return r.notFound([ErrorObject(detail: 'Relationship not found')]);
   }
@@ -149,14 +149,14 @@ class CarsController implements JsonApiController {
       return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
     }
     final rel = await r.relationshipData();
-    if (rel is IdentifierObject) {
+    if (rel is ToOne) {
       dao[r.route.type]
           .replaceToOne(r.route.id, r.route.relationship, rel.toIdentifier());
       return r.noContent();
     }
-    if (rel is IdentifierObjectCollection) {
+    if (rel is ToMany) {
       dao[r.route.type]
-          .replaceToMany(r.route.id, r.route.relationship, rel.toIdentifiers());
+          .replaceToMany(r.route.id, r.route.relationship, rel.identifiers);
       return r.noContent();
     }
   }
@@ -166,9 +166,8 @@ class CarsController implements JsonApiController {
     if (!dao.containsKey(r.route.type)) {
       return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
     }
-    final collection = await r.collection();
-    final result = dao[r.route.type].addToMany(
-        r.route.id, r.route.relationship, collection.toIdentifiers());
-    return r.toMany(Collection(result));
+    final result = dao[r.route.type]
+        .addToMany(r.route.id, r.route.relationship, await r.identifiers());
+    return r.toMany(result);
   }
 }

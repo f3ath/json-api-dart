@@ -13,6 +13,6 @@ void main() async {
         .fetchCollection(Uri.parse('http://localhost:$port/companies'));
     expect(r.status, 200);
     expect(r.isSuccessful, true);
-    expect(r.document.data.elements.first.attributes['name'], 'Tesla');
+    expect(r.data.resourceObjects.first.attributes['name'], 'Tesla');
   });
 }

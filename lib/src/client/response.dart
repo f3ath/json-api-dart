@@ -17,6 +17,9 @@ class Response<Data extends PrimaryData> {
     // TODO: Check for null and content-type
   }
 
+  /// Primary Data from the document (if any)
+  Data get data => document.data;
+
   /// Was the request successful?
   ///
   /// For pending (202 Accepted) requests [isSuccessful] is always false.

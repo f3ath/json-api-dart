@@ -206,7 +206,7 @@ class FetchCollection extends JsonApiRequest {
 
   Future call(JsonApiController controller) => controller.fetchCollection(this);
 
-  Future collection(Collection<Resource> collection) =>
+  Future collection(Iterable<Resource> collection) =>
       _server.collection(_response, route, collection);
 }
 
@@ -217,7 +217,7 @@ class FetchRelated extends JsonApiRequest {
 
   Future call(JsonApiController controller) => controller.fetchRelated(this);
 
-  Future collection(Collection<Resource> collection) =>
+  Future collection(Iterable<Resource> collection) =>
       _server.relatedCollection(_response, route, collection);
 
   Future resource(Resource resource) =>
@@ -232,7 +232,7 @@ class FetchRelationship extends JsonApiRequest {
   Future call(JsonApiController controller) =>
       controller.fetchRelationship(this);
 
-  Future toMany(Collection<Identifier> collection) =>
+  Future toMany(Iterable<Identifier> collection) =>
       _server.toMany(_response, route, collection);
 
   Future toOne(Identifier id) => _server.toOne(_response, route, id);
@@ -243,15 +243,15 @@ class ReplaceRelationship extends JsonApiRequest {
 
   ReplaceRelationship(HttpRequest request, this.route) : super(request);
 
-  Future<ResourceLinkage> relationshipData() async =>
-      Relationship.parse(await _body).data;
+  Future<Relationship> relationshipData() async =>
+      Relationship.parse(await _body);
 
   Future call(JsonApiController controller) =>
       controller.replaceRelationship(this);
 
   Future noContent() => _server.write(_response, 204);
 
-  Future toMany(Collection<Identifier> collection) =>
+  Future toMany(Iterable<Identifier> collection) =>
       _server.toMany(_response, route, collection);
 
   Future toOne(Identifier id) => _server.toOne(_response, route, id);
@@ -262,13 +262,13 @@ class AddToRelationship extends JsonApiRequest {
 
   AddToRelationship(HttpRequest request, this.route) : super(request);
 
-  Future<IdentifierObjectCollection> collection() async =>
-      IdentifierObjectCollection.parse(await _body);
+  Future<Iterable<Identifier>> identifiers() async =>
+      ToMany.parse(await _body).identifiers;
 
   Future call(JsonApiController controller) =>
       controller.addToRelationship(this);
 
-  Future toMany(Collection<Identifier> collection) =>
+  Future toMany(Iterable<Identifier> collection) =>
       _server.toMany(_response, route, collection);
 }
 
@@ -301,7 +301,9 @@ class CreateResource extends JsonApiRequest {
   CreateResource(HttpRequest request, this.route) : super(request);
 
   Future<Resource> resource() async {
-    return Document.parseResourceObject(await _body).data.toResource();
+    return SingleResourceObject.parseDocument(await _body)
+        .resourceObject
+        .toResource();
   }
 
   Future call(JsonApiController controller) => controller.createResource(this);
@@ -321,7 +323,9 @@ class UpdateResource extends JsonApiRequest {
   UpdateResource(HttpRequest request, this.route) : super(request);
 
   Future<Resource> resource() async {
-    return Document.parseResourceObject(await _body).data.toResource();
+    return SingleResourceObject.parseDocument(await _body)
+        .resourceObject
+        .toResource();
   }
 
   Future call(JsonApiController controller) => controller.updateResource(this);
@@ -358,42 +362,44 @@ class JsonApiServer {
   }
 
   Future collection(HttpResponse response, CollectionRoute route,
-          Collection<Resource> collection) =>
+          Iterable<Resource> collection) =>
       write(response, 200,
-          document: Document(
+          document: Document.data(
             ResourceObjectCollection(
-                collection.elements.map(ResourceObject.fromResource)),
+                collection.map(ResourceObject.fromResource)),
           ));
 
   Future error(HttpResponse response, int status, List<ErrorObject> errors) =>
       write(response, status, document: Document.error(errors));
 
   Future relatedCollection(HttpResponse response, RelatedRoute route,
-          Collection<Resource> collection) =>
+          Iterable<Resource> collection) =>
       write(response, 200,
-          document: Document(ResourceObjectCollection(
-              collection.elements.map(ResourceObject.fromResource))));
+          document: Document.data(ResourceObjectCollection(
+              collection.map(ResourceObject.fromResource))));
 
   Future relatedResource(
           HttpResponse response, RelatedRoute route, Resource resource) =>
       write(response, 200,
-          document: Document(ResourceObject.fromResource(resource)));
+          document: Document.data(
+              SingleResourceObject(ResourceObject.fromResource(resource))));
 
   Future resource(
           HttpResponse response, ResourceRoute route, Resource resource) =>
       write(response, 200,
-          document: Document(ResourceObject.fromResource(resource)));
+          document: Document.data(
+              SingleResourceObject(ResourceObject.fromResource(resource))));
 
   Future toMany(HttpResponse response, RelationshipRoute route,
-          Collection<Identifier> collection) =>
+          Iterable<Identifier> collection) =>
       write(response, 200,
-          document: Relationship(IdentifierObjectCollection(
-              collection.elements.map(IdentifierObject.fromIdentifier))));
+          document: Document.data(
+              ToMany(collection.map(IdentifierObject.fromIdentifier))));
 
   Future toOne(HttpResponse response, RelationshipRoute route, Identifier id) =>
       write(response, 200,
-          document:
-              Relationship(nullable(IdentifierObject.fromIdentifier)(id)));
+          document: Document.data(
+              ToOne(nullable(IdentifierObject.fromIdentifier)(id))));
 
   Future meta(HttpResponse response, ResourceRoute route,
           Map<String, Object> meta) =>
@@ -402,7 +408,8 @@ class JsonApiServer {
   Future created(
           HttpResponse response, CollectionRoute route, Resource resource) =>
       write(response, 201,
-          document: Document(ResourceObject.fromResource(resource)),
+          document: Document.data(
+              SingleResourceObject(ResourceObject.fromResource(resource))),
           headers: {
             'Location': url.resource(resource.type, resource.id).toString()
           });

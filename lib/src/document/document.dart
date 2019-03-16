@@ -1,116 +1,60 @@
 import 'package:json_api/src/document/error_object.dart';
-import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/relationship.dart';
-import 'package:json_api/src/document/resource_object.dart';
-import 'package:json_api/src/document/resource_object_collection.dart';
+import 'package:json_api/src/document/primary_data.dart';
+import 'package:json_api/src/nullable.dart';
 
-abstract class PrimaryData {
-  Map<String, Link> get links;
+class Document<Data extends PrimaryData> {
+  final Data data;
+  final List<ErrorObject> errors;
+  final Map<String, Object> meta;
 
-  Object toJson();
-}
-
-class NoData implements PrimaryData {
-  const NoData();
-
-  @override
-  // TODO: implement links
-  Map<String, Link> get links => {};
-
-  toJson() => {};
-}
-
-typedef Data DataParser<Data extends PrimaryData>(Object json);
-
-class Document<D extends PrimaryData> {
-  final D data;
-  final errors = <ErrorObject>[];
-  final meta = <String, Object>{};
-  final bool isError;
-  final included = <ResourceObject>[];
-
-  Document(D this.data, {Map<String, Object> meta}) : isError = false {
-    this.meta.addAll(meta ?? {});
-  }
+  Document.data(Data data, {Map<String, Object> meta})
+      : this._(data: data, meta: nullable((_) => Map.from(_))(meta));
 
   Document.error(Iterable<ErrorObject> errors, {Map<String, Object> meta})
-      : data = null,
-        isError = true {
-    this.errors.addAll(errors ?? {});
-    this.meta.addAll(meta ?? {});
+      : this._(
+            errors: List.from(errors),
+            meta: nullable((_) => Map.from(_))(meta));
+
+  Document.empty(Map<String, Object> meta) : this._(meta: Map.from(meta));
+
+  Document._({this.data, this.errors, this.meta}) {
+    if (data == null && errors == null && meta.isEmpty) {
+      throw ArgumentError(
+          'The `meta` member may not be empty for meta-only documents');
+    }
   }
 
-  Document.empty(Map<String, Object> meta)
-      : data = null,
-        isError = false {
-    this.meta.addAll(meta ?? {});
-  }
-
-  static Document<ResourceObject> parseResourceObject(Object json) =>
-      _parse(json, (json) {
-        final data = json['data'];
-        if (data is Map) {
-          final relationships = data['relationships'];
-          if (relationships is Map) {
-            // Do not refactor! add "self" later
-            return ResourceObject(data['type'], data['id'],
-                attributes: data['attributes'],
-                relationships: relationships.map(
-                    (key, value) => MapEntry(key, Relationship.parse(value))));
-          }
-        }
-      });
-
-  static Document parseMeta(Object json) => _parse(json, (_) => null);
-
-  static Document<ResourceObjectCollection> parseResourceObjectCollection(
-          Object json) =>
-      _parse(json, (json) {
-        final data = json['data'];
-        if (data is List) {
-          // Do not refactor! add "self" later
-          return ResourceObjectCollection(data.map((data) {
-            if (data is Map) {
-              final relationships = data['relationships'];
-              if (relationships is Map) {
-                return ResourceObject(data['type'], data['id'],
-                    attributes: data['attributes'],
-                    relationships: relationships.map((key, value) =>
-                        MapEntry(key, Relationship.parse(value))));
-              }
-            }
-          }));
-        }
-      });
-
-  static Document<D> _parse<D extends PrimaryData>(
-      Object json, D parseData(Map<String, Object> json)) {
+  static Document<Data> parse<Data extends PrimaryData>(
+      Object json, Data parsePrimaryData(Object json)) {
     if (json is Map) {
+      // TODO: validate `meta`
       if (json.containsKey('errors')) {
         final errors = json['errors'];
         if (errors is List) {
-          // TODO check NoData
-          return Document.error(errors.map(ErrorObject.fromJson));
+          return Document.error(errors.map(ErrorObject.fromJson),
+              meta: json['meta']);
         }
+      } else if (json.containsKey('data')) {
+        final data = parsePrimaryData(json);
+        return Document.data(data, meta: json['meta']);
+      } else {
+        return Document.empty(json['meta']);
       }
-      final data = parseData(json);
-      return Document(data, meta: json['meta']);
     }
     throw 'Can not parse Document from $json';
   }
 
   Map<String, Object> toJson() {
-    Map<String, Object> json;
+    Map<String, Object> json = {};
     if (data != null) {
-      json = {'data': data};
-    } else if (isError) {
+      json = data.toJson();
+    } else if (errors != null) {
       json = {'errors': errors};
-    } else {
-      json = {};
     }
-    if (meta.isNotEmpty) {
+    if (meta != null && meta.isNotEmpty) {
       json['meta'] = meta;
     }
+    // TODO: add `jsonapi` member
     return json;
   }
 }

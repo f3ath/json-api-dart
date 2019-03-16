@@ -15,10 +15,17 @@ class Link {
     throw 'Can not parse Link from $json';
   }
 
-  static Map<String, Link> parseMap(Map m) {
-    final links = <String, Link>{};
-    m.forEach((k, v) => links[k] = Link.parse(v));
-    return links;
+  /// Parses the document's `links` member into a map.
+  /// The retuning map does not have null values.
+  ///
+  /// Details on the `links` member: https://jsonapi.org/format/#document-links
+  static Map<String, Link> parseLinks(Object json) {
+    if (json == null) return {};
+    if (json is Map) {
+      return (json..removeWhere((_, v) => v == null))
+          .map((k, v) => MapEntry(k.toString(), parse(v)));
+    }
+    throw 'Can not parse links from $json';
   }
 
   toJson() => uri.toString();

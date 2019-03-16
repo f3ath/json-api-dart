@@ -42,7 +42,7 @@ abstract class DAO<T> {
   }
 
   List<Identifier> addToMany(
-      String id, String relationship, List<Identifier> identifiers) {
+      String id, String relationship, Iterable<Identifier> identifiers) {
     throw UnimplementedError();
   }
 }
@@ -152,12 +152,13 @@ class CompanyDAO extends DAO<Company> {
 
   @override
   List<Identifier> addToMany(
-      String id, String relationship, List<Identifier> identifiers) {
+      String id, String relationship, Iterable<Identifier> identifiers) {
     final company = _collection[id];
     switch (relationship) {
       case 'models':
         company.models.addAll(identifiers.map((_) => _.id));
         return company.models.map((_) => Identifier('models', _)).toList();
     }
+    throw ArgumentError();
   }
 }

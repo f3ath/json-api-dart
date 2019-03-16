@@ -25,30 +25,29 @@ class JsonApiClient {
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ResourceObjectCollection>> fetchCollection(Uri uri,
           {Map<String, String> headers}) =>
-      _get(Document.parseResourceObjectCollection, uri, headers);
+      _get(ResourceObjectCollection.parseDocument, uri, headers);
 
   /// Fetches a single resource
   /// Use [headers] to pass extra HTTP headers.
-  Future<Response<ResourceObject>> fetchResource(Uri uri,
+  Future<Response<SingleResourceObject>> fetchResource(Uri uri,
           {Map<String, String> headers}) =>
-      _get(Document.parseResourceObject, uri, headers);
+      _get(SingleResourceObject.parseDocument, uri, headers);
 
   /// Fetches a to-one relationship
   /// Use [headers] to pass extra HTTP headers.
-  Future<Response<IdentifierObject>> fetchToOne(Uri uri,
-          {Map<String, String> headers}) =>
-      _get(nullable(Relationship.parseToOne), uri, headers);
+  Future<Response<ToOne>> fetchToOne(Uri uri, {Map<String, String> headers}) =>
+      _get(ToOne.parse, uri, headers);
 
   /// Fetches a to-many relationship
   /// Use [headers] to pass extra HTTP headers.
-  Future<Response<IdentifierObjectCollection>> fetchToMany(Uri uri,
+  Future<Response<ToMany>> fetchToMany(Uri uri,
           {Map<String, String> headers}) =>
-      _get(Relationship.parseToMany, uri, headers);
+      _get(ToMany.parse, uri, headers);
 
   /// Fetches a to-one or to-many relationship.
   /// The actual type of the relationship can be determined afterwards.
   /// Use [headers] to pass extra HTTP headers.
-  Future<Response<ResourceLinkage>> fetchRelationship(Uri uri,
+  Future<Response<Relationship>> fetchRelationship(Uri uri,
           {Map<String, String> headers}) =>
       _get(Relationship.parse, uri, headers);
 
@@ -56,37 +55,36 @@ class JsonApiClient {
   /// according to its type.
   ///
   /// https://jsonapi.org/format/#crud-creating
-  Future<Response<ResourceObject>> createResource(Uri uri, Resource resource,
-          {Map<String, String> headers}) =>
-      _post(Document.parseResourceObject, uri,
-          Document(ResourceObject.fromResource(resource)), headers);
+  Future<Response<SingleResourceObject>> createResource(
+          Uri uri, Resource resource, {Map<String, String> headers}) =>
+      _post(SingleResourceObject.parseDocument, uri,
+          SingleResourceObject(ResourceObject.fromResource(resource)), headers);
 
   /// Deletes the resource.
   ///
   /// https://jsonapi.org/format/#crud-deleting
   Future<Response> deleteResource(Uri uri, {Map<String, String> headers}) =>
-      _delete(Document.parseMeta, uri, headers);
+      _delete(null, uri, headers);
 
   /// Updates the resource via PATCH request.
   ///
   /// https://jsonapi.org/format/#crud-updating
-  Future<Response<ResourceObject>> updateResource(Uri uri, Resource resource,
-          {Map<String, String> headers}) =>
-      _patch(Document.parseResourceObject, uri,
-          Document(ResourceObject.fromResource(resource)), headers);
+  Future<Response<SingleResourceObject>> updateResource(
+          Uri uri, Resource resource, {Map<String, String> headers}) =>
+      _patch(SingleResourceObject.parseDocument, uri,
+          SingleResourceObject(ResourceObject.fromResource(resource)), headers);
 
   /// Updates a to-one relationship via PATCH request
   ///
   /// https://jsonapi.org/format/#crud-updating-to-one-relationships
-  Future<Response<IdentifierObject>> replaceToOne(Uri uri, Identifier id,
+  Future<Response<ToOne>> replaceToOne(Uri uri, Identifier id,
           {Map<String, String> headers}) =>
-      _patch(Relationship.parseToOne, uri,
-          Relationship(IdentifierObject.fromIdentifier(id)), headers);
+      _patch(ToOne.parse, uri,
+          ToOne(nullable(IdentifierObject.fromIdentifier)(id)), headers);
 
   /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
   /// with id = null.
-  Future<Response<IdentifierObject>> removeToOne(Uri uri,
-          {Map<String, String> headers}) =>
+  Future<Response<ToOne>> removeToOne(Uri uri, {Map<String, String> headers}) =>
       replaceToOne(uri, null, headers: headers);
 
   /// Replaces a to-many relationship with the given set of [ids].
@@ -96,14 +94,10 @@ class JsonApiClient {
   /// or return a 403 Forbidden response if complete replacement is not allowed by the server.
   ///
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
-  Future<Response<IdentifierObjectCollection>> replaceToMany(
-          Uri uri, List<Identifier> ids, {Map<String, String> headers}) =>
-      _patch(
-          Relationship.parseToMany,
-          uri,
-          Relationship(IdentifierObjectCollection(
-              ids.map(IdentifierObject.fromIdentifier))),
-          headers);
+  Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> ids,
+          {Map<String, String> headers}) =>
+      _patch(ToMany.parse, uri,
+          ToMany(ids.map(IdentifierObject.fromIdentifier)), headers);
 
   /// Adds the given set of [ids] to a to-many relationship.
   ///
@@ -123,17 +117,13 @@ class JsonApiClient {
   /// caused by multiple clients making the same changes to a relationship.
   ///
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
-  Future<Response<IdentifierObjectCollection>> addToMany(
-          Uri uri, List<Identifier> ids, {Map<String, String> headers}) =>
-      _post(
-          Relationship.parseToMany,
-          uri,
-          Relationship(IdentifierObjectCollection(
-              ids.map(IdentifierObject.fromIdentifier))),
+  Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> ids,
+          {Map<String, String> headers}) =>
+      _post(ToMany.parse, uri, ToMany(ids.map(IdentifierObject.fromIdentifier)),
           headers);
 
   Future<Response<D>> _get<D extends PrimaryData>(
-          Document<D> parse(Object _), uri, Map<String, String> headers) =>
+          D parse(Object _), uri, Map<String, String> headers) =>
       _call(
           parse,
           (_) => _.get(uri,
@@ -141,12 +131,12 @@ class JsonApiClient {
                 ..addAll(headers ?? {})
                 ..addAll({'Accept': contentType})));
 
-  Future<Response<D>> _post<D extends PrimaryData>(Document<D> parse(Object _),
-          uri, Document document, Map<String, String> headers) =>
+  Future<Response<D>> _post<D extends PrimaryData>(D parse(Object _), uri,
+          PrimaryData data, Map<String, String> headers) =>
       _call(
           parse,
           (_) => _.post(uri,
-              body: json.encode(document),
+              body: json.encode(Document.data(data)),
               headers: {}
                 ..addAll(headers ?? {})
                 ..addAll({
@@ -155,7 +145,7 @@ class JsonApiClient {
                 })));
 
   Future<Response<D>> _delete<D extends PrimaryData>(
-          Document<D> parse(Object _), uri, Map<String, String> headers) =>
+          D parse(Object _), uri, Map<String, String> headers) =>
       _call(
           parse,
           (_) => _.delete(uri,
@@ -165,12 +155,12 @@ class JsonApiClient {
                   'Accept': contentType,
                 })));
 
-  Future<Response<D>> _patch<D extends PrimaryData>(Document<D> parse(Object _),
-          uri, Document document, Map<String, String> headers) =>
+  Future<Response<D>> _patch<D extends PrimaryData>(D parse(Object _), uri,
+          PrimaryData data, Map<String, String> headers) =>
       _call(
           parse,
           (_) => _.patch(uri,
-              body: json.encode(document),
+              body: json.encode(Document.data(data)),
               headers: {}
                 ..addAll(headers ?? {})
                 ..addAll({
@@ -178,8 +168,7 @@ class JsonApiClient {
                   'Content-Type': contentType,
                 })));
 
-  Future<Response<D>> _call<D extends PrimaryData>(
-      Document<D> parse(Object json),
+  Future<Response<D>> _call<D extends PrimaryData>(D parse(Object json),
       Future<http.Response> fn(http.Client client)) async {
     final client = _factory();
     try {
@@ -188,8 +177,9 @@ class JsonApiClient {
         return Response(r.statusCode, r.headers);
       }
       final body = json.decode(r.body);
+      final document = body == null ? null : Document.parse(body, parse);
 
-      return Response(r.statusCode, r.headers, document: nullable(parse)(body));
+      return Response(r.statusCode, r.headers, document: document);
     } finally {
       client.close();
     }
