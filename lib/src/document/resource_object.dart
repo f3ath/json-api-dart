@@ -39,8 +39,8 @@ class ResourceObject {
 
   static ResourceObject fromResource(Resource resource) {
     final relationships = <String, Relationship>{}
-      ..addAll(resource.toOne.map(
-          (k, v) => MapEntry(k, ToOne(nullable(IdentifierObject.fromIdentifier)(v)))))
+      ..addAll(resource.toOne.map((k, v) =>
+          MapEntry(k, ToOne(nullable(IdentifierObject.fromIdentifier)(v)))))
       ..addAll(resource.toMany.map((k, v) =>
           MapEntry(k, ToMany(v.map(IdentifierObject.fromIdentifier)))));
 

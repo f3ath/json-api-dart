@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:json_api/document.dart';
-import 'package:json_api/src/server/server.dart';
+import 'package:json_api/server.dart';
 import 'package:uuid/uuid.dart';
 
 import 'dao.dart';

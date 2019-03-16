@@ -18,18 +18,21 @@ void main() async {
 
   group('collection', () {
     test('resource collection', () async {
-      final r = await client.fetchCollection(Url.collection('companies'));
+      final uri = Url.collection('companies');
+      final r = await client.fetchCollection(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data.resourceObjects.first.attributes['name'], 'Tesla');
+      expect(r.data.self.uri, uri);
     });
 
     test('related collection', () async {
-      final r =
-          await client.fetchCollection(Url.related('companies', '1', 'models'));
+      final uri = Url.related('companies', '1', 'models');
+      final r = await client.fetchCollection(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data.resourceObjects.first.attributes['name'], 'Roadster');
+      expect(r.data.self.uri, uri);
     });
 
     test('404', () async {
@@ -42,10 +45,12 @@ void main() async {
 
   group('single resource', () {
     test('single resource', () async {
-      final r = await client.fetchResource(Url.resource('models', '1'));
+      final uri = Url.resource('models', '1');
+      final r = await client.fetchResource(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data.toResource().attributes['name'], 'Roadster');
+      expect(r.data.self.uri, uri);
     });
 
     test('404 on type', () async {
@@ -63,10 +68,12 @@ void main() async {
 
   group('related resource', () {
     test('related resource', () async {
-      final r = await client.fetchResource(Url.related('companies', '1', 'hq'));
+      final uri = Url.related('companies', '1', 'hq');
+      final r = await client.fetchResource(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data.toResource().attributes['name'], 'Palo Alto');
+      expect(r.data.self.uri, uri);
     });
 
     test('404 on type', () async {
@@ -91,53 +98,59 @@ void main() async {
 
   group('relationships', () {
     test('to-one', () async {
-      final r =
-          await client.fetchToOne(Url.relationship('companies', '1', 'hq'));
+      final uri = Url.relationship('companies', '1', 'hq');
+      final r = await client.fetchToOne(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data.toIdentifier().type, 'cities');
+      expect(r.data.self.uri, uri);
     });
 
     test('empty to-one', () async {
-      final r =
-          await client.fetchToOne(Url.relationship('companies', '3', 'hq'));
+      final uri = Url.relationship('companies', '3', 'hq');
+      final r = await client.fetchToOne(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.data.toIdentifier(), isNull);
+      expect(r.data.toIdentifier(), isNull);
+      expect(r.data.self.uri, uri);
     });
 
     test('generic to-one', () async {
-      final r = await client
-          .fetchRelationship(Url.relationship('companies', '1', 'hq'));
+      final uri = Url.relationship('companies', '1', 'hq');
+      final r = await client.fetchRelationship(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.data, TypeMatcher<ToOne>());
-      expect((r.document.data as ToOne).toIdentifier().type, 'cities');
+      expect(r.data, TypeMatcher<ToOne>());
+      expect((r.data as ToOne).toIdentifier().type, 'cities');
+      expect(r.data.self.uri, uri);
     });
 
     test('to-many', () async {
-      final r = await client
-          .fetchToMany(Url.relationship('companies', '1', 'models'));
+      final uri = Url.relationship('companies', '1', 'models');
+      final r = await client.fetchToMany(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data.identifiers.first.type, 'models');
+      expect(r.data.self.uri, uri);
     });
 
     test('empty to-many', () async {
-      final r = await client
-          .fetchToMany(Url.relationship('companies', '3', 'models'));
+      final uri = Url.relationship('companies', '3', 'models');
+      final r = await client.fetchToMany(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data.identifiers, isEmpty);
+      expect(r.data.self.uri, uri);
     });
 
     test('generic to-many', () async {
-      final r = await client
-          .fetchRelationship(Url.relationship('companies', '1', 'models'));
+      final uri = Url.relationship('companies', '1', 'models');
+      final r = await client.fetchRelationship(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data, TypeMatcher<ToMany>());
       expect((r.data as ToMany).identifiers.first.type, 'models');
+      expect(r.data.self.uri, uri);
     });
   });
 }

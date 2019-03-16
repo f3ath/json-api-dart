@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:json_api/src/server/server.dart';
+import 'package:json_api/server.dart';
 
 import 'cars_server/controller.dart';
 import 'cars_server/dao.dart';
@@ -48,7 +48,7 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
   final controller = CarsController(
       {'companies': companies, 'cities': cities, 'models': models});
 
-  final routing = StandardRouting(Uri.parse('http://localhost'));
+  final routing = StandardRouting(Uri.parse('http://localhost:$port'));
 
   final server = JsonApiServer(routing);
 
