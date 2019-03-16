@@ -7,7 +7,7 @@ class Link {
     ArgumentError.checkNotNull(uri, 'uri');
   }
 
-  static Link fromJson(Object json) {
+  static Link parse(Object json) {
     if (json is String) return Link(Uri.parse(json));
     if (json is Map) {
       return LinkObject(Uri.parse(json['href']), meta: json['meta']);
@@ -17,7 +17,7 @@ class Link {
 
   static Map<String, Link> parseMap(Map m) {
     final links = <String, Link>{};
-    m.forEach((k, v) => links[k] = Link.fromJson(v));
+    m.forEach((k, v) => links[k] = Link.parse(v));
     return links;
   }
 
@@ -48,7 +48,7 @@ class Links {
   static Links fromJson(Object json) {
     if (json is Map) {
       return Links(Map.fromEntries(
-          json.entries.map((e) => MapEntry(e.key, Link.fromJson(e.value)))));
+          json.entries.map((e) => MapEntry(e.key, Link.parse(e.value)))));
     }
     throw 'Can not parse Links from $json';
   }

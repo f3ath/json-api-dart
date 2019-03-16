@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:json_api/document.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/server/page.dart';
 
 abstract class UrlBuilder {
   /// Builds a URI for a resource collection
@@ -189,6 +188,9 @@ abstract class JsonApiRequest {
 
   HttpResponse get _response => _request.response;
 
+  Future<Object> get _body async =>
+      json.decode(await _request.transform(utf8.decoder).join());
+
   Future call(JsonApiController controller);
 
   Future notFound([List<ErrorObject> errors = const []]) =>
@@ -241,8 +243,8 @@ class ReplaceRelationship extends JsonApiRequest {
 
   ReplaceRelationship(HttpRequest request, this.route) : super(request);
 
-  Future<Relationship> relationship() async => Relationship.fromJson(
-      json.decode(await _request.transform(utf8.decoder).join()));
+  Future<ResourceLinkage> relationshipData() async =>
+      Relationship.parse(await _body).data;
 
   Future call(JsonApiController controller) =>
       controller.replaceRelationship(this);
@@ -260,8 +262,8 @@ class AddToRelationship extends JsonApiRequest {
 
   AddToRelationship(HttpRequest request, this.route) : super(request);
 
-  Future<ToMany> relationship() async => ToMany.fromJson(
-      json.decode(await _request.transform(utf8.decoder).join()));
+  Future<IdentifierObjectCollection> collection() async =>
+      IdentifierObjectCollection.parse(await _body);
 
   Future call(JsonApiController controller) =>
       controller.addToRelationship(this);
@@ -298,10 +300,9 @@ class CreateResource extends JsonApiRequest {
 
   CreateResource(HttpRequest request, this.route) : super(request);
 
-  Future<Resource> resource() async => ResourceDocument.fromJson(
-          json.decode(await _request.transform(utf8.decoder).join()))
-      .resourceObject
-      .toResource();
+  Future<Resource> resource() async {
+    return Document.parseResourceObject(await _body).data.toResource();
+  }
 
   Future call(JsonApiController controller) => controller.createResource(this);
 
@@ -319,10 +320,9 @@ class UpdateResource extends JsonApiRequest {
 
   UpdateResource(HttpRequest request, this.route) : super(request);
 
-  Future<Resource> resource() async => ResourceDocument.fromJson(
-          json.decode(await _request.transform(utf8.decoder).join()))
-      .resourceObject
-      .toResource();
+  Future<Resource> resource() async {
+    return Document.parseResourceObject(await _body).data.toResource();
+  }
 
   Future call(JsonApiController controller) => controller.updateResource(this);
 
@@ -360,48 +360,49 @@ class JsonApiServer {
   Future collection(HttpResponse response, CollectionRoute route,
           Collection<Resource> collection) =>
       write(response, 200,
-          document: CollectionDocument(
-              collection.elements.map(ResourceObject.fromResource),
-              self: Link(route.print(url, params: collection.page?.parameters)),
-              pagination: Pagination.fromMap(collection.page.mapPages(
-                  (_) => Link(route.print(url, params: _?.parameters))))));
+          document: Document(
+            ResourceObjectCollection(
+                collection.elements.map(ResourceObject.fromResource)),
+          ));
 
   Future error(HttpResponse response, int status, List<ErrorObject> errors) =>
-      write(response, status, document: ErrorDocument(errors));
+      write(response, status, document: Document.error(errors));
 
   Future relatedCollection(HttpResponse response, RelatedRoute route,
           Collection<Resource> collection) =>
       write(response, 200,
-          document:
-              CollectionDocument(collection.map(ResourceObject.fromResource)));
+          document: Document(ResourceObjectCollection(
+              collection.elements.map(ResourceObject.fromResource))));
 
   Future relatedResource(
           HttpResponse response, RelatedRoute route, Resource resource) =>
       write(response, 200,
-          document: ResourceDocument(ResourceObject.fromResource(resource)));
+          document: Document(ResourceObject.fromResource(resource)));
 
   Future resource(
           HttpResponse response, ResourceRoute route, Resource resource) =>
       write(response, 200,
-          document: ResourceDocument(ResourceObject.fromResource(resource)));
+          document: Document(ResourceObject.fromResource(resource)));
 
   Future toMany(HttpResponse response, RelationshipRoute route,
           Collection<Identifier> collection) =>
       write(response, 200,
-          document: ToMany(collection.map(IdentifierObject.fromIdentifier)));
+          document: Relationship(IdentifierObjectCollection(
+              collection.elements.map(IdentifierObject.fromIdentifier))));
 
   Future toOne(HttpResponse response, RelationshipRoute route, Identifier id) =>
       write(response, 200,
-          document: ToOne(nullable(IdentifierObject.fromIdentifier)(id)));
+          document:
+              Relationship(nullable(IdentifierObject.fromIdentifier)(id)));
 
   Future meta(HttpResponse response, ResourceRoute route,
           Map<String, Object> meta) =>
-      write(response, 200, document: MetaDocument(meta));
+      write(response, 200, document: Document.empty(meta));
 
   Future created(
           HttpResponse response, CollectionRoute route, Resource resource) =>
       write(response, 201,
-          document: ResourceDocument(ResourceObject.fromResource(resource)),
+          document: Document(ResourceObject.fromResource(resource)),
           headers: {
             'Location': url.resource(resource.type, resource.id).toString()
           });
@@ -425,13 +426,4 @@ abstract class JsonApiController {
   Future replaceRelationship(ReplaceRelationship request);
 
   Future addToRelationship(AddToRelationship request);
-}
-
-class Collection<T> {
-  Iterable<T> elements;
-  final Page page;
-
-  Collection(this.elements, {this.page});
-
-  Iterable<K> map<K>(K f(T t)) => elements.map(f);
 }

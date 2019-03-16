@@ -1,104 +1,35 @@
 import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/identifier_object.dart';
-import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/nullable.dart';
+import 'package:json_api/src/document/identifier_object_collection.dart';
 
-/// A relationship. Can be to-one or to-many.
-///
-/// https://jsonapi.org/format/#document-resource-object-linkage
-abstract class Relationship extends Document {
-  final Link self;
-  final Link related;
+class Relationship<D extends ResourceLinkage> extends Document<D> {
+  Relationship(D data) : super(data);
 
-  bool get isEmpty;
-
-  Object get _data;
-
-  Relationship._({this.self, this.related});
-
-  Map<String, Object> toJson() {
-    final json = {'data': _data};
-    final links = {'self': self, 'related': related}
-      ..removeWhere((k, v) => v == null);
-    if (links.isNotEmpty) {
-      json['links'] = links;
-    }
-    return json;
-  }
+  static Relationship parse(Object json) =>
+      _parse(json, ResourceLinkage.fromData);
 
   static Map<String, Relationship> parseMap(Map map) =>
-      map.map((k, v) => MapEntry(k, nullable(Relationship.fromJson)(v)));
+      map.map((k, v) => MapEntry(k, parse(v)));
 
-  static Relationship fromJson(Object json) {
+  static Relationship<IdentifierObjectCollection> parseToMany(Object json) =>
+      _parse(json, IdentifierObjectCollection.fromData);
+
+  static Relationship<IdentifierObject> parseToOne(Object json) =>
+      _parse(json, IdentifierObject.fromData);
+
+  static Relationship<D> _parse<D extends ResourceLinkage>(
+      Object json, D parseData(Object json)) {
     if (json is Map) {
-      final links = Link.parseMap(json['links'] ?? {});
-
-      final data = json['data'];
-      if (data is List) {
-        return ToMany(data.map(IdentifierObject.fromJson).toList(),
-            self: links['self'], related: links['related']);
-      }
-      return ToOne(nullable(IdentifierObject.fromJson)(json['data']),
-          self: links['self'], related: links['related']);
+      return Relationship(parseData(json['data']));
     }
     throw 'Can not parse Relationship from $json';
   }
 }
 
-/// A to-many relationship
-///
-/// https://jsonapi.org/format/#document-resource-object-linkage
-class ToMany extends Relationship {
-  final List<IdentifierObject> _data;
-
-  ToMany(Iterable<IdentifierObject> _data, {Link self, Link related})
-      : _data = List.unmodifiable(_data),
-        super._(self: self, related: related);
-
-  static ToMany fromJson(Object json) {
-    if (json is Map) {
-      final links = Link.parseMap(json['links'] ?? {});
-
-      final data = json['data'];
-      if (data is List) {
-        return ToMany(data.map(IdentifierObject.fromJson).toList(),
-            self: links['self'], related: links['related']);
-      }
-    }
-    throw 'Can not parse ToMany from $json';
+abstract class ResourceLinkage implements PrimaryData {
+  static ResourceLinkage fromData(Object json) {
+    if (json is Map || json == null) return IdentifierObject.fromData(json);
+    if (json is List) return IdentifierObjectCollection.fromData(json);
+    throw 'Can not parse RelationshipData from $json';
   }
-
-  List<IdentifierObject> get collection => _data;
-
-  List<Identifier> toIdentifiers() =>
-      collection.map((_) => _.toIdentifier()).toList();
-
-  bool get isEmpty => collection.isEmpty;
-}
-
-/// A to-one relationship
-///
-/// https://jsonapi.org/format/#document-resource-object-linkage
-class ToOne extends Relationship {
-  final IdentifierObject _data;
-
-  ToOne(this._data, {Link self, Link related})
-      : super._(self: self, related: related);
-
-  get isEmpty => identifierObject == null;
-
-  static ToOne fromJson(Object json) {
-    if (json is Map) {
-      final links = Link.parseMap(json['links'] ?? {});
-
-      return ToOne(nullable(IdentifierObject.fromJson)(json['data']),
-          self: links['self'], related: links['related']);
-    }
-    throw 'Can not parse ToOne from $json';
-  }
-
-  IdentifierObject get identifierObject => _data;
-
-  Identifier toIdentifier() => identifierObject?.toIdentifier();
 }

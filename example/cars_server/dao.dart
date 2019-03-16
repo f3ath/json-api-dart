@@ -1,5 +1,4 @@
-import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/document.dart';
 import 'package:json_api/src/nullable.dart';
 
 import 'model.dart';

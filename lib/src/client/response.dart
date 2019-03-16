@@ -1,4 +1,4 @@
-import 'package:json_api/src/client/document.dart';
+import 'package:json_api/document.dart';
 import 'package:json_api/src/client/status_code.dart';
 
 /// A response returned by JSON:API cars_server
@@ -13,7 +13,7 @@ class Response<Data extends PrimaryData> {
   /// Headers returned by the server.
   final Map<String, String> headers;
 
-  Response(this.status, this.headers, this.document) {
+  Response(this.status, this.headers, {this.document}) {
     // TODO: Check for null and content-type
   }
 

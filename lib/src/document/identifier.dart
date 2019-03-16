@@ -1,5 +1,3 @@
-/// The core of the Resource Identifier object
-/// https://jsonapi.org/format/#document-resource-identifier-objects
 class Identifier {
   /// Resource type
   final String type;

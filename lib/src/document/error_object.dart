@@ -1,4 +1,4 @@
-import 'package:json_api/src/document/link.dart';
+import 'link.dart';
 
 /// Error Object
 /// Error objects provide additional information about problems encountered while performing an operation.
@@ -49,7 +49,7 @@ class ErrorObject {
   static ErrorObject fromJson(Object json) {
     if (json is Map) {
       Link about;
-      if (json['links'] is Map) about = Link.fromJson(json['links']['about']);
+      if (json['links'] is Map) about = Link.parse(json['links']['about']);
 
       String pointer;
       String parameter;

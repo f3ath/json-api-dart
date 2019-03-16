@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:json_api/document.dart';
-import 'package:json_api/src/server/numbered_page.dart';
 import 'package:json_api/src/server/server.dart';
 import 'package:uuid/uuid.dart';
 
@@ -13,17 +12,15 @@ class CarsController implements JsonApiController {
   CarsController(this.dao);
 
   @override
-  Future fetchCollection(FetchCollection r) {
+  Future fetchCollection(FetchCollection r) async {
     if (!dao.containsKey(r.route.type)) {
       return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
     }
-    final page = NumberedPage.fromQueryParameters(r.queryParameters,
-        total: dao[r.route.type].length);
-    return r.collection(Collection(
-        dao[r.route.type]
-            .fetchCollection(offset: page.number - 1)
-            .map(dao[r.route.type].toResource),
-        page: page));
+//    final page = NumberedPage.fromQueryParameters(r.queryParameters,
+//        total: dao[r.route.type].length);
+    return r.collection(Collection(dao[r.route.type]
+        .fetchCollection(offset: 0)
+        .map(dao[r.route.type].toResource)));
   }
 
   @override
@@ -109,19 +106,22 @@ class CarsController implements JsonApiController {
       return r.conflict([ErrorObject(detail: 'Incompatible type')]);
     }
 
-    Object obj;
     if (resource.hasId) {
       if (dao[r.route.type].fetchById(resource.id) != null) {
         return r.conflict([ErrorObject(detail: 'Resource already exists')]);
       }
-      obj = dao[r.route.type].create(resource);
-      dao[r.route.type].insert(obj);
+      final created = dao[r.route.type].create(resource);
+      dao[r.route.type].insert(created);
       return r.noContent();
-    } else {
-      obj = dao[r.route.type].create(resource.replace(id: Uuid().v4()));
-      dao[r.route.type].insert(obj);
-      return r.created(dao[r.route.type].toResource(obj));
     }
+
+    final created = dao[r.route.type].create(Resource(
+        resource.type, Uuid().v4(),
+        attributes: resource.attributes,
+        toMany: resource.toMany,
+        toOne: resource.toOne));
+    dao[r.route.type].insert(created);
+    return r.created(dao[r.route.type].toResource(created));
   }
 
   @override
@@ -148,13 +148,13 @@ class CarsController implements JsonApiController {
     if (!dao.containsKey(r.route.type)) {
       return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
     }
-    final rel = await r.relationship();
-    if (rel is ToOne) {
+    final rel = await r.relationshipData();
+    if (rel is IdentifierObject) {
       dao[r.route.type]
           .replaceToOne(r.route.id, r.route.relationship, rel.toIdentifier());
       return r.noContent();
     }
-    if (rel is ToMany) {
+    if (rel is IdentifierObjectCollection) {
       dao[r.route.type]
           .replaceToMany(r.route.id, r.route.relationship, rel.toIdentifiers());
       return r.noContent();
@@ -166,9 +166,9 @@ class CarsController implements JsonApiController {
     if (!dao.containsKey(r.route.type)) {
       return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
     }
-    final rel = await r.relationship();
-    final result = dao[r.route.type]
-        .addToMany(r.route.id, r.route.relationship, rel.toIdentifiers());
+    final collection = await r.collection();
+    final result = dao[r.route.type].addToMany(
+        r.route.id, r.route.relationship, collection.toIdentifiers());
     return r.toMany(Collection(result));
   }
 }

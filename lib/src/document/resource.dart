@@ -1,7 +1,5 @@
 import 'package:json_api/src/document/identifier.dart';
 
-/// The core of the Resource object
-/// https://jsonapi.org/format/#document-resource-objects
 class Resource {
   /// Resource type
   final String type;
@@ -32,17 +30,4 @@ class Resource {
     this.toOne.addAll(toOne ?? {});
     this.toMany.addAll(toMany ?? {});
   }
-
-  /// Returns a new Resource instance with the given fields replaced.
-  /// Provided values must not be null.
-  Resource replace(
-          {String id,
-          String type,
-          Map<String, Object> attributes,
-          Map<String, Identifier> toOne,
-          Map<String, List<Identifier>> toMany}) =>
-      Resource(type ?? this.type, id ?? this.id,
-          attributes: attributes ?? this.attributes,
-          toOne: toOne ?? this.toOne,
-          toMany: toMany ?? this.toMany);
 }

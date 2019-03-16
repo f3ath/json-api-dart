@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:json_api/client.dart';
+import 'package:json_api/document.dart';
 import 'package:test/test.dart';
 
 import '../../example/cars_server.dart';
@@ -103,7 +104,7 @@ void main() async {
           await client.fetchToOne(Url.relationship('companies', '3', 'hq'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.data, isNull);
+      expect(r.document.data.toIdentifier(), isNull);
     });
 
     test('generic to-one', () async {
@@ -136,8 +137,8 @@ void main() async {
           .fetchRelationship(Url.relationship('companies', '1', 'models'));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.document.data, TypeMatcher<IdentifierCollection>());
-      expect((r.document.data as IdentifierCollection).elements.first.type,
+      expect(r.document.data, TypeMatcher<IdentifierObjectCollection>());
+      expect((r.document.data as IdentifierObjectCollection).elements.first.type,
           'models');
     });
   });
