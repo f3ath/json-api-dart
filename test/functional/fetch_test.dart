@@ -138,7 +138,8 @@ void main() async {
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.document.data, TypeMatcher<IdentifierObjectCollection>());
-      expect((r.document.data as IdentifierObjectCollection).elements.first.type,
+      expect(
+          (r.document.data as IdentifierObjectCollection).elements.first.type,
           'models');
     });
   });

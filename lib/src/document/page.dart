@@ -1,4 +1,3 @@
-
 /// Pagination
 /// https://jsonapi.org/format/#fetching-pagination
 abstract class Page {

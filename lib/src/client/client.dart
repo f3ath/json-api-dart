@@ -154,9 +154,8 @@ class JsonApiClient {
                   'Content-Type': contentType,
                 })));
 
-  Future<Response<D>> _delete<D extends PrimaryData>(Document<D> parse(Object _),
-          uri,
-          Map<String, String> headers) =>
+  Future<Response<D>> _delete<D extends PrimaryData>(
+          Document<D> parse(Object _), uri, Map<String, String> headers) =>
       _call(
           parse,
           (_) => _.delete(uri,
