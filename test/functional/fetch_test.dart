@@ -104,6 +104,8 @@ void main() async {
       expect(r.isSuccessful, true);
       expect(r.data.toIdentifier().type, 'cities');
       expect(r.data.self.uri, uri);
+      expect(r.data.related.uri.toString(),
+          'http://localhost:8080/companies/1/hq');
     });
 
     test('empty to-one', () async {
@@ -113,6 +115,8 @@ void main() async {
       expect(r.isSuccessful, true);
       expect(r.data.toIdentifier(), isNull);
       expect(r.data.self.uri, uri);
+      expect(r.data.related.uri.toString(),
+          'http://localhost:8080/companies/3/hq');
     });
 
     test('generic to-one', () async {
@@ -123,6 +127,8 @@ void main() async {
       expect(r.data, TypeMatcher<ToOne>());
       expect((r.data as ToOne).toIdentifier().type, 'cities');
       expect(r.data.self.uri, uri);
+      expect(r.data.related.uri.toString(),
+          'http://localhost:8080/companies/1/hq');
     });
 
     test('to-many', () async {
@@ -132,6 +138,8 @@ void main() async {
       expect(r.isSuccessful, true);
       expect(r.data.identifiers.first.type, 'models');
       expect(r.data.self.uri, uri);
+      expect(r.data.related.uri.toString(),
+          'http://localhost:8080/companies/1/models');
     });
 
     test('empty to-many', () async {
@@ -141,6 +149,8 @@ void main() async {
       expect(r.isSuccessful, true);
       expect(r.data.identifiers, isEmpty);
       expect(r.data.self.uri, uri);
+      expect(r.data.related.uri.toString(),
+          'http://localhost:8080/companies/3/models');
     });
 
     test('generic to-many', () async {
@@ -151,6 +161,8 @@ void main() async {
       expect(r.data, TypeMatcher<ToMany>());
       expect((r.data as ToMany).identifiers.first.type, 'models');
       expect(r.data.self.uri, uri);
+      expect(r.data.related.uri.toString(),
+          'http://localhost:8080/companies/1/models');
     });
   });
 }

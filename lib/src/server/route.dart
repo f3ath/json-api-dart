@@ -4,7 +4,8 @@ import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/uri_builder.dart';
 
 abstract class JsonApiRoute {
-  Uri print(UriBuilder schema, {Map<String, String> params = const {}});
+  /// Returns the `self` link uri
+  Uri self(UriBuilder schema, {Map<String, String> params = const {}});
 
   JsonApiRequest createRequest(HttpRequest httpRequest);
 }
@@ -25,7 +26,7 @@ class CollectionRoute implements JsonApiRoute {
   }
 
   @override
-  Uri print(UriBuilder schema, {Map<String, String> params = const {}}) =>
+  Uri self(UriBuilder schema, {Map<String, String> params = const {}}) =>
       schema.collection(type, params: params);
 }
 
@@ -45,7 +46,7 @@ class RelatedRoute implements JsonApiRoute {
   }
 
   @override
-  Uri print(UriBuilder schema, {Map<String, String> params = const {}}) =>
+  Uri self(UriBuilder schema, {Map<String, String> params = const {}}) =>
       schema.related(type, id, relationship, params: params);
 }
 
@@ -69,8 +70,12 @@ class RelationshipRoute implements JsonApiRoute {
   }
 
   @override
-  Uri print(UriBuilder schema, {Map<String, String> params = const {}}) =>
-      schema.relationship(type, id, relationship, params: params);
+  Uri self(UriBuilder builder, {Map<String, String> params = const {}}) =>
+      builder.relationship(type, id, relationship, params: params);
+
+  Uri related(UriBuilder builder,
+          {Map<String, String> params = const {}}) =>
+      builder.related(type, id, relationship, params: params);
 }
 
 class ResourceRoute implements JsonApiRoute {
@@ -92,6 +97,6 @@ class ResourceRoute implements JsonApiRoute {
   }
 
   @override
-  Uri print(UriBuilder schema, {Map<String, String> params = const {}}) =>
+  Uri self(UriBuilder schema, {Map<String, String> params = const {}}) =>
       schema.resource(type, id, params: params);
 }

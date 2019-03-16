@@ -31,7 +31,7 @@ class JsonApiServer {
       write(response, 200,
           document: Document.data(
             ResourceObjectCollection(resource.map(ResourceObject.fromResource),
-                self: Link(route.print(url))),
+                self: Link(route.self(url))),
           ));
 
   Future error(HttpResponse response, int status, List<ErrorObject> errors) =>
@@ -42,34 +42,36 @@ class JsonApiServer {
       write(response, 200,
           document: Document.data(ResourceObjectCollection(
               collection.map(ResourceObject.fromResource),
-              self: Link(route.print(url)))));
+              self: Link(route.self(url)))));
 
   Future relatedResource(
           HttpResponse response, RelatedRoute route, Resource resource) =>
       write(response, 200,
           document: Document.data(SingleResourceObject(
               ResourceObject.fromResource(resource),
-              self: Link(route.print(url)))));
+              self: Link(route.self(url)))));
 
   Future resource(
           HttpResponse response, ResourceRoute route, Resource resource) =>
       write(response, 200,
           document: Document.data(SingleResourceObject(
               ResourceObject.fromResource(resource),
-              self: Link(route.print(url)))));
+              self: Link(route.self(url)))));
 
   Future toMany(HttpResponse response, RelationshipRoute route,
           Iterable<Identifier> collection) =>
       write(response, 200,
           document: Document.data(ToMany(
               collection.map(IdentifierObject.fromIdentifier),
-              self: Link(route.print(url)))));
+              self: Link(route.self(url)),
+              related: Link(route.related(url)))));
 
   Future toOne(HttpResponse response, RelationshipRoute route, Identifier id) =>
       write(response, 200,
           document: Document.data(ToOne(
               nullable(IdentifierObject.fromIdentifier)(id),
-              self: Link(route.print(url)))));
+              self: Link(route.self(url)),
+              related: Link(route.related(url)))));
 
   Future meta(HttpResponse response, ResourceRoute route,
           Map<String, Object> meta) =>
