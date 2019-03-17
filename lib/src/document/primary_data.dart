@@ -17,7 +17,7 @@ abstract class PrimaryData {
   PrimaryData({this.self});
 
   /// The top-level `links` object
-  Map<String, Link> get links => self == null ? {} : {'self': self};
+  Map<String, Link> toLinks() => self == null ? {} : {'self': self};
 
   /// Top-level JSON object
   Map<String, Object> toJson();

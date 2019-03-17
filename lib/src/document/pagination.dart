@@ -14,7 +14,7 @@ class Pagination {
         first = null,
         last = null;
 
-  Map<String, Link> get links => {
+  Map<String, Link> toLinks() => {
         'prev': prev,
         'next': next,
         'first': first,

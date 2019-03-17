@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:json_api/document.dart';
 import 'package:json_api/src/server/controller.dart';
+import 'package:json_api/src/server/page.dart';
 import 'package:json_api/src/server/route.dart';
 import 'package:json_api/src/server/server.dart';
 
@@ -36,8 +37,8 @@ class FetchCollection extends JsonApiRequest {
 
   Future call(JsonApiController controller) => controller.fetchCollection(this);
 
-  Future collection(Iterable<Resource> collection) =>
-      _server.collection(_response, route, collection);
+  Future collection(Iterable<Resource> resources, {Page page}) =>
+      _server.collection(_response, route, resources, page: page);
 }
 
 class FetchRelated extends JsonApiRequest {

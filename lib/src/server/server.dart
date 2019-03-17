@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:json_api/document.dart';
+import 'package:json_api/src/document/pagination.dart';
 import 'package:json_api/src/nullable.dart';
+import 'package:json_api/src/server/page.dart';
 import 'package:json_api/src/server/route.dart';
 import 'package:json_api/src/server/uri_builder.dart';
 
@@ -27,11 +29,16 @@ class JsonApiServer {
   }
 
   Future collection(HttpResponse response, CollectionRoute route,
-          Iterable<Resource> resource) =>
+          Iterable<Resource> resource,
+          {Page page}) =>
       write(response, 200,
           document: Document.data(
             ResourceObjectCollection(resource.map(ResourceObject.fromResource),
-                self: Link(route.self(url))),
+                self: Link(route.self(url, parameters: route.parameters)),
+                pagination: page == null
+                    ? Pagination.empty()
+                    : Pagination.fromLinks(page.map((_) =>
+                        Link(route.self(url, parameters: _.parameters))))),
           ));
 
   Future error(HttpResponse response, int status, List<ErrorObject> errors) =>

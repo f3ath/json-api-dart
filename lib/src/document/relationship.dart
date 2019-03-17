@@ -38,12 +38,14 @@ class Relationship extends PrimaryData {
     throw 'Can not parse Relationship map from $json';
   }
 
-  Map<String, Link> get links => related == null ? super.links : super.links
-    ..['related'] = related;
+  Map<String, Link> toLinks() =>
+      related == null ? super.toLinks() : super.toLinks()
+        ..['related'] = related;
 
   /// Top-level JSON object
   Map<String, Object> toJson() {
     final json = <String, Object>{};
+    final links = toLinks();
     if (links.isNotEmpty) json['links'] = links;
     return json;
   }
@@ -110,7 +112,7 @@ class ToMany extends Relationship {
     throw 'Can not parse ToMany from $json';
   }
 
-  Map<String, Link> get links => super.links..addAll(pagination?.links ?? {});
+  Map<String, Link> toLinks() => super.toLinks()..addAll(pagination.toLinks());
 
   Map<String, Object> toJson() => super.toJson()..['data'] = linkage;
 

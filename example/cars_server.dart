@@ -43,6 +43,7 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
       ..name = 'BMW'
       ..headquarters = '1',
     Company('3')..name = 'Audi',
+    Company('4')..name = 'Toyota',
   ].forEach(companies.insert);
 
   final controller = CarsController(
@@ -55,7 +56,12 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
   final httpServer = await HttpServer.bind(addr, port);
 
   httpServer.forEach((request) async {
-    await routing.getRoute(request.requestedUri).createRequest(request)
+    final route = await routing.getRoute(request.requestedUri);
+    if (route == null) {
+      request.response.statusCode = 404;
+      return request.response.close();
+    }
+    route.createRequest(request)
       ..bind(server)
       ..call(controller);
   });

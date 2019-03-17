@@ -46,14 +46,14 @@ class StandardRouting implements Routing {
     final segments = uri.pathSegments;
     switch (segments.length) {
       case 1:
-        return CollectionRoute(segments[0]);
+        return CollectionRoute(uri, segments[0]);
       case 2:
-        return ResourceRoute(segments[0], segments[1]);
+        return ResourceRoute(uri, segments[0], segments[1]);
       case 3:
-        return RelatedRoute(segments[0], segments[1], segments[2]);
+        return RelatedRoute(uri, segments[0], segments[1], segments[2]);
       case 4:
         if (segments[2] == 'relationships') {
-          return RelationshipRoute(segments[0], segments[1], segments[3]);
+          return RelationshipRoute(uri, segments[0], segments[1], segments[3]);
         }
     }
     return null; // TODO: replace with a null-object

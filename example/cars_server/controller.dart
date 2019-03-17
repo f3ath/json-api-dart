@@ -16,11 +16,13 @@ class CarsController implements JsonApiController {
     if (!dao.containsKey(r.route.type)) {
       return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
     }
-//    final page = NumberedPage.fromQueryParameters(r.queryParameters,
-//        total: dao[r.route.type].length);
-    return r.collection(dao[r.route.type]
-        .fetchCollection(offset: 0)
-        .map(dao[r.route.type].toResource));
+    final page = NumberedPage.fromQueryParameters(r.queryParameters,
+        total: dao[r.route.type].length);
+    return r.collection(
+        dao[r.route.type]
+            .fetchCollection(offset: page.offset)
+            .map(dao[r.route.type].toResource),
+        page: page);
   }
 
   @override

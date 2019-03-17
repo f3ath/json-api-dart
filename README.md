@@ -7,7 +7,7 @@ The features here are more or less ordered by priority. Feel free to open an iss
 
 #### Client
 - [x] Fetching single resources and resource collections
-- [ ] Collection pagination
+- [x] Collection pagination
 - [x] Fetching relationships and related resources and collections
 - [ ] Related collection pagination
 - [x] Fetching single resources
@@ -22,7 +22,7 @@ The features here are more or less ordered by priority. Feel free to open an iss
 
 #### Server
 - [x] Fetching single resources and resource collections
-- [ ] Collection pagination
+- [x] Collection pagination
 - [x] Fetching relationships and related resources and collections
 - [ ] Related collection pagination
 - [x] Fetching single resources

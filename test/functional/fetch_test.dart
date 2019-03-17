@@ -26,6 +26,34 @@ void main() async {
       expect(r.data.self.uri, uri);
     });
 
+    test('resource collection traversal', () async {
+      final uri = Url.collection('companies');
+
+      final r0 = await client.fetchCollection(uri);
+      final somePage = r0.data;
+
+      final r1 = await client.fetchCollection(somePage.pagination.next.uri);
+      final secondPage = r1.data;
+      expect(secondPage.resourceObjects.first.attributes['name'], 'BMW');
+      expect(secondPage.self.uri, somePage.pagination.next.uri);
+
+      final r2 = await client.fetchCollection(secondPage.pagination.last.uri);
+      final lastPage = r2.data;
+      expect(lastPage.resourceObjects.first.attributes['name'], 'Toyota');
+      expect(lastPage.self.uri, secondPage.pagination.last.uri);
+
+      final r3 = await client.fetchCollection(lastPage.pagination.prev.uri);
+      final secondToLastPage = r3.data;
+      expect(secondToLastPage.resourceObjects.first.attributes['name'], 'Audi');
+      expect(secondToLastPage.self.uri, lastPage.pagination.prev.uri);
+
+      final r4 =
+          await client.fetchCollection(secondToLastPage.pagination.first.uri);
+      final firstPage = r4.data;
+      expect(firstPage.resourceObjects.first.attributes['name'], 'Tesla');
+      expect(firstPage.self.uri, secondToLastPage.pagination.first.uri);
+    });
+
     test('related collection', () async {
       final uri = Url.related('companies', '1', 'models');
       final r = await client.fetchCollection(uri);

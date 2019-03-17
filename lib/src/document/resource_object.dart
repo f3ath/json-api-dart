@@ -103,6 +103,7 @@ class SingleResourceObject extends PrimaryData {
   @override
   Map<String, Object> toJson() {
     final json = <String, Object>{'data': resourceObject};
+    final links = toLinks();
     if (links.isNotEmpty) json['links'] = links;
     return json;
   }
@@ -137,6 +138,7 @@ class ResourceObjectCollection extends PrimaryData {
   @override
   Map<String, Object> toJson() {
     final json = <String, Object>{'data': resourceObjects};
+    final links = toLinks()..addAll(pagination.toLinks());
     if (links.isNotEmpty) json['links'] = links;
     return json;
   }
