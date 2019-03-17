@@ -23,15 +23,15 @@ class JsonApiClient {
 
   /// Fetches a resource collection by sending a GET request to the [uri].
   /// Use [headers] to pass extra HTTP headers.
-  Future<Response<ResourceObjectCollection>> fetchCollection(Uri uri,
+  Future<Response<ResourceCollectionData>> fetchCollection(Uri uri,
           {Map<String, String> headers}) =>
-      _get(ResourceObjectCollection.parseDocument, uri, headers);
+      _get(ResourceCollectionData.parseDocument, uri, headers);
 
   /// Fetches a single resource
   /// Use [headers] to pass extra HTTP headers.
-  Future<Response<SingleResourceObject>> fetchResource(Uri uri,
+  Future<Response<ResourceData>> fetchResource(Uri uri,
           {Map<String, String> headers}) =>
-      _get(SingleResourceObject.parseDocument, uri, headers);
+      _get(ResourceData.parseDocument, uri, headers);
 
   /// Fetches a to-one relationship
   /// Use [headers] to pass extra HTTP headers.
@@ -55,10 +55,10 @@ class JsonApiClient {
   /// according to its type.
   ///
   /// https://jsonapi.org/format/#crud-creating
-  Future<Response<SingleResourceObject>> createResource(
+  Future<Response<ResourceData>> createResource(
           Uri uri, Resource resource, {Map<String, String> headers}) =>
-      _post(SingleResourceObject.parseDocument, uri,
-          SingleResourceObject(ResourceObject.fromResource(resource)), headers);
+      _post(ResourceData.parseDocument, uri,
+          ResourceData(ResourceJson.fromResource(resource)), headers);
 
   /// Deletes the resource.
   ///
@@ -69,10 +69,10 @@ class JsonApiClient {
   /// Updates the resource via PATCH request.
   ///
   /// https://jsonapi.org/format/#crud-updating
-  Future<Response<SingleResourceObject>> updateResource(
+  Future<Response<ResourceData>> updateResource(
           Uri uri, Resource resource, {Map<String, String> headers}) =>
-      _patch(SingleResourceObject.parseDocument, uri,
-          SingleResourceObject(ResourceObject.fromResource(resource)), headers);
+      _patch(ResourceData.parseDocument, uri,
+          ResourceData(ResourceJson.fromResource(resource)), headers);
 
   /// Updates a to-one relationship via PATCH request
   ///
@@ -80,7 +80,7 @@ class JsonApiClient {
   Future<Response<ToOne>> replaceToOne(Uri uri, Identifier id,
           {Map<String, String> headers}) =>
       _patch(ToOne.parse, uri,
-          ToOne(nullable(IdentifierObject.fromIdentifier)(id)), headers);
+          ToOne(nullable(IdentifierJson.fromIdentifier)(id)), headers);
 
   /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
   /// with id = null.
@@ -97,7 +97,7 @@ class JsonApiClient {
   Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> ids,
           {Map<String, String> headers}) =>
       _patch(ToMany.parse, uri,
-          ToMany(ids.map(IdentifierObject.fromIdentifier)), headers);
+          ToMany(ids.map(IdentifierJson.fromIdentifier)), headers);
 
   /// Adds the given set of [ids] to a to-many relationship.
   ///
@@ -119,7 +119,7 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> ids,
           {Map<String, String> headers}) =>
-      _post(ToMany.parse, uri, ToMany(ids.map(IdentifierObject.fromIdentifier)),
+      _post(ToMany.parse, uri, ToMany(ids.map(IdentifierJson.fromIdentifier)),
           headers);
 
   Future<Response<D>> _get<D extends PrimaryData>(

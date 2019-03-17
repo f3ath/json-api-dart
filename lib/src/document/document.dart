@@ -1,16 +1,22 @@
-import 'package:json_api/src/document/error_object.dart';
+import 'package:json_api/src/document/error.dart';
 import 'package:json_api/src/document/primary_data.dart';
+import 'package:json_api/src/document/resource_json.dart';
 import 'package:json_api/src/nullable.dart';
 
 class Document<Data extends PrimaryData> {
+  /// The Primary Data
   final Data data;
-  final List<ErrorObject> errors;
+
+  /// For Compound Documents this member contains the included resources
+  final included = <ResourceJson>[];
+
+  final List<JsonApiError> errors;
   final Map<String, Object> meta;
 
   Document.data(Data data, {Map<String, Object> meta})
       : this._(data: data, meta: nullable((_) => Map.from(_))(meta));
 
-  Document.error(Iterable<ErrorObject> errors, {Map<String, Object> meta})
+  Document.error(Iterable<JsonApiError> errors, {Map<String, Object> meta})
       : this._(
             errors: List.from(errors),
             meta: nullable((_) => Map.from(_))(meta));
@@ -31,7 +37,7 @@ class Document<Data extends PrimaryData> {
       if (json.containsKey('errors')) {
         final errors = json['errors'];
         if (errors is List) {
-          return Document.error(errors.map(ErrorObject.parse),
+          return Document.error(errors.map(JsonApiError.parse),
               meta: json['meta']);
         }
       } else if (json.containsKey('data')) {

@@ -1,5 +1,5 @@
 import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/identifier_object.dart';
+import 'package:json_api/src/document/identifier_json.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/pagination.dart';
 import 'package:json_api/src/document/primary_data.dart';
@@ -65,7 +65,7 @@ class ToOne extends Relationship {
   /// Can be null for empty relationships
   ///
   /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
-  final IdentifierObject linkage;
+  final IdentifierJson linkage;
 
   ToOne(this.linkage, {Link self, Link related})
       : super(self: self, related: related);
@@ -83,7 +83,7 @@ class ToOne extends Relationship {
           return ToOne.empty(self: links['self'], related: links['related']);
         }
         if (data is Map) {
-          return ToOne(IdentifierObject.parse(data),
+          return ToOne(IdentifierJson.parse(data),
               self: links['self'], related: links['related']);
         }
       }
@@ -105,12 +105,12 @@ class ToMany extends Relationship {
   /// Can be empty for empty relationships
   ///
   /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
-  final linkage = <IdentifierObject>[];
+  final linkage = <IdentifierJson>[];
 
 
   final Pagination pagination;
 
-  ToMany(Iterable<IdentifierObject> linkage,
+  ToMany(Iterable<IdentifierJson> linkage,
       {Link self, Link related, this.pagination = const Pagination.empty()})
       : super(self: self, related: related) {
     this.linkage.addAll(linkage);
@@ -122,7 +122,7 @@ class ToMany extends Relationship {
       if (json.containsKey('data')) {
         final data = json['data'];
         if (data is List) {
-          return ToMany(data.map(IdentifierObject.parse),
+          return ToMany(data.map(IdentifierJson.parse),
               self: links['self'], related: links['related']);
         }
       }

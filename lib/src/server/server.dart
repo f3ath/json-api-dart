@@ -33,7 +33,7 @@ class JsonApiServer {
           {Page page}) =>
       write(response, 200,
           document: Document.data(
-            ResourceObjectCollection(resource.map(ResourceObject.fromResource),
+            ResourceCollectionData(resource.map(ResourceJson.fromResource),
                 self: Link(route.self(url, parameters: route.parameters)),
                 pagination: page == null
                     ? Pagination.empty()
@@ -41,42 +41,42 @@ class JsonApiServer {
                         Link(route.self(url, parameters: _.parameters))))),
           ));
 
-  Future error(HttpResponse response, int status, List<ErrorObject> errors) =>
+  Future error(HttpResponse response, int status, List<JsonApiError> errors) =>
       write(response, status, document: Document.error(errors));
 
   Future relatedCollection(HttpResponse response, RelatedRoute route,
           Iterable<Resource> collection) =>
       write(response, 200,
-          document: Document.data(ResourceObjectCollection(
-              collection.map(ResourceObject.fromResource),
+          document: Document.data(ResourceCollectionData(
+              collection.map(ResourceJson.fromResource),
               self: Link(route.self(url)))));
 
   Future relatedResource(
           HttpResponse response, RelatedRoute route, Resource resource) =>
       write(response, 200,
-          document: Document.data(SingleResourceObject(
-              ResourceObject.fromResource(resource),
+          document: Document.data(ResourceData(
+              ResourceJson.fromResource(resource),
               self: Link(route.self(url)))));
 
   Future resource(
           HttpResponse response, ResourceRoute route, Resource resource) =>
       write(response, 200,
-          document: Document.data(SingleResourceObject(
-              ResourceObject.fromResource(resource),
+          document: Document.data(ResourceData(
+              ResourceJson.fromResource(resource),
               self: Link(route.self(url)))));
 
   Future toMany(HttpResponse response, RelationshipRoute route,
           Iterable<Identifier> collection) =>
       write(response, 200,
           document: Document.data(ToMany(
-              collection.map(IdentifierObject.fromIdentifier),
+              collection.map(IdentifierJson.fromIdentifier),
               self: Link(route.self(url)),
               related: Link(route.related(url)))));
 
   Future toOne(HttpResponse response, RelationshipRoute route, Identifier id) =>
       write(response, 200,
           document: Document.data(ToOne(
-              nullable(IdentifierObject.fromIdentifier)(id),
+              nullable(IdentifierJson.fromIdentifier)(id),
               self: Link(route.self(url)),
               related: Link(route.related(url)))));
 
@@ -88,7 +88,7 @@ class JsonApiServer {
           HttpResponse response, CollectionRoute route, Resource resource) =>
       write(response, 201,
           document: Document.data(
-              SingleResourceObject(ResourceObject.fromResource(resource))),
+              ResourceData(ResourceJson.fromResource(resource))),
           headers: {
             'Location': url.resource(resource.type, resource.id).toString()
           });

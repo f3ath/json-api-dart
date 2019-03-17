@@ -9,7 +9,6 @@ The features here are more or less ordered by priority. Feel free to open an iss
 - [x] Fetching single resources and resource collections
 - [x] Collection pagination
 - [x] Fetching relationships and related resources and collections
-- [ ] Related collection pagination
 - [x] Fetching single resources
 - [x] Creating resources
 - [x] Deleting resources
@@ -17,6 +16,7 @@ The features here are more or less ordered by priority. Feel free to open an iss
 - [x] Updating resource's relationships
 - [x] Updating relationships
 - [ ] Compound documents
+- [ ] Related collection pagination
 - [ ] Asynchronous processing 
 - [ ] Optional check for `Content-Type` header in incoming responses 
 
@@ -24,26 +24,26 @@ The features here are more or less ordered by priority. Feel free to open an iss
 - [x] Fetching single resources and resource collections
 - [x] Collection pagination
 - [x] Fetching relationships and related resources and collections
-- [ ] Related collection pagination
 - [x] Fetching single resources
 - [x] Creating resources
 - [x] Deleting resources
 - [x] Updating resource's attributes
 - [x] Updating resource's relationships
-- [ ] Updating relationships
+- [x] Updating relationships
 - [ ] Compound documents
 - [ ] Sparse fieldsets 
 - [ ] Sorting, filtering
+- [ ] Related collection pagination
 - [ ] Asynchronous processing 
 - [ ] Optional check for `Content-Type` header in incoming requests 
 - [ ] Support annotations in resource mappers (?) 
 
 #### Document
 - [x] Support relationship objects lacking the `data` member
+- [ ] Compound documents
 - [ ] Support `meta` members
 - [ ] Support `jsonapi` members
-- [ ] Compound documents
-- [ ] Structure Validation including compound documents
+- [ ] Structural Validation including compound documents
 - [ ] Naming Validation
 - [ ] JSON:API v1.1 features
 

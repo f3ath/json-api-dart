@@ -14,7 +14,7 @@ class CarsController implements JsonApiController {
   @override
   Future fetchCollection(FetchCollection r) async {
     if (!dao.containsKey(r.route.type)) {
-      return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
+      return r.notFound([JsonApiError(detail: 'Unknown resource type')]);
     }
     final page = NumberedPage.fromQueryParameters(r.queryParameters,
         total: dao[r.route.type].length);
@@ -28,11 +28,11 @@ class CarsController implements JsonApiController {
   @override
   Future fetchRelated(FetchRelated r) {
     if (!dao.containsKey(r.route.type)) {
-      return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
+      return r.notFound([JsonApiError(detail: 'Unknown resource type')]);
     }
     final res = dao[r.route.type].fetchByIdAsResource(r.route.id);
     if (res == null) {
-      return r.notFound([ErrorObject(detail: 'Resource not found')]);
+      return r.notFound([JsonApiError(detail: 'Resource not found')]);
     }
 
     if (res.toOne.containsKey(r.route.relationship)) {
@@ -46,17 +46,17 @@ class CarsController implements JsonApiController {
           .map((id) => dao[id.type].fetchByIdAsResource(id.id));
       return r.collection(resources);
     }
-    return r.notFound([ErrorObject(detail: 'Relationship not found')]);
+    return r.notFound([JsonApiError(detail: 'Relationship not found')]);
   }
 
   @override
   Future fetchResource(FetchResource r) {
     if (!dao.containsKey(r.route.type)) {
-      return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
+      return r.notFound([JsonApiError(detail: 'Unknown resource type')]);
     }
     final res = dao[r.route.type].fetchByIdAsResource(r.route.id);
     if (res == null) {
-      return r.notFound([ErrorObject(detail: 'Resource not found')]);
+      return r.notFound([JsonApiError(detail: 'Resource not found')]);
     }
     return r.resource(res);
   }
@@ -64,11 +64,11 @@ class CarsController implements JsonApiController {
   @override
   Future fetchRelationship(FetchRelationship r) {
     if (!dao.containsKey(r.route.type)) {
-      return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
+      return r.notFound([JsonApiError(detail: 'Unknown resource type')]);
     }
     final res = dao[r.route.type].fetchByIdAsResource(r.route.id);
     if (res == null) {
-      return r.notFound([ErrorObject(detail: 'Resource not found')]);
+      return r.notFound([JsonApiError(detail: 'Resource not found')]);
     }
 
     if (res.toOne.containsKey(r.route.relationship)) {
@@ -80,17 +80,17 @@ class CarsController implements JsonApiController {
       final ids = res.toMany[r.route.relationship];
       return r.toMany(ids);
     }
-    return r.notFound([ErrorObject(detail: 'Relationship not found')]);
+    return r.notFound([JsonApiError(detail: 'Relationship not found')]);
   }
 
   @override
   Future deleteResource(DeleteResource r) {
     if (!dao.containsKey(r.route.type)) {
-      return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
+      return r.notFound([JsonApiError(detail: 'Unknown resource type')]);
     }
     final res = dao[r.route.type].fetchByIdAsResource(r.route.id);
     if (res == null) {
-      return r.notFound([ErrorObject(detail: 'Resource not found')]);
+      return r.notFound([JsonApiError(detail: 'Resource not found')]);
     }
     final dependenciesCount = dao[r.route.type].deleteById(r.route.id);
     if (dependenciesCount == 0) {
@@ -101,16 +101,16 @@ class CarsController implements JsonApiController {
 
   Future createResource(CreateResource r) async {
     if (!dao.containsKey(r.route.type)) {
-      return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
+      return r.notFound([JsonApiError(detail: 'Unknown resource type')]);
     }
     final resource = await r.resource();
     if (r.route.type != resource.type) {
-      return r.conflict([ErrorObject(detail: 'Incompatible type')]);
+      return r.conflict([JsonApiError(detail: 'Incompatible type')]);
     }
 
     if (resource.hasId) {
       if (dao[r.route.type].fetchById(resource.id) != null) {
-        return r.conflict([ErrorObject(detail: 'Resource already exists')]);
+        return r.conflict([JsonApiError(detail: 'Resource already exists')]);
       }
       final created = dao[r.route.type].create(resource);
       dao[r.route.type].insert(created);
@@ -129,14 +129,14 @@ class CarsController implements JsonApiController {
   @override
   Future updateResource(UpdateResource r) async {
     if (!dao.containsKey(r.route.type)) {
-      return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
+      return r.notFound([JsonApiError(detail: 'Unknown resource type')]);
     }
     final resource = await r.resource();
     if (r.route.type != resource.type) {
-      return r.conflict([ErrorObject(detail: 'Incompatible type')]);
+      return r.conflict([JsonApiError(detail: 'Incompatible type')]);
     }
     if (dao[r.route.type].fetchById(r.route.id) == null) {
-      return r.notFound([ErrorObject(detail: 'Resource not found')]);
+      return r.notFound([JsonApiError(detail: 'Resource not found')]);
     }
     final updated = dao[r.route.type].update(r.route.id, resource);
     if (updated == null) {
@@ -148,7 +148,7 @@ class CarsController implements JsonApiController {
   @override
   Future replaceRelationship(ReplaceRelationship r) async {
     if (!dao.containsKey(r.route.type)) {
-      return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
+      return r.notFound([JsonApiError(detail: 'Unknown resource type')]);
     }
     final rel = await r.relationshipData();
     if (rel is ToOne) {
@@ -166,7 +166,7 @@ class CarsController implements JsonApiController {
   @override
   Future addToRelationship(AddToRelationship r) async {
     if (!dao.containsKey(r.route.type)) {
-      return r.notFound([ErrorObject(detail: 'Unknown resource type')]);
+      return r.notFound([JsonApiError(detail: 'Unknown resource type')]);
     }
     final result = dao[r.route.type]
         .addToMany(r.route.id, r.route.relationship, await r.identifiers());

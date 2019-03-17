@@ -1,5 +1,5 @@
 import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/identifier_object.dart';
+import 'package:json_api/src/document/identifier_json.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/pagination.dart';
 import 'package:json_api/src/document/primary_data.dart';
@@ -7,7 +7,7 @@ import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/nullable.dart';
 
-/// ResourceObject is a JSON representation of a [Resource].
+/// [ResourceJson] is a JSON representation of a [Resource].
 ///
 /// It carries all JSON-related logic and the Meta-data.
 /// In a JSON:API Document it can be the value of the `data` member (a `data`
@@ -15,13 +15,13 @@ import 'package:json_api/src/nullable.dart';
 /// resource collection.
 ///
 /// More on this: https://jsonapi.org/format/#document-resource-objects
-class ResourceObject {
+class ResourceJson {
   final String type;
   final String id;
   final attributes = <String, Object>{};
   final relationships = <String, Relationship>{};
 
-  ResourceObject(this.type, this.id,
+  ResourceJson(this.type, this.id,
       {Map<String, Object> attributes,
       Map<String, Relationship> relationships}) {
     this.attributes.addAll(attributes ?? {});
@@ -29,14 +29,14 @@ class ResourceObject {
   }
 
   /// Parses the `data` member of a JSON:API Document
-  static ResourceObject parse(Object json) {
+  static ResourceJson parse(Object json) {
     final mapOrNull = (_) => _ == null || _ is Map;
     if (json is Map) {
       final relationships = json['relationships'];
       final attributes = json['attributes'];
 
       if (mapOrNull(relationships) && mapOrNull(attributes)) {
-        return ResourceObject(json['type'], json['id'],
+        return ResourceJson(json['type'], json['id'],
             attributes: attributes,
             relationships: Relationship.parseRelationships(relationships));
       }
@@ -44,14 +44,14 @@ class ResourceObject {
     throw 'Can not parse ResourceObject from $json';
   }
 
-  static ResourceObject fromResource(Resource resource) {
+  static ResourceJson fromResource(Resource resource) {
     final relationships = <String, Relationship>{}
       ..addAll(resource.toOne.map((k, v) =>
-          MapEntry(k, ToOne(nullable(IdentifierObject.fromIdentifier)(v)))))
+          MapEntry(k, ToOne(nullable(IdentifierJson.fromIdentifier)(v)))))
       ..addAll(resource.toMany.map((k, v) =>
-          MapEntry(k, ToMany(v.map(IdentifierObject.fromIdentifier)))));
+          MapEntry(k, ToMany(v.map(IdentifierJson.fromIdentifier)))));
 
-    return ResourceObject(resource.type, resource.id,
+    return ResourceJson(resource.type, resource.id,
         attributes: resource.attributes, relationships: relationships);
   }
 
@@ -98,17 +98,17 @@ class ResourceObject {
 }
 
 /// Represents a single resource or a single related resource of a to-one relationship\\\\\\\\
-class SingleResourceObject extends PrimaryData {
-  final ResourceObject resourceObject;
+class ResourceData extends PrimaryData {
+  final ResourceJson resourceObject;
 
-  SingleResourceObject(this.resourceObject, {Link self}) : super(self: self);
+  ResourceData(this.resourceObject, {Link self}) : super(self: self);
 
   /// Parse the document
-  static SingleResourceObject parseDocument(Object json) {
+  static ResourceData parseDocument(Object json) {
     if (json is Map) {
       final links = Link.parseLinks(json['links']);
-      final data = ResourceObject.parse(json['data']);
-      return SingleResourceObject(data, self: links['self']);
+      final data = ResourceJson.parse(json['data']);
+      return ResourceData(data, self: links['self']);
     }
     throw 'Can not parse SingleResourceObject from $json';
   }
@@ -125,23 +125,23 @@ class SingleResourceObject extends PrimaryData {
 }
 
 /// Represents a resource collection or a collection of related resources of a to-many relationship
-class ResourceObjectCollection extends PrimaryData {
-  final resourceObjects = <ResourceObject>[];
+class ResourceCollectionData extends PrimaryData {
+  final resourceObjects = <ResourceJson>[];
   final Pagination pagination;
 
-  ResourceObjectCollection(Iterable<ResourceObject> collection,
+  ResourceCollectionData(Iterable<ResourceJson> collection,
       {Link self, this.pagination = const Pagination.empty()})
       : super(self: self) {
     this.resourceObjects.addAll(collection);
   }
 
   /// Parse the document
-  static ResourceObjectCollection parseDocument(Object json) {
+  static ResourceCollectionData parseDocument(Object json) {
     if (json is Map) {
       final links = Link.parseLinks(json['links']);
       final data = json['data'];
       if (data is List) {
-        return ResourceObjectCollection(data.map(ResourceObject.parse),
+        return ResourceCollectionData(data.map(ResourceJson.parse),
             self: links['self'], pagination: Pagination.fromLinks(links));
       }
     }

@@ -1,5 +1,4 @@
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/resource_object.dart';
 
 /// The top-level Primary Data. This is the essentials of the JSON:API Document.
 ///
@@ -10,9 +9,6 @@ import 'package:json_api/src/document/resource_object.dart';
 /// - it can not have `meta` and `jsonapi` keys
 abstract class PrimaryData {
   final Link self;
-
-  /// For Compound Documents this member contains the included resources
-  final included = <ResourceObject>[];
 
   PrimaryData({this.self});
 

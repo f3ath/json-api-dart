@@ -24,7 +24,7 @@ abstract class JsonApiRequest {
 
   Future call(JsonApiController controller);
 
-  Future notFound([List<ErrorObject> errors = const []]) =>
+  Future notFound([List<JsonApiError> errors = const []]) =>
       _server.error(_response, 404, errors);
 
   bind(JsonApiServer server) => _server = server;
@@ -132,7 +132,7 @@ class CreateResource extends JsonApiRequest {
   CreateResource(HttpRequest request, this.route) : super(request);
 
   Future<Resource> resource() async {
-    return SingleResourceObject.parseDocument(await _body)
+    return ResourceData.parseDocument(await _body)
         .resourceObject
         .toResource();
   }
@@ -142,7 +142,7 @@ class CreateResource extends JsonApiRequest {
   Future created(Resource resource) =>
       _server.created(_response, route, resource);
 
-  Future conflict(List<ErrorObject> errors) =>
+  Future conflict(List<JsonApiError> errors) =>
       _server.error(_response, 409, errors);
 
   Future noContent() => _server.write(_response, 204);
@@ -154,7 +154,7 @@ class UpdateResource extends JsonApiRequest {
   UpdateResource(HttpRequest request, this.route) : super(request);
 
   Future<Resource> resource() async {
-    return SingleResourceObject.parseDocument(await _body)
+    return ResourceData.parseDocument(await _body)
         .resourceObject
         .toResource();
   }
@@ -164,10 +164,10 @@ class UpdateResource extends JsonApiRequest {
   Future updated(Resource resource) =>
       _server.resource(_response, route, resource);
 
-  Future conflict(List<ErrorObject> errors) =>
+  Future conflict(List<JsonApiError> errors) =>
       _server.error(_response, 409, errors);
 
-  Future forbidden(List<ErrorObject> errors) =>
+  Future forbidden(List<JsonApiError> errors) =>
       _server.error(_response, 403, errors);
 
   Future noContent() => _server.write(_response, 204);
