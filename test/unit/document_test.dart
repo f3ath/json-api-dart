@@ -21,13 +21,20 @@ void main() {
     });
 
     group('Standard compliance', () {
-      test('Can parse the example document', () {
-        final jsonString =
-            new File('test/unit/example.json').readAsStringSync();
-        final jsonObject = json.decode(jsonString);
-        final doc = Document.parse(jsonObject, ResourceCollectionData.parse);
-        expect(doc, encodesToJson(jsonObject));
-      });
+      try {
+        test('Can parse the example document', () {
+          // This is a slightly modified example from the JSON:API site
+          // See: https://jsonapi.org/
+          final jsonString =
+              new File('test/unit/example.json').readAsStringSync();
+          final jsonObject = json.decode(jsonString);
+          final doc = Document.parse(jsonObject, ResourceCollectionData.parse);
+
+          expect(doc, encodesToJson(jsonObject));
+        });
+      } catch (e, s) {
+        print(s);
+      }
     });
   });
 }

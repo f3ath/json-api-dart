@@ -18,12 +18,14 @@ import 'package:json_api/src/nullable.dart';
 class ResourceJson {
   final String type;
   final String id;
+  final Link self;
   final attributes = <String, Object>{};
   final relationships = <String, Relationship>{};
 
   ResourceJson(this.type, this.id,
       {Map<String, Object> attributes,
-      Map<String, Relationship> relationships}) {
+      Map<String, Relationship> relationships,
+      this.self}) {
     this.attributes.addAll(attributes ?? {});
     this.relationships.addAll(relationships ?? {});
   }
@@ -34,17 +36,19 @@ class ResourceJson {
     if (json is Map) {
       final relationships = json['relationships'];
       final attributes = json['attributes'];
+      final links = Link.parseLinks(json['links']);
 
       if (mapOrNull(relationships) && mapOrNull(attributes)) {
         return ResourceJson(json['type'], json['id'],
             attributes: attributes,
-            relationships: Relationship.parseRelationships(relationships));
+            relationships: Relationship.parseRelationships(relationships),
+            self: links['self']);
       }
     }
     throw 'Can not parse ResourceObject from $json';
   }
 
-  static ResourceJson fromResource(Resource resource) {
+  static ResourceJson fromResource(Resource resource, {Link self}) {
     final relationships = <String, Relationship>{}
       ..addAll(resource.toOne.map((k, v) =>
           MapEntry(k, ToOne(nullable(IdentifierJson.fromIdentifier)(v)))))
@@ -52,7 +56,9 @@ class ResourceJson {
           (k, v) => MapEntry(k, ToMany(v.map(IdentifierJson.fromIdentifier)))));
 
     return ResourceJson(resource.type, resource.id,
-        attributes: resource.attributes, relationships: relationships);
+        attributes: resource.attributes,
+        relationships: relationships,
+        self: self);
   }
 
   /// Returns the JSON object to be used in the `data` or `included` members
@@ -64,6 +70,9 @@ class ResourceJson {
     }
     if (relationships.isNotEmpty) {
       json['relationships'] = relationships;
+    }
+    if (self != null) {
+      json['links'] = {'self': self};
     }
     return json;
   }
@@ -99,9 +108,9 @@ class ResourceJson {
 
 /// Represents a single resource or a single related resource of a to-one relationship\\\\\\\\
 class ResourceData extends PrimaryData {
-  final ResourceJson resourceObject;
+  final ResourceJson resourceJson;
 
-  ResourceData(this.resourceObject, {Link self}) : super(self: self);
+  ResourceData(this.resourceJson, {Link self}) : super(self: self);
 
   /// Parse the document
   static ResourceData parse(Object json) {
@@ -115,24 +124,24 @@ class ResourceData extends PrimaryData {
 
   @override
   Map<String, Object> toJson() {
-    final json = <String, Object>{'data': resourceObject};
+    final json = <String, Object>{'data': resourceJson};
     final links = toLinks();
     if (links.isNotEmpty) json['links'] = links;
     return json;
   }
 
-  Resource toResource() => resourceObject.toResource();
+  Resource toResource() => resourceJson.toResource();
 }
 
 /// Represents a resource collection or a collection of related resources of a to-many relationship
 class ResourceCollectionData extends PrimaryData {
-  final resourceObjects = <ResourceJson>[];
+  final collection = <ResourceJson>[];
   final Pagination pagination;
 
   ResourceCollectionData(Iterable<ResourceJson> collection,
       {Link self, this.pagination = const Pagination.empty()})
       : super(self: self) {
-    this.resourceObjects.addAll(collection);
+    this.collection.addAll(collection);
   }
 
   /// Parse the document
@@ -150,7 +159,7 @@ class ResourceCollectionData extends PrimaryData {
 
   @override
   Map<String, Object> toJson() {
-    final json = <String, Object>{'data': resourceObjects};
+    final json = <String, Object>{'data': collection};
     final links = toLinks()..addAll(pagination.toLinks());
     if (links.isNotEmpty) json['links'] = links;
     return json;

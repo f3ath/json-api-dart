@@ -45,9 +45,9 @@ class Relationship extends PrimaryData {
     throw 'Can not parse Relationship map from $json';
   }
 
-  Map<String, Link> toLinks() =>
-      related == null ? super.toLinks() : super.toLinks()
-        ..['related'] = related;
+  Map<String, Link> toLinks() => related == null
+      ? super.toLinks()
+      : (super.toLinks()..['related'] = related);
 
   /// Top-level JSON object
   Map<String, Object> toJson() {
