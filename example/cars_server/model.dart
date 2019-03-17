@@ -1,7 +1,7 @@
 class Company {
   final String id;
   String headquarters;
-  final models = <String>[];
+  final models = Set<String>();
 
   /// Company name
   String name;

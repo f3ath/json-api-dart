@@ -8,6 +8,12 @@ class NumberedPage extends Page {
 
   NumberedPage(this.number, {this.total});
 
+  NumberedPage.fromQueryParameters(Map<String, String> queryParameters,
+      {int total})
+      : this(int.parse(queryParameters['page[number]'] ?? '1'), total: total);
+
+  int get offset => number - 1;
+
   Map<String, String> get parameters {
     if (number > 1) {
       return {'page[number]': number.toString()};
@@ -22,8 +28,4 @@ class NumberedPage extends Page {
   Page get next => NumberedPage(min(number + 1, total), total: total);
 
   Page get prev => NumberedPage(max(number - 1, 1), total: total);
-
-  NumberedPage.fromQueryParameters(Map<String, String> queryParameters,
-      {int total})
-      : this(int.parse(queryParameters['page[number]'] ?? '1'), total: total);
 }

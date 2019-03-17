@@ -1,31 +1,24 @@
+import 'package:json_api/document.dart';
 import 'package:json_api/src/client/status_code.dart';
-import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/document/error_document.dart';
 
 /// A response returned by JSON:API cars_server
-class Response<D extends Document> {
+class Response<Data extends PrimaryData> {
   /// HTTP status code
   final int status;
 
   /// Document parsed from the response body.
   /// May be null.
-  final D document;
+  final Document<Data> document;
 
   /// Headers returned by the server.
   final Map<String, String> headers;
 
-  /// For unsuccessful responses this field will contain the error document.
-  /// May be null.
-  final ErrorDocument errorDocument;
-
-  Response(this.status, this.headers, this.document) : errorDocument = null {
+  Response(this.status, this.headers, {this.document}) {
     // TODO: Check for null and content-type
   }
 
-  Response.error(this.status, this.headers, this.errorDocument)
-      : document = null {
-    // TODO: Check for null and content-type
-  }
+  /// Primary Data from the document (if any)
+  Data get data => document.data;
 
   /// Was the request successful?
   ///

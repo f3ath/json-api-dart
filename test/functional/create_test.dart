@@ -2,20 +2,19 @@
 import 'dart:io';
 
 import 'package:json_api/client.dart';
-import 'package:json_api/src/server/simple_server.dart';
+import 'package:json_api/document.dart';
 import 'package:test/test.dart';
 
 import '../../example/cars_server.dart';
 
 void main() async {
+  HttpServer server;
   final client = JsonApiClient();
-  SimpleServer s;
   setUp(() async {
-    s = createServer();
-    return await s.start(InternetAddress.loopbackIPv4, 8080);
+    server = await createServer(InternetAddress.loopbackIPv4, 8080);
   });
 
-  tearDown(() => s.stop());
+  tearDown(() async => await server.close());
 
   group('resource', () {
     /// If a POST request did not include a Client-Generated ID and the requested
@@ -35,15 +34,15 @@ void main() async {
 
       expect(r0.status, 201);
       expect(r0.isSuccessful, true);
-      expect(r0.document.resourceObject.id, isNotEmpty);
-      expect(r0.document.resourceObject.type, 'models');
-      expect(r0.document.resourceObject.attributes['name'], 'Model Y');
+      expect(r0.data.toResource().id, isNotEmpty);
+      expect(r0.data.toResource().type, 'models');
+      expect(r0.data.toResource().attributes['name'], 'Model Y');
       expect(r0.location, isNotEmpty);
 
       // Make sure the resource is available
       final r1 = await client
-          .fetchResource(Url.resource('models', r0.document.resourceObject.id));
-      expect(r1.document.resourceObject.attributes['name'], 'Model Y');
+          .fetchResource(Url.resource('models', r0.data.toResource().id));
+      expect(r1.data.resourceObject.attributes['name'], 'Model Y');
     });
 
     /// If a POST request did include a Client-Generated ID and the requested
@@ -62,7 +61,7 @@ void main() async {
 
       // Make sure the resource is available
       final r1 = await client.fetchResource(Url.resource('models', '555'));
-      expect(r1.document.resourceObject.attributes['name'], 'Model Y');
+      expect(r1.data.toResource().attributes['name'], 'Model Y');
     });
 
     /// A server MUST return 409 Conflict when processing a POST request to
@@ -75,8 +74,7 @@ void main() async {
 
       expect(r0.status, 409);
       expect(r0.isSuccessful, false);
-      expect(r0.document, isNull);
-      expect(r0.errorDocument.errors.first.detail, 'Resource already exists');
+      expect(r0.document.errors.first.detail, 'Resource already exists');
     });
 
     /// A server MUST return 409 Conflict when processing a POST request in
@@ -91,8 +89,7 @@ void main() async {
 
       expect(r0.status, 409);
       expect(r0.isSuccessful, false);
-      expect(r0.document, isNull);
-      expect(r0.errorDocument.errors.first.detail, 'Incompatible type');
+      expect(r0.document.errors.first.detail, 'Incompatible type');
     });
   });
 }

@@ -3,138 +3,93 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:json_api/document.dart';
+import 'package:json_api/src/document/pagination.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/server/json_api_controller.dart';
-import 'package:json_api/src/server/request.dart';
-import 'package:json_api/src/server/resource_controller.dart';
-import 'package:json_api/src/server/response.dart';
-import 'package:json_api/src/server/router.dart';
+import 'package:json_api/src/server/page.dart';
+import 'package:json_api/src/server/route.dart';
+import 'package:json_api/src/server/uri_builder.dart';
 
-class JsonApiServer implements JsonApiController {
-  final ResourceController controller;
-  final Router router;
+class JsonApiServer {
+  final UriBuilder url;
+  final String allowOrigin;
 
-  JsonApiServer(this.controller, this.router);
+  JsonApiServer(this.url, {this.allowOrigin = '*'});
 
-  Future<ServerResponse> handle(JsonApiHttpRequest request) async {
-    final route = await router.resolve(request);
-    if (route == null) {
-      return ServerResponse.notFound(
-          ErrorDocument([ErrorObject(status: '404', detail: 'Unknown route')]));
+  Future write(HttpResponse response, int status,
+      {Document document, Map<String, String> headers = const {}}) {
+    response.statusCode = status;
+    headers.forEach(response.headers.add);
+    if (allowOrigin != null) {
+      response.headers.set('Access-Control-Allow-Origin', allowOrigin);
     }
-    if (!controller.supports(route.type)) {
-      return ServerResponse.notFound(ErrorDocument(
-          [ErrorObject(status: '404', detail: 'Unknown resource type')]));
+    if (document != null) {
+      response.write(json.encode(document));
     }
-    try {
-      return await route.call(this, request);
-    } on ResourceControllerException catch (e) {
-      return ServerResponse(e.httpStatus,
-          ErrorDocument([ErrorObject.fromResourceControllerException(e)]));
-    }
+    return response.close();
   }
 
-  Future<ServerResponse> fetchCollection(
-      String type, JsonApiHttpRequest request) async {
-    final collection = await controller.fetchCollection(type, request);
+  Future collection(HttpResponse response, CollectionRoute route,
+          Iterable<Resource> resource,
+          {Page page}) =>
+      write(response, 200,
+          document: Document.data(
+            ResourceCollectionData(resource.map(ResourceJson.fromResource),
+                self: Link(route.self(url, parameters: route.parameters)),
+                pagination: page == null
+                    ? Pagination.empty()
+                    : Pagination.fromLinks(page.map((_) =>
+                        Link(route.self(url, parameters: _.parameters))))),
+          ));
 
-    final pagination = Pagination.fromMap(collection.page
-        .mapPages((_) => Link(router.collection(type, params: _?.parameters))));
+  Future error(HttpResponse response, int status, List<JsonApiError> errors) =>
+      write(response, status, document: Document.error(errors));
 
-    final doc = CollectionDocument(
-        collection.elements.map(ResourceObject.fromResource),
-        self:
-            Link(router.collection(type, params: collection.page?.parameters)),
-        pagination: pagination);
-    return ServerResponse.ok(doc);
-  }
+  Future relatedCollection(HttpResponse response, RelatedRoute route,
+          Iterable<Resource> collection) =>
+      write(response, 200,
+          document: Document.data(ResourceCollectionData(
+              collection.map(ResourceJson.fromResource),
+              self: Link(route.self(url)))));
 
-  Future<ServerResponse> fetchResource(
-      String type, String id, JsonApiHttpRequest request) async {
-    final res = await controller.fetchResources([Identifier(type, id)]).first;
-    return ServerResponse.ok(
-        ResourceDocument(nullable(ResourceObject.fromResource)(res)));
-  }
+  Future relatedResource(
+          HttpResponse response, RelatedRoute route, Resource resource) =>
+      write(response, 200,
+          document: Document.data(ResourceData(
+              ResourceJson.fromResource(resource),
+              self: Link(route.self(url)))));
 
-  Future<ServerResponse> fetchRelated(String type, String id,
-      String relationship, JsonApiHttpRequest request) async {
-    final res = await controller.fetchResources([Identifier(type, id)]).first;
+  Future resource(
+          HttpResponse response, ResourceRoute route, Resource resource) =>
+      write(response, 200,
+          document: Document.data(ResourceData(
+              ResourceJson.fromResource(resource),
+              self: Link(route.self(url)))));
 
-    if (res.toOne.containsKey(relationship)) {
-      final id = res.toOne[relationship];
-      // TODO check if id == null
-      final related = await controller.fetchResources([id]).first;
-      return ServerResponse.ok(
-          ResourceDocument(ResourceObject.fromResource(related)));
-    }
+  Future toMany(HttpResponse response, RelationshipRoute route,
+          Iterable<Identifier> collection) =>
+      write(response, 200,
+          document: Document.data(ToMany(
+              collection.map(IdentifierJson.fromIdentifier),
+              self: Link(route.self(url)),
+              related: Link(route.related(url)))));
 
-    if (res.toMany.containsKey(relationship)) {
-      final ids = res.toMany[relationship];
-      final related = await controller.fetchResources(ids).toList();
-      return ServerResponse.ok(
-          CollectionDocument(related.map(ResourceObject.fromResource)));
-    }
+  Future toOne(HttpResponse response, RelationshipRoute route, Identifier id) =>
+      write(response, 200,
+          document: Document.data(ToOne(
+              nullable(IdentifierJson.fromIdentifier)(id),
+              self: Link(route.self(url)),
+              related: Link(route.related(url)))));
 
-    return ServerResponse(404);
-  }
+  Future meta(HttpResponse response, ResourceRoute route,
+          Map<String, Object> meta) =>
+      write(response, 200, document: Document.empty(meta));
 
-  Future<ServerResponse> fetchRelationship(String type, String id,
-      String relationship, JsonApiHttpRequest request) async {
-    final res = await controller.fetchResources([Identifier(type, id)]).first;
-    if (res.toOne.containsKey(relationship)) {
-      return ServerResponse.ok(ToOne(
-          nullable(IdentifierObject.fromIdentifier)(res.toOne[relationship]),
-          self: Link(router.relationship(res.type, res.id, relationship)),
-          related: Link(router.related(res.type, res.id, relationship))));
-    }
-    if (res.toMany.containsKey(relationship)) {
-      return ServerResponse.ok(ToMany(
-          res.toMany[relationship].map(IdentifierObject.fromIdentifier),
-          self: Link(router.relationship(res.type, res.id, relationship)),
-          related: Link(router.related(res.type, res.id, relationship))));
-    }
-    return ServerResponse(404);
-  }
-
-  Future<ServerResponse> createResource(
-      String type, JsonApiHttpRequest request) async {
-    final requestedResource =
-        ResourceDocument.fromJson(json.decode(await request.body()))
-            .resourceObject
-            .toResource();
-    final createdResource =
-        await controller.createResource(type, requestedResource, request);
-
-    if (requestedResource.hasId) {
-      return ServerResponse.noContent();
-    }
-    return ServerResponse.created(
-        ResourceDocument(ResourceObject.fromResource(createdResource)))
-      ..headers['Location'] =
-          router.resource(createdResource.type, createdResource.id).toString();
-  }
-
-  Future<ServerResponse> deleteResource(
-      String type, String id, JsonApiHttpRequest request) async {
-    final meta = await controller.deleteResource(type, id, request);
-    if (meta?.isNotEmpty == true) {
-      return ServerResponse.ok(MetaDocument(meta));
-    }
-    return ServerResponse.noContent();
-  }
-
-  Future<ServerResponse> updateResource(
-      String type, String id, JsonApiHttpRequest request) async {
-    final resource =
-        ResourceDocument.fromJson(json.decode(await request.body()))
-            .resourceObject
-            .toResource();
-    final updated =
-        await controller.updateResource(type, id, resource, request);
-    if (updated == null) {
-      return ServerResponse.noContent();
-    }
-    return ServerResponse.ok(
-        ResourceDocument(ResourceObject.fromResource(updated)));
-  }
+  Future created(
+          HttpResponse response, CollectionRoute route, Resource resource) =>
+      write(response, 201,
+          document:
+              Document.data(ResourceData(ResourceJson.fromResource(resource))),
+          headers: {
+            'Location': url.resource(resource.type, resource.id).toString()
+          });
 }

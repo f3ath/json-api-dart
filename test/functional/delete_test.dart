@@ -2,20 +2,18 @@
 import 'dart:io';
 
 import 'package:json_api/client.dart';
-import 'package:json_api/src/server/simple_server.dart';
 import 'package:test/test.dart';
 
 import '../../example/cars_server.dart';
 
 void main() async {
+  HttpServer server;
   final client = JsonApiClient();
-  SimpleServer s;
   setUp(() async {
-    s = createServer();
-    return await s.start(InternetAddress.loopbackIPv4, 8080);
+    server = await createServer(InternetAddress.loopbackIPv4, 8080);
   });
 
-  tearDown(() => s.stop());
+  tearDown(() async => await server.close());
 
   group('resource', () {
     /// A server MUST return a 204 No Content status code if a deletion request
@@ -43,7 +41,7 @@ void main() async {
 
       expect(r0.status, 200);
       expect(r0.isSuccessful, true);
-      expect(r0.document.meta['deps'], 5);
+      expect(r0.document.meta['dependenciesCount'], 5);
 
       // Make sure the resource is not available anymore
       final r1 = await client.fetchResource(Url.resource('companies', '1'));

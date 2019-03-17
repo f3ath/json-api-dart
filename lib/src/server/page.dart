@@ -1,11 +1,6 @@
-/// An object which can be encoded as URI query parameters
-abstract class QueryParameters {
-  Map<String, String> get parameters;
-}
-
 /// Pagination
 /// https://jsonapi.org/format/#fetching-pagination
-abstract class Page implements QueryParameters {
+abstract class Page {
   /// Next page or null
   Page get next;
 
@@ -18,9 +13,13 @@ abstract class Page implements QueryParameters {
   /// Last page or null
   Page get last;
 
-  Map<String, T> mapPages<T>(T f(Page p)) =>
-      asMap.map((name, page) => MapEntry(name, f(page)));
+  Map<String, String> get parameters;
 
-  Map<String, Page> get asMap =>
-      {'first': first, 'last': last, 'prev': prev, 'next': next};
+  Map<String, T> map<T>(T f(Page p)) => ({
+        'first': first,
+        'last': last,
+        'prev': prev,
+        'next': next
+      }..removeWhere((_, v) => v == null))
+          .map((name, page) => MapEntry(name, f(page)));
 }

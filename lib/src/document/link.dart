@@ -7,7 +7,7 @@ class Link {
     ArgumentError.checkNotNull(uri, 'uri');
   }
 
-  static Link fromJson(Object json) {
+  static Link parse(Object json) {
     if (json is String) return Link(Uri.parse(json));
     if (json is Map) {
       return LinkObject(Uri.parse(json['href']), meta: json['meta']);
@@ -15,10 +15,17 @@ class Link {
     throw 'Can not parse Link from $json';
   }
 
-  static Map<String, Link> parseMap(Map m) {
-    final links = <String, Link>{};
-    m.forEach((k, v) => links[k] = Link.fromJson(v));
-    return links;
+  /// Parses the document's `links` member into a map.
+  /// The retuning map does not have null values.
+  ///
+  /// Details on the `links` member: https://jsonapi.org/format/#document-links
+  static Map<String, Link> parseLinks(Object json) {
+    if (json == null) return {};
+    if (json is Map) {
+      return (json..removeWhere((_, v) => v == null))
+          .map((k, v) => MapEntry(k.toString(), parse(v)));
+    }
+    throw 'Can not parse links from $json';
   }
 
   toJson() => uri.toString();
@@ -38,22 +45,4 @@ class LinkObject extends Link {
     if (meta != null && meta.isNotEmpty) json['meta'] = meta;
     return json;
   }
-}
-
-class Links {
-  final Map<String, Link> links;
-
-  Links(Map<String, Link> links) : links = Map.unmodifiable(links);
-
-  static Links fromJson(Object json) {
-    if (json is Map) {
-      return Links(Map.fromEntries(
-          json.entries.map((e) => MapEntry(e.key, Link.fromJson(e.value)))));
-    }
-    throw 'Can not parse Links from $json';
-  }
-
-  toJson() => {}
-    ..addAll(links)
-    ..removeWhere((k, v) => v == null);
 }

@@ -1,9 +1,9 @@
-import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/server/resource_controller.dart';
+import 'link.dart';
 
-/// Error Object
-/// Error objects provide additional information about problems encountered while performing an operation.
-class ErrorObject {
+/// [JsonApiError] is a JSON object representing an occurred on the server.
+///
+/// More on this: https://jsonapi.org/format/#errors
+class JsonApiError {
   /// A unique identifier for this particular occurrence of the problem.
   String id;
 
@@ -34,7 +34,7 @@ class ErrorObject {
   /// A meta object containing non-standard meta-information about the error.
   final meta = <String, Object>{};
 
-  ErrorObject(
+  JsonApiError(
       {this.id,
       this.about,
       this.status,
@@ -47,10 +47,10 @@ class ErrorObject {
     this.meta.addAll(meta ?? {});
   }
 
-  static ErrorObject fromJson(Object json) {
+  static JsonApiError parse(Object json) {
     if (json is Map) {
       Link about;
-      if (json['links'] is Map) about = Link.fromJson(json['links']['about']);
+      if (json['links'] is Map) about = Link.parse(json['links']['about']);
 
       String pointer;
       String parameter;
@@ -58,7 +58,7 @@ class ErrorObject {
         parameter = json['source']['parameter'];
         pointer = json['source']['pointer'];
       }
-      return ErrorObject(
+      return JsonApiError(
           id: json['id'],
           about: about,
           status: json['status'],
@@ -72,18 +72,7 @@ class ErrorObject {
     throw 'Can not parse ErrorObject from $json';
   }
 
-  static ErrorObject fromResourceControllerException(
-          ResourceControllerException e) =>
-      ErrorObject(
-          id: e.id,
-          status: e.httpStatus.toString(),
-          code: e.code,
-          title: e.title,
-          detail: e.detail,
-          sourceParameter: e.sourceParameter,
-          sourcePointer: e.sourcePointer);
-
-  toJson() {
+  Map<String, Object> toJson() {
     final json = <String, Object>{};
     if (id != null) json['id'] = id;
     if (status != null) json['status'] = status;
