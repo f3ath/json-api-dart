@@ -3,7 +3,7 @@
 ## Warning! This is a work-in-progress. While at v0, the API is changing rapidly.
 
 ### Feature roadmap
-The features here are more or less ordered by priority. Feel free to open an issue if you want to add another feature.
+The features here are roughly ordered by priority. Feel free to open an issue if you want to add another feature.
 
 #### Client
 - [x] Fetching single resources and resource collections
