@@ -55,8 +55,8 @@ class JsonApiClient {
   /// according to its type.
   ///
   /// https://jsonapi.org/format/#crud-creating
-  Future<Response<ResourceData>> createResource(
-          Uri uri, Resource resource, {Map<String, String> headers}) =>
+  Future<Response<ResourceData>> createResource(Uri uri, Resource resource,
+          {Map<String, String> headers}) =>
       _post(ResourceData.parseDocument, uri,
           ResourceData(ResourceJson.fromResource(resource)), headers);
 
@@ -69,8 +69,8 @@ class JsonApiClient {
   /// Updates the resource via PATCH request.
   ///
   /// https://jsonapi.org/format/#crud-updating
-  Future<Response<ResourceData>> updateResource(
-          Uri uri, Resource resource, {Map<String, String> headers}) =>
+  Future<Response<ResourceData>> updateResource(Uri uri, Resource resource,
+          {Map<String, String> headers}) =>
       _patch(ResourceData.parseDocument, uri,
           ResourceData(ResourceJson.fromResource(resource)), headers);
 
@@ -96,8 +96,8 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> ids,
           {Map<String, String> headers}) =>
-      _patch(ToMany.parse, uri,
-          ToMany(ids.map(IdentifierJson.fromIdentifier)), headers);
+      _patch(ToMany.parse, uri, ToMany(ids.map(IdentifierJson.fromIdentifier)),
+          headers);
 
   /// Adds the given set of [ids] to a to-many relationship.
   ///

@@ -87,8 +87,8 @@ class JsonApiServer {
   Future created(
           HttpResponse response, CollectionRoute route, Resource resource) =>
       write(response, 201,
-          document: Document.data(
-              ResourceData(ResourceJson.fromResource(resource))),
+          document:
+              Document.data(ResourceData(ResourceJson.fromResource(resource))),
           headers: {
             'Location': url.resource(resource.type, resource.id).toString()
           });

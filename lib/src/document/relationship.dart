@@ -107,7 +107,6 @@ class ToMany extends Relationship {
   /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
   final linkage = <IdentifierJson>[];
 
-
   final Pagination pagination;
 
   ToMany(Iterable<IdentifierJson> linkage,

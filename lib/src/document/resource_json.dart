@@ -48,8 +48,8 @@ class ResourceJson {
     final relationships = <String, Relationship>{}
       ..addAll(resource.toOne.map((k, v) =>
           MapEntry(k, ToOne(nullable(IdentifierJson.fromIdentifier)(v)))))
-      ..addAll(resource.toMany.map((k, v) =>
-          MapEntry(k, ToMany(v.map(IdentifierJson.fromIdentifier)))));
+      ..addAll(resource.toMany.map(
+          (k, v) => MapEntry(k, ToMany(v.map(IdentifierJson.fromIdentifier)))));
 
     return ResourceJson(resource.type, resource.id,
         attributes: resource.attributes, relationships: relationships);
