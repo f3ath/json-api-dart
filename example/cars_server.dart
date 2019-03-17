@@ -49,7 +49,7 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
   final controller = CarsController(
       {'companies': companies, 'cities': cities, 'models': models});
 
-  final routing = StandardRouting(Uri.parse('http://localhost:$port'));
+  final routing = Routing(Uri.parse('http://localhost:$port'));
 
   final server = JsonApiServer(routing);
 

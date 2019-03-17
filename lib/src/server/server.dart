@@ -41,7 +41,7 @@ class JsonApiServer {
                         Link(route.self(url, parameters: _.parameters))))),
           ));
 
-  Future error(HttpResponse response, int status, List<JsonApiError> errors) =>
+  Future error(HttpResponse response, int status, Iterable<JsonApiError> errors) =>
       write(response, status, document: Document.error(errors));
 
   Future relatedCollection(HttpResponse response, RelatedRoute route,

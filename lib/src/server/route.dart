@@ -1,7 +1,16 @@
+import 'dart:async';
 import 'dart:io';
 
-import 'package:json_api/src/server/request.dart';
+import 'package:json_api/src/server/controller.dart';
+import 'package:json_api/src/server/requests.dart';
+import 'package:json_api/src/server/server.dart';
 import 'package:json_api/src/server/uri_builder.dart';
+
+abstract class JsonApiRequest {
+  Future call(JsonApiController controller);
+
+  bind(JsonApiServer server);
+}
 
 abstract class JsonApiRoute {
   final Uri uri;
@@ -15,6 +24,20 @@ abstract class JsonApiRoute {
 
   /// URI parameters
   Map<String, String> get parameters => uri.queryParameters;
+
+  factory JsonApiRoute.collection(Uri uri, String type) =>
+      CollectionRoute(uri, type);
+
+  factory JsonApiRoute.resource(Uri uri, String type, String id) =>
+      ResourceRoute(uri, type, id);
+
+  factory JsonApiRoute.relationship(
+          Uri uri, String type, String id, String relationship) =>
+      RelationshipRoute(uri, type, id, relationship);
+
+  factory JsonApiRoute.related(
+          Uri uri, String type, String id, String relationship) =>
+      RelatedRoute(uri, type, id, relationship);
 }
 
 class CollectionRoute extends JsonApiRoute {

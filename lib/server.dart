@@ -1,7 +1,6 @@
 export 'package:json_api/src/server/controller.dart';
 export 'package:json_api/src/server/numbered_page.dart';
 export 'package:json_api/src/server/page.dart';
-export 'package:json_api/src/server/request.dart';
 export 'package:json_api/src/server/route.dart';
 export 'package:json_api/src/server/route_resolver.dart';
 export 'package:json_api/src/server/routing.dart';
