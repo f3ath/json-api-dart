@@ -58,7 +58,13 @@ class CarsController implements JsonApiController {
     if (res == null) {
       return r.notFound([JsonApiError(detail: 'Resource not found')]);
     }
-    return r.resource(res);
+    final fetchById = (Identifier _) => dao[_.type].fetchByIdAsResource(_.id);
+
+    final children = res.toOne.values
+        .map(fetchById)
+        .followedBy(res.toMany.values.expand((_) => _.map(fetchById)));
+
+    return r.resource(res, included: children);
   }
 
   @override

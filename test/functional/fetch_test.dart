@@ -81,6 +81,21 @@ void main() async {
       expect(r.data.self.uri, uri);
     });
 
+    test('single resource compound document', () async {
+      final uri = Url.resource('companies', '1');
+      final r = await client.fetchResource(uri);
+      expect(r.status, 200);
+      expect(r.isSuccessful, true);
+      expect(r.data.toResource().attributes['name'], 'Tesla');
+      expect(r.data.self.uri, uri);
+      expect(r.document.included.length, 5);
+      expect(r.document.included.first.type, 'cities');
+      expect(r.document.included.first.attributes['name'], 'Palo Alto');
+      expect(r.document.included.last.type, 'models');
+      expect(r.document.included.last.attributes['name'], 'Model 3');
+
+    });
+
     test('404 on type', () async {
       final r = await client.fetchResource(Url.resource('unicorns', '1'));
       expect(r.status, 404);

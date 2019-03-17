@@ -104,7 +104,7 @@ class ResourceData extends PrimaryData {
   ResourceData(this.resourceObject, {Link self}) : super(self: self);
 
   /// Parse the document
-  static ResourceData parseDocument(Object json) {
+  static ResourceData parse(Object json) {
     if (json is Map) {
       final links = Link.parseLinks(json['links']);
       final data = ResourceJson.parse(json['data']);
@@ -136,7 +136,7 @@ class ResourceCollectionData extends PrimaryData {
   }
 
   /// Parse the document
-  static ResourceCollectionData parseDocument(Object json) {
+  static ResourceCollectionData parse(Object json) {
     if (json is Map) {
       final links = Link.parseLinks(json['links']);
       final data = json['data'];

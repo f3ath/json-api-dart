@@ -110,8 +110,8 @@ class FetchResource extends JsonApiRequest {
 
   Future call(JsonApiController controller) => controller.fetchResource(this);
 
-  Future resource(Resource resource) =>
-      _server.resource(_response, route, resource);
+  Future resource(Resource resource, {Iterable<Resource> included}) =>
+      _server.resource(_response, route, resource, included: included);
 }
 
 class DeleteResource extends JsonApiRequest {
@@ -132,7 +132,7 @@ class CreateResource extends JsonApiRequest {
   CreateResource(HttpRequest request, this.route) : super(request);
 
   Future<Resource> resource() async {
-    return ResourceData.parseDocument(await _body).resourceObject.toResource();
+    return ResourceData.parse(await _body).resourceObject.toResource();
   }
 
   Future call(JsonApiController controller) => controller.createResource(this);
@@ -152,7 +152,7 @@ class UpdateResource extends JsonApiRequest {
   UpdateResource(HttpRequest request, this.route) : super(request);
 
   Future<Resource> resource() async {
-    return ResourceData.parseDocument(await _body).resourceObject.toResource();
+    return ResourceData.parse(await _body).resourceObject.toResource();
   }
 
   Future call(JsonApiController controller) => controller.updateResource(this);

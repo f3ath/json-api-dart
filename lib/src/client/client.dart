@@ -25,13 +25,13 @@ class JsonApiClient {
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ResourceCollectionData>> fetchCollection(Uri uri,
           {Map<String, String> headers}) =>
-      _get(ResourceCollectionData.parseDocument, uri, headers);
+      _get(ResourceCollectionData.parse, uri, headers);
 
   /// Fetches a single resource
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ResourceData>> fetchResource(Uri uri,
           {Map<String, String> headers}) =>
-      _get(ResourceData.parseDocument, uri, headers);
+      _get(ResourceData.parse, uri, headers);
 
   /// Fetches a to-one relationship
   /// Use [headers] to pass extra HTTP headers.
@@ -57,7 +57,7 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-creating
   Future<Response<ResourceData>> createResource(Uri uri, Resource resource,
           {Map<String, String> headers}) =>
-      _post(ResourceData.parseDocument, uri,
+      _post(ResourceData.parse, uri,
           ResourceData(ResourceJson.fromResource(resource)), headers);
 
   /// Deletes the resource.
@@ -71,7 +71,7 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating
   Future<Response<ResourceData>> updateResource(Uri uri, Resource resource,
           {Map<String, String> headers}) =>
-      _patch(ResourceData.parseDocument, uri,
+      _patch(ResourceData.parse, uri,
           ResourceData(ResourceJson.fromResource(resource)), headers);
 
   /// Updates a to-one relationship via PATCH request
@@ -136,7 +136,7 @@ class JsonApiClient {
       _call(
           parse,
           (_) => _.post(uri,
-              body: json.encode(Document.data(data)),
+              body: json.encode(Document(data)),
               headers: {}
                 ..addAll(headers ?? {})
                 ..addAll({
@@ -160,7 +160,7 @@ class JsonApiClient {
       _call(
           parse,
           (_) => _.patch(uri,
-              body: json.encode(Document.data(data)),
+              body: json.encode(Document(data)),
               headers: {}
                 ..addAll(headers ?? {})
                 ..addAll({
