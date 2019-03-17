@@ -31,7 +31,7 @@ class Document<Data extends PrimaryData> {
       if (json.containsKey('errors')) {
         final errors = json['errors'];
         if (errors is List) {
-          return Document.error(errors.map(ErrorObject.fromJson),
+          return Document.error(errors.map(ErrorObject.parse),
               meta: json['meta']);
         }
       } else if (json.containsKey('data')) {

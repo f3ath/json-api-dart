@@ -46,21 +46,3 @@ class LinkObject extends Link {
     return json;
   }
 }
-
-class Links {
-  final Map<String, Link> links;
-
-  Links(Map<String, Link> links) : links = Map.unmodifiable(links);
-
-  static Links fromJson(Object json) {
-    if (json is Map) {
-      return Links(Map.fromEntries(
-          json.entries.map((e) => MapEntry(e.key, Link.parse(e.value)))));
-    }
-    throw 'Can not parse Links from $json';
-  }
-
-  toJson() => {}
-    ..addAll(links)
-    ..removeWhere((k, v) => v == null);
-}

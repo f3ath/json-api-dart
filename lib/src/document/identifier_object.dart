@@ -1,6 +1,6 @@
 import 'package:json_api/src/document/identifier.dart';
 
-/// IdentifierObject is a JSON representation of an [Identifier]
+/// [IdentifierObject] is a JSON representation of an [Identifier]
 /// It carries all JSON-related logic and the Meta-data.
 class IdentifierObject {
   final String type;
@@ -8,7 +8,7 @@ class IdentifierObject {
 
   IdentifierObject(this.type, this.id);
 
-  static IdentifierObject parseData(Object json) {
+  static IdentifierObject parse(Object json) {
     if (json is Map) {
       return IdentifierObject(json['type'], json['id']);
     }

@@ -1,7 +1,7 @@
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/resource_object.dart';
 
-/// The top-level Primary Data. This is the essentials of a JSON:API Document.
+/// The top-level Primary Data. This is the essentials of the JSON:API Document.
 ///
 /// [PrimaryData] may be considered a Document itself with two limitations:
 ///

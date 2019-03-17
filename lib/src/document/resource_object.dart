@@ -7,8 +7,14 @@ import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/nullable.dart';
 
-/// ResourceObject is a JSON representation of a [Resource]
+/// ResourceObject is a JSON representation of a [Resource].
+///
 /// It carries all JSON-related logic and the Meta-data.
+/// In a JSON:API Document it can be the value of the `data` member (a `data`
+/// member element in case of a collection) or a member of the `included`
+/// resource collection.
+///
+/// More on this: https://jsonapi.org/format/#document-resource-objects
 class ResourceObject {
   final String type;
   final String id;
@@ -22,7 +28,8 @@ class ResourceObject {
     this.relationships.addAll(relationships ?? {});
   }
 
-  static ResourceObject parseData(Object json) {
+  /// Parses the `data` member of a JSON:API Document
+  static ResourceObject parse(Object json) {
     final mapOrNull = (_) => _ == null || _ is Map;
     if (json is Map) {
       final relationships = json['relationships'];
@@ -48,6 +55,8 @@ class ResourceObject {
         attributes: resource.attributes, relationships: relationships);
   }
 
+  /// Returns the JSON object to be used in the `data` or `included` members
+  /// of a JSON:API Document
   Map<String, Object> toJson() {
     final json = <String, Object>{'type': type, 'id': id};
     if (attributes.isNotEmpty) {
@@ -59,7 +68,11 @@ class ResourceObject {
     return json;
   }
 
-  /// Converts to [Resource] if possible
+  /// Converts to [Resource] if possible. The standard allows relationships
+  /// without `data` member. In this case the original [Resource] can not be
+  /// recovered and this method will throw a [StateError].
+  ///
+  /// TODO: we probably need `isIncomplete` flag to check for this.
   Resource toResource() {
     final toOne = <String, Identifier>{};
     final toMany = <String, List<Identifier>>{};
@@ -94,7 +107,7 @@ class SingleResourceObject extends PrimaryData {
   static SingleResourceObject parseDocument(Object json) {
     if (json is Map) {
       final links = Link.parseLinks(json['links']);
-      final data = ResourceObject.parseData(json['data']);
+      final data = ResourceObject.parse(json['data']);
       return SingleResourceObject(data, self: links['self']);
     }
     throw 'Can not parse SingleResourceObject from $json';
@@ -128,7 +141,7 @@ class ResourceObjectCollection extends PrimaryData {
       final links = Link.parseLinks(json['links']);
       final data = json['data'];
       if (data is List) {
-        return ResourceObjectCollection(data.map(ResourceObject.parseData),
+        return ResourceObjectCollection(data.map(ResourceObject.parse),
             self: links['self'], pagination: Pagination.fromLinks(links));
       }
     }

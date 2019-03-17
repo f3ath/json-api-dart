@@ -46,7 +46,7 @@ class ErrorObject {
     this.meta.addAll(meta ?? {});
   }
 
-  static ErrorObject fromJson(Object json) {
+  static ErrorObject parse(Object json) {
     if (json is Map) {
       Link about;
       if (json['links'] is Map) about = Link.parse(json['links']['about']);

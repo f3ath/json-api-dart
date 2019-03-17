@@ -4,7 +4,14 @@ import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/pagination.dart';
 import 'package:json_api/src/document/primary_data.dart';
 
-/// Incomplete relationship
+/// The Relationship represents the references between the resources.
+///
+/// A Relationship can be a JSON:API Document itself when
+/// requested separately as described here https://jsonapi.org/format/#fetching-relationships.
+///
+/// It can also be a part of [ResourceObject].relationships map.
+///
+/// More on this: https://jsonapi.org/format/#document-resource-object-relationships
 class Relationship extends PrimaryData {
   final Link related;
 
@@ -53,7 +60,11 @@ class Relationship extends PrimaryData {
 
 /// Relationship to-one
 class ToOne extends Relationship {
-  /// null if empty
+  /// Resource Linkage
+  ///
+  /// Can be null for empty relationships
+  ///
+  /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
   final IdentifierObject linkage;
 
   ToOne(this.linkage, {Link self, Link related})
@@ -72,7 +83,7 @@ class ToOne extends Relationship {
           return ToOne.empty(self: links['self'], related: links['related']);
         }
         if (data is Map) {
-          return ToOne(IdentifierObject.parseData(data),
+          return ToOne(IdentifierObject.parse(data),
               self: links['self'], related: links['related']);
         }
       }
@@ -89,7 +100,14 @@ class ToOne extends Relationship {
 
 /// Relationship to-many
 class ToMany extends Relationship {
+  /// Resource Linkage
+  ///
+  /// Can be empty for empty relationships
+  ///
+  /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
   final linkage = <IdentifierObject>[];
+
+
   final Pagination pagination;
 
   ToMany(Iterable<IdentifierObject> linkage,
@@ -104,7 +122,7 @@ class ToMany extends Relationship {
       if (json.containsKey('data')) {
         final data = json['data'];
         if (data is List) {
-          return ToMany(data.map(IdentifierObject.parseData),
+          return ToMany(data.map(IdentifierObject.parse),
               self: links['self'], related: links['related']);
         }
       }

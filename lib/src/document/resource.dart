@@ -1,5 +1,10 @@
 import 'package:json_api/src/document/identifier.dart';
 
+/// Resource
+///
+/// Together with [Identifier] forms the core of the Document model.
+/// Resources are passed between the server and the client in the form
+/// of [ResourceObject]s.
 class Resource {
   /// Resource type
   final String type;
