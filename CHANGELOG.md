@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.4.0] - 2019-03-17
+### Changed
+- Parsing logic moved out
+- Some other BC-breaking changes in the Document
+- Huge changes in the Server
+
+### Added
+- Compound documents support in Client (Server-side support is still very limited)
+
+### Fixed
+- Server was not setting links for resources and relationships
+
 ## [0.3.0] - 2019-03-16
 ### Changed
 - Huge BC-breaking refactoring in the Document model which propagated everywhere
@@ -23,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
-[Unreleased]: https://github.com/f3ath/json-api-dart/compare/0.3.0...HEAD
+[Unreleased]: https://github.com/f3ath/json-api-dart/compare/0.4.0...HEAD
+[0.4.0]: https://github.com/f3ath/json-api-dart/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/f3ath/json-api-dart/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/f3ath/json-api-dart/compare/0.1.0...0.2.0

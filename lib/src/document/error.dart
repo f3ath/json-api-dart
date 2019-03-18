@@ -47,31 +47,6 @@ class JsonApiError {
     this.meta.addAll(meta ?? {});
   }
 
-  static JsonApiError parse(Object json) {
-    if (json is Map) {
-      Link about;
-      if (json['links'] is Map) about = Link.parse(json['links']['about']);
-
-      String pointer;
-      String parameter;
-      if (json['source'] is Map) {
-        parameter = json['source']['parameter'];
-        pointer = json['source']['pointer'];
-      }
-      return JsonApiError(
-          id: json['id'],
-          about: about,
-          status: json['status'],
-          code: json['code'],
-          title: json['title'],
-          detail: json['detail'],
-          sourcePointer: pointer,
-          sourceParameter: parameter,
-          meta: json['meta']);
-    }
-    throw 'Can not parse ErrorObject from $json';
-  }
-
   Map<String, Object> toJson() {
     final json = <String, Object>{};
     if (id != null) json['id'] = id;

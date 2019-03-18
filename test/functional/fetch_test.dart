@@ -22,7 +22,13 @@ void main() async {
       final r = await client.fetchCollection(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.resourceObjects.first.attributes['name'], 'Tesla');
+      expect(r.data.collection.first.attributes['name'], 'Tesla');
+      expect(r.data.collection.first.self.uri.toString(),
+          'http://localhost:8080/companies/1');
+      expect(r.data.collection.first.relationships['hq'].related.uri.toString(),
+          'http://localhost:8080/companies/1/hq');
+      expect(r.data.collection.first.relationships['hq'].self.uri.toString(),
+          'http://localhost:8080/companies/1/relationships/hq');
       expect(r.data.self.uri, uri);
     });
 
@@ -34,23 +40,23 @@ void main() async {
 
       final r1 = await client.fetchCollection(somePage.pagination.next.uri);
       final secondPage = r1.data;
-      expect(secondPage.resourceObjects.first.attributes['name'], 'BMW');
+      expect(secondPage.collection.first.attributes['name'], 'BMW');
       expect(secondPage.self.uri, somePage.pagination.next.uri);
 
       final r2 = await client.fetchCollection(secondPage.pagination.last.uri);
       final lastPage = r2.data;
-      expect(lastPage.resourceObjects.first.attributes['name'], 'Toyota');
+      expect(lastPage.collection.first.attributes['name'], 'Toyota');
       expect(lastPage.self.uri, secondPage.pagination.last.uri);
 
       final r3 = await client.fetchCollection(lastPage.pagination.prev.uri);
       final secondToLastPage = r3.data;
-      expect(secondToLastPage.resourceObjects.first.attributes['name'], 'Audi');
+      expect(secondToLastPage.collection.first.attributes['name'], 'Audi');
       expect(secondToLastPage.self.uri, lastPage.pagination.prev.uri);
 
       final r4 =
           await client.fetchCollection(secondToLastPage.pagination.first.uri);
       final firstPage = r4.data;
-      expect(firstPage.resourceObjects.first.attributes['name'], 'Tesla');
+      expect(firstPage.collection.first.attributes['name'], 'Tesla');
       expect(firstPage.self.uri, secondToLastPage.pagination.first.uri);
     });
 
@@ -59,7 +65,7 @@ void main() async {
       final r = await client.fetchCollection(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.resourceObjects.first.attributes['name'], 'Roadster');
+      expect(r.data.collection.first.attributes['name'], 'Roadster');
       expect(r.data.self.uri, uri);
     });
 
@@ -79,6 +85,20 @@ void main() async {
       expect(r.isSuccessful, true);
       expect(r.data.toResource().attributes['name'], 'Roadster');
       expect(r.data.self.uri, uri);
+    });
+
+    test('single resource compound document', () async {
+      final uri = Url.resource('companies', '1');
+      final r = await client.fetchResource(uri);
+      expect(r.status, 200);
+      expect(r.isSuccessful, true);
+      expect(r.data.toResource().attributes['name'], 'Tesla');
+      expect(r.data.self.uri, uri);
+      expect(r.data.included.length, 5);
+      expect(r.data.included.first.type, 'cities');
+      expect(r.data.included.first.attributes['name'], 'Palo Alto');
+      expect(r.data.included.last.type, 'models');
+      expect(r.data.included.last.attributes['name'], 'Model 3');
     });
 
     test('404 on type', () async {
@@ -164,7 +184,7 @@ void main() async {
       final r = await client.fetchToMany(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.identifiers.first.type, 'models');
+      expect(r.data.toIdentifiers().first.type, 'models');
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:8080/companies/1/models');
@@ -175,7 +195,7 @@ void main() async {
       final r = await client.fetchToMany(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.identifiers, isEmpty);
+      expect(r.data.toIdentifiers(), isEmpty);
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:8080/companies/3/models');
@@ -187,7 +207,7 @@ void main() async {
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data, TypeMatcher<ToMany>());
-      expect((r.data as ToMany).identifiers.first.type, 'models');
+      expect((r.data as ToMany).toIdentifiers().first.type, 'models');
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:8080/companies/1/models');

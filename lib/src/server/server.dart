@@ -3,93 +3,35 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:json_api/document.dart';
-import 'package:json_api/src/document/pagination.dart';
-import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/server/page.dart';
-import 'package:json_api/src/server/route.dart';
-import 'package:json_api/src/server/uri_builder.dart';
+import 'package:json_api/parser.dart';
+import 'package:json_api/src/server/contracts/controller.dart';
+import 'package:json_api/src/server/contracts/document_builder.dart';
+import 'package:json_api/src/server/contracts/page.dart';
+import 'package:json_api/src/server/contracts/router.dart';
+import 'package:json_api/src/server/standard_document_builder.dart';
+
+part 'server_requests.dart';
+part 'server_routes.dart';
 
 class JsonApiServer {
-  final UriBuilder url;
-  final String allowOrigin;
+  final Router router;
+  final JsonApiController controller;
 
-  JsonApiServer(this.url, {this.allowOrigin = '*'});
+  JsonApiServer(this.router, this.controller);
 
-  Future write(HttpResponse response, int status,
-      {Document document, Map<String, String> headers = const {}}) {
-    response.statusCode = status;
-    headers.forEach(response.headers.add);
-    if (allowOrigin != null) {
-      response.headers.set('Access-Control-Allow-Origin', allowOrigin);
+  Future<void> process(HttpRequest httpRequest) async {
+    const factory = _JsonApiRouteFactory();
+    final route = await router.getRoute(httpRequest.requestedUri, factory);
+    if (route == null) {
+      httpRequest.response.statusCode = 404;
+      return httpRequest.response.close();
     }
-    if (document != null) {
-      response.write(json.encode(document));
-    }
-    return response.close();
+    final request = route.createRequest(httpRequest);
+    final body = await httpRequest.transform(utf8.decoder).join();
+    request.uri = httpRequest.requestedUri;
+    if (body.isNotEmpty) request.setBody(json.decode(body));
+    request.docBuilder = StandardDocumentBuilder(router);
+    request.response = httpRequest.response;
+    return request.call(controller);
   }
-
-  Future collection(HttpResponse response, CollectionRoute route,
-          Iterable<Resource> resource,
-          {Page page}) =>
-      write(response, 200,
-          document: Document.data(
-            ResourceCollectionData(resource.map(ResourceJson.fromResource),
-                self: Link(route.self(url, parameters: route.parameters)),
-                pagination: page == null
-                    ? Pagination.empty()
-                    : Pagination.fromLinks(page.map((_) =>
-                        Link(route.self(url, parameters: _.parameters))))),
-          ));
-
-  Future error(HttpResponse response, int status, List<JsonApiError> errors) =>
-      write(response, status, document: Document.error(errors));
-
-  Future relatedCollection(HttpResponse response, RelatedRoute route,
-          Iterable<Resource> collection) =>
-      write(response, 200,
-          document: Document.data(ResourceCollectionData(
-              collection.map(ResourceJson.fromResource),
-              self: Link(route.self(url)))));
-
-  Future relatedResource(
-          HttpResponse response, RelatedRoute route, Resource resource) =>
-      write(response, 200,
-          document: Document.data(ResourceData(
-              ResourceJson.fromResource(resource),
-              self: Link(route.self(url)))));
-
-  Future resource(
-          HttpResponse response, ResourceRoute route, Resource resource) =>
-      write(response, 200,
-          document: Document.data(ResourceData(
-              ResourceJson.fromResource(resource),
-              self: Link(route.self(url)))));
-
-  Future toMany(HttpResponse response, RelationshipRoute route,
-          Iterable<Identifier> collection) =>
-      write(response, 200,
-          document: Document.data(ToMany(
-              collection.map(IdentifierJson.fromIdentifier),
-              self: Link(route.self(url)),
-              related: Link(route.related(url)))));
-
-  Future toOne(HttpResponse response, RelationshipRoute route, Identifier id) =>
-      write(response, 200,
-          document: Document.data(ToOne(
-              nullable(IdentifierJson.fromIdentifier)(id),
-              self: Link(route.self(url)),
-              related: Link(route.related(url)))));
-
-  Future meta(HttpResponse response, ResourceRoute route,
-          Map<String, Object> meta) =>
-      write(response, 200, document: Document.empty(meta));
-
-  Future created(
-          HttpResponse response, CollectionRoute route, Resource resource) =>
-      write(response, 201,
-          document:
-              Document.data(ResourceData(ResourceJson.fromResource(resource))),
-          headers: {
-            'Location': url.resource(resource.type, resource.id).toString()
-          });
 }

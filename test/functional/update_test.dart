@@ -211,7 +211,7 @@ void main() async {
         test('204 No Content', () async {
           final url = Url.relationship('companies', '1', 'models');
           final r0 = await client.fetchToMany(url);
-          final original = r0.data.identifiers.map((_) => _.id);
+          final original = r0.data.toIdentifiers().map((_) => _.id);
           expect(original, ['1', '2', '3', '4']);
 
           final r1 = await client.replaceToMany(
@@ -219,7 +219,7 @@ void main() async {
           expect(r1.status, 204);
 
           final r2 = await client.fetchToMany(url);
-          final updated = r2.data.identifiers.map((_) => _.id);
+          final updated = r2.data.toIdentifiers().map((_) => _.id);
           expect(updated, ['5', '6']);
         });
       });
@@ -243,14 +243,14 @@ void main() async {
         test('200 OK', () async {
           final url = Url.relationship('companies', '1', 'models');
           final r0 = await client.fetchToMany(url);
-          final original = r0.data.identifiers.map((_) => _.id);
+          final original = r0.data.toIdentifiers().map((_) => _.id);
           expect(original, ['1', '2', '3', '4']);
 
           final r1 = await client.addToMany(
               url, [Identifier('models', '1'), Identifier('models', '5')]);
           expect(r1.status, 200);
 
-          final updated = r1.data.identifiers.map((_) => _.id);
+          final updated = r1.data.toIdentifiers().map((_) => _.id);
           expect(updated, ['1', '2', '3', '4', '5']);
         });
       });

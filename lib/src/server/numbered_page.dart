@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:json_api/src/server/page.dart';
+import 'package:json_api/src/server/contracts/page.dart';
 
 class NumberedPage extends Page {
   final int number;
