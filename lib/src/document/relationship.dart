@@ -1,5 +1,5 @@
 import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/identifier_json.dart';
+import 'package:json_api/src/document/identifier_object.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/pagination.dart';
 import 'package:json_api/src/document/primary_data.dart';
@@ -37,7 +37,7 @@ class ToOne extends Relationship {
   /// Can be null for empty relationships
   ///
   /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
-  final IdentifierJson linkage;
+  final IdentifierObject linkage;
 
   ToOne(this.linkage, {Link self, Link related})
       : super(self: self, related: related);
@@ -60,11 +60,11 @@ class ToMany extends Relationship {
   /// Can be empty for empty relationships
   ///
   /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
-  final linkage = <IdentifierJson>[];
+  final linkage = <IdentifierObject>[];
 
   final Pagination pagination;
 
-  ToMany(Iterable<IdentifierJson> linkage,
+  ToMany(Iterable<IdentifierObject> linkage,
       {Link self, Link related, this.pagination = const Pagination.empty()})
       : super(self: self, related: related) {
     this.linkage.addAll(linkage);

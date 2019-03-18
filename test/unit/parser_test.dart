@@ -6,7 +6,7 @@ import 'package:json_matcher/json_matcher.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final parser = JsonApiDocumentParser();
+  final parser = JsonApiParser();
   group('Parser', () {
     try {
       test('Can parse the example document', () {

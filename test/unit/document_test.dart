@@ -7,7 +7,7 @@ void main() {
   group('Document', () {
     group('JSON Conversion', () {
       test('Can convert a single resource', () {
-        final doc = Document(ResourceData(ResourceJson('foo', 'bar')));
+        final doc = Document(ResourceData(ResourceObject('foo', 'bar')));
 
         expect(
             doc,

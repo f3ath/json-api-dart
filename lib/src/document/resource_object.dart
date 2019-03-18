@@ -1,13 +1,11 @@
 import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/identifier_json.dart';
+import 'package:json_api/src/document/identifier_object.dart';
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/pagination.dart';
-import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/nullable.dart';
 
-/// [ResourceJson] is a JSON representation of a [Resource].
+/// [ResourceObject] is a JSON representation of a [Resource].
 ///
 /// It carries all JSON-related logic and the Meta-data.
 /// In a JSON:API Document it can be the value of the `data` member (a `data`
@@ -15,14 +13,14 @@ import 'package:json_api/src/nullable.dart';
 /// resource collection.
 ///
 /// More on this: https://jsonapi.org/format/#document-resource-objects
-class ResourceJson {
+class ResourceObject {
   final String type;
   final String id;
   final Link self;
   final attributes = <String, Object>{};
   final relationships = <String, Relationship>{};
 
-  ResourceJson(this.type, this.id,
+  ResourceObject(this.type, this.id,
       {Map<String, Object> attributes,
       Map<String, Relationship> relationships,
       this.self}) {
@@ -30,14 +28,14 @@ class ResourceJson {
     this.relationships.addAll(relationships ?? {});
   }
 
-  static ResourceJson fromResource(Resource resource) {
+  static ResourceObject fromResource(Resource resource) {
     final relationships = <String, Relationship>{}
       ..addAll(resource.toOne.map((k, v) =>
-          MapEntry(k, ToOne(nullable(IdentifierJson.fromIdentifier)(v)))))
-      ..addAll(resource.toMany.map(
-          (k, v) => MapEntry(k, ToMany(v.map(IdentifierJson.fromIdentifier)))));
+          MapEntry(k, ToOne(nullable(IdentifierObject.fromIdentifier)(v)))))
+      ..addAll(resource.toMany.map((k, v) =>
+          MapEntry(k, ToMany(v.map(IdentifierObject.fromIdentifier)))));
 
-    return ResourceJson(resource.type, resource.id,
+    return ResourceObject(resource.type, resource.id,
         attributes: resource.attributes, relationships: relationships);
   }
 
@@ -83,63 +81,5 @@ class ResourceJson {
 
     return Resource(type, id,
         attributes: attributes, toOne: toOne, toMany: toMany);
-  }
-}
-
-/// Represents a single resource or a single related resource of a to-one relationship\\\\\\\\
-class ResourceData extends PrimaryData {
-  final ResourceJson resourceJson;
-
-  /// For Compound Documents this member contains the included resources
-  final List<ResourceJson> included;
-
-  ResourceData(this.resourceJson, {Link self, Iterable<ResourceJson> included})
-      : this.included =
-            (included == null || included.isEmpty ? null : List.from(included)),
-        super(self: self);
-
-  @override
-  Map<String, Object> toJson() {
-    final json = <String, Object>{'data': resourceJson};
-    if (included != null && included.isNotEmpty) {
-      json['included'] = included;
-    }
-
-    final links = toLinks();
-    if (links.isNotEmpty) json['links'] = links;
-    return json;
-  }
-
-  Resource toResource() => resourceJson.toResource();
-}
-
-/// Represents a resource collection or a collection of related resources of a to-many relationship
-class ResourceCollectionData extends PrimaryData {
-  final collection = <ResourceJson>[];
-  final Pagination pagination;
-
-  /// For Compound Documents this member contains the included resources
-  final List<ResourceJson> included;
-
-  ResourceCollectionData(Iterable<ResourceJson> collection,
-      {Link self,
-      Iterable<ResourceJson> included,
-      this.pagination = const Pagination.empty()})
-      : this.included =
-            (included == null || included.isEmpty ? null : List.from(included)),
-        super(self: self) {
-    this.collection.addAll(collection);
-  }
-
-  @override
-  Map<String, Object> toJson() {
-    final json = <String, Object>{'data': collection};
-    if (included != null && included.isNotEmpty) {
-      json['included'] = included;
-    }
-
-    final links = toLinks()..addAll(pagination.toLinks());
-    if (links.isNotEmpty) json['links'] = links;
-    return json;
   }
 }

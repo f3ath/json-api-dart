@@ -40,7 +40,7 @@ The features here are roughly ordered by priority. Feel free to open an issue if
 
 #### Document
 - [x] Support relationship objects lacking the `data` member
-- [ ] Compound documents
+- [x] Compound documents
 - [ ] Support `meta` members
 - [ ] Support `jsonapi` members
 - [ ] Structural Validation including compound documents

@@ -42,7 +42,7 @@ void main() async {
       // Make sure the resource is available
       final r1 = await client
           .fetchResource(Url.resource('models', r0.data.toResource().id));
-      expect(r1.data.resourceJson.attributes['name'], 'Model Y');
+      expect(r1.data.resourceObject.attributes['name'], 'Model Y');
     });
 
     /// If a POST request did include a Client-Generated ID and the requested

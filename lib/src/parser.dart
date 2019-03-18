@@ -1,8 +1,14 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/document/pagination.dart';
 
-class JsonApiDocumentParser {
-  const JsonApiDocumentParser();
+class ParserException implements Exception {
+  final String message;
+
+  ParserException(this.message);
+}
+
+class JsonApiParser {
+  const JsonApiParser();
 
   Document<Data> parseDocument<Data extends PrimaryData>(
       Object json, Data parsePrimaryData(Object json)) {
@@ -19,7 +25,7 @@ class JsonApiDocumentParser {
         return Document.empty(json['meta']);
       }
     }
-    throw 'Can not parse Document from $json';
+    throw ParserException('Can not parse Document from $json');
   }
 
   JsonApiError parseError(Object json) {
@@ -44,7 +50,7 @@ class JsonApiDocumentParser {
           sourceParameter: parameter,
           meta: json['meta']);
     }
-    throw 'Can not parse ErrorObject from $json';
+    throw ParserException('Can not parse ErrorObject from $json');
   }
 
   /// Parses a JSON:API Document or the `relationship` member of a Resource object.
@@ -63,7 +69,7 @@ class JsonApiDocumentParser {
         return Relationship(self: links['self'], related: links['related']);
       }
     }
-    throw 'Can not parse Relationship from $json';
+    throw ParserException('Can not parse Relationship from $json');
   }
 
   /// Parses the `relationships` member of a Resource Object
@@ -72,11 +78,11 @@ class JsonApiDocumentParser {
     if (json is Map) {
       return json.map((k, v) => MapEntry(k.toString(), parseRelationship(v)));
     }
-    throw 'Can not parse Relationship map from $json';
+    throw ParserException('Can not parse Relationship map from $json');
   }
 
   /// Parses the `data` member of a JSON:API Document
-  ResourceJson parseResourceJson(Object json) {
+  ResourceObject parseResourceObject(Object json) {
     final mapOrNull = (_) => _ == null || _ is Map;
     if (json is Map) {
       final relationships = json['relationships'];
@@ -84,13 +90,13 @@ class JsonApiDocumentParser {
       final links = parseLinks(json['links']);
 
       if (mapOrNull(relationships) && mapOrNull(attributes)) {
-        return ResourceJson(json['type'], json['id'],
+        return ResourceObject(json['type'], json['id'],
             attributes: attributes,
             relationships: parseRelationships(relationships),
             self: links['self']);
       }
     }
-    throw 'Can not parse ResourceObject from $json';
+    throw ParserException('Can not parse ResourceObject from $json');
   }
 
   /// Parse the document
@@ -98,16 +104,16 @@ class JsonApiDocumentParser {
     if (json is Map) {
       final links = parseLinks(json['links']);
       final included = json['included'];
-      final resources = <ResourceJson>[];
+      final resources = <ResourceObject>[];
       if (included is List) {
-        resources.addAll(included.map(parseResourceJson));
+        resources.addAll(included.map(parseResourceObject));
       }
-      final data = parseResourceJson(json['data']);
+      final data = parseResourceObject(json['data']);
       return ResourceData(data,
           self: links['self'],
           included: resources.isNotEmpty ? resources : null);
     }
-    throw 'Can not parse SingleResourceObject from $json';
+    throw ParserException('Can not parse SingleResourceObject from $json');
   }
 
   /// Parse the document
@@ -115,19 +121,19 @@ class JsonApiDocumentParser {
     if (json is Map) {
       final links = parseLinks(json['links']);
       final included = json['included'];
-      final resources = <ResourceJson>[];
+      final resources = <ResourceObject>[];
       if (included is List) {
-        resources.addAll(included.map(parseResourceJson));
+        resources.addAll(included.map(parseResourceObject));
       }
       final data = json['data'];
       if (data is List) {
-        return ResourceCollectionData(data.map(parseResourceJson),
+        return ResourceCollectionData(data.map(parseResourceObject),
             self: links['self'],
             pagination: Pagination.fromLinks(links),
             included: resources.isNotEmpty ? resources : null);
       }
     }
-    throw 'Can not parse ResourceObjectCollection from $json';
+    throw ParserException('Can not parse ResourceObjectCollection from $json');
   }
 
   ToOne parseToOne(Object json) {
@@ -139,12 +145,12 @@ class JsonApiDocumentParser {
           return ToOne.empty(self: links['self'], related: links['related']);
         }
         if (data is Map) {
-          return ToOne(parseIdentifierJson(data),
+          return ToOne(parseIdentifierObject(data),
               self: links['self'], related: links['related']);
         }
       }
     }
-    throw 'Can not parse ToOne from $json';
+    throw ParserException('Can not parse ToOne from $json');
   }
 
   ToMany parseToMany(Object json) {
@@ -153,19 +159,19 @@ class JsonApiDocumentParser {
       if (json.containsKey('data')) {
         final data = json['data'];
         if (data is List) {
-          return ToMany(data.map(parseIdentifierJson),
+          return ToMany(data.map(parseIdentifierObject),
               self: links['self'], related: links['related']);
         }
       }
     }
-    throw 'Can not parse ToMany from $json';
+    throw ParserException('Can not parse ToMany from $json');
   }
 
-  IdentifierJson parseIdentifierJson(Object json) {
+  IdentifierObject parseIdentifierObject(Object json) {
     if (json is Map) {
-      return IdentifierJson(json['type'], json['id']);
+      return IdentifierObject(json['type'], json['id']);
     }
-    throw 'Can not parse IdentifierObject from $json';
+    throw ParserException('Can not parse IdentifierObject from $json');
   }
 
   Link parseLink(Object json) {
@@ -173,7 +179,7 @@ class JsonApiDocumentParser {
     if (json is Map) {
       return LinkObject(Uri.parse(json['href']), meta: json['meta']);
     }
-    throw 'Can not parse Link from $json';
+    throw ParserException('Can not parse Link from $json');
   }
 
   /// Parses the document's `links` member into a map.
@@ -186,6 +192,6 @@ class JsonApiDocumentParser {
       return (json..removeWhere((_, v) => v == null))
           .map((k, v) => MapEntry(k.toString(), parseLink(v)));
     }
-    throw 'Can not parse links from $json';
+    throw ParserException('Can not parse links from $json');
   }
 }

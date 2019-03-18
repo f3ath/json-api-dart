@@ -15,7 +15,7 @@ typedef http.Client HttpClientFactory();
 class JsonApiClient {
   static const contentType = 'application/vnd.api+json';
 
-  JsonApiDocumentParser _parser = const JsonApiDocumentParser();
+  JsonApiParser _parser = const JsonApiParser();
 
   final HttpClientFactory _factory;
 
@@ -61,7 +61,7 @@ class JsonApiClient {
   Future<Response<ResourceData>> createResource(Uri uri, Resource resource,
           {Map<String, String> headers}) =>
       _post(_parser.parseResourceData, uri,
-          ResourceData(ResourceJson.fromResource(resource)), headers);
+          ResourceData(ResourceObject.fromResource(resource)), headers);
 
   /// Deletes the resource.
   ///
@@ -75,7 +75,7 @@ class JsonApiClient {
   Future<Response<ResourceData>> updateResource(Uri uri, Resource resource,
           {Map<String, String> headers}) =>
       _patch(_parser.parseResourceData, uri,
-          ResourceData(ResourceJson.fromResource(resource)), headers);
+          ResourceData(ResourceObject.fromResource(resource)), headers);
 
   /// Updates a to-one relationship via PATCH request
   ///
@@ -83,7 +83,7 @@ class JsonApiClient {
   Future<Response<ToOne>> replaceToOne(Uri uri, Identifier id,
           {Map<String, String> headers}) =>
       _patch(_parser.parseToOne, uri,
-          ToOne(nullable(IdentifierJson.fromIdentifier)(id)), headers);
+          ToOne(nullable(IdentifierObject.fromIdentifier)(id)), headers);
 
   /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
   /// with id = null.
@@ -100,7 +100,7 @@ class JsonApiClient {
   Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> ids,
           {Map<String, String> headers}) =>
       _patch(_parser.parseToMany, uri,
-          ToMany(ids.map(IdentifierJson.fromIdentifier)), headers);
+          ToMany(ids.map(IdentifierObject.fromIdentifier)), headers);
 
   /// Adds the given set of [ids] to a to-many relationship.
   ///
@@ -123,7 +123,7 @@ class JsonApiClient {
   Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> ids,
           {Map<String, String> headers}) =>
       _post(_parser.parseToMany, uri,
-          ToMany(ids.map(IdentifierJson.fromIdentifier)), headers);
+          ToMany(ids.map(IdentifierObject.fromIdentifier)), headers);
 
   Future<Response<D>> _get<D extends PrimaryData>(
           D parse(Object _), uri, Map<String, String> headers) =>

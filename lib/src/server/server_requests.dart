@@ -1,6 +1,6 @@
 part of 'server.dart';
 
-const _parser = const JsonApiDocumentParser();
+const _parser = const JsonApiParser();
 
 abstract class _BaseRequest {
   HttpResponse response;
@@ -75,7 +75,7 @@ abstract class _BaseRequest {
     final doc = docBuilder.resource(resource, route.type, resource.id, uri);
     return _write(201,
         document: doc,
-        headers: {'Location': doc.data.resourceJson.self.toString()});
+        headers: {'Location': doc.data.resourceObject.self.toString()});
   }
 }
 
@@ -212,7 +212,7 @@ class _UpdateResource extends _ResourceRequest
 
   @override
   void setBody(Object body) {
-    resource = _parser.parseResourceData(body).resourceJson.toResource();
+    resource = _parser.parseResourceData(body).resourceObject.toResource();
   }
 
   Future call(JsonApiController controller) => controller.updateResource(this);
