@@ -1,5 +1,7 @@
 part of 'server.dart';
 
+const _parser = const JsonApiDocumentParser();
+
 abstract class _BaseRequest {
   HttpResponse response;
   bool allowOrigin;
@@ -96,7 +98,7 @@ class _CreateResource extends _CollectionRequest
   Resource resource;
 
   void setBody(Object body) {
-    resource = ResourceData.parse(body).toResource();
+    resource = _parser.parseResourceData(body).toResource();
   }
 
   Future call(JsonApiController controller) => controller.createResource(this);
@@ -149,7 +151,7 @@ class _ReplaceRelationship extends _RelationshipRequest
 
   @override
   void setBody(Object body) {
-    final r = Relationship.parse(body);
+    final r = _parser.parseRelationship(body);
     if (r is ToOne) identifier = r.toIdentifier();
     if (r is ToMany) identifiers = r.toIdentifiers();
   }
@@ -171,7 +173,7 @@ class _AddToMany extends _RelationshipRequest implements AddToManyRequest {
 
   @override
   void setBody(Object body) {
-    final r = Relationship.parse(body);
+    final r = _parser.parseRelationship(body);
     if (r is ToOne) identifier = r.toIdentifier();
     if (r is ToMany) identifiers = r.toIdentifiers();
   }
@@ -210,7 +212,7 @@ class _UpdateResource extends _ResourceRequest
 
   @override
   void setBody(Object body) {
-    resource = ResourceData.parse(body).resourceJson.toResource();
+    resource = _parser.parseResourceData(body).resourceJson.toResource();
   }
 
   Future call(JsonApiController controller) => controller.updateResource(this);

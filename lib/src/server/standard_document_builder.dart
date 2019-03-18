@@ -41,18 +41,20 @@ class StandardDocumentBuilder implements DocumentBuilder {
       Uri self,
       {Iterable<Resource> included}) =>
       Document(
-          ResourceData(_resourceJson(resource),
-              self: Link(uriBuilder.resource(type, id))),
-          included: included?.map(_resourceJson));
+        ResourceData(_resourceJson(resource),
+            self: Link(uriBuilder.resource(type, id)),
+            included: included?.map(_resourceJson)),
+      );
 
   Document<ResourceData> relatedResource(Resource resource, String type,
       String id,
       String relationship, Uri self,
       {Iterable<Resource> included}) =>
       Document(
-          ResourceData(_resourceJson(resource),
-              self: Link(uriBuilder.related(type, id, relationship))),
-          included: included?.map(_resourceJson));
+        ResourceData(
+            _resourceJson(resource), included: included?.map(_resourceJson),
+            self: Link(uriBuilder.related(type, id, relationship))),
+      );
 
   Document<ToMany> toMany(Iterable<Identifier> collection, String type,
       String id,

@@ -6,10 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- Some BC-breaking changes in the Document
+- Parsing logic moved out
+- Some other BC-breaking changes in the Document
+- Huge changes in the Server
 
 ### Added
 - Compound documents support in Client (Server-side support is still very limited)
+
+### Fixed
+- Server was not setting links for resources and relationships
 
 ## [0.3.0] - 2019-03-16
 ### Changed

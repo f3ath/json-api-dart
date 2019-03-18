@@ -8,13 +8,6 @@ class IdentifierJson {
 
   IdentifierJson(this.type, this.id);
 
-  static IdentifierJson parse(Object json) {
-    if (json is Map) {
-      return IdentifierJson(json['type'], json['id']);
-    }
-    throw 'Can not parse IdentifierObject from $json';
-  }
-
   static IdentifierJson fromIdentifier(Identifier id) =>
       IdentifierJson(id.type, id.id);
 

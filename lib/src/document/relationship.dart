@@ -17,34 +17,6 @@ class Relationship extends PrimaryData {
 
   Relationship({this.related, Link self}) : super(self: self);
 
-  /// Parses a JSON:API Document or the `relationship` member of a Resource object.
-  static Relationship parse(Object json) {
-    if (json is Map) {
-      if (json.containsKey('data')) {
-        final data = json['data'];
-        if (data == null || data is Map) {
-          return ToOne.parse(json);
-        }
-        if (data is List) {
-          return ToMany.parse(json);
-        }
-      } else {
-        final links = Link.parseLinks(json['links']);
-        return Relationship(self: links['self'], related: links['related']);
-      }
-    }
-    throw 'Can not parse Relationship from $json';
-  }
-
-  /// Parses the `relationships` member of a Resource Object
-  static Map<String, Relationship> parseRelationships(Object json) {
-    if (json == null) return {};
-    if (json is Map) {
-      return json.map((k, v) => MapEntry(k.toString(), Relationship.parse(v)));
-    }
-    throw 'Can not parse Relationship map from $json';
-  }
-
   Map<String, Link> toLinks() => related == null
       ? super.toLinks()
       : (super.toLinks()..['related'] = related);
@@ -74,23 +46,6 @@ class ToOne extends Relationship {
       : linkage = null,
         super(self: self, related: related);
 
-  static ToOne parse(Object json) {
-    if (json is Map) {
-      final links = Link.parseLinks(json['links']);
-      if (json.containsKey('data')) {
-        final data = json['data'];
-        if (data == null) {
-          return ToOne.empty(self: links['self'], related: links['related']);
-        }
-        if (data is Map) {
-          return ToOne(IdentifierJson.parse(data),
-              self: links['self'], related: links['related']);
-        }
-      }
-    }
-    throw 'Can not parse ToOne from $json';
-  }
-
   Map<String, Object> toJson() => super.toJson()..['data'] = linkage;
 
   /// Converts to [Identifier].
@@ -113,20 +68,6 @@ class ToMany extends Relationship {
       {Link self, Link related, this.pagination = const Pagination.empty()})
       : super(self: self, related: related) {
     this.linkage.addAll(linkage);
-  }
-
-  static ToMany parse(Object json) {
-    if (json is Map) {
-      final links = Link.parseLinks(json['links']);
-      if (json.containsKey('data')) {
-        final data = json['data'];
-        if (data is List) {
-          return ToMany(data.map(IdentifierJson.parse),
-              self: links['self'], related: links['related']);
-        }
-      }
-    }
-    throw 'Can not parse ToMany from $json';
   }
 
   Map<String, Link> toLinks() => super.toLinks()..addAll(pagination.toLinks());

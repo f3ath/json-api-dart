@@ -94,11 +94,11 @@ void main() async {
       expect(r.isSuccessful, true);
       expect(r.data.toResource().attributes['name'], 'Tesla');
       expect(r.data.self.uri, uri);
-      expect(r.document.included.length, 5);
-      expect(r.document.included.first.type, 'cities');
-      expect(r.document.included.first.attributes['name'], 'Palo Alto');
-      expect(r.document.included.last.type, 'models');
-      expect(r.document.included.last.attributes['name'], 'Model 3');
+      expect(r.data.included.length, 5);
+      expect(r.data.included.first.type, 'cities');
+      expect(r.data.included.first.attributes['name'], 'Palo Alto');
+      expect(r.data.included.last.type, 'models');
+      expect(r.data.included.last.attributes['name'], 'Model 3');
     });
 
     test('404 on type', () async {

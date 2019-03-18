@@ -34,7 +34,8 @@ class StandardRouter implements Router {
           pathSegments:
               base.pathSegments + [type, id, 'relationships', relationship]);
 
-  Uri resource(String type, String id, {Map<String, String> parameters = const {}}) =>
+  Uri resource(String type, String id,
+          {Map<String, String> parameters = const {}}) =>
       base.replace(pathSegments: base.pathSegments + [type, id]);
 
   R getRoute<R>(Uri uri, RouteFactory<R> route) {

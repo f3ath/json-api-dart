@@ -7,27 +7,6 @@ class Link {
     ArgumentError.checkNotNull(uri, 'uri');
   }
 
-  static Link parse(Object json) {
-    if (json is String) return Link(Uri.parse(json));
-    if (json is Map) {
-      return LinkObject(Uri.parse(json['href']), meta: json['meta']);
-    }
-    throw 'Can not parse Link from $json';
-  }
-
-  /// Parses the document's `links` member into a map.
-  /// The retuning map does not have null values.
-  ///
-  /// Details on the `links` member: https://jsonapi.org/format/#document-links
-  static Map<String, Link> parseLinks(Object json) {
-    if (json == null) return {};
-    if (json is Map) {
-      return (json..removeWhere((_, v) => v == null))
-          .map((k, v) => MapEntry(k.toString(), parse(v)));
-    }
-    throw 'Can not parse links from $json';
-  }
-
   toJson() => uri.toString();
 }
 

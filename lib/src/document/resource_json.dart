@@ -30,24 +30,6 @@ class ResourceJson {
     this.relationships.addAll(relationships ?? {});
   }
 
-  /// Parses the `data` member of a JSON:API Document
-  static ResourceJson parse(Object json) {
-    final mapOrNull = (_) => _ == null || _ is Map;
-    if (json is Map) {
-      final relationships = json['relationships'];
-      final attributes = json['attributes'];
-      final links = Link.parseLinks(json['links']);
-
-      if (mapOrNull(relationships) && mapOrNull(attributes)) {
-        return ResourceJson(json['type'], json['id'],
-            attributes: attributes,
-            relationships: Relationship.parseRelationships(relationships),
-            self: links['self']);
-      }
-    }
-    throw 'Can not parse ResourceObject from $json';
-  }
-
   static ResourceJson fromResource(Resource resource) {
     final relationships = <String, Relationship>{}
       ..addAll(resource.toOne.map((k, v) =>
@@ -108,21 +90,21 @@ class ResourceJson {
 class ResourceData extends PrimaryData {
   final ResourceJson resourceJson;
 
-  ResourceData(this.resourceJson, {Link self}) : super(self: self);
+  /// For Compound Documents this member contains the included resources
+  final List<ResourceJson> included;
 
-  /// Parse the document
-  static ResourceData parse(Object json) {
-    if (json is Map) {
-      final links = Link.parseLinks(json['links']);
-      final data = ResourceJson.parse(json['data']);
-      return ResourceData(data, self: links['self']);
-    }
-    throw 'Can not parse SingleResourceObject from $json';
-  }
+  ResourceData(this.resourceJson, {Link self, Iterable<ResourceJson> included})
+      : this.included =
+            (included == null || included.isEmpty ? null : List.from(included)),
+        super(self: self);
 
   @override
   Map<String, Object> toJson() {
     final json = <String, Object>{'data': resourceJson};
+    if (included != null && included.isNotEmpty) {
+      json['included'] = included;
+    }
+
     final links = toLinks();
     if (links.isNotEmpty) json['links'] = links;
     return json;
@@ -136,28 +118,26 @@ class ResourceCollectionData extends PrimaryData {
   final collection = <ResourceJson>[];
   final Pagination pagination;
 
-  ResourceCollectionData(Iterable<ResourceJson> collection,
-      {Link self, this.pagination = const Pagination.empty()})
-      : super(self: self) {
-    this.collection.addAll(collection);
-  }
+  /// For Compound Documents this member contains the included resources
+  final List<ResourceJson> included;
 
-  /// Parse the document
-  static ResourceCollectionData parse(Object json) {
-    if (json is Map) {
-      final links = Link.parseLinks(json['links']);
-      final data = json['data'];
-      if (data is List) {
-        return ResourceCollectionData(data.map(ResourceJson.parse),
-            self: links['self'], pagination: Pagination.fromLinks(links));
-      }
-    }
-    throw 'Can not parse ResourceObjectCollection from $json';
+  ResourceCollectionData(Iterable<ResourceJson> collection,
+      {Link self,
+      Iterable<ResourceJson> included,
+      this.pagination = const Pagination.empty()})
+      : this.included =
+            (included == null || included.isEmpty ? null : List.from(included)),
+        super(self: self) {
+    this.collection.addAll(collection);
   }
 
   @override
   Map<String, Object> toJson() {
     final json = <String, Object>{'data': collection};
+    if (included != null && included.isNotEmpty) {
+      json['included'] = included;
+    }
+
     final links = toLinks()..addAll(pagination.toLinks());
     if (links.isNotEmpty) json['links'] = links;
     return json;

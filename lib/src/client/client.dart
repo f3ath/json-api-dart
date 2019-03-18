@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:json_api/document.dart';
 import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/nullable.dart';
+import 'package:json_api/src/parser.dart';
 
 typedef Document ResponseParser(Object j);
 
@@ -13,6 +14,8 @@ typedef http.Client HttpClientFactory();
 /// JSON:API client
 class JsonApiClient {
   static const contentType = 'application/vnd.api+json';
+
+  JsonApiDocumentParser _parser = const JsonApiDocumentParser();
 
   final HttpClientFactory _factory;
 
@@ -25,31 +28,31 @@ class JsonApiClient {
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ResourceCollectionData>> fetchCollection(Uri uri,
           {Map<String, String> headers}) =>
-      _get(ResourceCollectionData.parse, uri, headers);
+      _get(_parser.parseResourceCollectionData, uri, headers);
 
   /// Fetches a single resource
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ResourceData>> fetchResource(Uri uri,
           {Map<String, String> headers}) =>
-      _get(ResourceData.parse, uri, headers);
+      _get(_parser.parseResourceData, uri, headers);
 
   /// Fetches a to-one relationship
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ToOne>> fetchToOne(Uri uri, {Map<String, String> headers}) =>
-      _get(ToOne.parse, uri, headers);
+      _get(_parser.parseToOne, uri, headers);
 
   /// Fetches a to-many relationship
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ToMany>> fetchToMany(Uri uri,
           {Map<String, String> headers}) =>
-      _get(ToMany.parse, uri, headers);
+      _get(_parser.parseToMany, uri, headers);
 
   /// Fetches a to-one or to-many relationship.
   /// The actual type of the relationship can be determined afterwards.
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<Relationship>> fetchRelationship(Uri uri,
           {Map<String, String> headers}) =>
-      _get(Relationship.parse, uri, headers);
+      _get(_parser.parseRelationship, uri, headers);
 
   /// Creates a new resource. The resource will be added to a collection
   /// according to its type.
@@ -57,7 +60,7 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-creating
   Future<Response<ResourceData>> createResource(Uri uri, Resource resource,
           {Map<String, String> headers}) =>
-      _post(ResourceData.parse, uri,
+      _post(_parser.parseResourceData, uri,
           ResourceData(ResourceJson.fromResource(resource)), headers);
 
   /// Deletes the resource.
@@ -71,7 +74,7 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating
   Future<Response<ResourceData>> updateResource(Uri uri, Resource resource,
           {Map<String, String> headers}) =>
-      _patch(ResourceData.parse, uri,
+      _patch(_parser.parseResourceData, uri,
           ResourceData(ResourceJson.fromResource(resource)), headers);
 
   /// Updates a to-one relationship via PATCH request
@@ -79,7 +82,7 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating-to-one-relationships
   Future<Response<ToOne>> replaceToOne(Uri uri, Identifier id,
           {Map<String, String> headers}) =>
-      _patch(ToOne.parse, uri,
+      _patch(_parser.parseToOne, uri,
           ToOne(nullable(IdentifierJson.fromIdentifier)(id)), headers);
 
   /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
@@ -96,8 +99,8 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> ids,
           {Map<String, String> headers}) =>
-      _patch(ToMany.parse, uri, ToMany(ids.map(IdentifierJson.fromIdentifier)),
-          headers);
+      _patch(_parser.parseToMany, uri,
+          ToMany(ids.map(IdentifierJson.fromIdentifier)), headers);
 
   /// Adds the given set of [ids] to a to-many relationship.
   ///
@@ -119,8 +122,8 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> ids,
           {Map<String, String> headers}) =>
-      _post(ToMany.parse, uri, ToMany(ids.map(IdentifierJson.fromIdentifier)),
-          headers);
+      _post(_parser.parseToMany, uri,
+          ToMany(ids.map(IdentifierJson.fromIdentifier)), headers);
 
   Future<Response<D>> _get<D extends PrimaryData>(
           D parse(Object _), uri, Map<String, String> headers) =>
@@ -177,7 +180,7 @@ class JsonApiClient {
         return Response(r.statusCode, r.headers);
       }
       final body = json.decode(r.body);
-      final document = body == null ? null : Document.parse(body, parse);
+      final document = body == null ? null : _parser.parseDocument(body, parse);
 
       return Response(r.statusCode, r.headers, document: document);
     } finally {
