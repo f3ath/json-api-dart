@@ -48,7 +48,7 @@ class ResourceJson {
     throw 'Can not parse ResourceObject from $json';
   }
 
-  static ResourceJson fromResource(Resource resource, {Link self}) {
+  static ResourceJson fromResource(Resource resource) {
     final relationships = <String, Relationship>{}
       ..addAll(resource.toOne.map((k, v) =>
           MapEntry(k, ToOne(nullable(IdentifierJson.fromIdentifier)(v)))))
@@ -56,9 +56,7 @@ class ResourceJson {
           (k, v) => MapEntry(k, ToMany(v.map(IdentifierJson.fromIdentifier)))));
 
     return ResourceJson(resource.type, resource.id,
-        attributes: resource.attributes,
-        relationships: relationships,
-        self: self);
+        attributes: resource.attributes, relationships: relationships);
   }
 
   /// Returns the JSON object to be used in the `data` or `included` members
@@ -90,7 +88,7 @@ class ResourceJson {
       if (rel is ToOne) {
         toOne[name] = rel.toIdentifier();
       } else if (rel is ToMany) {
-        toMany[name] = rel.identifiers.toList();
+        toMany[name] = rel.toIdentifiers().toList();
       } else {
         incomplete[name] = rel;
       }

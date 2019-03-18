@@ -49,22 +49,13 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
   final controller = CarsController(
       {'companies': companies, 'cities': cities, 'models': models});
 
-  final routing = Routing(Uri.parse('http://localhost:$port'));
+  final router = StandardRouter(Uri.parse('http://localhost:$port'));
 
-  final server = JsonApiServer(routing);
+  final jsonApiServer = JsonApiServer(router, controller);
 
   final httpServer = await HttpServer.bind(addr, port);
 
-  httpServer.forEach((request) async {
-    final route = await routing.getRoute(request.requestedUri);
-    if (route == null) {
-      request.response.statusCode = 404;
-      return request.response.close();
-    }
-    route.createRequest(request)
-      ..bind(server)
-      ..call(controller);
-  });
+  httpServer.forEach(jsonApiServer.process);
 
   return httpServer;
 }

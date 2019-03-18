@@ -23,6 +23,12 @@ void main() async {
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data.collection.first.attributes['name'], 'Tesla');
+      expect(r.data.collection.first.self.uri.toString(),
+          'http://localhost:8080/companies/1');
+      expect(r.data.collection.first.relationships['hq'].related.uri.toString(),
+          'http://localhost:8080/companies/1/hq');
+      expect(r.data.collection.first.relationships['hq'].self.uri.toString(),
+          'http://localhost:8080/companies/1/relationships/hq');
       expect(r.data.self.uri, uri);
     });
 
@@ -93,7 +99,6 @@ void main() async {
       expect(r.document.included.first.attributes['name'], 'Palo Alto');
       expect(r.document.included.last.type, 'models');
       expect(r.document.included.last.attributes['name'], 'Model 3');
-
     });
 
     test('404 on type', () async {
@@ -179,7 +184,7 @@ void main() async {
       final r = await client.fetchToMany(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.identifiers.first.type, 'models');
+      expect(r.data.toIdentifiers().first.type, 'models');
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:8080/companies/1/models');
@@ -190,7 +195,7 @@ void main() async {
       final r = await client.fetchToMany(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.identifiers, isEmpty);
+      expect(r.data.toIdentifiers(), isEmpty);
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:8080/companies/3/models');
@@ -202,7 +207,7 @@ void main() async {
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data, TypeMatcher<ToMany>());
-      expect((r.data as ToMany).identifiers.first.type, 'models');
+      expect((r.data as ToMany).toIdentifiers().first.type, 'models');
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:8080/companies/1/models');
