@@ -3,9 +3,9 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:json_api/document.dart';
+import 'package:json_api/parser.dart';
 import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/parser.dart';
 
 typedef Document ResponseParser(Object j);
 

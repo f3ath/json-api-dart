@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:json_api/document.dart';
-import 'package:json_api/src/parser.dart';
+import 'package:json_api/parser.dart';
 import 'package:json_api/src/server/contracts/controller.dart';
 import 'package:json_api/src/server/contracts/document_builder.dart';
 import 'package:json_api/src/server/contracts/page.dart';

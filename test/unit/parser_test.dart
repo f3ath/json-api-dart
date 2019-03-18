@@ -2,7 +2,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/src/parser.dart';
+import 'package:json_api/parser.dart';
 import 'package:json_matcher/json_matcher.dart';
 import 'package:test/test.dart';
 
