@@ -4,7 +4,7 @@ const _parser = const JsonApiParser();
 
 abstract class _BaseRequest {
   HttpResponse response;
-  bool allowOrigin;
+  String allowOrigin = '*';
   Uri uri;
   DocumentBuilder docBuilder;
 
