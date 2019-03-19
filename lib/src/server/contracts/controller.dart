@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:json_api/document.dart';
-import 'package:json_api/src/server/contracts/page.dart';
+import 'package:json_api/src/server/collection.dart';
+import 'package:json_api/src/server/request_target.dart';
 
 abstract class JsonApiController {
   Future<void> fetchCollection(FetchCollectionRequest rq);
@@ -28,29 +29,57 @@ abstract class JsonApiController {
 abstract class JsonApiRequest {
   Uri get uri;
 
-  String get type;
-
   Future<void> errorNotFound(Iterable<JsonApiError> errors);
 }
 
 abstract class FetchCollectionRequest extends JsonApiRequest {
-  Future<void> sendCollection(Iterable<Resource> resources, {Page page});
+  CollectionTarget get target;
+
+  Future<void> sendCollection(Collection<Resource> resources);
 }
 
-abstract class FetchRelatedRequest extends JsonApiRequest {
-  String get id;
+abstract class CreateResourceRequest extends JsonApiRequest {
+  CollectionTarget get target;
 
-  String get relationship;
+  Resource get resource;
 
-  Future<void> sendCollection(Iterable<Resource> collection);
+  Future<void> sendCreated(Resource resource);
 
-  Future<void> sendResource(Resource resource);
+  Future<void> sendNoContent();
+
+  Future<void> errorConflict(Iterable<JsonApiError> errors);
+}
+
+abstract class FetchResourceRequest extends JsonApiRequest {
+  ResourceTarget get target;
+
+  Future<void> sendResource(Resource resource, {Iterable<Resource> included});
+}
+
+abstract class DeleteResourceRequest extends JsonApiRequest {
+  ResourceTarget get target;
+
+  Future<void> sendNoContent();
+
+  Future<void> sendMeta(Map<String, Object> meta);
+}
+
+abstract class UpdateResourceRequest extends JsonApiRequest {
+  ResourceTarget get target;
+
+  Resource get resource;
+
+  Future<void> sendUpdated(Resource resource);
+
+  Future<void> sendNoContent();
+
+  Future<void> errorConflict(Iterable<JsonApiError> errors);
+
+  Future<void> errorForbidden(Iterable<JsonApiError> errors);
 }
 
 abstract class FetchRelationshipRequest extends JsonApiRequest {
-  String get id;
-
-  String get relationship;
+  RelationshipTarget get target;
 
   Future<void> sendToMany(Iterable<Identifier> collection);
 
@@ -58,9 +87,7 @@ abstract class FetchRelationshipRequest extends JsonApiRequest {
 }
 
 abstract class ReplaceToOneRequest extends JsonApiRequest {
-  String get id;
-
-  String get relationship;
+  RelationshipTarget get target;
 
   Identifier get identifier;
 
@@ -72,9 +99,7 @@ abstract class ReplaceToOneRequest extends JsonApiRequest {
 }
 
 abstract class ReplaceToManyRequest extends JsonApiRequest {
-  String get id;
-
-  String get relationship;
+  RelationshipTarget get target;
 
   Iterable<Identifier> get identifiers;
 
@@ -86,49 +111,17 @@ abstract class ReplaceToManyRequest extends JsonApiRequest {
 }
 
 abstract class AddToManyRequest extends JsonApiRequest {
-  String get id;
-
-  String get relationship;
+  RelationshipTarget get target;
 
   Iterable<Identifier> get identifiers;
 
   Future<void> sendToMany(Iterable<Identifier> collection);
 }
 
-abstract class FetchResourceRequest extends JsonApiRequest {
-  String get id;
+abstract class FetchRelatedRequest extends JsonApiRequest {
+  RelatedResourceTarget get target;
 
-  Future<void> sendResource(Resource resource, {Iterable<Resource> included});
-}
+  Future<void> sendCollection(Collection<Resource> resources);
 
-abstract class DeleteResourceRequest extends JsonApiRequest {
-  String get id;
-
-  Future<void> sendNoContent();
-
-  Future<void> sendMeta(Map<String, Object> meta);
-}
-
-abstract class CreateResourceRequest extends JsonApiRequest {
-  Resource get resource;
-
-  Future<void> sendCreated(Resource resource);
-
-  Future<void> sendNoContent();
-
-  Future<void> errorConflict(Iterable<JsonApiError> errors);
-}
-
-abstract class UpdateResourceRequest extends JsonApiRequest {
-  String get id;
-
-  Resource get resource;
-
-  Future<void> sendUpdated(Resource resource);
-
-  Future<void> sendNoContent();
-
-  Future<void> errorConflict(Iterable<JsonApiError> errors);
-
-  Future<void> errorForbidden(Iterable<JsonApiError> errors);
+  Future<void> sendResource(Resource resource);
 }

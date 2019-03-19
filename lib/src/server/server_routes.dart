@@ -1,111 +1,70 @@
 part of 'server.dart';
 
-class _JsonApiRouteFactory implements RouteFactory<_BaseRoute> {
+class _JsonApiRouteFactory implements RouteFactory<_Route> {
   const _JsonApiRouteFactory();
 
-  _BaseRoute collection(String type) => _CollectionRoute(type);
+  _Route collection(String type) => _Route(CollectionTarget(type));
 
-  _BaseRoute related(String type, String id, String relationship) =>
-      _RelatedRoute(type, id, relationship);
+  _Route related(String type, String id, String relationship) =>
+      _Route(RelatedResourceTarget(type, id, relationship));
 
-  _BaseRoute relationship(String type, String id, String relationship) =>
-      _RelationshipRoute(type, id, relationship);
+  _Route relationship(String type, String id, String relationship) =>
+      _Route(RelationshipTarget(type, id, relationship));
 
-  _BaseRoute resource(String type, String id) => _ResourceRoute(type, id);
+  _Route resource(String type, String id) => _Route(ResourceTarget(type, id));
 
-  _BaseRoute unmatched() => null;
+  _Route unmatched() => null;
 }
 
-abstract class _BaseRoute {
-  Uri self(UriBuilder builder, {Map<String, String> parameters = const {}});
+class _Route<T extends RequestTarget> {
+  final T target;
 
-  _BaseRequest createRequest(HttpRequest httpRequest);
-}
-
-class _CollectionRoute extends _BaseRoute {
-  final String type;
-
-  _CollectionRoute(this.type);
+  _Route(this.target);
 
   _BaseRequest createRequest(HttpRequest request) {
-    switch (request.method) {
-      case 'GET':
-        return _FetchCollection()..route = this;
-      case 'POST':
-        return _CreateResource()..route = this;
-    }
-    throw 'Unexpected method ${request.method}';
+    return _createRequest(request)..target = target;
   }
 
-  @override
-  Uri self(UriBuilder builder, {Map<String, String> parameters = const {}}) =>
-      builder.collection(type, parameters: parameters);
-}
-
-class _RelatedRoute extends _BaseRoute {
-  final String type;
-  final String id;
-  final String relationship;
-
-  _RelatedRoute(this.type, this.id, this.relationship);
-
-  _BaseRequest createRequest(HttpRequest request) {
-    switch (request.method) {
-      case 'GET':
-        return _FetchRelated()..route = this;
+  _BaseRequest _createRequest(HttpRequest request) {
+    final t = target;
+    if (t is CollectionTarget) {
+      switch (request.method) {
+        case 'GET':
+          return _FetchCollection();
+        case 'POST':
+          return _CreateResource();
+      }
+      throw 'Unexpected method ${request.method}';
     }
-    throw 'Unexpected method ${request.method}';
-  }
-
-  @override
-  Uri self(UriBuilder builder, {Map<String, String> parameters = const {}}) =>
-      builder.related(type, id, relationship, parameters: parameters);
-}
-
-class _RelationshipRoute extends _BaseRoute {
-  final String type;
-  final String id;
-  final String relationship;
-
-  _RelationshipRoute(this.type, this.id, this.relationship);
-
-  _BaseRequest createRequest(HttpRequest request) {
-    switch (request.method) {
-      case 'GET':
-        return _FetchRelationship()..route = this;
-      case 'PATCH':
-        return _ReplaceRelationship()..route = this;
-      case 'POST':
-        return _AddToMany()..route = this;
+    if (t is ResourceTarget) {
+      switch (request.method) {
+        case 'GET':
+          return _FetchResource();
+        case 'DELETE':
+          return _DeleteResource();
+        case 'PATCH':
+          return _UpdateResource();
+      }
+      throw 'Unexpected method ${request.method}';
     }
-    throw 'Unexpected method ${request.method}';
-  }
-
-  Uri self(UriBuilder builder, {Map<String, String> parameters = const {}}) =>
-      builder.relationship(type, id, relationship, parameters: parameters);
-
-  Uri related(UriBuilder builder, {Map<String, String> params = const {}}) =>
-      builder.related(type, id, relationship, parameters: params);
-}
-
-class _ResourceRoute extends _BaseRoute {
-  final String type;
-  final String id;
-
-  _ResourceRoute(this.type, this.id);
-
-  _BaseRequest createRequest(HttpRequest request) {
-    switch (request.method) {
-      case 'GET':
-        return _FetchResource()..route = this;
-      case 'DELETE':
-        return _DeleteResource()..route = this;
-      case 'PATCH':
-        return _UpdateResource()..route = this;
+    if (t is RelatedResourceTarget) {
+      switch (request.method) {
+        case 'GET':
+          return _FetchRelated();
+      }
+      throw 'Unexpected method ${request.method}';
     }
-    throw 'Unexpected method ${request.method}';
+    if (t is RelationshipTarget) {
+      switch (request.method) {
+        case 'GET':
+          return _FetchRelationship();
+        case 'PATCH':
+          return _ReplaceRelationship();
+        case 'POST':
+          return _AddToMany();
+      }
+      throw 'Unexpected method ${request.method}';
+    }
+    throw 'Unexpected target ${target}';
   }
-
-  Uri self(UriBuilder builder, {Map<String, String> parameters = const {}}) =>
-      builder.resource(type, id, parameters: parameters);
 }

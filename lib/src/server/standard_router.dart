@@ -15,43 +15,33 @@ class StandardRouter implements Router {
     ArgumentError.checkNotNull(base, 'base');
   }
 
-  Uri collection(String type, {Map<String, String> parameters = const {}}) {
-    final combined = <String, String>{}
-      ..addAll(base.queryParameters)
-      ..addAll(parameters);
-    return base.replace(
-        pathSegments: base.pathSegments + [type],
-        queryParameters: combined.isNotEmpty ? combined : null);
-  }
+  Uri collection(String type) => _path([type]);
 
-  Uri related(String type, String id, String relationship,
-          {Map<String, String> parameters = const {}}) =>
-      base.replace(pathSegments: base.pathSegments + [type, id, relationship]);
+  Uri relatedResource(String type, String id, String relationship) =>
+      _path([type, id, relationship]);
 
-  Uri relationship(String type, String id, String relationship,
-          {Map<String, String> parameters = const {}}) =>
-      base.replace(
-          pathSegments:
-              base.pathSegments + [type, id, 'relationships', relationship]);
+  Uri relationship(String type, String id, String relationship) =>
+      _path([type, id, 'relationships', relationship]);
 
-  Uri resource(String type, String id,
-          {Map<String, String> parameters = const {}}) =>
-      base.replace(pathSegments: base.pathSegments + [type, id]);
+  Uri resource(String type, String id) => _path([type, id]);
 
   R getRoute<R>(Uri uri, RouteFactory<R> route) {
-    final segments = uri.pathSegments;
-    switch (segments.length) {
+    final _ = uri.pathSegments;
+    switch (_.length) {
       case 1:
-        return route.collection(segments[0]);
+        return route.collection(_[0]);
       case 2:
-        return route.resource(segments[0], segments[1]);
+        return route.resource(_[0], _[1]);
       case 3:
-        return route.related(segments[0], segments[1], segments[2]);
+        return route.related(_[0], _[1], _[2]);
       case 4:
-        if (segments[2] == 'relationships') {
-          return route.relationship(segments[0], segments[1], segments[3]);
+        if (_[2] == 'relationships') {
+          return route.relationship(_[0], _[1], _[3]);
         }
     }
     return route.unmatched();
   }
+
+  Uri _path(List<String> segments) =>
+      base.replace(pathSegments: base.pathSegments + segments);
 }

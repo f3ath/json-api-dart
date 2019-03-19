@@ -2,11 +2,13 @@ part of 'server.dart';
 
 const _parser = const JsonApiParser();
 
-abstract class _BaseRequest {
+abstract class _BaseRequest<T extends RequestTarget> {
   HttpResponse response;
   String allowOrigin = '*';
   Uri uri;
   DocumentBuilder docBuilder;
+
+  T target;
 
   void setBody(Object body) {}
 
@@ -35,62 +37,16 @@ abstract class _BaseRequest {
     }
     return response.close();
   }
-
-  Future _collection(_CollectionRoute route, Iterable<Resource> resource,
-          {Page page}) =>
-      _write(200,
-          document:
-              docBuilder.collection(resource, route.type, uri, page: page));
-
-  Future _relatedCollection(_RelatedRoute route, Iterable<Resource> collection,
-          {Page page}) =>
-      _write(200,
-          document: docBuilder.relatedCollection(
-              collection, route.type, route.id, route.relationship, uri,
-              page: page));
-
-  Future _relatedResource(_RelatedRoute route, Resource resource) => _write(200,
-      document: docBuilder.relatedResource(
-          resource, route.type, route.id, route.relationship, uri));
-
-  Future _resource(_ResourceRoute route, Resource resource,
-          {Iterable<Resource> included}) =>
-      _write(200,
-          document: docBuilder.resource(resource, route.type, route.id, uri,
-              included: included));
-
-  Future _toMany(_RelationshipRoute route, Iterable<Identifier> collection) =>
-      _write(200,
-          document: docBuilder.toMany(
-              collection, route.type, route.id, route.relationship, uri));
-
-  Future _toOne(_RelationshipRoute route, Identifier identifier) => _write(200,
-      document: docBuilder.toOne(
-          identifier, route.type, route.id, route.relationship, uri));
-
-  Future _meta(_ResourceRoute route, Map<String, Object> meta) =>
-      _write(200, document: Document.empty(meta));
-
-  Future _created(_CollectionRoute route, Resource resource) {
-    final doc = docBuilder.resource(resource, route.type, resource.id, uri);
-    return _write(201,
-        document: doc,
-        headers: {'Location': doc.data.resourceObject.self.toString()});
-  }
 }
 
-abstract class _CollectionRequest extends _BaseRequest {
-  _CollectionRoute route;
-
-  String get type => route.type;
-}
+abstract class _CollectionRequest extends _BaseRequest<CollectionTarget> {}
 
 class _FetchCollection extends _CollectionRequest
     implements FetchCollectionRequest {
-  Future call(JsonApiController controller) => controller.fetchCollection(this);
+  Future call(JsonApiController _) => _.fetchCollection(this);
 
-  Future sendCollection(Iterable<Resource> resources, {Page page}) =>
-      _collection(route, resources, page: page);
+  Future sendCollection(Collection<Resource> resources) =>
+      _write(200, document: docBuilder.collection(resources, target, uri));
 }
 
 class _CreateResource extends _CollectionRequest
@@ -101,51 +57,45 @@ class _CreateResource extends _CollectionRequest
     resource = _parser.parseResourceData(body).toResource();
   }
 
-  Future call(JsonApiController controller) => controller.createResource(this);
+  Future call(JsonApiController _) => _.createResource(this);
 
-  Future sendCreated(Resource resource) => _created(route, resource);
+  Future sendCreated(Resource resource) {
+    final doc = docBuilder.resource(
+        resource, ResourceTarget(resource.type, resource.id), uri);
+    return _write(201,
+        document: doc,
+        headers: {'Location': doc.data.resourceObject.self.toString()});
+  }
 }
 
-class _FetchRelated extends _BaseRequest implements FetchRelatedRequest {
-  _RelatedRoute route;
+class _FetchRelated extends _BaseRequest<RelatedResourceTarget>
+    implements FetchRelatedRequest {
+  Future call(JsonApiController _) => _.fetchRelated(this);
 
-  String get type => route.type;
+  Future sendCollection(Collection<Resource> resources) => _write(200,
+      document: docBuilder.relatedCollection(resources, target, uri));
 
-  String get id => route.id;
-
-  String get relationship => route.relationship;
-
-  Future call(JsonApiController controller) => controller.fetchRelated(this);
-
-  Future sendCollection(Iterable<Resource> collection) =>
-      _relatedCollection(route, collection);
-
-  Future sendResource(Resource resource) => _relatedResource(route, resource);
+  Future sendResource(Resource resource) =>
+      _write(200, document: docBuilder.relatedResource(resource, target, uri));
 }
 
-abstract class _RelationshipRequest extends _BaseRequest {
-  _RelationshipRoute route;
+abstract class _RelationshipRequest extends _BaseRequest<RelationshipTarget> {
+  Future sendToMany(Iterable<Identifier> collection) =>
+      _write(200, document: docBuilder.toMany(collection, target, uri));
 
-  String get type => route.type;
-
-  String get id => route.id;
-
-  String get relationship => route.relationship;
+  Future sendToOne(Identifier id) =>
+      _write(200, document: docBuilder.toOne(id, target, uri));
 }
 
 class _FetchRelationship extends _RelationshipRequest
     implements FetchRelationshipRequest {
-  Future call(JsonApiController controller) =>
-      controller.fetchRelationship(this);
-
-  Future sendToMany(Iterable<Identifier> collection) =>
-      _toMany(route, collection);
-
-  Future sendToOne(Identifier id) => _toOne(route, id);
+  Future call(JsonApiController _) => _.fetchRelationship(this);
 }
 
 class _ReplaceRelationship extends _RelationshipRequest
     implements ReplaceToOneRequest, ReplaceToManyRequest {
+  RelationshipTarget target;
+
   Identifier identifier;
   Iterable<Identifier> identifiers;
 
@@ -160,14 +110,10 @@ class _ReplaceRelationship extends _RelationshipRequest
     if (identifiers != null) return controller.replaceToMany(this);
     return controller.replaceToOne(this);
   }
-
-  Future sendToMany(Iterable<Identifier> collection) =>
-      _toMany(route, collection);
-
-  Future sendToOne(Identifier id) => _toOne(route, id);
 }
 
 class _AddToMany extends _RelationshipRequest implements AddToManyRequest {
+  RelationshipTarget target;
   Identifier identifier;
   Iterable<Identifier> identifiers;
 
@@ -178,32 +124,28 @@ class _AddToMany extends _RelationshipRequest implements AddToManyRequest {
     if (r is ToMany) identifiers = r.toIdentifiers();
   }
 
-  Future call(JsonApiController controller) => controller.addToMany(this);
-
-  Future sendToMany(Iterable<Identifier> collection) =>
-      _toMany(route, collection);
+  Future call(JsonApiController _) => _.addToMany(this);
 }
 
-abstract class _ResourceRequest extends _BaseRequest {
-  _ResourceRoute route;
-
-  String get type => route.type;
-
-  String get id => route.id;
+abstract class _ResourceRequest extends _BaseRequest<ResourceTarget> {
+  Future _resource(Resource resource, {Iterable<Resource> included}) => _write(
+      200,
+      document: docBuilder.resource(resource, target, uri, included: included));
 }
 
 class _FetchResource extends _ResourceRequest implements FetchResourceRequest {
-  Future call(JsonApiController controller) => controller.fetchResource(this);
+  Future call(JsonApiController _) => _.fetchResource(this);
 
   Future sendResource(Resource resource, {Iterable<Resource> included}) =>
-      _resource(route, resource, included: included);
+      _resource(resource, included: included);
 }
 
 class _DeleteResource extends _ResourceRequest
     implements DeleteResourceRequest {
   Future call(JsonApiController controller) => controller.deleteResource(this);
 
-  Future sendMeta(Map<String, Object> meta) => _meta(route, meta);
+  Future sendMeta(Map<String, Object> meta) =>
+      _write(200, document: Document.empty(meta));
 }
 
 class _UpdateResource extends _ResourceRequest
@@ -217,5 +159,5 @@ class _UpdateResource extends _ResourceRequest
 
   Future call(JsonApiController controller) => controller.updateResource(this);
 
-  Future sendUpdated(Resource resource) => _resource(route, resource);
+  Future sendUpdated(Resource resource) => _resource(resource);
 }

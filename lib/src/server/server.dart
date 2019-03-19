@@ -4,13 +4,15 @@ import 'dart:io';
 
 import 'package:json_api/document.dart';
 import 'package:json_api/parser.dart';
+import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/contracts/controller.dart';
 import 'package:json_api/src/server/contracts/document_builder.dart';
-import 'package:json_api/src/server/contracts/page.dart';
 import 'package:json_api/src/server/contracts/router.dart';
 import 'package:json_api/src/server/standard_document_builder.dart';
+import 'package:json_api/src/server/request_target.dart';
 
 part 'server_requests.dart';
+
 part 'server_routes.dart';
 
 class JsonApiServer {

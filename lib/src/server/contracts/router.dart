@@ -2,18 +2,16 @@ import 'dart:async';
 
 abstract class UriBuilder {
   /// Builds a URI for a resource collection
-  Uri collection(String type, {Map<String, String> parameters});
+  Uri collection(String type);
 
   /// Builds a URI for a single resource
-  Uri resource(String type, String id, {Map<String, String> parameters});
+  Uri resource(String type, String id);
 
   /// Builds a URI for a related resource
-  Uri related(String type, String id, String relationship,
-      {Map<String, String> parameters});
+  Uri relatedResource(String type, String id, String relationship);
 
   /// Builds a URI for a relationship object
-  Uri relationship(String type, String id, String relationship,
-      {Map<String, String> parameters});
+  Uri relationship(String type, String id, String relationship);
 }
 
 /// Route resolver detects the type of the route by [Uri]
