@@ -51,9 +51,11 @@ class CarsController implements JsonApiController {
     }
 
     if (res.toMany.containsKey(request.target.relationship)) {
-
       final pageSize = 2;
-      final totalPages = max(0, res.toMany[request.target.relationship].length - 1) ~/ pageSize + 1;
+      final totalPages =
+          max(0, res.toMany[request.target.relationship].length - 1) ~/
+                  pageSize +
+              1;
       final page = NumberedPage.fromQueryParameters(request.uri.queryParameters,
           total: totalPages);
       final resources = res.toMany[request.target.relationship]
