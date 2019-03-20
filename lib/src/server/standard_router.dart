@@ -1,45 +1,48 @@
-import 'package:json_api/src/server/contracts/router.dart';
+import 'package:json_api/src/server/request_target.dart';
+import 'package:json_api/src/server/router.dart';
 
-/// StandardRouting implements the recommended URL design schema:
+/// StandardURLDesign implements the recommended URL design schema:
 ///
-/// /photos - for a collection
-/// /photos/1 - for a resource
-/// /photos/1/relationships/author - for a relationship
-/// /photos/1/author - for a related resource
+/// - `/photos` for a collection
+///
+/// - `/photos/1` for a resource
+///
+/// - `/photos/1/relationships/author` for a relationship `author`
+///
+/// - `/photos/1/author` for a related resource `author`
 ///
 /// See https://jsonapi.org/recommendations/#urls
-class StandardRouter implements Router {
+class StandardURLDesign implements URLDesign {
   final Uri base;
 
-  StandardRouter(this.base) {
+  StandardURLDesign(this.base) {
     ArgumentError.checkNotNull(base, 'base');
   }
 
-  Uri collection(String type) => _path([type]);
+  Uri collection(CollectionTarget t) => _path([t.type]);
 
-  Uri relatedResource(String type, String id, String relationship) =>
-      _path([type, id, relationship]);
+  Uri related(RelatedTarget t) => _path([t.type, t.id, t.relationship]);
 
-  Uri relationship(String type, String id, String relationship) =>
-      _path([type, id, 'relationships', relationship]);
+  Uri relationship(RelationshipTarget t) =>
+      _path([t.type, t.id, 'relationships', t.relationship]);
 
-  Uri resource(String type, String id) => _path([type, id]);
+  Uri resource(ResourceTarget t) => _path([t.type, t.id]);
 
-  R getRoute<R>(Uri uri, RouteFactory<R> route) {
+  RequestTarget getTarget(Uri uri) {
     final _ = uri.pathSegments;
     switch (_.length) {
       case 1:
-        return route.collection(_[0]);
+        return CollectionTarget(_[0]);
       case 2:
-        return route.resource(_[0], _[1]);
+        return ResourceTarget(_[0], _[1]);
       case 3:
-        return route.related(_[0], _[1], _[2]);
+        return RelatedTarget(_[0], _[1], _[2]);
       case 4:
         if (_[2] == 'relationships') {
-          return route.relationship(_[0], _[1], _[3]);
+          return RelationshipTarget(_[0], _[1], _[3]);
         }
     }
-    return route.unmatched();
+    return null;
   }
 
   Uri _path(List<String> segments) =>

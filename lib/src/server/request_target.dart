@@ -1,29 +1,31 @@
-import 'package:json_api/src/server/contracts/router.dart';
+import 'package:json_api/src/server/router.dart';
 
 abstract class RequestTarget {
-  Uri uri(UriBuilder builder);
+  Uri url(URLDesign design);
+
+  const RequestTarget();
 }
 
-class CollectionTarget implements RequestTarget {
+class CollectionTarget extends RequestTarget {
   final String type;
 
   const CollectionTarget(this.type);
 
   @override
-  Uri uri(UriBuilder builder) => builder.collection(type);
+  Uri url(URLDesign design) => design.collection(this);
 }
 
-class ResourceTarget implements RequestTarget {
+class ResourceTarget extends RequestTarget {
   final String type;
   final String id;
 
   const ResourceTarget(this.type, this.id);
 
   @override
-  Uri uri(UriBuilder builder) => builder.resource(type, id);
+  Uri url(URLDesign design) => design.resource(this);
 }
 
-class RelationshipTarget implements RequestTarget {
+class RelationshipTarget extends RequestTarget {
   final String type;
   final String id;
   final String relationship;
@@ -31,17 +33,21 @@ class RelationshipTarget implements RequestTarget {
   const RelationshipTarget(this.type, this.id, this.relationship);
 
   @override
-  Uri uri(UriBuilder builder) => builder.relationship(type, id, relationship);
+  Uri url(URLDesign design) => design.relationship(this);
+
+  RelatedTarget toRelated() => RelatedTarget(type, id, relationship);
 }
 
-class RelatedResourceTarget implements RequestTarget {
+class RelatedTarget extends RequestTarget {
   final String type;
   final String id;
   final String relationship;
 
-  const RelatedResourceTarget(this.type, this.id, this.relationship);
+  const RelatedTarget(this.type, this.id, this.relationship);
 
   @override
-  Uri uri(UriBuilder builder) =>
-      builder.relatedResource(type, id, relationship);
+  Uri url(URLDesign design) => design.related(this);
+
+  RelationshipTarget toRelationship() =>
+      RelationshipTarget(type, id, relationship);
 }

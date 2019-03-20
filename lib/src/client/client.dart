@@ -181,7 +181,6 @@ class JsonApiClient {
       }
       final body = json.decode(r.body);
       final document = body == null ? null : _parser.parseDocument(body, parse);
-
       return Response(r.statusCode, r.headers, document: document);
     } finally {
       client.close();

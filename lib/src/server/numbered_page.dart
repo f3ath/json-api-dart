@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:json_api/src/server/contracts/page.dart';
+import 'package:json_api/src/server/page.dart';
 
 class NumberedPage extends Page {
   final int number;
@@ -14,7 +14,7 @@ class NumberedPage extends Page {
 
   int get offset => number - 1;
 
-  Map<String, String> get parameters {
+  Map<String, String> get queryParameters {
     if (number > 1) {
       return {'page[number]': number.toString()};
     }

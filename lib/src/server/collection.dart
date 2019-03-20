@@ -1,4 +1,4 @@
-import 'package:json_api/src/server/contracts/page.dart';
+import 'package:json_api/src/server/page.dart';
 
 class Collection<T> {
   final Iterable<T> elements;

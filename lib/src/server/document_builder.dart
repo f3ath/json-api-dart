@@ -15,11 +15,11 @@ abstract class DocumentBuilder {
       {Iterable<Resource> included});
 
   Document<ResourceCollectionData> relatedCollection(
-      Collection<Resource> resources, RelatedResourceTarget target, Uri self,
+      Collection<Resource> resources, RelatedTarget target, Uri self,
       {Iterable<Resource> included});
 
   Document<ResourceData> relatedResource(
-      Resource resource, RelatedResourceTarget target, Uri self,
+      Resource resource, RelatedTarget target, Uri self,
       {Iterable<Resource> included});
 
   Document<ToMany> toMany(

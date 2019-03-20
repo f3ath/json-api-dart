@@ -13,7 +13,20 @@ abstract class Page {
   /// Last page or null
   Page get last;
 
-  Map<String, String> get parameters;
+  Uri addTo(Uri uri) {
+    if (queryParameters == null) {
+      return uri;
+    }
+    if (uri.queryParameters == null) {
+      return uri.replace(queryParameters: queryParameters);
+    }
+    return uri.replace(
+        queryParameters: {}
+          ..addAll(uri.queryParameters)
+          ..addAll(queryParameters));
+  }
+
+  Map<String, String> get queryParameters;
 
   Map<String, T> map<T>(T f(Page p)) => ({
         'first': first,
