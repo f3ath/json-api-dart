@@ -16,7 +16,7 @@ The features here are roughly ordered by priority. Feel free to open an issue if
 - [x] Updating resource's relationships
 - [x] Updating relationships
 - [x] Compound documents
-- [ ] Related collection pagination
+- [x] Related collection pagination
 - [ ] Asynchronous processing 
 - [ ] Optional check for `Content-Type` header in incoming responses 
 

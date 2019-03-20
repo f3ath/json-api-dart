@@ -62,15 +62,16 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
 }
 
 class Url {
-  static final _base = Uri.parse('http://localhost:8080');
+  static final _design = StandardURLDesign(Uri.parse('http://localhost:8080'));
 
-  static collection(String type) => _base.replace(path: '/$type');
+  static collection(String type) => _design.collection(CollectionTarget(type));
 
-  static resource(String type, String id) => _base.replace(path: '/$type/$id');
+  static resource(String type, String id) =>
+      _design.resource(ResourceTarget(type, id));
 
-  static related(String type, String id, String rel) =>
-      _base.replace(path: '/$type/$id/$rel');
+  static related(String type, String id, String relationship) =>
+      _design.related(RelatedTarget(type, id, relationship));
 
-  static relationship(String type, String id, String rel) =>
-      _base.replace(path: '/$type/$id/relationships/$rel');
+  static relationship(String type, String id, String relationship) =>
+      _design.relationship(RelationshipTarget(type, id, relationship));
 }

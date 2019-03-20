@@ -2,8 +2,14 @@ import 'dart:math';
 
 import 'package:json_api/src/server/page.dart';
 
+/// This class represents a numbered page. It only concerns the page number and
+/// possibly the total number of pages. The page size (how many records per page)
+/// is irrelevant.
 class NumberedPage extends Page {
+  /// The page number
   final int number;
+
+  /// The total number of pages
   final int total;
 
   NumberedPage(this.number, {this.total});

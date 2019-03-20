@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - More BC-breaking changes in the Server
 
+### Added
+- Related collection pagination
+
 ## [0.4.0] - 2019-03-17
 ### Changed
 - Parsing logic moved out
