@@ -1,106 +1,93 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/document/pagination.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/server/contracts/document_builder.dart';
-import 'package:json_api/src/server/contracts/page.dart';
-import 'package:json_api/src/server/contracts/router.dart';
+import 'package:json_api/src/server/collection.dart';
+import 'package:json_api/src/server/document_builder.dart';
+import 'package:json_api/src/server/page.dart';
+import 'package:json_api/src/server/request_target.dart';
+import 'package:json_api/src/server/router.dart';
 
 class StandardDocumentBuilder implements DocumentBuilder {
-  final UriBuilder uriBuilder;
+  final URLDesign design;
 
-  StandardDocumentBuilder(this.uriBuilder);
+  StandardDocumentBuilder(this.design);
 
   Document error(Iterable<JsonApiError> errors) => Document.error(errors);
 
   Document<ResourceCollectionData> collection(
-      Iterable<Resource> resource, String type, Uri self,
-      {Page page, Iterable<Resource> included}) {
-    return Document(ResourceCollectionData(resource.map(_resourceObject),
-        self: Link(self),
-        pagination: page == null
-            ? Pagination.empty()
-            : Pagination.fromLinks(page.map((_) =>
-                Link(uriBuilder.collection(type, parameters: _.parameters))))));
-  }
+          Collection<Resource> collection, CollectionTarget target, Uri self,
+          {Iterable<Resource> included}) =>
+      Document(ResourceCollectionData(collection.elements.map(_resourceObject),
+          self: Link(self), pagination: _pagination(collection.page, target)));
 
   Document<ResourceCollectionData> relatedCollection(
-      Iterable<Resource> resource,
-      String type,
-      String id,
-      String relationship,
-      Uri self,
-      {Page page,
-      Iterable<Resource> included}) {
-    final pagination = _pagination(page, type, id, relationship);
-    return Document(ResourceCollectionData(resource.map(_resourceObject),
-        self: Link(self), pagination: pagination));
-  }
+          Collection<Resource> resources, RelatedTarget target, Uri self,
+          {Iterable<Resource> included}) =>
+      Document(ResourceCollectionData(resources.elements.map(_resourceObject),
+          self: Link(self), pagination: _pagination(resources.page, target)));
 
   Document<ResourceData> resource(
-      Resource resource, String type, String id, Uri self,
-      {Iterable<Resource> included}) {
-    return Document(
-      ResourceData(_resourceObject(resource),
-          self: Link(uriBuilder.resource(type, id)),
-          included: included?.map(_resourceObject)),
-    );
-  }
+          Resource resource, ResourceTarget target, Uri self,
+          {Iterable<Resource> included}) =>
+      Document(
+        ResourceData(_resourceObject(resource),
+            self: Link(target.url(design)),
+            included: included?.map(_resourceObject)),
+      );
 
   Document<ResourceData> relatedResource(
-      Resource resource, String type, String id, String relationship, Uri self,
-      {Iterable<Resource> included}) {
-    return Document(
-      ResourceData(_resourceObject(resource),
-          included: included?.map(_resourceObject),
-          self: Link(uriBuilder.related(type, id, relationship))),
-    );
-  }
+          Resource resource, RelatedTarget target, Uri self,
+          {Iterable<Resource> included}) =>
+      Document(
+        ResourceData(_resourceObject(resource),
+            included: included?.map(_resourceObject),
+            self: Link(target.url(design))),
+      );
 
-  Document<ToMany> toMany(Iterable<Identifier> collection, String type,
-      String id, String relationship, Uri self) {
-    return Document(ToMany(collection.map(_rdentifierObject),
-        self: Link(uriBuilder.relationship(type, id, relationship)),
-        related: Link(uriBuilder.related(type, id, relationship))));
-  }
+  Document<ToMany> toMany(Iterable<Identifier> collection,
+          RelationshipTarget target, Uri self) =>
+      Document(ToMany(collection.map(_identifierObject),
+          self: Link(target.url(design)),
+          related: Link(target.toRelated().url(design))));
 
-  Document<ToOne> toOne(Identifier identifier, String type, String id,
-      String relationship, Uri self) {
-    return Document(ToOne(nullable(_rdentifierObject)(identifier),
-        self: Link(uriBuilder.relationship(type, id, relationship)),
-        related: Link(uriBuilder.related(type, id, relationship))));
-  }
+  Document<ToOne> toOne(
+          Identifier identifier, RelationshipTarget target, Uri self) =>
+      Document(ToOne(nullable(_identifierObject)(identifier),
+          self: Link(target.url(design)),
+          related: Link(target.toRelated().url(design))));
 
   Document meta(Map<String, Object> meta) => Document.empty(meta);
 
-  IdentifierObject _rdentifierObject(Identifier id) =>
+  IdentifierObject _identifierObject(Identifier id) =>
       IdentifierObject(id.type, id.id);
 
   ResourceObject _resourceObject(Resource resource) {
     final relationships = <String, Relationship>{};
     relationships.addAll(resource.toOne.map((k, v) => MapEntry(
         k,
-        ToOne(nullable(_rdentifierObject)(v),
-            self: Link(uriBuilder.relationship(resource.type, resource.id, k)),
-            related:
-                Link(uriBuilder.related(resource.type, resource.id, k))))));
+        ToOne(nullable(_identifierObject)(v),
+            self: Link(
+                RelationshipTarget(resource.type, resource.id, k).url(design)),
+            related: Link(
+                RelatedTarget(resource.type, resource.id, k).url(design))))));
     relationships.addAll(resource.toMany.map((k, v) => MapEntry(
         k,
-        ToMany(v.map(_rdentifierObject),
-            self: Link(uriBuilder.relationship(resource.type, resource.id, k)),
-            related:
-                Link(uriBuilder.related(resource.type, resource.id, k))))));
+        ToMany(v.map(_identifierObject),
+            self: Link(
+                RelationshipTarget(resource.type, resource.id, k).url(design)),
+            related: Link(
+                RelatedTarget(resource.type, resource.id, k).url(design))))));
 
     return ResourceObject(resource.type, resource.id,
         attributes: resource.attributes,
         relationships: relationships,
-        self: Link(uriBuilder.resource(resource.type, resource.id)));
+        self: Link(ResourceTarget(resource.type, resource.id).url(design)));
   }
 
-  Pagination _pagination(
-      Page page, String type, String id, String relationship) {
+  Pagination _pagination(Page page, RequestTarget target) {
     return page == null
         ? Pagination.empty()
-        : Pagination.fromLinks(page.map((_) => Link(uriBuilder
-            .related(type, id, relationship, parameters: _.parameters))));
+        : Pagination.fromLinks(
+            page.map((_) => Link(_.addTo(target.url(design)))));
   }
 }
