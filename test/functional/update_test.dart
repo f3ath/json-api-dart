@@ -1,4 +1,3 @@
-@TestOn('vm')
 import 'dart:io';
 
 import 'package:json_api/client.dart';
@@ -126,7 +125,7 @@ void main() async {
       expect(r1.status, 409);
       expect(r1.document.errors.first.detail, 'Incompatible type');
     });
-  });
+  }, testOn: 'vm');
 
   /// Updating Relationships
   /// ======================
@@ -191,7 +190,7 @@ void main() async {
           expect(r2.document.data.toIdentifier(), isNull);
         });
       });
-    });
+    }, testOn: 'vm');
 
     /// Updating To-Many Relationships
     /// ==============================
@@ -255,5 +254,5 @@ void main() async {
         });
       });
     });
-  });
+  }, testOn: 'vm');
 }

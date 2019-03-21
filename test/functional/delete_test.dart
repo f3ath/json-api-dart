@@ -1,4 +1,3 @@
-@TestOn('vm')
 import 'dart:io';
 
 import 'package:json_api/client.dart';
@@ -56,5 +55,5 @@ void main() async {
       final r0 = await client.fetchResource(Url.resource('models', '555'));
       expect(r0.status, 404);
     });
-  });
+  }, testOn: 'vm');
 }

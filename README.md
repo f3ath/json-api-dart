@@ -3,7 +3,7 @@
 a Client (VM, Flutter, Web), and a Server (VM only).
 
 
-## Client
+## Supported features
 - [x] Fetching single resources and resource collections
 - [x] Collection pagination
 - [x] Fetching relationships and related resources and collections
@@ -17,23 +17,6 @@ a Client (VM, Flutter, Web), and a Server (VM only).
 - [x] Related collection pagination
 - [x] Asynchronous processing 
 
-#### Server
-- [x] Fetching single resources and resource collections
-- [x] Collection pagination
-- [x] Fetching relationships and related resources and collections
-- [x] Fetching single resources
-- [x] Creating resources
-- [x] Deleting resources
-- [x] Updating resource's attributes
-- [x] Updating resource's relationships
-- [x] Updating relationships
-- [x] Related collection pagination
-- [x] Compound documents
-- [x] Asynchronous processing 
-
-#### Document
-- [x] Support relationship objects lacking the `data` member
-- [x] Compound documents
 - [ ] Support `meta` members
 - [ ] Support `jsonapi` members
 - [ ] Structural Validation including compound documents and sparse fieldsets

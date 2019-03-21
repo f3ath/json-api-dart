@@ -1,4 +1,3 @@
-@TestOn('vm')
 import 'dart:convert';
 import 'dart:io';
 
@@ -24,5 +23,5 @@ void main() {
     } catch (e, s) {
       print(s);
     }
-  });
+  }, testOn: 'vm');
 }

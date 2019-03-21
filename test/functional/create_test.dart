@@ -1,5 +1,4 @@
 import 'dart:async';
-@TestOn('vm')
 import 'dart:io';
 
 import 'package:json_api/client.dart';
@@ -128,5 +127,5 @@ void main() async {
       expect(r0.isSuccessful, false);
       expect(r0.document.errors.first.detail, 'Incompatible type');
     });
-  });
+  }, testOn: 'vm');
 }

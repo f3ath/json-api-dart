@@ -1,4 +1,3 @@
-@TestOn('vm')
 import 'dart:io';
 
 import 'package:json_api/client.dart';
@@ -100,7 +99,7 @@ void main() async {
       expect(r.isSuccessful, false);
       expect(r.document.errors.first.detail, 'Unknown resource type');
     });
-  });
+  }, testOn: 'vm');
 
   group('single resource', () {
     test('single resource', () async {
@@ -137,7 +136,7 @@ void main() async {
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });
-  });
+  }, testOn: 'vm');
 
   group('related resource', () {
     test('related resource', () async {
@@ -167,7 +166,7 @@ void main() async {
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });
-  });
+  }, testOn: 'vm');
 
   group('relationships', () {
     test('to-one', () async {
@@ -237,5 +236,5 @@ void main() async {
       expect(r.data.related.uri.toString(),
           'http://localhost:8080/companies/1/models');
     });
-  });
+  }, testOn: 'vm');
 }
