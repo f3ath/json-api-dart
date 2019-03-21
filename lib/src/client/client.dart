@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:json_api/document.dart';
 import 'package:json_api/parser.dart';
 import 'package:json_api/src/client/response.dart';
+import 'package:json_api/src/client/status_code.dart';
 import 'package:json_api/src/nullable.dart';
 
 typedef Document ResponseParser(Object j);
@@ -180,8 +181,14 @@ class JsonApiClient {
         return Response(r.statusCode, r.headers);
       }
       final body = json.decode(r.body);
-      final document = body == null ? null : _parser.parseDocument(body, parse);
-      return Response(r.statusCode, r.headers, document: document);
+      if (StatusCode(r.statusCode).isPending) {
+        return Response(r.statusCode, r.headers,
+            asyncDocument: body == null
+                ? null
+                : _parser.parseDocument(body, _parser.parseResourceData));
+      }
+      return Response(r.statusCode, r.headers,
+          document: body == null ? null : _parser.parseDocument(body, parse));
     } finally {
       client.close();
     }

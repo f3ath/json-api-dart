@@ -40,7 +40,7 @@ class JsonApiServer {
               rs);
       }
     } else if (target is ResourceTarget) {
-      final rs = _ResourceResponse(target, request, builder);
+      final rs = _ResourceResponse(target, request, builder, url);
       switch (request.method) {
         case 'GET':
           return controller.fetchResource(
@@ -102,19 +102,28 @@ abstract class _Response<T extends RequestTarget> {
 
   _Response(this.target, this.request, this.docBuilder);
 
-  Future _error(int status, Iterable<JsonApiError> errors) =>
-      _write(status, document: docBuilder.error(errors));
-
   Future sendNoContent() => _write(204);
+
+  Future<void> sendAccepted(Resource resource) {
+    final doc = docBuilder.resource(resource,
+        ResourceTarget(resource.type, resource.id), request.requestedUri);
+    headers['Content-Location'] = doc.data.resourceObject.self.uri.toString();
+    return _write(202, document: doc);
+  }
+
+  Future errorBadRequest(Iterable<JsonApiError> errors) => _error(400, errors);
+
+  Future errorForbidden(Iterable<JsonApiError> errors) => _error(403, errors);
 
   Future errorNotFound([Iterable<JsonApiError> errors]) => _error(404, errors);
 
   Future errorConflict(Iterable<JsonApiError> errors) => _error(409, errors);
 
-  Future errorForbidden(Iterable<JsonApiError> errors) => _error(403, errors);
-
   Future sendMeta(Map<String, Object> meta) =>
       _write(200, document: Document.empty(meta));
+
+  Future _error(int status, Iterable<JsonApiError> errors) =>
+      _write(status, document: docBuilder.error(errors));
 
   Future _write(int status, {Document document}) {
     request.response.statusCode = status;
@@ -138,7 +147,7 @@ class _CollectionResponse extends _Response<CollectionTarget>
   Future sendCreated(Resource resource) {
     final doc = docBuilder.resource(resource,
         ResourceTarget(resource.type, resource.id), request.requestedUri);
-    headers['Location'] = doc.data.resourceObject.self.toString();
+    headers['Location'] = doc.data.resourceObject.self.uri.toString();
     return _write(201, document: doc);
   }
 }
@@ -180,8 +189,10 @@ class _ResourceResponse extends _Response<ResourceTarget>
         FetchResourceResponse,
         DeleteResourceResponse,
         UpdateResourceResponse {
-  _ResourceResponse(
-      ResourceTarget target, HttpRequest request, DocumentBuilder docBuilder)
+  final URLDesign urlDesign;
+
+  _ResourceResponse(ResourceTarget target, HttpRequest request,
+      DocumentBuilder docBuilder, this.urlDesign)
       : super(target, request, docBuilder);
 
   Future _resource(Resource resource, {Iterable<Resource> included}) =>
@@ -193,4 +204,12 @@ class _ResourceResponse extends _Response<ResourceTarget>
       _resource(resource, included: included);
 
   Future sendUpdated(Resource resource) => _resource(resource);
+
+  @override
+  Future<void> sendSeeOther(Resource resource) {
+    headers['Location'] = urlDesign
+        .resource(ResourceTarget(resource.type, resource.id))
+        .toString();
+    return _write(303);
+  }
 }

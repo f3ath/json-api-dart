@@ -33,25 +33,39 @@ void main() async {
     });
 
     test('resource collection traversal', () async {
-      final uri = Url.collection('companies');
+      final uri =
+          Url.collection('companies').replace(queryParameters: {'foo': 'bar'});
 
       final r0 = await client.fetchCollection(uri);
       final somePage = r0.data;
+
+      expect(somePage.pagination.next.uri.queryParameters['foo'], 'bar',
+          reason: 'query parameters must be preserved');
 
       final r1 = await client.fetchCollection(somePage.pagination.next.uri);
       final secondPage = r1.data;
       expect(secondPage.collection.first.attributes['name'], 'BMW');
       expect(secondPage.self.uri, somePage.pagination.next.uri);
 
+      expect(secondPage.pagination.last.uri.queryParameters['foo'], 'bar',
+          reason: 'query parameters must be preserved');
+
       final r2 = await client.fetchCollection(secondPage.pagination.last.uri);
       final lastPage = r2.data;
       expect(lastPage.collection.first.attributes['name'], 'Toyota');
       expect(lastPage.self.uri, secondPage.pagination.last.uri);
 
+      expect(lastPage.pagination.prev.uri.queryParameters['foo'], 'bar',
+          reason: 'query parameters must be preserved');
+
       final r3 = await client.fetchCollection(lastPage.pagination.prev.uri);
       final secondToLastPage = r3.data;
       expect(secondToLastPage.collection.first.attributes['name'], 'Audi');
       expect(secondToLastPage.self.uri, lastPage.pagination.prev.uri);
+
+      expect(
+          secondToLastPage.pagination.first.uri.queryParameters['foo'], 'bar',
+          reason: 'query parameters must be preserved');
 
       final r4 =
           await client.fetchCollection(secondToLastPage.pagination.first.uri);

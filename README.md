@@ -1,11 +1,9 @@
-# Implementation of [JSON:API v1.0](http://jsonapi.org) in Dart
+# Implementation of [{json:api} v1.0](http://jsonapi.org) in Dart
+[{json:api} v1.0](http://jsonapi.org) is a specification for building APIs in JSON. This library implements 
+a Client (VM, Flutter, Web), and a Server (VM only).
 
-## Warning! This is a work-in-progress. While at v0, the API is changing rapidly.
 
-### Feature roadmap
-The features here are roughly ordered by priority. Feel free to open an issue if you want to add another feature.
-
-#### Client
+## Client
 - [x] Fetching single resources and resource collections
 - [x] Collection pagination
 - [x] Fetching relationships and related resources and collections
@@ -17,8 +15,7 @@ The features here are roughly ordered by priority. Feel free to open an issue if
 - [x] Updating relationships
 - [x] Compound documents
 - [x] Related collection pagination
-- [ ] Asynchronous processing 
-- [ ] Optional check for `Content-Type` header in incoming responses 
+- [x] Asynchronous processing 
 
 #### Server
 - [x] Fetching single resources and resource collections
@@ -30,21 +27,18 @@ The features here are roughly ordered by priority. Feel free to open an issue if
 - [x] Updating resource's attributes
 - [x] Updating resource's relationships
 - [x] Updating relationships
-- [ ] Compound documents
-- [ ] Sparse fieldsets 
-- [ ] Sorting, filtering
-- [ ] Related collection pagination
-- [ ] Asynchronous processing 
-- [ ] Optional check for `Content-Type` header in incoming requests 
-- [ ] Support annotations in resource mappers (?) 
+- [x] Related collection pagination
+- [x] Compound documents
+- [x] Asynchronous processing 
 
 #### Document
 - [x] Support relationship objects lacking the `data` member
 - [x] Compound documents
 - [ ] Support `meta` members
 - [ ] Support `jsonapi` members
-- [ ] Structural Validation including compound documents
+- [ ] Structural Validation including compound documents and sparse fieldsets
 - [ ] Naming Validation
+- [ ] Meaningful parsing exceptions
 - [ ] JSON:API v1.1 features
 
 ### Usage

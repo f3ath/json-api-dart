@@ -46,8 +46,12 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
     Company('4')..name = 'Toyota',
   ].forEach(companies.insert);
 
-  final controller = CarsController(
-      {'companies': companies, 'cities': cities, 'models': models});
+  final controller = CarsController({
+    'companies': companies,
+    'cities': cities,
+    'models': models,
+    'jobs': JobDAO()
+  });
 
   final urlDesign = StandardURLDesign(Uri.parse('http://localhost:$port'));
 
@@ -64,14 +68,15 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
 class Url {
   static final _design = StandardURLDesign(Uri.parse('http://localhost:8080'));
 
-  static collection(String type) => _design.collection(CollectionTarget(type));
+  static Uri collection(String type) =>
+      _design.collection(CollectionTarget(type));
 
-  static resource(String type, String id) =>
+  static Uri resource(String type, String id) =>
       _design.resource(ResourceTarget(type, id));
 
-  static related(String type, String id, String relationship) =>
+  static Uri related(String type, String id, String relationship) =>
       _design.related(RelatedTarget(type, id, relationship));
 
-  static relationship(String type, String id, String relationship) =>
+  static Uri relationship(String type, String id, String relationship) =>
       _design.relationship(RelationshipTarget(type, id, relationship));
 }

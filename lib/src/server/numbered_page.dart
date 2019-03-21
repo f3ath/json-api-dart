@@ -6,6 +6,8 @@ import 'package:json_api/src/server/page.dart';
 /// possibly the total number of pages. The page size (how many records per page)
 /// is irrelevant.
 class NumberedPage extends Page {
+  static const parameterName = 'page[number]';
+
   /// The page number
   final int number;
 
@@ -16,16 +18,11 @@ class NumberedPage extends Page {
 
   NumberedPage.fromQueryParameters(Map<String, String> queryParameters,
       {int total})
-      : this(int.parse(queryParameters['page[number]'] ?? '1'), total: total);
+      : this(int.parse(queryParameters[parameterName] ?? '1'), total: total);
 
   int get offset => number - 1;
 
-  Map<String, String> get queryParameters {
-    if (number > 1) {
-      return {'page[number]': number.toString()};
-    }
-    return {};
-  }
+  Map<String, String> get queryParameters => {parameterName: number.toString()};
 
   Page get first => NumberedPage(1, total: total);
 

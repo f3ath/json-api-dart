@@ -7,6 +7,7 @@ import 'package:json_api/src/server/request_target.dart';
 import 'package:uuid/uuid.dart';
 
 import 'dao.dart';
+import 'job_queue.dart';
 
 class CarsController implements JsonApiController {
   final Map<String, DAO> _dao;
@@ -75,14 +76,19 @@ class CarsController implements JsonApiController {
       return response
           .errorNotFound([JsonApiError(detail: 'Unknown resource type')]);
     }
-    final res =
-        _dao[request.target.type].fetchByIdAsResource(request.target.id);
-    if (res == null) {
+    final obj = _dao[request.target.type].fetchById(request.target.id);
+
+    if (obj == null) {
       return response
           .errorNotFound([JsonApiError(detail: 'Resource not found')]);
     }
+    if (obj is Job && obj.resource != null) {
+      return response.sendSeeOther(obj.resource);
+    }
+
     final fetchById = (Identifier _) => _dao[_.type].fetchByIdAsResource(_.id);
 
+    final res = _dao[request.target.type].toResource(obj);
     final children = res.toOne.values
         .map(fetchById)
         .followedBy(res.toMany.values.expand((_) => _.map(fetchById)));
@@ -167,7 +173,19 @@ class CarsController implements JsonApiController {
         attributes: request.payload.attributes,
         toMany: request.payload.toMany,
         toOne: request.payload.toOne));
+
+    if (request.target.type == 'models') {
+      // Insertion is artificially delayed
+      final job = Job(Future.delayed(Duration(milliseconds: 100), () {
+        _dao[request.target.type].insert(created);
+        return _dao[request.target.type].toResource(created);
+      }));
+      _dao['jobs'].insert(job);
+      return response.sendAccepted(_dao['jobs'].toResource(job));
+    }
+
     _dao[request.target.type].insert(created);
+
     return response.sendCreated(_dao[request.target.type].toResource(created));
   }
 

@@ -1,6 +1,7 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/nullable.dart';
 
+import 'job_queue.dart';
 import 'model.dart';
 
 abstract class DAO<T> {
@@ -161,4 +162,17 @@ class CompanyDAO extends DAO<Company> {
     }
     throw ArgumentError();
   }
+}
+
+class JobDAO extends DAO<Job> {
+  @override
+  Job create(Resource resource) {
+    throw UnsupportedError('Jobs are created internally');
+  }
+
+  @override
+  void insert(Job job) => _collection[job.id] = job;
+
+  @override
+  Resource toResource(Job job) => Resource('jobs', job.id);
 }

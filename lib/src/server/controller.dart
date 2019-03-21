@@ -62,6 +62,8 @@ abstract class ControllerResponse {
   final headers = <String, String>{};
 
   Future<void> errorNotFound(Iterable<JsonApiError> errors);
+
+  Future<void> errorBadRequest(Iterable<JsonApiError> errors);
 }
 
 abstract class FetchCollectionResponse extends ControllerResponse {
@@ -74,9 +76,14 @@ abstract class CreateResourceResponse extends ControllerResponse {
   Future<void> sendNoContent();
 
   Future<void> errorConflict(Iterable<JsonApiError> errors);
+
+  Future<void> sendAccepted(Resource asyncJob);
 }
 
 abstract class FetchResourceResponse extends ControllerResponse {
+  /// https://jsonapi.org/recommendations/#asynchronous-processing
+  Future<void> sendSeeOther(Resource resource);
+
   Future<void> sendResource(Resource resource, {Iterable<Resource> included});
 }
 
@@ -90,6 +97,8 @@ abstract class UpdateResourceResponse extends ControllerResponse {
   Future<void> sendUpdated(Resource resource);
 
   Future<void> sendNoContent();
+
+  Future<void> sendAccepted(Resource asyncJob);
 
   Future<void> errorConflict(Iterable<JsonApiError> errors);
 
@@ -105,6 +114,8 @@ abstract class FetchRelationshipResponse extends ControllerResponse {
 abstract class ReplaceToOneResponse extends ControllerResponse {
   Future<void> sendNoContent();
 
+  Future<void> sendAccepted(Resource asyncJob);
+
   Future<void> sendToMany(Iterable<Identifier> collection);
 
   Future<void> sendToOne(Identifier id);
@@ -113,12 +124,16 @@ abstract class ReplaceToOneResponse extends ControllerResponse {
 abstract class ReplaceToManyResponse extends ControllerResponse {
   Future<void> sendNoContent();
 
+  Future<void> sendAccepted(Resource asyncJob);
+
   Future<void> sendToMany(Iterable<Identifier> collection);
 
   Future<void> sendToOne(Identifier id);
 }
 
 abstract class AddToManyResponse extends ControllerResponse {
+  Future<void> sendAccepted(Resource asyncJob);
+
   Future<void> sendToMany(Iterable<Identifier> collection);
 }
 

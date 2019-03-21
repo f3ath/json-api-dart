@@ -1,3 +1,4 @@
+import 'dart:async';
 @TestOn('vm')
 import 'dart:io';
 
@@ -29,20 +30,54 @@ void main() async {
     ///
     /// https://jsonapi.org/format/#crud-creating-responses-201
     test('201 Created', () async {
-      final modelY = Resource('models', null, attributes: {'name': 'Model Y'});
-      final r0 = await client.createResource(Url.collection('models'), modelY);
+      final newYork =
+          Resource('cities', null, attributes: {'name': 'New York'});
+      final r0 = await client.createResource(Url.collection('cities'), newYork);
 
       expect(r0.status, 201);
       expect(r0.isSuccessful, true);
       expect(r0.data.toResource().id, isNotEmpty);
-      expect(r0.data.toResource().type, 'models');
-      expect(r0.data.toResource().attributes['name'], 'Model Y');
-      expect(r0.location, isNotEmpty);
+      expect(r0.data.toResource().type, 'cities');
+      expect(r0.data.toResource().attributes['name'], 'New York');
+      expect(r0.location, isNotNull);
 
       // Make sure the resource is available
       final r1 = await client
-          .fetchResource(Url.resource('models', r0.data.toResource().id));
-      expect(r1.data.resourceObject.attributes['name'], 'Model Y');
+          .fetchResource(Url.resource('cities', r0.data.toResource().id));
+      expect(r1.data.resourceObject.attributes['name'], 'New York');
+    });
+
+    /// If a request to create a resource has been accepted for processing,
+    /// but the processing has not been completed by the time the server responds,
+    /// the server MUST return a 202 Accepted status code.
+    ///
+    /// https://jsonapi.org/format/#crud-creating-responses-202
+    test('202 Acepted', () async {
+      final roadster2020 =
+          Resource('models', null, attributes: {'name': 'Roadster 2020'});
+      final r0 =
+          await client.createResource(Url.collection('models'), roadster2020);
+
+      expect(r0.status, 202);
+      expect(r0.isSuccessful, false); // neither success
+      expect(r0.isFailed, false); // nor failure yet
+      expect(r0.isAsync, true); // yay async!
+      expect(r0.document, isNull);
+      expect(r0.asyncDocument, isNotNull);
+      expect(r0.asyncData.toResource().type, 'jobs');
+      expect(r0.location, isNull);
+      expect(r0.contentLocation, isNotNull);
+
+      final r1 = await client.fetchResource(r0.contentLocation);
+      expect(r1.status, 200);
+      expect(r1.data.toResource().type, 'jobs');
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      // When it's done, this will be the created resource
+      final r2 = await client.fetchResource(r0.contentLocation);
+      expect(r2.data.toResource().type, 'models');
+      expect(r2.data.toResource().attributes['name'], 'Roadster 2020');
     });
 
     /// If a POST request did include a Client-Generated ID and the requested
@@ -52,16 +87,17 @@ void main() async {
     ///
     /// https://jsonapi.org/format/#crud-creating-responses-204
     test('204 No Content', () async {
-      final modelY = Resource('models', '555', attributes: {'name': 'Model Y'});
-      final r0 = await client.createResource(Url.collection('models'), modelY);
+      final newYork =
+          Resource('cities', '555', attributes: {'name': 'New York'});
+      final r0 = await client.createResource(Url.collection('cities'), newYork);
 
       expect(r0.status, 204);
       expect(r0.isSuccessful, true);
       expect(r0.document, isNull);
 
       // Make sure the resource is available
-      final r1 = await client.fetchResource(Url.resource('models', '555'));
-      expect(r1.data.toResource().attributes['name'], 'Model Y');
+      final r1 = await client.fetchResource(Url.resource('cities', '555'));
+      expect(r1.data.toResource().attributes['name'], 'New York');
     });
 
     /// A server MUST return 409 Conflict when processing a POST request to
@@ -69,8 +105,8 @@ void main() async {
     ///
     /// https://jsonapi.org/format/#crud-creating-responses-409
     test('409 Conflict - Resource already exists', () async {
-      final modelY = Resource('models', '1', attributes: {'name': 'Model Y'});
-      final r0 = await client.createResource(Url.collection('models'), modelY);
+      final newYork = Resource('cities', '1', attributes: {'name': 'New York'});
+      final r0 = await client.createResource(Url.collection('cities'), newYork);
 
       expect(r0.status, 409);
       expect(r0.isSuccessful, false);
@@ -83,9 +119,10 @@ void main() async {
     ///
     /// https://jsonapi.org/format/#crud-creating-responses-409
     test('409 Conflict - Incompatible type', () async {
-      final modelY = Resource('models', '555', attributes: {'name': 'Model Y'});
+      final newYork =
+          Resource('cities', '555', attributes: {'name': 'New York'});
       final r0 =
-          await client.createResource(Url.collection('companies'), modelY);
+          await client.createResource(Url.collection('companies'), newYork);
 
       expect(r0.status, 409);
       expect(r0.isSuccessful, false);
