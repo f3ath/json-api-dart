@@ -4,27 +4,20 @@ a Client (VM, Flutter, Web), and a Server (VM only).
 
 
 ## Supported features
-- [x] Fetching single resources and resource collections
-- [x] Collection pagination
-- [x] Fetching relationships and related resources and collections
-- [x] Fetching single resources
-- [x] Creating resources
-- [x] Deleting resources
-- [x] Updating resource's attributes
-- [x] Updating resource's relationships
-- [x] Updating relationships
-- [x] Compound documents
-- [x] Related collection pagination
-- [x] Asynchronous processing 
+- Fetching single resources and resource collections
+- Collection pagination
+- Fetching relationships and related resources and collections
+- Fetching single resources
+- Creating resources
+- Deleting resources
+- Updating resource's attributes
+- Updating resource's relationships
+- Updating relationships
+- Compound documents
+- Related collection pagination
+- Asynchronous processing 
 
-- [ ] Support `meta` members
-- [ ] Support `jsonapi` members
-- [ ] Structural Validation including compound documents and sparse fieldsets
-- [ ] Naming Validation
-- [ ] Meaningful parsing exceptions
-- [ ] JSON:API v1.1 features
-
-### Usage
+## Usage
 In the VM:
 ```dart
 import 'package:json_api/client.dart';
