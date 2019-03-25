@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/document.dart';
-import 'package:json_api/parser.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/document_builder.dart';
 import 'package:json_api/src/server/request_target.dart';
 import 'package:json_api/src/server/router.dart';
+import 'package:json_api_document/document.dart';
+import 'package:json_api_document/parser.dart';
 
 class JsonApiServer {
   final URLDesign url;

@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:json_api/document.dart';
-import 'package:json_api/parser.dart';
 import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/client/status_code.dart';
 import 'package:json_api/src/nullable.dart';
+import 'package:json_api_document/document.dart';
+import 'package:json_api_document/parser.dart';
 
 typedef Document ResponseParser(Object j);
 

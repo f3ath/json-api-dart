@@ -1,7 +1,6 @@
-# Implementation of [{json:api} v1.0](http://jsonapi.org) in Dart
-[{json:api} v1.0](http://jsonapi.org) is a specification for building APIs in JSON. This library implements 
+# JSON:API Client/Server in Dart
+[JSON:API](http://jsonapi.org) is a specification for building APIs in JSON. This library implements 
 a Client (VM, Flutter, Web), and a Server (VM only).
-
 
 ## Supported features
 - Fetching single resources and resource collections

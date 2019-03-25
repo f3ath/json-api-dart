@@ -1,6 +1,6 @@
-import 'package:json_api/document.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/request_target.dart';
+import 'package:json_api_document/document.dart';
 
 /// The Document builder is used by JsonApiServer. It abstracts the process
 /// of building response documents and is responsible for such aspects as
