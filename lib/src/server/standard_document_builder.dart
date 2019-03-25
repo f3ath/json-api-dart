@@ -1,11 +1,10 @@
-import 'package:json_api/document.dart';
-import 'package:json_api/src/document/pagination.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/document_builder.dart';
 import 'package:json_api/src/server/page.dart';
 import 'package:json_api/src/server/request_target.dart';
 import 'package:json_api/src/server/router.dart';
+import 'package:json_api_document/document.dart';
 
 class StandardDocumentBuilder implements DocumentBuilder {
   final URLDesign design;

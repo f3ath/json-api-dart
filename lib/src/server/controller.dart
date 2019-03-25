@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:json_api/document.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/request_target.dart';
+import 'package:json_api_document/document.dart';
 
 abstract class JsonApiController {
   Future<void> fetchCollection(
