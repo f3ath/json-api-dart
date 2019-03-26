@@ -13,7 +13,7 @@ a Client (VM, Flutter, Web), and a Server (VM only).
 ## Usage
 ### Creating a client instance
 JSON:API Client uses the Dart's native HttpClient. Depending on the platform, 
-you may want to use either the one which comes from dart:io or `BrowserClient`.
+you may want to use either the one which comes from `dart:io` or the `BrowserClient`.
 
 In the VM/Flutter you don't need to provide any dependencies:
 ```dart
@@ -31,12 +31,11 @@ final client = JsonApiClient(factory: () => BrowserClient());
 ```
 
 ### Making requests
-
 The client provides a set of methods to manipulate resources and relationships.
 - Fetching
     - `fetchCollection` - resource collection, either primary or related
     - `fetchResource` - a single resource, either primary or related
-    - `fetchRelationship` - a generic relationships (either to-one, to-many or even incomplete)
+    - `fetchRelationship` - a generic relationship (either to-one, to-many or even incomplete)
     - `fetchToOne` - a to-one relationship
     - `fetchToMany` - a to-many relationship
 - Manipulating resources
