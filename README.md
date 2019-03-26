@@ -52,4 +52,33 @@ These methods accept the target URI and the object to update (except for fetch a
 You can also pass an optional map of HTTP headers e.g. for authentication. The return value
 is `Response` object bearing the HTTP response status and headers and the JSON:API
 document with the primary data according to the type of the request. 
+
+Here's a collection fetching example:
+
+```dart
+import 'package:json_api/client.dart';
+
+void main() async {
+  final client = JsonApiClient();
+  final companiesUri = Uri.parse('http://localhost:8080/companies');
+  final response = await client.fetchCollection(companiesUri);
+
+  print('Status: ${response.status}');
+  print('Headers: ${response.headers}');
+
+  print('The collection page size is ${response.data.collection.length}');
+
+  final resource = response.data.collection.first.toResource();
+  print('The first element is ${resource}');
+
+  print('Attributes:');
+  resource.attributes.forEach((k, v) => print('$k=$v'));
+
+  print('Relationships:');
+  resource.toOne.forEach((k, v) => print('$k=$v'));
+  resource.toMany.forEach((k, v) => print('$k=$v'));
+}
+```
+
+
 For more usage examples refer to the [functional tests](https://github.com/f3ath/json-api-dart/tree/master/test/functional).
