@@ -8,7 +8,6 @@ void main() async {
     final channel = spawnHybridUri('test_server.dart');
     final client = JsonApiClient(factory: () => BrowserClient());
     final port = await channel.stream.first;
-    print('Port: $port');
     final r = await client
         .fetchCollection(Uri.parse('http://localhost:$port/companies'));
     expect(r.status, 200);

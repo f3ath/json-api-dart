@@ -88,7 +88,7 @@ class JsonApiClient {
 
   /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
   /// with id = null.
-  Future<Response<ToOne>> removeToOne(Uri uri, {Map<String, String> headers}) =>
+  Future<Response<ToOne>> deleteToOne(Uri uri, {Map<String, String> headers}) =>
       replaceToOne(uri, null, headers: headers);
 
   /// Replaces a to-many relationship with the given set of [ids].

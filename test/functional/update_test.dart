@@ -183,7 +183,7 @@ void main() async {
           final original = r0.document.data.toIdentifier();
           expect(original.id, '2');
 
-          final r1 = await client.removeToOne(url);
+          final r1 = await client.deleteToOne(url);
           expect(r1.status, 204);
 
           final r2 = await client.fetchToOne(url);
