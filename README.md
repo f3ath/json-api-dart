@@ -1,4 +1,6 @@
-#### [JSON:API Document](https://pub.dartlang.org/packages/json_api_document) :: [JSON:API Server](https://pub.dartlang.org/packages/json_api_server)
+Other JSON:API packages: [Document](https://pub.dartlang.org/packages/json_api_document) | [Server](https://pub.dartlang.org/packages/json_api_server)
+
+---
 
 # JSON:API Client
 
