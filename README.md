@@ -1,6 +1,9 @@
-# JSON:API Client/Server in Dart
+#### [JSON:API Document](https://pub.dartlang.org/packages/json_api_document) :: [JSON:API Server](https://pub.dartlang.org/packages/json_api_server)
+
+# JSON:API Client
+
 [JSON:API](http://jsonapi.org) is a specification for building APIs in JSON. This library implements 
-a Client (VM, Flutter, Web), and a Server (VM only).
+a Client (VM, Flutter, Web).
 
 ## Features
 - Fetching single resources, resource collections, related resources
@@ -44,7 +47,7 @@ The client provides a set of methods to manipulate resources and relationships.
     - `deleteResource` - deletes the existing resource
 - Manipulating relationships
     - `replaceToOne` - replaces the existing to-one relationship with a new resource identifier
-    - `deleteToOne` - deletes the existing to-one relationship by setting the resrouce identifier to null
+    - `deleteToOne` - deletes the existing to-one relationship by setting the resource identifier to null
     - `replaceToMany` - replaces the existing to-many relationship with the given set of resource identifiers
     - `addToMany` - adds the given identifiers to the existing to-many relationship
     

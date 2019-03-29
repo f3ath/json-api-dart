@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:json_api/server.dart';
-import 'package:json_api/src/server/request_target.dart';
-import 'package:json_api_document/document.dart';
+import 'package:json_api_document/json_api_document.dart';
+import 'package:json_api_server/json_api_server.dart';
 import 'package:uuid/uuid.dart';
 
 import 'dao.dart';
