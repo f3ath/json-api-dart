@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:json_api/client.dart';
+import 'package:json_api/jaon_api.dart';
 import 'package:test/test.dart';
 
 import '../../example/cars_server.dart';
