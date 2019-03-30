@@ -1,6 +1,6 @@
 import 'package:json_api/src/client/status_code.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api_document/document.dart';
+import 'package:json_api_document/json_api_document.dart';
 
 /// A response returned by JSON:API client
 class Response<Data extends PrimaryData> {

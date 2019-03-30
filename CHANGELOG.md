@@ -6,10 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2019-03-20
+### Changed
+- JSON:API Server moved out
+
 ## [0.6.0] - 2019-03-25
 ### Changed
 - JSON:API Document moved out
-- Renamed `client.removeToOne` to `client.deleteToOne`
+- Renamed `client.removeToOne(...)` to `client.deleteToOne(...)`
 
 ## [0.5.0] - 2019-03-21
 ### Changed
@@ -52,7 +56,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
-[Unreleased]: https://github.com/f3ath/json-api-dart/compare/0.6.0...HEAD
+[Unreleased]: https://github.com/f3ath/json-api-dart/compare/1.0.0...HEAD
+[1.0.0]: https://github.com/f3ath/json-api-dart/compare/0.6.0...1.0.0
 [0.6.0]: https://github.com/f3ath/json-api-dart/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/f3ath/json-api-dart/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/f3ath/json-api-dart/compare/0.3.0...0.4.0

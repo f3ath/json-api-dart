@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:json_api/server.dart';
+import 'package:json_api_server/json_api_server.dart';
 
 import 'cars_server/controller.dart';
 import 'cars_server/dao.dart';
