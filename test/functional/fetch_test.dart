@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:json_api/jaon_api.dart';
+import 'package:json_api/json_api.dart';
 import 'package:json_api_document/json_api_document.dart';
 import 'package:test/test.dart';
 

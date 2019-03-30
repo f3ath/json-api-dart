@@ -22,15 +22,15 @@ you may want to use either the one which comes from `dart:io` or the `BrowserCli
 
 In the VM/Flutter you don't need to provide any dependencies:
 ```dart
-import 'package:json_api/client.dart';
+import 'package:json_api/json_api.dart';
 
 final client = JsonApiClient();
 ```
 
 In a browser use the `BrowserClient`:
 ```dart
-import 'package:json_api/client.dart';
-import 'package:http/browser_client.dart';
+import 'package:json_api/json_api.dart';
+import 'package:http/browser_json_api.dart';
 
 final client = JsonApiClient(factory: () => BrowserClient());
 ```
@@ -61,7 +61,7 @@ document with the primary data according to the type of the request.
 Here's a collection fetching example:
 
 ```dart
-import 'package:json_api/client.dart';
+import 'package:json_api/json_api.dart';
 
 void main() async {
   final client = JsonApiClient();
