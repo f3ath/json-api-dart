@@ -1,5 +1,5 @@
 @TestOn('browser')
-import 'package:http/browser_json_api.dart';
+import 'package:http/browser_client.dart';
 import 'package:json_api/json_api.dart';
 import 'package:test/test.dart';
 

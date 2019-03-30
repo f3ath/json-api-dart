@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:json_api/src/client/response.dart';
-import 'package:json_api/src/client/status_code.dart';
+import 'package:json_api/src/response.dart';
+import 'package:json_api/src/status_code.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api_document/json_api_document.dart';
 import 'package:json_api_document/parser.dart';
