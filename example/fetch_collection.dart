@@ -1,4 +1,4 @@
-import 'package:json_api/client.dart';
+import 'package:json_api/jaon_api.dart';
 
 void main() async {
   final client = JsonApiClient();

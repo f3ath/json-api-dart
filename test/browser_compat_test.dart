@@ -1,6 +1,6 @@
 @TestOn('browser')
 import 'package:http/browser_client.dart';
-import 'package:json_api/client.dart';
+import 'package:json_api/jaon_api.dart';
 import 'package:test/test.dart';
 
 void main() async {
