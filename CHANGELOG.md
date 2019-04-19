@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `JsonApiClient` has `const` constructor
 
+## [1.0.1] - 2019-04-05
+### Fixed
+- Bumped the dependencies versions due to a bug in `json_api_document`.
+
 ## [1.0.0] - 2019-03-20
 ### Changed
 - JSON:API Server moved out
@@ -58,7 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
-[Unreleased]: https://github.com/f3ath/json-api-dart/compare/1.0.0...HEAD
+[Unreleased]: https://github.com/f3ath/json-api-dart/compare/1.0.1...HEAD
+[1.0.1]: https://github.com/f3ath/json-api-dart/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/f3ath/json-api-dart/compare/0.6.0...1.0.0
 [0.6.0]: https://github.com/f3ath/json-api-dart/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/f3ath/json-api-dart/compare/0.4.0...0.5.0
