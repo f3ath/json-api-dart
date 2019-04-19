@@ -176,18 +176,18 @@ class JsonApiClient {
       Future<http.Response> fn(http.Client client)) async {
     final client = _factory();
     try {
-      final r = await fn(client);
-      if (r.body.isEmpty) {
-        return Response(r.statusCode, r.headers);
+      final httpResponse = await fn(client);
+      if (httpResponse.body.isEmpty) {
+        return Response(httpResponse.statusCode, httpResponse.headers);
       }
-      final body = json.decode(r.body);
-      if (StatusCode(r.statusCode).isPending) {
-        return Response(r.statusCode, r.headers,
+      final body = json.decode(httpResponse.body);
+      if (StatusCode(httpResponse.statusCode).isPending) {
+        return Response(httpResponse.statusCode, httpResponse.headers,
             asyncDocument: body == null
                 ? null
                 : _parser.parseDocument(body, _parser.parseResourceData));
       }
-      return Response(r.statusCode, r.headers,
+      return Response(httpResponse.statusCode, httpResponse.headers,
           document: body == null ? null : _parser.parseDocument(body, parse));
     } finally {
       client.close();
