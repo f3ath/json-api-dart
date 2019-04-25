@@ -1,253 +1,213 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:json_api_document/json_api_document.dart';
 import 'package:json_api_server/json_api_server.dart';
+import 'package:json_api_server/src/pagination/page.dart';
 import 'package:uuid/uuid.dart';
 
 import 'dao.dart';
 import 'job_queue.dart';
 
-class CarsController implements JsonApiController {
+class CarsController implements Controller {
   final Map<String, DAO> _dao;
+  final PageFactory _page;
 
-  CarsController(this._dao);
+  CarsController(this._dao, this._page);
 
   @override
-  Future<void> fetchCollection(
-      ControllerRequest<CollectionTarget, void> request,
-      FetchCollectionResponse response) async {
-    if (!_dao.containsKey(request.target.type)) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Unknown resource type')]);
-    }
-    final page = NumberedPage.fromQueryParameters(request.uri.queryParameters,
-        total: _dao[request.target.type].length);
-    return response.sendCollection(Collection(
-        _dao[request.target.type]
-            .fetchCollection(offset: page.offset)
-            .map(_dao[request.target.type].toResource),
-        page: page));
+  void fetchCollection(
+      FetchCollection request, Map<String, List<String>> query) {
+    final dao = _getDao(request);
+    final page = _page(query);
+    final collection = dao.fetchCollection(page);
+    request.sendCollection(collection.map(dao.toResource), page: page);
   }
 
   @override
-  Future<void> fetchRelated(ControllerRequest<RelatedTarget, void> request,
-      FetchRelatedResponse response) async {
-    if (!_dao.containsKey(request.target.type)) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Unknown resource type')]);
-    }
-    final res =
-        _dao[request.target.type].fetchByIdAsResource(request.target.id);
+  void fetchRelated(FetchRelated request, Map<String, List<String>> query) {
+    final dao = _getDao(request);
+
+    final res = dao.fetchByIdAsResource(request.target.id);
     if (res == null) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Resource not found')]);
+      request.errorNotFound([JsonApiError(detail: 'Resource not found')]);
+      return;
     }
 
     if (res.toOne.containsKey(request.target.relationship)) {
       final id = res.toOne[request.target.relationship];
       final resource = _dao[id.type].fetchByIdAsResource(id.id);
-      return response.sendResource(resource);
+      request.sendResource(resource);
+      return;
     }
 
     if (res.toMany.containsKey(request.target.relationship)) {
-      final pageSize = 2;
-      final totalPages =
-          max(0, res.toMany[request.target.relationship].length - 1) ~/
-                  pageSize +
-              1;
-      final page = NumberedPage.fromQueryParameters(request.uri.queryParameters,
-          total: totalPages);
-      final resources = res.toMany[request.target.relationship]
-          .skip(page.offset * pageSize)
-          .take(pageSize)
+      final page = _page(query);
+      final relationships = res.toMany[request.target.relationship];
+      final resources = relationships
+          .skip(page.offset)
+          .take(page.limit)
           .map((id) => _dao[id.type].fetchByIdAsResource(id.id));
-      return response.sendCollection(Collection(resources, page: page));
+      request.sendCollection(Collection(resources, total: relationships.length),
+          page: page);
+      return;
     }
-    return response
-        .errorNotFound([JsonApiError(detail: 'Relationship not found')]);
+    request.errorNotFound([JsonApiError(detail: 'Relationship not found')]);
   }
 
   @override
-  Future<void> fetchResource(ControllerRequest<ResourceTarget, void> request,
-      FetchResourceResponse response) async {
-    if (!_dao.containsKey(request.target.type)) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Unknown resource type')]);
-    }
-    final obj = _dao[request.target.type].fetchById(request.target.id);
+  void fetchResource(FetchResource request, Map<String, List<String>> query) {
+    final dao = _getDao(request);
+
+    final obj = dao.fetchById(request.target.id);
 
     if (obj == null) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Resource not found')]);
+      request.errorNotFound([JsonApiError(detail: 'Resource not found')]);
+      return;
     }
     if (obj is Job && obj.resource != null) {
-      return response.sendSeeOther(obj.resource);
+      request.sendSeeOther(obj.resource);
+      return;
     }
 
     final fetchById = (Identifier _) => _dao[_.type].fetchByIdAsResource(_.id);
 
-    final res = _dao[request.target.type].toResource(obj);
+    final res = dao.toResource(obj);
     final children = res.toOne.values
         .map(fetchById)
         .followedBy(res.toMany.values.expand((_) => _.map(fetchById)));
 
-    return response.sendResource(res, included: children);
+    request.sendResource(res, included: children);
   }
 
   @override
-  Future<void> fetchRelationship(
-      ControllerRequest<RelationshipTarget, void> request,
-      FetchRelationshipResponse response) async {
-    if (!_dao.containsKey(request.target.type)) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Unknown resource type')]);
-    }
-    final res =
-        _dao[request.target.type].fetchByIdAsResource(request.target.id);
+  void fetchRelationship(
+      FetchRelationship request, Map<String, List<String>> query) {
+    final dao = _getDao(request);
+
+    final res = dao.fetchByIdAsResource(request.target.id);
     if (res == null) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Resource not found')]);
+      request.errorNotFound([JsonApiError(detail: 'Resource not found')]);
+      return;
     }
 
     if (res.toOne.containsKey(request.target.relationship)) {
       final id = res.toOne[request.target.relationship];
-      return response.sendToOne(id);
+      request.sendToOne(id);
+      return;
     }
 
     if (res.toMany.containsKey(request.target.relationship)) {
       final ids = res.toMany[request.target.relationship];
-      return response.sendToMany(ids);
+      request.sendToMany(ids);
+      return;
     }
-    return response
-        .errorNotFound([JsonApiError(detail: 'Relationship not found')]);
+    request.errorNotFound([JsonApiError(detail: 'Relationship not found')]);
   }
 
   @override
-  Future<void> deleteResource(ControllerRequest<ResourceTarget, void> request,
-      DeleteResourceResponse response) async {
-    if (!_dao.containsKey(request.target.type)) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Unknown resource type')]);
-    }
-    final res =
-        _dao[request.target.type].fetchByIdAsResource(request.target.id);
+  void deleteResource(DeleteResource request) {
+    final dao = _getDao(request);
+
+    final res = dao.fetchByIdAsResource(request.target.id);
     if (res == null) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Resource not found')]);
+      request.errorNotFound([JsonApiError(detail: 'Resource not found')]);
+      return;
     }
-    final dependenciesCount =
-        _dao[request.target.type].deleteById(request.target.id);
+    final dependenciesCount = dao.deleteById(request.target.id);
     if (dependenciesCount == 0) {
-      return response.sendNoContent();
+      request.sendNoContent();
+      return;
     }
-    return response.sendMeta({'dependenciesCount': dependenciesCount});
+    request.sendMeta({'dependenciesCount': dependenciesCount});
   }
 
   @override
-  Future<void> createResource(
-      ControllerRequest<CollectionTarget, Resource> request,
-      CreateResourceResponse response) async {
-    if (!_dao.containsKey(request.target.type)) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Unknown resource type')]);
-    }
-    if (request.target.type != request.payload.type) {
-      return response
-          .errorConflict([JsonApiError(detail: 'Incompatible type')]);
+  void createResource(CreateResource request, Resource resource) {
+    final dao = _getDao(request);
+
+    if (request.target.type != resource.type) {
+      request.errorConflict([JsonApiError(detail: 'Incompatible type')]);
+      return;
     }
 
-    if (request.payload.hasId) {
-      if (_dao[request.target.type].fetchById(request.payload.id) != null) {
-        return response
+    if (resource.hasId) {
+      if (dao.fetchById(resource.id) != null) {
+        request
             .errorConflict([JsonApiError(detail: 'Resource already exists')]);
+        return;
       }
-      final created = _dao[request.target.type].create(request.payload);
-      _dao[request.target.type].insert(created);
-      return response.sendNoContent();
+      final created = dao.create(resource);
+      dao.insert(created);
+      request.sendNoContent();
+      return;
     }
 
-    final created = _dao[request.target.type].create(Resource(
-        request.payload.type, Uuid().v4(),
-        attributes: request.payload.attributes,
-        toMany: request.payload.toMany,
-        toOne: request.payload.toOne));
+    final created = dao.create(resource.withId(Uuid().v4()));
 
     if (request.target.type == 'models') {
       // Insertion is artificially delayed
       final job = Job(Future.delayed(Duration(milliseconds: 100), () {
-        _dao[request.target.type].insert(created);
-        return _dao[request.target.type].toResource(created);
+        dao.insert(created);
+        return dao.toResource(created);
       }));
       _dao['jobs'].insert(job);
-      return response.sendAccepted(_dao['jobs'].toResource(job));
+      request.sendAccepted(_dao['jobs'].toResource(job));
+      return;
     }
 
-    _dao[request.target.type].insert(created);
+    dao.insert(created);
 
-    return response.sendCreated(_dao[request.target.type].toResource(created));
+    request.sendCreated(dao.toResource(created));
   }
 
   @override
-  Future<void> updateResource(
-      ControllerRequest<ResourceTarget, Resource> request,
-      UpdateResourceResponse response) async {
-    if (!_dao.containsKey(request.target.type)) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Unknown resource type')]);
+  void updateResource(UpdateResource request, Resource resource) {
+    final dao = _getDao(request);
+
+    if (request.target.type != resource.type) {
+      request.errorConflict([JsonApiError(detail: 'Incompatible type')]);
+      return;
     }
-    if (request.target.type != request.payload.type) {
-      return response
-          .errorConflict([JsonApiError(detail: 'Incompatible type')]);
+    if (dao.fetchById(request.target.id) == null) {
+      request.errorNotFound([JsonApiError(detail: 'Resource not found')]);
+      return;
     }
-    if (_dao[request.target.type].fetchById(request.target.id) == null) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Resource not found')]);
-    }
-    final updated =
-        _dao[request.target.type].update(request.target.id, request.payload);
+    final updated = dao.update(request.target.id, resource);
     if (updated == null) {
-      return response.sendNoContent();
+      request.sendNoContent();
+      return;
     }
-    return response.sendUpdated(updated);
+    request.sendUpdated(updated);
   }
 
   @override
-  Future<void> replaceToOne(
-      ControllerRequest<RelationshipTarget, Identifier> request,
-      ReplaceToOneResponse response) async {
-    if (!_dao.containsKey(request.target.type)) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Unknown resource type')]);
-    }
-    _dao[request.target.type].replaceToOne(
-        request.target.id, request.target.relationship, request.payload);
-    return response.sendNoContent();
+  void replaceToOne(UpdateRelationship request, Identifier identifier) {
+    final dao = _getDao(request);
+
+    dao.replaceToOne(
+        request.target.id, request.target.relationship, identifier);
+    request.sendNoContent();
   }
 
   @override
-  Future<void> replaceToMany(
-      ControllerRequest<RelationshipTarget, Iterable<Identifier>> request,
-      ReplaceToManyResponse response) async {
-    if (!_dao.containsKey(request.target.type)) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Unknown resource type')]);
-    }
-    _dao[request.target.type].replaceToMany(
-        request.target.id, request.target.relationship, request.payload);
-    return response.sendNoContent();
+  void replaceToMany(UpdateRelationship request, List<Identifier> identifiers) {
+    final dao = _getDao(request);
+
+    dao.replaceToMany(
+        request.target.id, request.target.relationship, identifiers);
+    request.sendNoContent();
+  }
+
+  DAO _getDao(Request request) => _dao[request.target.type];
+
+  @override
+  void addToMany(AddToMany request, List<Identifier> identifiers) {
+    final dao = _getDao(request);
+
+    request.sendToMany(dao.addToMany(
+        request.target.id, request.target.relationship, identifiers));
   }
 
   @override
-  Future<void> addToMany(
-      ControllerRequest<RelationshipTarget, Iterable<Identifier>> request,
-      AddToManyResponse response) async {
-    if (!_dao.containsKey(request.target.type)) {
-      return response
-          .errorNotFound([JsonApiError(detail: 'Unknown resource type')]);
-    }
-    final result = _dao[request.target.type].addToMany(
-        request.target.id, request.target.relationship, request.payload);
-    return response.sendToMany(result);
-  }
+  bool supportsType(String type) => _dao.containsKey(type);
 }
