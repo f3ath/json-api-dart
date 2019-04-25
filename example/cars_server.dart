@@ -46,37 +46,22 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
     Company('4')..name = 'Toyota',
   ].forEach(companies.insert);
 
-  final controller = CarsController({
-    'companies': companies,
-    'cities': cities,
-    'models': models,
-    'jobs': JobDAO()
-  });
-
-  final urlDesign = StandardURLDesign(Uri.parse('http://localhost:$port'));
-
-  final jsonApiServer =
-      JsonApiServer(urlDesign, controller, StandardDocumentBuilder(urlDesign));
+  final controller = CarsController(
+      {
+        'companies': companies,
+        'cities': cities,
+        'models': models,
+        'jobs': JobDAO()
+      },
+      (query) => NumberedPage(
+          int.parse(
+              PageParameters.fromQuery(query).parameters['number'] ?? '1'),
+          1));
 
   final httpServer = await HttpServer.bind(addr, port);
+  final jsonApiServer =
+      Server(Routing(Uri.parse('http://localhost:$port')), controller);
 
   httpServer.forEach(jsonApiServer.process);
-
   return httpServer;
-}
-
-class Url {
-  static final _design = StandardURLDesign(Uri.parse('http://localhost:8080'));
-
-  static Uri collection(String type) =>
-      _design.collection(CollectionTarget(type));
-
-  static Uri resource(String type, String id) =>
-      _design.resource(ResourceTarget(type, id));
-
-  static Uri related(String type, String id, String relationship) =>
-      _design.related(RelatedTarget(type, id, relationship));
-
-  static Uri relationship(String type, String id, String relationship) =>
-      _design.relationship(RelationshipTarget(type, id, relationship));
 }

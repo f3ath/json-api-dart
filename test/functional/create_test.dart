@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:json_api/json_api.dart';
 import 'package:json_api_document/json_api_document.dart';
+import 'package:json_api_server/json_api_server.dart';
 import 'package:test/test.dart';
 
 import '../../example/cars_server.dart';
@@ -10,6 +11,7 @@ import '../../example/cars_server.dart';
 void main() async {
   HttpServer server;
   final client = JsonApiClient();
+  final route = Routing(Uri.parse('http://localhost:8080'));
   setUp(() async {
     server = await createServer(InternetAddress.loopbackIPv4, 8080);
   });
@@ -31,7 +33,8 @@ void main() async {
     test('201 Created', () async {
       final newYork =
           Resource('cities', null, attributes: {'name': 'New York'});
-      final r0 = await client.createResource(Url.collection('cities'), newYork);
+      final r0 =
+          await client.createResource(route.collection('cities'), newYork);
 
       expect(r0.status, 201);
       expect(r0.isSuccessful, true);
@@ -42,7 +45,7 @@ void main() async {
 
       // Make sure the resource is available
       final r1 = await client
-          .fetchResource(Url.resource('cities', r0.data.toResource().id));
+          .fetchResource(route.resource('cities', r0.data.toResource().id));
       expect(r1.data.resourceObject.attributes['name'], 'New York');
     });
 
@@ -55,7 +58,7 @@ void main() async {
       final roadster2020 =
           Resource('models', null, attributes: {'name': 'Roadster 2020'});
       final r0 =
-          await client.createResource(Url.collection('models'), roadster2020);
+          await client.createResource(route.collection('models'), roadster2020);
 
       expect(r0.status, 202);
       expect(r0.isSuccessful, false); // neither success
@@ -88,14 +91,15 @@ void main() async {
     test('204 No Content', () async {
       final newYork =
           Resource('cities', '555', attributes: {'name': 'New York'});
-      final r0 = await client.createResource(Url.collection('cities'), newYork);
+      final r0 =
+          await client.createResource(route.collection('cities'), newYork);
 
       expect(r0.status, 204);
       expect(r0.isSuccessful, true);
       expect(r0.document, isNull);
 
       // Make sure the resource is available
-      final r1 = await client.fetchResource(Url.resource('cities', '555'));
+      final r1 = await client.fetchResource(route.resource('cities', '555'));
       expect(r1.data.toResource().attributes['name'], 'New York');
     });
 
@@ -105,7 +109,8 @@ void main() async {
     /// https://jsonapi.org/format/#crud-creating-responses-409
     test('409 Conflict - Resource already exists', () async {
       final newYork = Resource('cities', '1', attributes: {'name': 'New York'});
-      final r0 = await client.createResource(Url.collection('cities'), newYork);
+      final r0 =
+          await client.createResource(route.collection('cities'), newYork);
 
       expect(r0.status, 409);
       expect(r0.isSuccessful, false);
@@ -121,7 +126,7 @@ void main() async {
       final newYork =
           Resource('cities', '555', attributes: {'name': 'New York'});
       final r0 =
-          await client.createResource(Url.collection('companies'), newYork);
+          await client.createResource(route.collection('companies'), newYork);
 
       expect(r0.status, 409);
       expect(r0.isSuccessful, false);
