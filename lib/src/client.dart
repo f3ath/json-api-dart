@@ -81,29 +81,32 @@ class JsonApiClient {
   /// Updates a to-one relationship via PATCH request
   ///
   /// https://jsonapi.org/format/#crud-updating-to-one-relationships
-  Future<Response<ToOne>> replaceToOne(Uri uri, Identifier id,
+  Future<Response<ToOne>> replaceToOne(Uri uri, Identifier identifier,
           {Map<String, String> headers}) =>
-      _patch(_parser.parseToOne, uri,
-          ToOne(nullable(IdentifierObject.fromIdentifier)(id)), headers);
+      _patch(
+          _parser.parseToOne,
+          uri,
+          ToOne(nullable(IdentifierObject.fromIdentifier)(identifier)),
+          headers);
 
   /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
   /// with id = null.
   Future<Response<ToOne>> deleteToOne(Uri uri, {Map<String, String> headers}) =>
       replaceToOne(uri, null, headers: headers);
 
-  /// Replaces a to-many relationship with the given set of [ids].
+  /// Replaces a to-many relationship with the given set of [identifiers].
   ///
   /// The server MUST either completely replace every member of the relationship,
   /// return an appropriate error response if some resources can not be found or accessed,
   /// or return a 403 Forbidden response if complete replacement is not allowed by the server.
   ///
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
-  Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> ids,
+  Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> identifiers,
           {Map<String, String> headers}) =>
       _patch(_parser.parseToMany, uri,
-          ToMany(ids.map(IdentifierObject.fromIdentifier)), headers);
+          ToMany(identifiers.map(IdentifierObject.fromIdentifier)), headers);
 
-  /// Adds the given set of [ids] to a to-many relationship.
+  /// Adds the given set of [identifiers] to a to-many relationship.
   ///
   /// The server MUST add the specified members to the relationship
   /// unless they are already present.
@@ -121,10 +124,10 @@ class JsonApiClient {
   /// caused by multiple clients making the same changes to a relationship.
   ///
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
-  Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> ids,
+  Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> identifiers,
           {Map<String, String> headers}) =>
       _post(_parser.parseToMany, uri,
-          ToMany(ids.map(IdentifierObject.fromIdentifier)), headers);
+          ToMany(identifiers.map(IdentifierObject.fromIdentifier)), headers);
 
   Future<Response<D>> _get<D extends PrimaryData>(
           D parse(Object _), uri, Map<String, String> headers) =>
@@ -176,18 +179,18 @@ class JsonApiClient {
       Future<http.Response> fn(http.Client client)) async {
     final client = _factory();
     try {
-      final httpResponse = await fn(client);
-      if (httpResponse.body.isEmpty) {
-        return Response(httpResponse.statusCode, httpResponse.headers);
+      final response = await fn(client);
+      if (response.body.isEmpty) {
+        return Response(response.statusCode, response.headers);
       }
-      final body = json.decode(httpResponse.body);
-      if (StatusCode(httpResponse.statusCode).isPending) {
-        return Response(httpResponse.statusCode, httpResponse.headers,
+      final body = json.decode(response.body);
+      if (StatusCode(response.statusCode).isPending) {
+        return Response(response.statusCode, response.headers,
             asyncDocument: body == null
                 ? null
                 : _parser.parseDocument(body, _parser.parseResourceData));
       }
-      return Response(httpResponse.statusCode, httpResponse.headers,
+      return Response(response.statusCode, response.headers,
           document: body == null ? null : _parser.parseDocument(body, parse));
     } finally {
       client.close();
