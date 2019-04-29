@@ -109,7 +109,7 @@ can use [data](https://pub.dartlang.org/documentation/json_api/latest/json_api/R
 shortcut to access it directly. Like the Document, the Response is generalized by the expected Primary Data
 which depends of the operation. The Document and the rest of the JSON:API object model are parts of [json_api_document](https://pub.dartlang.org/packages/json_api_document)
 which is a separate package. Refer to that package for [complete API documentation](https://pub.dartlang.org/documentation/json_api_document/latest/). 
-This README only present a brief overview.
+This README only gives a brief overview.
 
 #### Successful responses
 Most of the times when the response is successful, you can read the [data](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/data.html)
