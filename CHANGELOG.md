@@ -12,10 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Bumped the dependencies versions due to a bug in `json_api_document`.
 
-## [1.0.1] - 2019-04-05
-### Changed
-- Bump the dependencies' versions
-
 ## [1.0.0] - 2019-03-20
 ### Changed
 - JSON:API Server moved out
