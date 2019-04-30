@@ -23,7 +23,8 @@ class JsonApiClient {
   /// JSON:API client uses Dart's native Http Client internally.
   /// To customize its behavior you can pass the [factory] function and the [parser].
   const JsonApiClient({HttpClientFactory factory, JsonApiParser parser})
-      : _factory = factory ?? _defaultFactory, _parser = parser ?? const JsonApiParser();
+      : _factory = factory ?? _defaultFactory,
+        _parser = parser ?? const JsonApiParser();
 
   /// Fetches a resource collection by sending a GET request to the [uri].
   /// Use [headers] to pass extra HTTP headers.
