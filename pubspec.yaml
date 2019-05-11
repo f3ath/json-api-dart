@@ -14,4 +14,4 @@ dev_dependencies:
   test: "^1.6.1"
   uuid: "^2.0.1"
 environment: 
-  sdk: ">=2.0.0 <3.0.0"
+  sdk: ">=2.3.0 <3.0.0"
