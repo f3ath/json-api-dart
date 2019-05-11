@@ -157,8 +157,8 @@ class JsonApiClient {
       _call(
           parse,
           (_) => _.delete(uri, headers: {
-                'Accept': contentType,
                 ...headers,
+                'Accept': contentType,
               }));
 
   Future<Response<D>> _patch<D extends PrimaryData>(D parse(Object _), uri,
