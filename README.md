@@ -30,7 +30,7 @@ final client = JsonApiClient();
 In a browser use the `BrowserClient`:
 ```dart
 import 'package:json_api/json_api.dart';
-import 'package:http/browser_json_api.dart';
+import 'package:http/browser_client.dart';
 
 final client = JsonApiClient(factory: () => BrowserClient());
 ```
