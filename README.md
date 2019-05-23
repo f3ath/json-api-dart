@@ -130,7 +130,7 @@ property will be null. If the server decided to include the error details in the
 
 
 #### Async processing
-Some servers may to support [Asynchronous Processing](https://jsonapi.org/recommendations/#asynchronous-processing).
+Some servers may support [Asynchronous Processing](https://jsonapi.org/recommendations/#asynchronous-processing).
 When the server responds with `202 Accepted`, the client expects the Primary Data to always be a Resource (usually
 representing a job queue). In this case, the [document](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/document.html)
 and the [data](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/data.html) 
