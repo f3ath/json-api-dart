@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:json_api/json_api.dart';
+import 'package:json_api/server.dart';
 import 'package:json_api_document/json_api_document.dart';
-import 'package:json_api_server/json_api_server.dart';
 import 'package:test/test.dart';
 
 import '../../example/cars_server.dart';
