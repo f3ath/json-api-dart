@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:json_api/src/document/document_decoder.dart';
+import 'package:json_api/src/document/error.dart';
+import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/relationship.dart';
+import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/pagination/page.dart';
 import 'package:json_api/src/server/request_target.dart';
 import 'package:json_api/src/server/response.dart';
-import 'package:json_api_document/json_api_document.dart';
-import 'package:json_api_document/parser.dart';
 
 abstract class Request {
   Response _response = ErrorResponse.notImplemented([]);
@@ -123,8 +126,8 @@ class UpdateResource extends Request with _Errors {
           Object payload) =>
       controller.updateResource(
           this,
-          const JsonApiParser()
-              .parseResourceDocument(payload)
+          const JsonApiDecoder()
+              .decodeResourceDocument(payload)
               .data
               .resourceObject
               .toResource());
@@ -148,8 +151,8 @@ class CreateResource extends Request with _Errors {
           Object payload) =>
       controller.createResource(
           this,
-          const JsonApiParser()
-              .parseResourceDocument(payload)
+          const JsonApiDecoder()
+              .decodeResourceDocument(payload)
               .data
               .resourceObject
               .toResource());
@@ -175,7 +178,7 @@ class UpdateRelationship extends Request with _Errors {
   @override
   FutureOr<void> call(Controller controller, Map<String, List<String>> query,
       Object payload) async {
-    final rel = const JsonApiParser().parseRelationship(payload);
+    final rel = const JsonApiDecoder().decodeRelationship(payload);
     if (rel is ToOne) {
       controller.replaceToOne(this, rel.toIdentifier());
     }
@@ -197,7 +200,7 @@ class AddToMany extends Request with _Errors {
   @override
   FutureOr<void> call(Controller controller, Map<String, List<String>> query,
       Object payload) async {
-    final rel = const JsonApiParser().parseRelationship(payload);
+    final rel = const JsonApiDecoder().decodeRelationship(payload);
     if (rel is ToMany) {
       controller.addToMany(this, rel.toIdentifiers());
     }

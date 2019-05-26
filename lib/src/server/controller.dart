@@ -1,7 +1,8 @@
 import 'dart:async';
 
+import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/request.dart';
-import 'package:json_api_document/json_api_document.dart';
 
 abstract class Controller {
   bool supportsType(String type);

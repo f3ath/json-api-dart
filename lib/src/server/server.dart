@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:json_api/src/document/error.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/document_builder.dart';
 import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/routing.dart';
-import 'package:json_api_document/json_api_document.dart';
 
 class Server {
   final Routing routing;
