@@ -9,13 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consolidated the Client, the Server and the Document in one single library
 - Bumped min Dart SDK version to `2.3.0`
 
+### Added
+- `const` constructor to `JsonApiClient` 
+
 ## [1.0.1] - 2019-04-05
 ### Fixed
 - Bumped the dependencies versions due to a bug in `json_api_document`.
-
-## [1.0.1] - 2019-04-05
-### Changed
-- Bump the dependencies' versions
 
 ## [1.0.0] - 2019-03-20
 ### Changed
