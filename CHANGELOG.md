@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Consolidated the Client, the Server and the Document in one single library
+- Bumped min Dart SDK version to `2.3.0`
 
 ## [1.0.1] - 2019-04-05
 ### Fixed
