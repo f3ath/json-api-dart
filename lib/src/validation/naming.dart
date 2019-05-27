@@ -1,4 +1,3 @@
-
 /// JSON API Document naming rules
 ///
 /// Details: https://jsonapi.org/format/#document-member-names
@@ -11,4 +10,3 @@ abstract class Naming {
   /// Is [name] disallowed by the rules
   bool disallows(String name) => !allows(name);
 }
-

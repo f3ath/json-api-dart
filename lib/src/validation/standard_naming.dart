@@ -9,6 +9,6 @@ class StandardNaming extends Naming {
 
   bool allows(String name) =>
       _disallowFirst.hasMatch(name) &&
-          _disallowLast.hasMatch(name) &&
-          _allowGlobally.hasMatch(name);
+      _disallowLast.hasMatch(name) &&
+      _allowGlobally.hasMatch(name);
 }
