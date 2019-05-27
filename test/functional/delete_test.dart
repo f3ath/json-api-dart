@@ -55,7 +55,7 @@ void main() async {
     /// A server SHOULD return a 404 Not Found status code if a deletion request
     /// fails due to the resource not existing.
     test('404 Not Found', () async {
-      final r0 = await client.fetchResource(route.resource('models', '555'));
+      final r0 = await client.deleteResource(route.resource('models', '555'));
       expect(r0.status, 404);
     });
   }, testOn: 'vm');
