@@ -1,3 +1,4 @@
+import 'package:json_api/src/document/decoding_exception.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/pagination.dart';
 import 'package:json_api/src/document/primary_data.dart';
@@ -14,6 +15,24 @@ class ResourceCollectionData extends PrimaryData {
       this.pagination = const Pagination.empty()})
       : super(self: self, included: included) {
     this.collection.addAll(collection);
+  }
+
+  static ResourceCollectionData fromJson(Object json) {
+    if (json is Map) {
+      final links = Link.mapFromJson(json['links']);
+      final included = json['included'];
+      final data = json['data'];
+      if (data is List) {
+        return ResourceCollectionData(data.map(ResourceObject.fromJson),
+            self: links['self'],
+            pagination: Pagination.fromLinks(links),
+            included: included == null
+                ? null
+                : ResourceObject.listFromJson(included));
+      }
+    }
+    throw DecodingException(
+        'Can not decode ResourceObjectCollection from $json');
   }
 
   @override

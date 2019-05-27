@@ -1,11 +1,6 @@
-Other JSON:API packages: [Document](https://pub.dartlang.org/packages/json_api_document) | [Server](https://pub.dartlang.org/packages/json_api_server)
-
----
-
-# JSON:API Client
-
 [JSON:API](http://jsonapi.org) is a specification for building APIs in JSON. This package implements 
 the Client.
+# Client
 
 ## Features
 - Fetching single resources, resource collections, related resources
@@ -17,22 +12,10 @@ the Client.
 
 ## Usage
 ### Creating a client instance
-JSON:API Client uses the Dart's native HttpClient. Depending on the platform, 
-you may want to use either the one which comes from `dart:io` or the `BrowserClient`.
-
-In the VM/Flutter you don't need to provide any dependencies:
 ```dart
 import 'package:json_api/json_api.dart';
 
 final client = JsonApiClient();
-```
-
-In a browser use the `BrowserClient`:
-```dart
-import 'package:json_api/json_api.dart';
-import 'package:http/browser_client.dart';
-
-final client = JsonApiClient(factory: () => BrowserClient());
 ```
 
 ### Making requests

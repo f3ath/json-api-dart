@@ -1,5 +1,4 @@
 export 'package:json_api/src/document/document.dart';
-export 'package:json_api/src/document/document_decoder.dart';
 export 'package:json_api/src/document/document_validator.dart';
 export 'package:json_api/src/document/error.dart';
 export 'package:json_api/src/document/identifier.dart';

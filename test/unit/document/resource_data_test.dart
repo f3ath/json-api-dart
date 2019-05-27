@@ -1,0 +1,22 @@
+import 'package:json_api/document.dart';
+import 'package:test/test.dart';
+
+import 'helper.dart';
+
+void main() {
+  test('Can decode a primary resource with missing id', () {
+    final data = ResourceData.fromJson(recodeJson({
+      'data': {'type': 'apples'}
+    }));
+    expect(data.toResource().type, 'apples');
+    expect(data.toResource().id, isNull);
+  });
+
+  test('Can decode a primary resource with null id', () {
+    final data = ResourceData.fromJson(recodeJson({
+      'data': {'type': 'apples', 'id': null}
+    }));
+    expect(data.toResource().type, 'apples');
+    expect(data.toResource().id, isNull);
+  });
+}

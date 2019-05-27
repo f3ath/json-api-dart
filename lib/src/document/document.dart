@@ -2,6 +2,8 @@ import 'package:json_api/src/document/error.dart';
 import 'package:json_api/src/document/json_api.dart';
 import 'package:json_api/src/document/primary_data.dart';
 
+import 'decoding_exception.dart';
+
 class Document<Data extends PrimaryData> {
   /// The Primary Data
   final Data data;
@@ -28,6 +30,29 @@ class Document<Data extends PrimaryData> {
         this.errors = null,
         this.meta = (meta == null ? null : Map.from(meta)) {
     ArgumentError.checkNotNull(meta, 'meta');
+  }
+
+  /// Decodes a document with the specified primary data
+  static Document<Data> fromJson<Data extends PrimaryData>(
+      Object json, Data decodePrimaryData(Object json)) {
+    if (json is Map) {
+      JsonApi api;
+      if (json.containsKey('jsonapi')) {
+        api = JsonApi.fromJson(json['jsonapi']);
+      }
+      if (json.containsKey('errors')) {
+        final errors = json['errors'];
+        if (errors is List) {
+          return Document.error(errors.map(JsonApiError.fromJson),
+              meta: json['meta'], api: api);
+        }
+      } else if (json.containsKey('data')) {
+        return Document(decodePrimaryData(json), meta: json['meta'], api: api);
+      } else {
+        return Document.empty(json['meta'], api: api);
+      }
+    }
+    throw DecodingException('Can not decode Document from $json');
   }
 
   Map<String, Object> toJson() => {

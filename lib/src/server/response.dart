@@ -5,7 +5,7 @@ import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/document_builder.dart';
-import 'package:json_api/src/server/pagination/page.dart';
+import 'package:json_api/src/server/page.dart';
 import 'package:json_api/src/server/request_target.dart';
 import 'package:json_api/src/server/routing.dart';
 

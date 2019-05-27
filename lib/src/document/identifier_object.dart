@@ -1,3 +1,4 @@
+import 'package:json_api/src/document/decoding_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 
 /// [IdentifierObject] is a JSON representation of the [Identifier].
@@ -12,6 +13,13 @@ class IdentifierObject {
 
   static IdentifierObject fromIdentifier(Identifier id) =>
       IdentifierObject(id.type, id.id);
+
+  static IdentifierObject fromJson(Object json) {
+    if (json is Map) {
+      return IdentifierObject(json['type'], json['id'], meta: json['meta']);
+    }
+    throw DecodingException('Can not decode IdentifierObject from $json');
+  }
 
   Identifier toIdentifier() => Identifier(type, id);
 

@@ -1,3 +1,4 @@
+import 'package:json_api/src/document/decoding_exception.dart';
 import 'package:json_api/src/document/link.dart';
 
 /// [JsonApiError] represents an error occurred on the server.
@@ -45,6 +46,31 @@ class JsonApiError {
       this.sourcePointer,
       Map<String, Object> meta}) {
     this.meta.addAll(meta ?? {});
+  }
+
+  static JsonApiError fromJson(Object json) {
+    if (json is Map) {
+      Link about;
+      if (json['links'] is Map) about = Link.fromJson(json['links']['about']);
+
+      String pointer;
+      String parameter;
+      if (json['source'] is Map) {
+        parameter = json['source']['parameter'];
+        pointer = json['source']['pointer'];
+      }
+      return JsonApiError(
+          id: json['id'],
+          about: about,
+          status: json['status'],
+          code: json['code'],
+          title: json['title'],
+          detail: json['detail'],
+          sourcePointer: pointer,
+          sourceParameter: parameter,
+          meta: json['meta']);
+    }
+    throw DecodingException('Can not decode ErrorObject from $json');
   }
 
   Map<String, Object> toJson() {

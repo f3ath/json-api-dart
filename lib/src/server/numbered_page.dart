@@ -1,5 +1,5 @@
-import 'package:json_api/src/server/pagination/page.dart';
-import 'package:json_api/src/server/pagination/page_parameters.dart';
+import 'package:json_api/src/server/page.dart';
+import 'package:json_api/src/server/page_parameters.dart';
 
 class NumberedPage implements Page {
   final int size;

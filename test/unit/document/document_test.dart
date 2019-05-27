@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:json_api/document.dart';
 import 'package:json_matcher/json_matcher.dart';
 import 'package:test/test.dart';
@@ -7,7 +10,6 @@ import 'helper.dart';
 main() {
   final api = JsonApi(version: '1.0', meta: {'a': 'b'});
   final meta = {'foo': 'bar'};
-  final parser = JsonApiDecoder();
 
   group('DataDocument', () {
     final related = Link(Uri.parse('/related'));
@@ -22,40 +24,11 @@ main() {
     final apple = ResourceObject('apples', '42',
         attributes: {'color': 'red'}, meta: {'a': 'b'});
 
-    group('empty', () {
-      test('minimal', () {
-        final doc = Document.empty({"foo": "bar"});
-        final json = {
-          "meta": {"foo": "bar"}
-        };
-        expect(doc, encodesToJson(json));
-        expect(
-            parser.decodeEmptyDocument(recodeJson(json)), encodesToJson(json));
-      });
-
-      test('full', () {
-        final doc = Document.empty(meta, api: api);
-
-        final json = {
-          "meta": {"foo": "bar"},
-          "jsonapi": {
-            "version": "1.0",
-            "meta": {"a": "b"}
-          }
-        };
-        expect(doc, encodesToJson(json));
-        expect(
-            parser.decodeEmptyDocument(recodeJson(json)), encodesToJson(json));
-      });
-    });
-
     group('ToOne', () {
       test('minimal', () {
         final doc = Document(ToOne(null));
         final json = {"data": null};
         expect(doc, encodesToJson(json));
-        expect(
-            parser.decodeToOneDocument(recodeJson(json)), encodesToJson(json));
       });
 
       test('full', () {
@@ -88,8 +61,6 @@ main() {
           }
         };
         expect(doc, encodesToJson(json));
-        expect(
-            parser.decodeToOneDocument(recodeJson(json)), encodesToJson(json));
       });
     });
 
@@ -98,8 +69,6 @@ main() {
         final doc = Document(ToMany([]));
         final json = {"data": []};
         expect(doc, encodesToJson(json));
-        expect(
-            parser.decodeToManyDocument(recodeJson(json)), encodesToJson(json));
       });
 
       test('full', () {
@@ -132,8 +101,6 @@ main() {
           }
         };
         expect(doc, encodesToJson(json));
-        expect(
-            parser.decodeToManyDocument(recodeJson(json)), encodesToJson(json));
       });
     });
 
@@ -148,8 +115,6 @@ main() {
           }
         };
         expect(doc, encodesToJson(json));
-        expect(parser.decodeResourceDocument(recodeJson(json)),
-            encodesToJson(json));
       });
 
       test('full', () {
@@ -171,8 +136,6 @@ main() {
           }
         };
         expect(doc, encodesToJson(json));
-        expect(parser.decodeResourceDocument(recodeJson(json)),
-            encodesToJson(json));
       });
     });
 
@@ -181,8 +144,6 @@ main() {
         final doc = Document(ResourceCollectionData([]));
         final json = {"data": []};
         expect(doc, encodesToJson(json));
-        expect(parser.decodeResourceCollectionDocument(recodeJson(json)),
-            encodesToJson(json));
       });
 
       test('full', () {
@@ -212,8 +173,6 @@ main() {
           }
         };
         expect(doc, encodesToJson(json));
-        expect(parser.decodeResourceCollectionDocument(recodeJson(json)),
-            encodesToJson(json));
       });
     });
   });
@@ -233,8 +192,7 @@ main() {
     test('empty', () {
       final json = {"errors": []};
       expect(Document.error([]), encodesToJson(json));
-      expect(
-          parser.decodeDocument(recodeJson(json), null), encodesToJson(json));
+      expect(Document.fromJson(recodeJson(json), null), encodesToJson(json));
     });
 
     test('full', () {
@@ -261,8 +219,21 @@ main() {
       final document = Document.error([e], meta: meta, api: api);
       expect(document.errors.first.title, 'Not Found');
       expect(document, encodesToJson(json));
-      expect(
-          parser.decodeDocument(recodeJson(json), null), encodesToJson(json));
+      expect(Document.fromJson(recodeJson(json), null), encodesToJson(json));
     });
+  });
+
+  group('Decoding', () {
+    test('Can decode the example document', () {
+      // This is a slightly modified example from the JSON:API site
+      // See: https://jsonapi.org/
+      final jsonString =
+          new File('test/unit/document/example.json').readAsStringSync();
+      final jsonObject = json.decode(jsonString);
+      final doc =
+          Document.fromJson(jsonObject, ResourceCollectionData.fromJson);
+
+      expect(doc, encodesToJson(jsonObject));
+    }, testOn: 'vm');
   });
 }

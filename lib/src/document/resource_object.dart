@@ -1,3 +1,4 @@
+import 'package:json_api/src/document/decoding_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/identifier_object.dart';
 import 'package:json_api/src/document/link.dart';
@@ -40,6 +41,30 @@ class ResourceObject {
                 MapEntry(k, ToMany(v.map(IdentifierObject.fromIdentifier))))
           },
           meta: meta);
+
+  /// Decodes the `data` member of a JSON:API Document
+  static ResourceObject fromJson(Object json) {
+    final mapOrNull = (_) => _ == null || _ is Map;
+    if (json is Map) {
+      final relationships = json['relationships'];
+      final attributes = json['attributes'];
+      final links = Link.mapFromJson(json['links']);
+
+      if (mapOrNull(relationships) && mapOrNull(attributes)) {
+        return ResourceObject(json['type'], json['id'],
+            attributes: attributes,
+            relationships: Relationship.mapFromJson(relationships),
+            self: links['self']);
+      }
+    }
+    throw DecodingException('Can not decode ResourceObject from $json');
+  }
+
+  static List<ResourceObject> listFromJson(Object json) {
+    if (json is List) return json.map(fromJson).toList();
+    throw DecodingException(
+        'Can not decode Iterable<ResourceObject> from $json');
+  }
 
   /// Returns the JSON object to be used in the `data` or `included` members
   /// of a JSON:API Document

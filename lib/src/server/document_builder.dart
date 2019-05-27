@@ -11,7 +11,7 @@ import 'package:json_api/src/document/resource_data.dart';
 import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/server/collection.dart';
-import 'package:json_api/src/server/pagination/page.dart';
+import 'package:json_api/src/server/page.dart';
 import 'package:json_api/src/server/request_target.dart';
 import 'package:json_api/src/server/routing.dart';
 
