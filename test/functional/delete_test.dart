@@ -9,9 +9,10 @@ import '../../example/cars_server.dart';
 void main() async {
   HttpServer server;
   final client = JsonApiClient();
-  final route = Routing(Uri.parse('http://localhost:8080'));
+  final port = 8082;
+  final route = Routing(Uri.parse('http://localhost:$port'));
   setUp(() async {
-    server = await createServer(InternetAddress.loopbackIPv4, 8080);
+    server = await createServer(InternetAddress.loopbackIPv4, port);
   });
 
   tearDown(() async => await server.close());

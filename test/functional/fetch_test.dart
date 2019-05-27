@@ -10,9 +10,10 @@ import '../../example/cars_server.dart';
 void main() async {
   HttpServer server;
   final client = JsonApiClient();
-  final route = Routing(Uri.parse('http://localhost:8080'));
+  final port = 8083;
+  final route = Routing(Uri.parse('http://localhost:$port'));
   setUp(() async {
-    server = await createServer(InternetAddress.loopbackIPv4, 8080);
+    server = await createServer(InternetAddress.loopbackIPv4, port);
   });
 
   tearDown(() async => await server.close());
@@ -25,11 +26,11 @@ void main() async {
       expect(r.isSuccessful, true);
       expect(r.data.collection.first.attributes['name'], 'Tesla');
       expect(r.data.collection.first.self.uri.toString(),
-          'http://localhost:8080/companies/1');
+          'http://localhost:$port/companies/1');
       expect(r.data.collection.first.relationships['hq'].related.uri.toString(),
-          'http://localhost:8080/companies/1/hq');
+          'http://localhost:$port/companies/1/hq');
       expect(r.data.collection.first.relationships['hq'].self.uri.toString(),
-          'http://localhost:8080/companies/1/relationships/hq');
+          'http://localhost:$port/companies/1/relationships/hq');
       expect(r.data.self.uri, uri);
     });
 
@@ -182,7 +183,7 @@ void main() async {
       expect(r.data.toIdentifier().type, 'cities');
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
-          'http://localhost:8080/companies/1/hq');
+          'http://localhost:$port/companies/1/hq');
     });
 
     test('empty to-one', () async {
@@ -193,7 +194,7 @@ void main() async {
       expect(r.data.toIdentifier(), isNull);
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
-          'http://localhost:8080/companies/3/hq');
+          'http://localhost:$port/companies/3/hq');
     });
 
     test('generic to-one', () async {
@@ -205,7 +206,7 @@ void main() async {
       expect((r.data as ToOne).toIdentifier().type, 'cities');
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
-          'http://localhost:8080/companies/1/hq');
+          'http://localhost:$port/companies/1/hq');
     });
 
     test('to-many', () async {
@@ -216,7 +217,7 @@ void main() async {
       expect(r.data.toIdentifiers().first.type, 'models');
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
-          'http://localhost:8080/companies/1/models');
+          'http://localhost:$port/companies/1/models');
     });
 
     test('empty to-many', () async {
@@ -227,7 +228,7 @@ void main() async {
       expect(r.data.toIdentifiers(), isEmpty);
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
-          'http://localhost:8080/companies/3/models');
+          'http://localhost:$port/companies/3/models');
     });
 
     test('generic to-many', () async {
@@ -239,7 +240,7 @@ void main() async {
       expect((r.data as ToMany).toIdentifiers().first.type, 'models');
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
-          'http://localhost:8080/companies/1/models');
+          'http://localhost:$port/companies/1/models');
     });
   }, testOn: 'vm');
 }
