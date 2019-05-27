@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/document.dart';
+import 'package:json_api/json_api.dart';
 import 'package:json_matcher/json_matcher.dart';
 import 'package:test/test.dart';
 

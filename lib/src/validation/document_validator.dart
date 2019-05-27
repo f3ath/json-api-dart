@@ -4,6 +4,8 @@ import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource_collection_data.dart';
 import 'package:json_api/src/document/resource_data.dart';
 import 'package:json_api/src/document/resource_object.dart';
+import 'package:json_api/src/validation/naming.dart';
+import 'package:json_api/src/validation/standard_naming.dart';
 
 /// Validates document structure and member names
 class DocumentValidator {
@@ -84,32 +86,6 @@ class DocumentValidator {
                 'Name "$_" is used in both attributes and relationships',
                 path)));
   }
-}
-
-/// JSON API Document naming rules
-///
-/// Details: https://jsonapi.org/format/#document-member-names
-abstract class Naming {
-  const Naming();
-
-  /// Is [name] allowed by the rules
-  bool allows(String name);
-
-  /// Is [name] disallowed by the rules
-  bool disallows(String name) => !allows(name);
-}
-
-class StandardNaming extends Naming {
-  static final _disallowFirst = new RegExp(r'^[^_ -]');
-  static final _disallowLast = new RegExp(r'[^_ -]$');
-  static final _allowGlobally = new RegExp(r'^[a-zA-Z0-9_ \u0080-\uffff-]+$');
-
-  const StandardNaming();
-
-  bool allows(String name) =>
-      _disallowFirst.hasMatch(name) &&
-      _disallowLast.hasMatch(name) &&
-      _allowGlobally.hasMatch(name);
 }
 
 class ValidationError {

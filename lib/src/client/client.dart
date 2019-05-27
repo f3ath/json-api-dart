@@ -2,9 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:json_api/document.dart';
 import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/client/status_code.dart';
+import 'package:json_api/src/document/document.dart';
+import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/identifier_object.dart';
+import 'package:json_api/src/document/primary_data.dart';
+import 'package:json_api/src/document/relationship.dart';
+import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/src/document/resource_collection_data.dart';
+import 'package:json_api/src/document/resource_data.dart';
+import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/nullable.dart';
 
 typedef http.BaseClient HttpClientFactory();

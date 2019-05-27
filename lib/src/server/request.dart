@@ -1,10 +1,11 @@
 import 'dart:async';
 
-import 'package:json_api/document.dart';
+import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/error.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/src/document/resource_data.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/page.dart';
