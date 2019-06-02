@@ -6,15 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ## [2.0.0]
-**WARNING! BREAKING CHANGES!**
+
 ### Changed
-- This package now Consolidated the Client, the Server and the Document in one single library. 
+- **BREAKING!** This package now consolidated the Client, the Server and the Document in one single library. 
     It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages 
     from your `pubspec.yaml`.
 - Bumped min Dart SDK version to `2.3.0`
 
 ### Removed
-- `JsonApiParser` is removed. Use the static `fromJson` methods in the corresponding classes instead.
+- **BREAKING!** `JsonApiParser` is removed. Use the static `fromJson` methods in the corresponding classes instead.
 
 ### Added
 - `const` constructor to `JsonApiClient` 

@@ -21,9 +21,21 @@ abstract class Request {
 
   FutureOr<void> call(
       Controller controller, Map<String, List<String>> query, Object payload);
+
+  void errorNotFound(List<JsonApiError> errors) {
+    _response = ErrorResponse.notFound(errors);
+  }
+
+  void errorConflict(List<JsonApiError> errors) {
+    _response = ErrorResponse.conflict(errors);
+  }
+
+  void error(int status, List<JsonApiError> errors) {
+    _response = ErrorResponse(status, errors);
+  }
 }
 
-class FetchCollection extends Request with _Errors {
+class FetchCollection extends Request {
   final CollectionTarget target;
 
   FetchCollection(this.target);
@@ -39,7 +51,7 @@ class FetchCollection extends Request with _Errors {
   }
 }
 
-class FetchResource extends Request with _Errors {
+class FetchResource extends Request {
   final ResourceTarget target;
 
   FetchResource(this.target);
@@ -58,7 +70,7 @@ class FetchResource extends Request with _Errors {
   }
 }
 
-class FetchRelated extends Request with _Errors {
+class FetchRelated extends Request {
   final RelatedTarget target;
 
   FetchRelated(this.target);
@@ -79,7 +91,7 @@ class FetchRelated extends Request with _Errors {
   }
 }
 
-class FetchRelationship extends Request with _Errors {
+class FetchRelationship extends Request {
   final RelationshipTarget target;
 
   FetchRelationship(this.target);
@@ -98,7 +110,7 @@ class FetchRelationship extends Request with _Errors {
   }
 }
 
-class DeleteResource extends Request with _Errors {
+class DeleteResource extends Request {
   final ResourceTarget target;
 
   DeleteResource(this.target);
@@ -117,7 +129,7 @@ class DeleteResource extends Request with _Errors {
   }
 }
 
-class UpdateResource extends Request with _Errors {
+class UpdateResource extends Request {
   final ResourceTarget target;
 
   UpdateResource(this.target);
@@ -141,7 +153,7 @@ class UpdateResource extends Request with _Errors {
   }
 }
 
-class CreateResource extends Request with _Errors {
+class CreateResource extends Request {
   final CollectionTarget target;
 
   CreateResource(this.target);
@@ -169,7 +181,7 @@ class CreateResource extends Request with _Errors {
   }
 }
 
-class UpdateRelationship extends Request with _Errors {
+class UpdateRelationship extends Request {
   final RelationshipTarget target;
 
   UpdateRelationship(this.target);
@@ -191,7 +203,7 @@ class UpdateRelationship extends Request with _Errors {
   }
 }
 
-class AddToMany extends Request with _Errors {
+class AddToMany extends Request {
   final RelationshipTarget target;
 
   AddToMany(this.target);
@@ -220,20 +232,4 @@ class InvalidRequest extends Request {
   @override
   void call(
       Controller controller, Map<String, List<String>> query, Object payload) {}
-}
-
-mixin _Errors {
-  Response _response;
-
-  void errorNotFound(List<JsonApiError> errors) {
-    _response = ErrorResponse.notFound(errors);
-  }
-
-  void errorConflict(List<JsonApiError> errors) {
-    _response = ErrorResponse.conflict(errors);
-  }
-
-  void error(int status, List<JsonApiError> errors) {
-    _response = ErrorResponse(status, errors);
-  }
 }

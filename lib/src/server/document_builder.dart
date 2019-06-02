@@ -13,15 +13,15 @@ import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/page.dart';
 import 'package:json_api/src/server/request_target.dart';
-import 'package:json_api/src/server/routing.dart';
+import 'package:json_api/src/url_design.dart';
 
 /// The Document builder is used by JsonApiServer. It abstracts the process
 /// of building response documents and is responsible for such aspects as
 ///  adding `meta` and `jsonapi` attributes and generating links
 class DocumentBuilder {
-  final UriSchema _url;
+  final UrlDesign _urlDesign;
 
-  const DocumentBuilder(this._url);
+  const DocumentBuilder(this._urlDesign);
 
   /// A document containing a list of errors
   Document errorDocument(Iterable<JsonApiError> errors) =>
@@ -64,8 +64,8 @@ class DocumentBuilder {
           RelationshipTarget target, Uri self) =>
       Document(ToMany(identifiers.map(_identifierObject),
           self: _link(self),
-          related: _link(
-              _url.related(target.type, target.id, target.relationship))));
+          related: _link(_urlDesign.related(
+              target.type, target.id, target.relationship))));
 
   /// A to-one relationship
 
@@ -73,8 +73,8 @@ class DocumentBuilder {
           Identifier identifier, RelationshipTarget target, Uri self) =>
       Document(ToOne(nullable(_identifierObject)(identifier),
           self: _link(self),
-          related: _link(
-              _url.related(target.type, target.id, target.relationship))));
+          related: _link(_urlDesign.related(
+              target.type, target.id, target.relationship))));
 
   /// A document containing just a meta member
 
@@ -88,19 +88,21 @@ class DocumentBuilder {
     relationships.addAll(resource.toOne.map((k, v) => MapEntry(
         k,
         ToOne(nullable(_identifierObject)(v),
-            self: _link(_url.relationship(resource.type, resource.id, k)),
-            related: _link(_url.related(resource.type, resource.id, k))))));
+            self: _link(_urlDesign.relationship(resource.type, resource.id, k)),
+            related:
+                _link(_urlDesign.related(resource.type, resource.id, k))))));
 
     relationships.addAll(resource.toMany.map((k, v) => MapEntry(
         k,
         ToMany(v.map(_identifierObject),
-            self: _link(_url.relationship(resource.type, resource.id, k)),
-            related: _link(_url.related(resource.type, resource.id, k))))));
+            self: _link(_urlDesign.relationship(resource.type, resource.id, k)),
+            related:
+                _link(_urlDesign.related(resource.type, resource.id, k))))));
 
     return ResourceObject(resource.type, resource.id,
         attributes: resource.attributes,
         relationships: relationships,
-        self: _link(_url.resource(resource.type, resource.id)));
+        self: _link(_urlDesign.resource(resource.type, resource.id)));
   }
 
   Pagination _pagination(Page page, Uri self, Collection<Resource> collection) {

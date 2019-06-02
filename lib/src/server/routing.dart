@@ -1,36 +1,9 @@
 import 'package:json_api/src/server/request_target.dart';
-
-abstract class UriSchema {
-  Uri collection(String type);
-
-  Uri related(String type, String id, String relationship);
-
-  Uri relationship(String type, String id, String relationship);
-
-  Uri resource(String type, String id);
-}
+import 'package:json_api/src/url_design.dart';
 
 /// The routing schema (URL Design) defines the design of URLs used by the server.
-class Routing implements UriSchema {
-  final Uri _base;
-
-  Routing(this._base) {
-    ArgumentError.checkNotNull(_base, 'base');
-  }
-
-  /// Builds a URL for a resource collection
-  Uri collection(String type) => _path([type]);
-
-  /// Builds a URL for a related resource
-  Uri related(String type, String id, String relationship) =>
-      _path([type, id, relationship]);
-
-  /// Builds a URL for a relationship object
-  Uri relationship(String type, String id, String relationship) =>
-      _path([type, id, 'relationships', relationship]);
-
-  /// Builds a URL for a single resource
-  Uri resource(String type, String id) => _path([type, id]);
+class Routing extends RecommendedUrlDesign {
+  Routing(Uri base) : super(base);
 
   /// This function must return one of the following:
   /// - [CollectionTarget]
@@ -54,7 +27,4 @@ class Routing implements UriSchema {
     }
     return null;
   }
-
-  Uri _path(List<String> segments) =>
-      _base.replace(pathSegments: _base.pathSegments + segments);
 }

@@ -7,7 +7,8 @@ import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/document_builder.dart';
 import 'package:json_api/src/server/page.dart';
 import 'package:json_api/src/server/request_target.dart';
-import 'package:json_api/src/server/routing.dart';
+
+import '../url_design.dart';
 
 abstract class Response {
   final int status;
@@ -16,7 +17,7 @@ abstract class Response {
 
   Document getDocument(DocumentBuilder builder, Uri self);
 
-  Map<String, String> getHeaders(UriSchema schema) =>
+  Map<String, String> getHeaders(UrlDesign schema) =>
       {'Content-Type': 'application/vnd.api+json'};
 }
 
@@ -139,7 +140,7 @@ class SeeOther extends Response {
   Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) => null;
 
   @override
-  Map<String, String> getHeaders(UriSchema schema) => super.getHeaders(schema)
+  Map<String, String> getHeaders(UrlDesign schema) => super.getHeaders(schema)
     ..['Location'] = schema.resource(resource.type, resource.id).toString();
 }
 
@@ -153,7 +154,7 @@ class ResourceCreated extends Response {
       builder.resourceDocument(resource, self);
 
   @override
-  Map<String, String> getHeaders(UriSchema schema) => super.getHeaders(schema)
+  Map<String, String> getHeaders(UrlDesign schema) => super.getHeaders(schema)
     ..['Location'] = schema.resource(resource.type, resource.id).toString();
 }
 
@@ -177,7 +178,7 @@ class Accepted extends Response {
       builder.resourceDocument(resource, self);
 
   @override
-  Map<String, String> getHeaders(UriSchema schema) => super.getHeaders(schema)
+  Map<String, String> getHeaders(UrlDesign schema) => super.getHeaders(schema)
     ..['Content-Location'] =
         schema.resource(resource.type, resource.id).toString();
 }

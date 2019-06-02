@@ -1,4 +1,4 @@
-import 'package:json_api/src/server/request.dart';
+import 'package:json_api/src/server/request/request.dart';
 
 abstract class RequestTarget {
   String get type;
