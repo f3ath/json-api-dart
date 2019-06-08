@@ -12,15 +12,15 @@ class ResourceData extends PrimaryData {
       {Link self, Iterable<ResourceObject> included})
       : super(self: self, included: included);
 
-  static ResourceData fromJson(Object json) {
+  static ResourceData decodeJson(Object json) {
     if (json is Map) {
       final links = Link.mapFromJson(json['links']);
       final included = json['included'];
       final resources = <ResourceObject>[];
       if (included is List) {
-        resources.addAll(included.map(ResourceObject.fromJson));
+        resources.addAll(included.map(ResourceObject.decodeJson));
       }
-      final data = ResourceObject.fromJson(json['data']);
+      final data = ResourceObject.decodeJson(json['data']);
       return ResourceData(data,
           self: links['self'],
           included: resources.isNotEmpty ? resources : null);
@@ -30,8 +30,6 @@ class ResourceData extends PrimaryData {
 
   @override
   Map<String, Object> toJson() {
-    final links = toLinks();
-
     return {
       ...super.toJson(),
       'data': resourceObject,

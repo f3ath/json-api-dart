@@ -9,6 +9,8 @@ class ResourceCollectionData extends PrimaryData {
   final collection = <ResourceObject>[];
   final Pagination pagination;
 
+  Map<String, Link> get links => {...super.links, ...pagination.toLinks()};
+
   ResourceCollectionData(Iterable<ResourceObject> collection,
       {Link self,
       Iterable<ResourceObject> included,
@@ -17,13 +19,13 @@ class ResourceCollectionData extends PrimaryData {
     this.collection.addAll(collection);
   }
 
-  static ResourceCollectionData fromJson(Object json) {
+  static ResourceCollectionData decodeJson(Object json) {
     if (json is Map) {
       final links = Link.mapFromJson(json['links']);
       final included = json['included'];
       final data = json['data'];
       if (data is List) {
-        return ResourceCollectionData(data.map(ResourceObject.fromJson),
+        return ResourceCollectionData(data.map(ResourceObject.decodeJson),
             self: links['self'],
             pagination: Pagination.fromLinks(links),
             included: included == null
@@ -41,8 +43,6 @@ class ResourceCollectionData extends PrimaryData {
     if (included != null && included.isNotEmpty) {
       json['included'] = included;
     }
-
-    final links = toLinks()..addAll(pagination.toLinks());
     if (links.isNotEmpty) json['links'] = links;
     return json;
   }

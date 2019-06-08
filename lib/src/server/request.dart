@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/document/error.dart';
 import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/resource_data.dart';
@@ -139,7 +139,7 @@ class UpdateResource extends Request {
           Object payload) =>
       controller.updateResource(
           this,
-          Document.fromJson(payload, ResourceData.fromJson)
+          Document.decodeJson(payload, ResourceData.decodeJson)
               .data
               .resourceObject
               .toResource());
@@ -163,7 +163,7 @@ class CreateResource extends Request {
           Object payload) =>
       controller.createResource(
           this,
-          Document.fromJson(payload, ResourceData.fromJson)
+          Document.decodeJson(payload, ResourceData.decodeJson)
               .data
               .resourceObject
               .toResource());
@@ -189,7 +189,7 @@ class UpdateRelationship extends Request {
   @override
   FutureOr<void> call(Controller controller, Map<String, List<String>> query,
       Object payload) async {
-    final rel = Relationship.fromJson(payload);
+    final rel = Relationship.decodeJson(payload);
     if (rel is ToOne) {
       controller.replaceToOne(this, rel.toIdentifier());
     }
@@ -211,7 +211,7 @@ class AddToMany extends Request {
   @override
   FutureOr<void> call(Controller controller, Map<String, List<String>> query,
       Object payload) async {
-    final rel = Relationship.fromJson(payload);
+    final rel = Relationship.decodeJson(payload);
     if (rel is ToMany) {
       controller.addToMany(this, rel.toIdentifiers());
     }

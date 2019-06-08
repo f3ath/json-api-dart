@@ -8,7 +8,7 @@ class Api {
   Api({this.version, Map<String, Object> meta})
       : meta = meta == null ? null : Map.from(meta);
 
-  static Api fromJson(Object json) {
+  static Api decodeJson(Object json) {
     if (json is Map) {
       return Api(version: json['version'], meta: json['meta']);
     }

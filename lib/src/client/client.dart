@@ -32,32 +32,32 @@ class JsonApiClient {
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ResourceCollectionData>> fetchCollection(Uri uri,
           {Map<String, String> headers = const {}}) =>
-      _get(ResourceCollectionData.fromJson, uri, headers);
+      _get(ResourceCollectionData.decodeJson, uri, headers);
 
   /// Fetches a single resource
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ResourceData>> fetchResource(Uri uri,
           {Map<String, String> headers = const {}}) =>
-      _get(ResourceData.fromJson, uri, headers);
+      _get(ResourceData.decodeJson, uri, headers);
 
   /// Fetches a to-one relationship
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ToOne>> fetchToOne(Uri uri,
           {Map<String, String> headers = const {}}) =>
-      _get(ToOne.fromJson, uri, headers);
+      _get(ToOne.decodeJson, uri, headers);
 
   /// Fetches a to-many relationship
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ToMany>> fetchToMany(Uri uri,
           {Map<String, String> headers = const {}}) =>
-      _get(ToMany.fromJson, uri, headers);
+      _get(ToMany.decodeJson, uri, headers);
 
   /// Fetches a to-one or to-many relationship.
   /// The actual type of the relationship can be determined afterwards.
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<Relationship>> fetchRelationship(Uri uri,
           {Map<String, String> headers = const {}}) =>
-      _get(Relationship.fromJson, uri, headers);
+      _get(Relationship.decodeJson, uri, headers);
 
   /// Creates a new resource. The resource will be added to a collection
   /// according to its type.
@@ -65,7 +65,7 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-creating
   Future<Response<ResourceData>> createResource(Uri uri, Resource resource,
           {Map<String, String> headers = const {}}) =>
-      _post(ResourceData.fromJson, uri,
+      _post(ResourceData.decodeJson, uri,
           ResourceData(ResourceObject.fromResource(resource)), headers);
 
   /// Deletes the resource.
@@ -80,7 +80,7 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating
   Future<Response<ResourceData>> updateResource(Uri uri, Resource resource,
           {Map<String, String> headers = const {}}) =>
-      _patch(ResourceData.fromJson, uri,
+      _patch(ResourceData.decodeJson, uri,
           ResourceData(ResourceObject.fromResource(resource)), headers);
 
   /// Updates a to-one relationship via PATCH request
@@ -89,7 +89,7 @@ class JsonApiClient {
   Future<Response<ToOne>> replaceToOne(Uri uri, Identifier identifier,
           {Map<String, String> headers = const {}}) =>
       _patch(
-          ToOne.fromJson,
+          ToOne.decodeJson,
           uri,
           ToOne(nullable(IdentifierObject.fromIdentifier)(identifier)),
           headers);
@@ -109,7 +109,7 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> identifiers,
           {Map<String, String> headers = const {}}) =>
-      _patch(ToMany.fromJson, uri,
+      _patch(ToMany.decodeJson, uri,
           ToMany(identifiers.map(IdentifierObject.fromIdentifier)), headers);
 
   /// Adds the given set of [identifiers] to a to-many relationship.
@@ -132,7 +132,7 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> identifiers,
           {Map<String, String> headers = const {}}) =>
-      _post(ToMany.fromJson, uri,
+      _post(ToMany.decodeJson, uri,
           ToMany(identifiers.map(IdentifierObject.fromIdentifier)), headers);
 
   Future<Response<D>> _get<D extends PrimaryData>(
@@ -189,11 +189,12 @@ class JsonApiClient {
         return Response(response.statusCode, response.headers,
             asyncDocument: body == null
                 ? null
-                : Document.fromJson(body, ResourceData.fromJson));
+                : Document.decodeJson(body, ResourceData.decodeJson));
       }
       return Response(response.statusCode, response.headers,
-          document:
-              body == null ? null : Document.fromJson(body, decodePrimaryData));
+          document: body == null
+              ? null
+              : Document.decodeJson(body, decodePrimaryData));
     } finally {
       client.close();
     }

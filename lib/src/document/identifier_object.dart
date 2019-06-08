@@ -14,7 +14,7 @@ class IdentifierObject {
   static IdentifierObject fromIdentifier(Identifier id) =>
       IdentifierObject(id.type, id.id);
 
-  static IdentifierObject fromJson(Object json) {
+  static IdentifierObject decodeJson(Object json) {
     if (json is Map) {
       return IdentifierObject(json['type'], json['id'], meta: json['meta']);
     }

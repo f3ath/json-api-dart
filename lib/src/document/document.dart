@@ -1,5 +1,5 @@
-import 'package:json_api/src/document/error.dart';
-import 'package:json_api/src/document/json_api.dart';
+import 'package:json_api/src/document/api.dart';
+import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/primary_data.dart';
 
 import 'decoding_exception.dart';
@@ -7,7 +7,7 @@ import 'decoding_exception.dart';
 class Document<Data extends PrimaryData> {
   /// The Primary Data
   final Data data;
-  final JsonApi api;
+  final Api api;
 
   final List<JsonApiError> errors;
   final Map<String, Object> meta;
@@ -33,17 +33,17 @@ class Document<Data extends PrimaryData> {
   }
 
   /// Decodes a document with the specified primary data
-  static Document<Data> fromJson<Data extends PrimaryData>(
+  static Document<Data> decodeJson<Data extends PrimaryData>(
       Object json, Data decodePrimaryData(Object json)) {
     if (json is Map) {
-      JsonApi api;
+      Api api;
       if (json.containsKey('jsonapi')) {
-        api = JsonApi.fromJson(json['jsonapi']);
+        api = Api.decodeJson(json['jsonapi']);
       }
       if (json.containsKey('errors')) {
         final errors = json['errors'];
         if (errors is List) {
-          return Document.error(errors.map(JsonApiError.fromJson),
+          return Document.error(errors.map(JsonApiError.decodeJson),
               meta: json['meta'], api: api);
         }
       } else if (json.containsKey('data')) {
@@ -59,29 +59,8 @@ class Document<Data extends PrimaryData> {
         if (data != null)
           ...data.toJson()
         else
-          if (errors != null) ...{'errors': errors.map(_errorToJson).toList()},
+          if (errors != null) ...{'errors': errors},
         if (meta != null) ...{'meta': meta},
         if (api != null) ...{'jsonapi': api},
       };
-
-  Map<String, Object> _errorToJson(JsonApiError error) {
-    final source = {
-      if (error.sourcePointer != null) ...{'pointer': error.sourcePointer},
-      if (error.sourceParameter != null) ...{
-        'parameter': error.sourceParameter
-      },
-    };
-    return {
-      if (error.id != null) ...{'id': error.id},
-      if (error.status != null) ...{'status': error.status},
-      if (error.code != null) ...{'code': error.code},
-      if (error.title != null) ...{'title': error.title},
-      if (error.detail != null) ...{'detail': error.detail},
-      if (error.meta.isNotEmpty != null) ...{'meta': error.meta},
-      if (error.about != null) ...{
-        'links': {'about': error.about}
-      },
-      if (source.isNotEmpty) ...{'source': source},
-    };
-  }
 }

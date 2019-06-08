@@ -9,9 +9,9 @@ class Link {
     ArgumentError.checkNotNull(uri, 'uri');
   }
 
-  static Link fromJson(Object json) {
+  static Link decodeJson(Object json) {
     if (json is String) return Link(Uri.parse(json));
-    if (json is Map) return LinkObject.fromJson(json);
+    if (json is Map) return LinkObject.decodeJson(json);
     throw DecodingException('Can not decode Link from $json');
   }
 
@@ -23,7 +23,7 @@ class Link {
     if (json == null) return {};
     if (json is Map) {
       return ({...json}..removeWhere((_, v) => v == null))
-          .map((k, v) => MapEntry(k.toString(), Link.fromJson(v)));
+          .map((k, v) => MapEntry(k.toString(), Link.decodeJson(v)));
     }
     throw DecodingException('Can not decode links map from $json');
   }
@@ -43,7 +43,7 @@ class LinkObject extends Link {
       : meta = Map.unmodifiable(meta ?? {}),
         super(href);
 
-  static LinkObject fromJson(Object json) {
+  static LinkObject decodeJson(Object json) {
     if (json is Map) {
       final href = json['href'];
       if (href is String) {

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/src/document/error.dart';
+import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/document_builder.dart';
 import 'package:json_api/src/server/response.dart';

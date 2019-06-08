@@ -12,12 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages 
     from your `pubspec.yaml`.
 - Bumped min Dart SDK version to `2.3.0`
+- Renamed `JsonApi` to `Api`
 
 ### Removed
 - **BREAKING!** `JsonApiParser` is removed. Use the static `fromJson` methods in the corresponding classes instead.
+- `PrimaryData.toLinks()` is removed. Use `PrimaryData.links` instead.
 
 ### Added
 - `const` constructor to `JsonApiClient` 
+- `PrimaryData.links`
 
 ## [1.0.1] - 2019-04-05
 ### Fixed

@@ -48,10 +48,10 @@ class JsonApiError {
     this.meta.addAll(meta ?? {});
   }
 
-  static JsonApiError fromJson(Object json) {
+  static JsonApiError decodeJson(Object json) {
     if (json is Map) {
       Link about;
-      if (json['links'] is Map) about = Link.fromJson(json['links']['about']);
+      if (json['links'] is Map) about = Link.decodeJson(json['links']['about']);
 
       String pointer;
       String parameter;

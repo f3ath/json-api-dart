@@ -1,7 +1,7 @@
 import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/document/error.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/identifier_object.dart';
+import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/pagination.dart';
 import 'package:json_api/src/document/relationship.dart';
@@ -35,7 +35,6 @@ class DocumentBuilder {
           self: _link(self), pagination: _pagination(page, self, collection)));
 
   /// A collection of related resources
-
   Document<ResourceCollectionData> relatedCollectionDocument(
           Collection<Resource> collection, Uri self,
           {Iterable<Resource> included, Page page}) =>
@@ -43,7 +42,6 @@ class DocumentBuilder {
           self: _link(self), pagination: _pagination(page, self, collection)));
 
   /// A single (primary) resource
-
   Document<ResourceData> resourceDocument(Resource resource, Uri self,
           {Iterable<Resource> included}) =>
       Document(
@@ -52,14 +50,12 @@ class DocumentBuilder {
       );
 
   /// A single related resource
-
   Document<ResourceData> relatedResourceDocument(Resource resource, Uri self,
           {Iterable<Resource> included}) =>
       Document(ResourceData(_resourceObject(resource),
           included: included?.map(_resourceObject), self: _link(self)));
 
   /// A to-many relationship
-
   Document<ToMany> toManyDocument(Iterable<Identifier> identifiers,
           RelationshipTarget target, Uri self) =>
       Document(ToMany(identifiers.map(_identifierObject),
@@ -68,7 +64,6 @@ class DocumentBuilder {
               target.type, target.id, target.relationship))));
 
   /// A to-one relationship
-
   Document<ToOne> toOneDocument(
           Identifier identifier, RelationshipTarget target, Uri self) =>
       Document(ToOne(nullable(_identifierObject)(identifier),
@@ -77,7 +72,6 @@ class DocumentBuilder {
               target.type, target.id, target.relationship))));
 
   /// A document containing just a meta member
-
   Document metaDocument(Map<String, Object> meta) => Document.empty(meta);
 
   IdentifierObject _identifierObject(Identifier id) =>
@@ -105,13 +99,13 @@ class DocumentBuilder {
         self: _link(_urlDesign.resource(resource.type, resource.id)));
   }
 
-  Pagination _pagination(Page page, Uri self, Collection<Resource> collection) {
-    return Pagination(
-        first: _link(page?.first()?.addTo(self)),
-        last: _link(page?.last(collection.total)?.addTo(self)),
-        prev: _link(page?.prev()?.addTo(self)),
-        next: _link(page?.next(collection.total)?.addTo(self)));
-  }
+  Pagination _pagination(
+          Page page, Uri self, Collection<Resource> collection) =>
+      Pagination(
+          first: _link(page?.first()?.addTo(self)),
+          last: _link(page?.last(collection.total)?.addTo(self)),
+          prev: _link(page?.prev()?.addTo(self)),
+          next: _link(page?.next(collection.total)?.addTo(self)));
 
   Link _link(Uri uri) => uri == null ? null : Link(uri);
 }

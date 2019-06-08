@@ -1,11 +1,11 @@
 export 'package:json_api/src/client/client.dart';
 export 'package:json_api/src/client/response.dart';
 export 'package:json_api/src/client/status_code.dart';
+export 'package:json_api/src/document/api.dart';
 export 'package:json_api/src/document/document.dart';
-export 'package:json_api/src/document/error.dart';
 export 'package:json_api/src/document/identifier.dart';
 export 'package:json_api/src/document/identifier_object.dart';
-export 'package:json_api/src/document/json_api.dart';
+export 'package:json_api/src/document/json_api_error.dart';
 export 'package:json_api/src/document/link.dart';
 export 'package:json_api/src/document/pagination.dart';
 export 'package:json_api/src/document/primary_data.dart';

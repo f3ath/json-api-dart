@@ -43,7 +43,7 @@ class ResourceObject {
           meta: meta);
 
   /// Decodes the `data` member of a JSON:API Document
-  static ResourceObject fromJson(Object json) {
+  static ResourceObject decodeJson(Object json) {
     final mapOrNull = (_) => _ == null || _ is Map;
     if (json is Map) {
       final relationships = json['relationships'];
@@ -61,7 +61,7 @@ class ResourceObject {
   }
 
   static List<ResourceObject> listFromJson(Object json) {
-    if (json is List) return json.map(fromJson).toList();
+    if (json is List) return json.map(decodeJson).toList();
     throw DecodingException(
         'Can not decode Iterable<ResourceObject> from $json');
   }
