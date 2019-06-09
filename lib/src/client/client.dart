@@ -88,11 +88,8 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating-to-one-relationships
   Future<Response<ToOne>> replaceToOne(Uri uri, Identifier identifier,
           {Map<String, String> headers = const {}}) =>
-      _patch(
-          ToOne.decodeJson,
-          uri,
-          ToOne(nullable((_) => IdentifierObject(_))(identifier)),
-          headers);
+      _patch(ToOne.decodeJson, uri,
+          ToOne(nullable((_) => IdentifierObject(_))(identifier)), headers);
 
   /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
   /// with id = null.
