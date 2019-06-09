@@ -12,22 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages 
     from your `pubspec.yaml`.
 - The min Dart SDK version bumped to `2.3.0`
-- `JsonApi` renamed to `Api`
+- The Document has been refactored with lots of **BREAKING CHANGES**. Please 
 - Meta property is not not defensively copied, but set directly. Meta property behavior is unified across 
     the Document model.
-- `Pagination.toLinks()` renamed to `Pagination.links`
-- `ToMany.toIdentifiers()` renamed to ToMany.identifiers`
-- `IdentifierObject` constructor requires an `Identifier` as an argument 
 
 ### Removed
 - `JsonApiParser` is removed. Use the static `decodeJson` methods in the corresponding classes instead.
-- `PrimaryData.toLinks()` is removed. Use `PrimaryData.links` instead.
-- `Pagination.empty()`
-- `IdentifierObject.fromIdentfier()`
 
-### Added
-- `const` constructor to `JsonApiClient` 
-- `PrimaryData.links`
 
 ## [1.0.1] - 2019-04-05
 ### Fixed
