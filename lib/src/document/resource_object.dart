@@ -29,15 +29,14 @@ class ResourceObject {
       : attributes = attributes == null ? null : Map.from(attributes),
         relationships = relationships == null ? null : Map.from(relationships);
 
-  static ResourceObject fromResource(Resource resource,
-          {Map<String, String> meta}) =>
+  static ResourceObject wrap(Resource resource, {Map<String, String> meta}) =>
       ResourceObject(resource.type, resource.id,
           attributes: resource.attributes,
           relationships: <String, Relationship>{
             ...resource.toOne
                 .map((k, v) => MapEntry(k, ToOne.fromIdentifier(v))),
-            ...resource.toMany.map((k, v) =>
-                MapEntry(k, ToMany(v.map((_) => IdentifierObject(_)))))
+            ...resource.toMany.map(
+                (k, v) => MapEntry(k, ToMany(v.map(IdentifierObject.wrap))))
           },
           meta: meta);
 
@@ -80,12 +79,12 @@ class ResourceObject {
         },
       };
 
-  /// Converts to [Resource] if possible. The standard allows relationships
+  /// Extracts the [Resource] if possible. The standard allows relationships
   /// without `data` member. In this case the original [Resource] can not be
   /// recovered and this method will throw a [StateError].
   ///
   /// TODO: we probably need `isIncomplete` flag to check for this.
-  Resource toResource() {
+  Resource unwrap() {
     final toOne = <String, Identifier>{};
     final toMany = <String, List<Identifier>>{};
     final incomplete = <String, Relationship>{};

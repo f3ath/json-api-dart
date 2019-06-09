@@ -129,7 +129,7 @@ class CarsController implements Controller {
       return;
     }
 
-    if (resource.hasId) {
+    if (resource.id != null) {
       if (dao.fetchById(resource.id) != null) {
         request
             .errorConflict([JsonApiError(detail: 'Resource already exists')]);

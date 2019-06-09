@@ -11,7 +11,7 @@ void main() {
         'title': 'Ember Hamster',
         'src': 'http://example.com/images/productivity.png'
       }, relationships: {
-        'photographer': ToOne(IdentifierObject(Identifier('people', '9')))
+        'photographer': ToOne(IdentifierObject('people', '9'))
       });
       expect(
           res,

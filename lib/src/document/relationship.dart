@@ -83,7 +83,7 @@ class ToOne extends Relationship {
         super(self: self, related: related);
 
   static ToOne fromIdentifier(Identifier identifier) =>
-      ToOne(nullable((_) => IdentifierObject(_))(identifier));
+      ToOne(nullable(IdentifierObject.wrap)(identifier));
 
   static ToOne decodeJson(Object json) {
     if (json is Map) {
@@ -103,11 +103,11 @@ class ToOne extends Relationship {
 
   /// Converts to [Identifier].
   /// For empty relationships return null.
-  Identifier toIdentifier() => linkage?.identifier;
+  Identifier toIdentifier() => linkage?.unwrap();
 
   @override
   bool identifies(ResourceObject resourceObject) =>
-      resourceObject.toResource().toIdentifier().equals(toIdentifier());
+      resourceObject.unwrap().toIdentifier().equals(toIdentifier());
 }
 
 /// Relationship to-many
@@ -157,9 +157,9 @@ class ToMany extends Relationship {
   /// Converts to List<[Identifier]>.
   /// For empty relationships returns an empty List.
   List<Identifier> get identifiers =>
-      linkage.map((_) => _.identifier).toList();
+      linkage.map((_) => _.unwrap()).toList();
 
   @override
   bool identifies(ResourceObject resourceObject) =>
-      identifiers.any(resourceObject.toResource().toIdentifier().equals);
+      identifiers.any(resourceObject.unwrap().toIdentifier().equals);
 }

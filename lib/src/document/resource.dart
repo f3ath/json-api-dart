@@ -23,9 +23,6 @@ class Resource {
   /// to-many relationships
   final toMany = <String, List<Identifier>>{};
 
-  /// True if the Resource has a non-empty id
-  bool get hasId => id != null && id.isNotEmpty;
-
   Resource(this.type, this.id,
       {Map<String, Object> attributes,
       Map<String, Identifier> toOne,

@@ -75,7 +75,7 @@ class DocumentBuilder {
   Document metaDocument(Map<String, Object> meta) => Document.empty(meta);
 
   IdentifierObject _identifierObject(Identifier id) =>
-      IdentifierObject(Identifier(id.type, id.id));
+      IdentifierObject(id.type, id.id);
 
   ResourceObject _resourceObject(Resource resource) {
     final relationships = <String, Relationship>{};

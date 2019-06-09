@@ -7,7 +7,7 @@ void main() async {
   print('Status: ${response.status}');
   print('Headers: ${response.headers}');
 
-  final resource = response.data.collection.first.toResource();
+  final resource = response.data.collection.first.unwrap();
 
   print('The collection page size is ${response.data.collection.length}');
   print('The first element is ${resource}');

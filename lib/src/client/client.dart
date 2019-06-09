@@ -66,7 +66,7 @@ class JsonApiClient {
   Future<Response<ResourceData>> createResource(Uri uri, Resource resource,
           {Map<String, String> headers = const {}}) =>
       _post(ResourceData.decodeJson, uri,
-          ResourceData(ResourceObject.fromResource(resource)), headers);
+          ResourceData(ResourceObject.wrap(resource)), headers);
 
   /// Deletes the resource.
   ///
@@ -81,18 +81,15 @@ class JsonApiClient {
   Future<Response<ResourceData>> updateResource(Uri uri, Resource resource,
           {Map<String, String> headers = const {}}) =>
       _patch(ResourceData.decodeJson, uri,
-          ResourceData(ResourceObject.fromResource(resource)), headers);
+          ResourceData(ResourceObject.wrap(resource)), headers);
 
   /// Updates a to-one relationship via PATCH request
   ///
   /// https://jsonapi.org/format/#crud-updating-to-one-relationships
   Future<Response<ToOne>> replaceToOne(Uri uri, Identifier identifier,
           {Map<String, String> headers = const {}}) =>
-      _patch(
-          ToOne.decodeJson,
-          uri,
-          ToOne(nullable((_) => IdentifierObject(_))(identifier)),
-          headers);
+      _patch(ToOne.decodeJson, uri,
+          ToOne(nullable(IdentifierObject.wrap)(identifier)), headers);
 
   /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
   /// with id = null.
@@ -110,7 +107,7 @@ class JsonApiClient {
   Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> identifiers,
           {Map<String, String> headers = const {}}) =>
       _patch(ToMany.decodeJson, uri,
-          ToMany(identifiers.map((_) => IdentifierObject(_))), headers);
+          ToMany(identifiers.map(IdentifierObject.wrap)), headers);
 
   /// Adds the given set of [identifiers] to a to-many relationship.
   ///
@@ -133,7 +130,7 @@ class JsonApiClient {
   Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> identifiers,
           {Map<String, String> headers = const {}}) =>
       _post(ToMany.decodeJson, uri,
-          ToMany(identifiers.map((_) => IdentifierObject(_))), headers);
+          ToMany(identifiers.map(IdentifierObject.wrap)), headers);
 
   Future<Response<D>> _get<D extends PrimaryData>(
           D parse(Object _), uri, Map<String, String> headers) =>

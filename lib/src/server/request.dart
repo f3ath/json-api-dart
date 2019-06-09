@@ -142,7 +142,7 @@ class UpdateResource extends Request {
           Document.decodeJson(payload, ResourceData.decodeJson)
               .data
               .resourceObject
-              .toResource());
+              .unwrap());
 
   void sendNoContent() {
     _response = NoContent();
@@ -166,7 +166,7 @@ class CreateResource extends Request {
           Document.decodeJson(payload, ResourceData.decodeJson)
               .data
               .resourceObject
-              .toResource());
+              .unwrap());
 
   void sendNoContent() {
     _response = NoContent();
