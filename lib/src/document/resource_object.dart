@@ -91,7 +91,7 @@ class ResourceObject {
     final incomplete = <String, Relationship>{};
     (relationships ?? {}).forEach((name, rel) {
       if (rel is ToOne) {
-        toOne[name] = rel.identifier;
+        toOne[name] = rel.toIdentifier();
       } else if (rel is ToMany) {
         toMany[name] = rel.identifiers;
       } else {

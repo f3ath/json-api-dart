@@ -191,7 +191,7 @@ class UpdateRelationship extends Request {
       Object payload) async {
     final rel = Relationship.decodeJson(payload);
     if (rel is ToOne) {
-      controller.replaceToOne(this, rel.identifier);
+      controller.replaceToOne(this, rel.toIdentifier());
     }
     if (rel is ToMany) {
       controller.replaceToMany(this, rel.identifiers);

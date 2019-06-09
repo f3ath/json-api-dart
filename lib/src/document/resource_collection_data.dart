@@ -38,10 +38,6 @@ class ResourceCollectionData extends PrimaryData {
   }
 
   @override
-  bool identifies(ResourceObject resourceObject) =>
-      collection.any((_) => _.identifies(resourceObject));
-
-  @override
   Map<String, Object> toJson() {
     final json = super.toJson()..['data'] = collection;
     if (included != null && included.isNotEmpty) {
@@ -50,4 +46,8 @@ class ResourceCollectionData extends PrimaryData {
     if (links.isNotEmpty) json['links'] = links;
     return json;
   }
+
+  @override
+  bool identifies(ResourceObject resourceObject) =>
+      collection.any((_) => _.identifies(resourceObject));
 }

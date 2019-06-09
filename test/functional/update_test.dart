@@ -163,7 +163,7 @@ void main() async {
         test('204 No Content', () async {
           final url = route.relationship('companies', '1', 'hq');
           final r0 = await client.fetchToOne(url);
-          final original = r0.document.data.identifier;
+          final original = r0.document.data.toIdentifier();
           expect(original.id, '2');
 
           final r1 =
@@ -171,7 +171,7 @@ void main() async {
           expect(r1.status, 204);
 
           final r2 = await client.fetchToOne(url);
-          final updated = r2.document.data.identifier;
+          final updated = r2.document.data.toIdentifier();
           expect(updated.type, original.type);
           expect(updated.id, '1');
         });
@@ -182,14 +182,14 @@ void main() async {
           final url = route.relationship('companies', '1', 'hq');
 
           final r0 = await client.fetchToOne(url);
-          final original = r0.document.data.identifier;
+          final original = r0.document.data.toIdentifier();
           expect(original.id, '2');
 
           final r1 = await client.deleteToOne(url);
           expect(r1.status, 204);
 
           final r2 = await client.fetchToOne(url);
-          expect(r2.document.data.identifier, isNull);
+          expect(r2.document.data.toIdentifier(), isNull);
         });
       });
     }, testOn: 'vm');

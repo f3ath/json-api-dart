@@ -7,7 +7,7 @@ import 'package:json_api/src/document/resource_object.dart';
 /// - it always has the `data` key (could be `null` for an empty to-one relationship)
 /// - it can not have `meta` and `jsonapi` keys
 abstract class PrimaryData {
-  /// In a compound document this member contains the included resources
+  /// In Compound document this member contains the included resources
   final List<ResourceObject> included;
 
   final Link self;
@@ -35,9 +35,9 @@ abstract class PrimaryData {
   /// Details: http://jsonapi.org/format/#document-compound-documents
   bool get isCompound => included != null && included.isNotEmpty;
 
-  bool identifies(ResourceObject resourceObject);
-
   /// Top-level JSON object
   Map<String, Object> toJson() =>
       (included != null) ? {'included': included} : {};
+
+  bool identifies(ResourceObject resourceObject);
 }
