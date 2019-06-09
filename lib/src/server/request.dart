@@ -194,7 +194,7 @@ class UpdateRelationship extends Request {
       controller.replaceToOne(this, rel.toIdentifier());
     }
     if (rel is ToMany) {
-      controller.replaceToMany(this, rel.toIdentifiers());
+      controller.replaceToMany(this, rel.identifiers);
     }
   }
 
@@ -213,7 +213,7 @@ class AddToMany extends Request {
       Object payload) async {
     final rel = Relationship.decodeJson(payload);
     if (rel is ToMany) {
-      controller.addToMany(this, rel.toIdentifiers());
+      controller.addToMany(this, rel.identifiers);
     }
   }
 

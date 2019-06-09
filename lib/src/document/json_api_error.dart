@@ -33,20 +33,19 @@ class JsonApiError {
   String sourceParameter;
 
   /// A meta object containing non-standard meta-information about the error.
-  final meta = <String, Object>{};
+  final Map<String, Object> meta;
 
-  JsonApiError(
-      {this.id,
-      this.about,
-      this.status,
-      this.code,
-      this.title,
-      this.detail,
-      this.sourceParameter,
-      this.sourcePointer,
-      Map<String, Object> meta}) {
-    this.meta.addAll(meta ?? {});
-  }
+  JsonApiError({
+    this.id,
+    this.about,
+    this.status,
+    this.code,
+    this.title,
+    this.detail,
+    this.sourceParameter,
+    this.sourcePointer,
+    this.meta,
+  });
 
   static JsonApiError decodeJson(Object json) {
     if (json is Map) {
@@ -84,7 +83,7 @@ class JsonApiError {
       if (code != null) ...{'code': code},
       if (title != null) ...{'title': title},
       if (detail != null) ...{'detail': detail},
-      if (meta.isNotEmpty != null) ...{'meta': meta},
+      if (meta != null) ...{'meta': meta},
       if (about != null) ...{
         'links': {'about': about}
       },

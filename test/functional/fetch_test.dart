@@ -213,7 +213,7 @@ void main() async {
       final r = await client.fetchToMany(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.toIdentifiers().first.type, 'models');
+      expect(r.data.identifiers.first.type, 'models');
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:$port/companies/1/models');
@@ -224,7 +224,7 @@ void main() async {
       final r = await client.fetchToMany(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.toIdentifiers(), isEmpty);
+      expect(r.data.identifiers, isEmpty);
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:$port/companies/3/models');
@@ -236,7 +236,7 @@ void main() async {
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data, TypeMatcher<ToMany>());
-      expect((r.data as ToMany).toIdentifiers().first.type, 'models');
+      expect((r.data as ToMany).identifiers.first.type, 'models');
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:$port/companies/1/models');

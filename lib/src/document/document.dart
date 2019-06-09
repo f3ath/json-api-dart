@@ -1,34 +1,27 @@
 import 'package:json_api/src/document/api.dart';
+import 'package:json_api/src/document/decoding_exception.dart';
 import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/primary_data.dart';
-
-import 'decoding_exception.dart';
 
 class Document<Data extends PrimaryData> {
   /// The Primary Data
   final Data data;
   final Api api;
-
   final List<JsonApiError> errors;
   final Map<String, Object> meta;
 
   /// Create a document with primary data
-  Document(this.data, {Map<String, Object> meta, this.api})
-      : this.errors = null,
-        this.meta = (meta == null ? null : Map.from(meta));
+  Document(this.data, {this.meta, this.api}) : this.errors = null;
 
   /// Create a document with errors (no primary data)
-  Document.error(Iterable<JsonApiError> errors,
-      {Map<String, Object> meta, this.api})
+  Document.error(Iterable<JsonApiError> errors, {this.meta, this.api})
       : this.data = null,
-        this.errors = List.from(errors),
-        this.meta = (meta == null ? null : Map.from(meta));
+        this.errors = List.from(errors);
 
   /// Create an empty document (no primary data and no errors)
-  Document.empty(Map<String, Object> meta, {this.api})
+  Document.empty(this.meta, {this.api})
       : this.data = null,
-        this.errors = null,
-        this.meta = (meta == null ? null : Map.from(meta)) {
+        this.errors = null {
     ArgumentError.checkNotNull(meta, 'meta');
   }
 

@@ -25,9 +25,8 @@ class ResourceObject {
       {this.self,
       Map<String, Object> attributes,
       Map<String, Relationship> relationships,
-      Map<String, String> meta})
-      : meta = meta == null ? null : Map.from(meta),
-        attributes = attributes == null ? null : Map.from(attributes),
+      this.meta})
+      : attributes = attributes == null ? null : Map.from(attributes),
         relationships = relationships == null ? null : Map.from(relationships);
 
   static ResourceObject fromResource(Resource resource,
@@ -38,7 +37,7 @@ class ResourceObject {
             ...resource.toOne
                 .map((k, v) => MapEntry(k, ToOne.fromIdentifier(v))),
             ...resource.toMany.map((k, v) =>
-                MapEntry(k, ToMany(v.map(IdentifierObject.fromIdentifier))))
+                MapEntry(k, ToMany(v.map((_) => IdentifierObject(_)))))
           },
           meta: meta);
 
@@ -48,19 +47,19 @@ class ResourceObject {
     if (json is Map) {
       final relationships = json['relationships'];
       final attributes = json['attributes'];
-      final links = Link.mapFromJson(json['links']);
+      final links = Link.decodeJsonMap(json['links']);
 
       if (mapOrNull(relationships) && mapOrNull(attributes)) {
         return ResourceObject(json['type'], json['id'],
             attributes: attributes,
-            relationships: Relationship.mapFromJson(relationships),
+            relationships: Relationship.decodeJsonMap(relationships),
             self: links['self']);
       }
     }
     throw DecodingException('Can not decode ResourceObject from $json');
   }
 
-  static List<ResourceObject> listFromJson(Object json) {
+  static List<ResourceObject> decodeJsonList(Object json) {
     if (json is List) return json.map(decodeJson).toList();
     throw DecodingException(
         'Can not decode Iterable<ResourceObject> from $json');
@@ -71,6 +70,7 @@ class ResourceObject {
   Map<String, Object> toJson() => {
         'type': type,
         if (id != null) ...{'id': id},
+        if (meta != null) ...{'meta': meta},
         if (attributes?.isNotEmpty == true) ...{'attributes': attributes},
         if (relationships?.isNotEmpty == true) ...{
           'relationships': relationships
@@ -93,7 +93,7 @@ class ResourceObject {
       if (rel is ToOne) {
         toOne[name] = rel.toIdentifier();
       } else if (rel is ToMany) {
-        toMany[name] = rel.toIdentifiers().toList();
+        toMany[name] = rel.identifiers;
       } else {
         incomplete[name] = rel;
       }

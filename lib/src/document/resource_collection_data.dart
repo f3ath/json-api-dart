@@ -9,19 +9,19 @@ class ResourceCollectionData extends PrimaryData {
   final collection = <ResourceObject>[];
   final Pagination pagination;
 
-  Map<String, Link> get links => {...super.links, ...pagination.toLinks()};
+  Map<String, Link> get links => {...super.links, ...pagination.links};
 
   ResourceCollectionData(Iterable<ResourceObject> collection,
       {Link self,
       Iterable<ResourceObject> included,
-      this.pagination = const Pagination.empty()})
+      this.pagination = const Pagination()})
       : super(self: self, included: included) {
     this.collection.addAll(collection);
   }
 
   static ResourceCollectionData decodeJson(Object json) {
     if (json is Map) {
-      final links = Link.mapFromJson(json['links']);
+      final links = Link.decodeJsonMap(json['links']);
       final included = json['included'];
       final data = json['data'];
       if (data is List) {
@@ -30,7 +30,7 @@ class ResourceCollectionData extends PrimaryData {
             pagination: Pagination.fromLinks(links),
             included: included == null
                 ? null
-                : ResourceObject.listFromJson(included));
+                : ResourceObject.decodeJsonList(included));
       }
     }
     throw DecodingException(

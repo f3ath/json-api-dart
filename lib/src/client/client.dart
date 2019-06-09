@@ -91,7 +91,7 @@ class JsonApiClient {
       _patch(
           ToOne.decodeJson,
           uri,
-          ToOne(nullable(IdentifierObject.fromIdentifier)(identifier)),
+          ToOne(nullable((_) => IdentifierObject(_))(identifier)),
           headers);
 
   /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
@@ -110,7 +110,7 @@ class JsonApiClient {
   Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> identifiers,
           {Map<String, String> headers = const {}}) =>
       _patch(ToMany.decodeJson, uri,
-          ToMany(identifiers.map(IdentifierObject.fromIdentifier)), headers);
+          ToMany(identifiers.map((_) => IdentifierObject(_))), headers);
 
   /// Adds the given set of [identifiers] to a to-many relationship.
   ///
@@ -133,7 +133,7 @@ class JsonApiClient {
   Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> identifiers,
           {Map<String, String> headers = const {}}) =>
       _post(ToMany.decodeJson, uri,
-          ToMany(identifiers.map(IdentifierObject.fromIdentifier)), headers);
+          ToMany(identifiers.map((_) => IdentifierObject(_))), headers);
 
   Future<Response<D>> _get<D extends PrimaryData>(
           D parse(Object _), uri, Map<String, String> headers) =>

@@ -13,8 +13,7 @@ abstract class PrimaryData {
   final Link self;
 
   PrimaryData({this.self, Iterable<ResourceObject> included})
-      : this.included =
-            (included == null || included.isEmpty) ? null : List.from(included);
+      : this.included = (included == null) ? null : List.from(included);
 
   /// The top-level `links` object. May be empty.
   Map<String, Link> get links => {
@@ -38,7 +37,7 @@ abstract class PrimaryData {
 
   /// Top-level JSON object
   Map<String, Object> toJson() =>
-      (included != null && included.isNotEmpty) ? {'included': included} : {};
+      (included != null) ? {'included': included} : {};
 
   bool identifies(ResourceObject resourceObject);
 }

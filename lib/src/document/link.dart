@@ -19,7 +19,7 @@ class Link {
   /// The retuning map does not have null values.
   ///
   /// Details on the `links` member: https://jsonapi.org/format/#document-links
-  static Map<String, Link> mapFromJson(Object json) {
+  static Map<String, Link> decodeJsonMap(Object json) {
     if (json == null) return {};
     if (json is Map) {
       return ({...json}..removeWhere((_, v) => v == null))
@@ -39,9 +39,7 @@ class Link {
 class LinkObject extends Link {
   final Map<String, Object> meta;
 
-  LinkObject(Uri href, {Map<String, Object> meta})
-      : meta = Map.unmodifiable(meta ?? {}),
-        super(href);
+  LinkObject(Uri href, {this.meta}) : super(href);
 
   static LinkObject decodeJson(Object json) {
     if (json is Map) {

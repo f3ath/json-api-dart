@@ -14,7 +14,7 @@ class ResourceData extends PrimaryData {
 
   static ResourceData decodeJson(Object json) {
     if (json is Map) {
-      final links = Link.mapFromJson(json['links']);
+      final links = Link.decodeJsonMap(json['links']);
       final included = json['included'];
       final resources = <ResourceObject>[];
       if (included is List) {

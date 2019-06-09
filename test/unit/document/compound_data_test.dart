@@ -5,10 +5,10 @@ void main() {
   final apple = ResourceObject('apples', '1');
   final orange = ResourceObject('oranges', '2');
   final cart = ResourceObject('carts', '2', relationships: {
-    'goods': ToMany([IdentifierObject('apples', '1')])
+    'goods': ToMany([IdentifierObject(Identifier('apples', '1'))])
   });
   final user = ResourceObject('users', '3', relationships: {
-    'carts': ToMany([IdentifierObject('carts', '2')])
+    'carts': ToMany([IdentifierObject(Identifier('carts', '2'))])
   });
 
   group('Full linkage', () {
@@ -28,7 +28,7 @@ void main() {
       expect(ResourceData(cart, included: [apple]).isFullyLinked, true);
 
       expect(
-          ToOne(IdentifierObject('apples', '1'), included: [apple])
+          ToOne(IdentifierObject(Identifier('apples', '1')), included: [apple])
               .isFullyLinked,
           true);
 
@@ -36,7 +36,7 @@ void main() {
           true);
 
       expect(
-          ToMany([IdentifierObject('apples', '1')], included: [apple])
+          ToMany([IdentifierObject(Identifier('apples', '1'))], included: [apple])
               .isFullyLinked,
           true);
     });
