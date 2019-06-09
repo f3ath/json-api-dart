@@ -1,6 +1,5 @@
 import 'package:json_api/src/document/decoding_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/identifier_object.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
@@ -28,17 +27,6 @@ class ResourceObject {
       this.meta})
       : attributes = attributes == null ? null : Map.from(attributes),
         relationships = relationships == null ? null : Map.from(relationships);
-
-  static ResourceObject wrap(Resource resource, {Map<String, String> meta}) =>
-      ResourceObject(resource.type, resource.id,
-          attributes: resource.attributes,
-          relationships: <String, Relationship>{
-            ...resource.toOne
-                .map((k, v) => MapEntry(k, ToOne.fromIdentifier(v))),
-            ...resource.toMany.map(
-                (k, v) => MapEntry(k, ToMany(v.map(IdentifierObject.wrap))))
-          },
-          meta: meta);
 
   /// Decodes the `data` member of a JSON:API Document
   static ResourceObject decodeJson(Object json) {
@@ -90,7 +78,7 @@ class ResourceObject {
     final incomplete = <String, Relationship>{};
     (relationships ?? {}).forEach((name, rel) {
       if (rel is ToOne) {
-        toOne[name] = rel.toIdentifier();
+        toOne[name] = rel.unwrap();
       } else if (rel is ToMany) {
         toMany[name] = rel.identifiers;
       } else {

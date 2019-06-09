@@ -38,14 +38,14 @@ void main() async {
 
       expect(r0.status, 201);
       expect(r0.isSuccessful, true);
-      expect(r0.data.toResource().id, isNotEmpty);
-      expect(r0.data.toResource().type, 'cities');
-      expect(r0.data.toResource().attributes['name'], 'New York');
+      expect(r0.data.unwrap().id, isNotEmpty);
+      expect(r0.data.unwrap().type, 'cities');
+      expect(r0.data.unwrap().attributes['name'], 'New York');
       expect(r0.location, isNotNull);
 
       // Make sure the resource is available
       final r1 = await client
-          .fetchResource(route.resource('cities', r0.data.toResource().id));
+          .fetchResource(route.resource('cities', r0.data.unwrap().id));
       expect(r1.data.resourceObject.attributes['name'], 'New York');
     });
 
@@ -66,20 +66,20 @@ void main() async {
       expect(r0.isAsync, true); // yay async!
       expect(r0.document, isNull);
       expect(r0.asyncDocument, isNotNull);
-      expect(r0.asyncData.toResource().type, 'jobs');
+      expect(r0.asyncData.unwrap().type, 'jobs');
       expect(r0.location, isNull);
       expect(r0.contentLocation, isNotNull);
 
       final r1 = await client.fetchResource(r0.contentLocation);
       expect(r1.status, 200);
-      expect(r1.data.toResource().type, 'jobs');
+      expect(r1.data.unwrap().type, 'jobs');
 
       await Future.delayed(Duration(milliseconds: 100));
 
       // When it's done, this will be the created resource
       final r2 = await client.fetchResource(r0.contentLocation);
-      expect(r2.data.toResource().type, 'models');
-      expect(r2.data.toResource().attributes['name'], 'Roadster 2020');
+      expect(r2.data.unwrap().type, 'models');
+      expect(r2.data.unwrap().attributes['name'], 'Roadster 2020');
     });
 
     /// If a POST request did include a Client-Generated ID and the requested
@@ -100,7 +100,7 @@ void main() async {
 
       // Make sure the resource is available
       final r1 = await client.fetchResource(route.resource('cities', '555'));
-      expect(r1.data.toResource().attributes['name'], 'New York');
+      expect(r1.data.unwrap().attributes['name'], 'New York');
     });
 
     /// A server MUST return 409 Conflict when processing a POST request to

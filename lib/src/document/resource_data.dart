@@ -38,5 +38,5 @@ class ResourceData extends PrimaryData {
     };
   }
 
-  Resource toResource() => resourceObject.unwrap();
+  Resource unwrap() => resourceObject.unwrap();
 }

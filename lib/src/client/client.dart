@@ -65,8 +65,7 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-creating
   Future<Response<ResourceData>> createResource(Uri uri, Resource resource,
           {Map<String, String> headers = const {}}) =>
-      _post(ResourceData.decodeJson, uri,
-          ResourceData(ResourceObject.wrap(resource)), headers);
+      _post(ResourceData.decodeJson, uri, _wrapResource(resource), headers);
 
   /// Deletes the resource.
   ///
@@ -80,16 +79,14 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating
   Future<Response<ResourceData>> updateResource(Uri uri, Resource resource,
           {Map<String, String> headers = const {}}) =>
-      _patch(ResourceData.decodeJson, uri,
-          ResourceData(ResourceObject.wrap(resource)), headers);
+      _patch(ResourceData.decodeJson, uri, _wrapResource(resource), headers);
 
   /// Updates a to-one relationship via PATCH request
   ///
   /// https://jsonapi.org/format/#crud-updating-to-one-relationships
   Future<Response<ToOne>> replaceToOne(Uri uri, Identifier identifier,
           {Map<String, String> headers = const {}}) =>
-      _patch(ToOne.decodeJson, uri,
-          ToOne(nullable(IdentifierObject.wrap)(identifier)), headers);
+      _patch(ToOne.decodeJson, uri, _toOne(identifier), headers);
 
   /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
   /// with id = null.
@@ -106,8 +103,7 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> identifiers,
           {Map<String, String> headers = const {}}) =>
-      _patch(ToMany.decodeJson, uri,
-          ToMany(identifiers.map(IdentifierObject.wrap)), headers);
+      _patch(ToMany.decodeJson, uri, _toMany(identifiers), headers);
 
   /// Adds the given set of [identifiers] to a to-many relationship.
   ///
@@ -129,8 +125,25 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> identifiers,
           {Map<String, String> headers = const {}}) =>
-      _post(ToMany.decodeJson, uri,
-          ToMany(identifiers.map(IdentifierObject.wrap)), headers);
+      _post(ToMany.decodeJson, uri, _toMany(identifiers), headers);
+
+  ResourceData _wrapResource(Resource resource, {Map<String, String> meta}) =>
+      ResourceData(ResourceObject(
+        resource.type,
+        resource.id,
+        attributes: resource.attributes,
+        relationships: <String, Relationship>{
+          ...resource.toOne.map((k, v) => MapEntry(k, _toOne(v))),
+          ...resource.toMany.map((k, v) => MapEntry(k, _toMany(v)))
+        },
+      ));
+
+  ToMany _toMany(List<Identifier> v) => ToMany(v.map(_wrapIdentifier));
+
+  ToOne _toOne(Identifier v) => ToOne(nullable(_wrapIdentifier)(v));
+
+  IdentifierObject _wrapIdentifier(Identifier identifier) =>
+      IdentifierObject(identifier.type, identifier.id);
 
   Future<Response<D>> _get<D extends PrimaryData>(
           D parse(Object _), uri, Map<String, String> headers) =>

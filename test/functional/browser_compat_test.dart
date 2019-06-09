@@ -11,6 +11,6 @@ void main() async {
         .fetchCollection(Uri.parse('http://localhost:$port/companies'));
     expect(r.status, 200);
     expect(r.isSuccessful, true);
-    expect(r.data.collection.first.attributes['name'], 'Tesla');
+    expect(r.data.unwrap().first.attributes['name'], 'Tesla');
   }, testOn: 'browser');
 }

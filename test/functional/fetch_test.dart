@@ -23,12 +23,12 @@ void main() async {
       final r = await client.fetchCollection(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.collection.first.attributes['name'], 'Tesla');
-      expect(r.data.collection.first.self.uri.toString(),
-          'http://localhost:$port/companies/1');
-      expect(r.data.collection.first.relationships['hq'].related.uri.toString(),
+      final resObj = r.data.collection.first;
+      expect(resObj.attributes['name'], 'Tesla');
+      expect(resObj.self.uri.toString(), 'http://localhost:$port/companies/1');
+      expect(resObj.relationships['hq'].related.uri.toString(),
           'http://localhost:$port/companies/1/hq');
-      expect(r.data.collection.first.relationships['hq'].self.uri.toString(),
+      expect(resObj.relationships['hq'].self.uri.toString(),
           'http://localhost:$port/companies/1/relationships/hq');
       expect(r.data.self.uri, uri);
     });
@@ -89,11 +89,11 @@ void main() async {
       final uri = route.related('companies', '1', 'models');
       final r0 = await client.fetchCollection(uri);
       final firstPage = r0.data;
-      expect(firstPage.collection.length, 1);
+      expect(firstPage.length, 1);
 
       final r1 = await client.fetchCollection(firstPage.pagination.last.uri);
       final lastPage = r1.data;
-      expect(lastPage.collection.length, 1);
+      expect(lastPage.length, 1);
     });
 
     test('404', () async {
@@ -110,7 +110,7 @@ void main() async {
       final r = await client.fetchResource(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.toResource().attributes['name'], 'Roadster');
+      expect(r.data.unwrap().attributes['name'], 'Roadster');
       expect(r.data.self.uri, uri);
     });
 
@@ -119,7 +119,7 @@ void main() async {
       final r = await client.fetchResource(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.toResource().attributes['name'], 'Tesla');
+      expect(r.data.unwrap().attributes['name'], 'Tesla');
       expect(r.data.self.uri, uri);
       expect(r.data.included.length, 5);
       expect(r.data.included.first.type, 'cities');
@@ -147,7 +147,7 @@ void main() async {
       final r = await client.fetchResource(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.toResource().attributes['name'], 'Palo Alto');
+      expect(r.data.unwrap().attributes['name'], 'Palo Alto');
       expect(r.data.self.uri, uri);
     });
 
@@ -179,7 +179,7 @@ void main() async {
       final r = await client.fetchToOne(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.toIdentifier().type, 'cities');
+      expect(r.data.unwrap().type, 'cities');
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:$port/companies/1/hq');
@@ -190,7 +190,7 @@ void main() async {
       final r = await client.fetchToOne(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.toIdentifier(), isNull);
+      expect(r.data.unwrap(), isNull);
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:$port/companies/3/hq');
@@ -202,7 +202,7 @@ void main() async {
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data, TypeMatcher<ToOne>());
-      expect((r.data as ToOne).toIdentifier().type, 'cities');
+      expect((r.data as ToOne).unwrap().type, 'cities');
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:$port/companies/1/hq');

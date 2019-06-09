@@ -80,9 +80,6 @@ class ToOne extends Relationship {
       : linkage = null,
         super(self: self, related: related);
 
-  static ToOne fromIdentifier(Identifier identifier) =>
-      ToOne(nullable(IdentifierObject.wrap)(identifier));
-
   static ToOne decodeJson(Object json) {
     if (json is Map) {
       final links = Link.decodeJsonMap(json['links']);
@@ -101,8 +98,7 @@ class ToOne extends Relationship {
 
   /// Converts to [Identifier].
   /// For empty relationships return null.
-  Identifier toIdentifier() => linkage?.unwrap();
-
+  Identifier unwrap() => linkage?.unwrap();
 }
 
 /// Relationship to-many
@@ -151,7 +147,5 @@ class ToMany extends Relationship {
 
   /// Converts to List<[Identifier]>.
   /// For empty relationships returns an empty List.
-  List<Identifier> get identifiers =>
-      linkage.map((_) => _.unwrap()).toList();
-
+  List<Identifier> get identifiers => linkage.map((_) => _.unwrap()).toList();
 }

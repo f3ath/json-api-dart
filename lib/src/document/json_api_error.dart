@@ -27,10 +27,10 @@ class JsonApiError {
 
   /// A JSON Pointer [RFC6901] to the associated entity in the request document
   /// [e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute].
-  String sourcePointer;
+  String pointer;
 
   /// A string indicating which URI query parameter caused the error.
-  String sourceParameter;
+  String parameter;
 
   /// A meta object containing non-standard meta-information about the error.
   final Map<String, Object> meta;
@@ -42,8 +42,8 @@ class JsonApiError {
     this.code,
     this.title,
     this.detail,
-    this.sourceParameter,
-    this.sourcePointer,
+    this.parameter,
+    this.pointer,
     this.meta,
   });
 
@@ -65,8 +65,8 @@ class JsonApiError {
           code: json['code'],
           title: json['title'],
           detail: json['detail'],
-          sourcePointer: pointer,
-          sourceParameter: parameter,
+          pointer: pointer,
+          parameter: parameter,
           meta: json['meta']);
     }
     throw DecodingException('Can not decode ErrorObject from $json');
@@ -74,8 +74,8 @@ class JsonApiError {
 
   Map<String, Object> toJson() {
     final source = {
-      if (sourcePointer != null) ...{'pointer': sourcePointer},
-      if (sourceParameter != null) ...{'parameter': sourceParameter},
+      if (pointer != null) ...{'pointer': pointer},
+      if (parameter != null) ...{'parameter': parameter},
     };
     return {
       if (id != null) ...{'id': id},

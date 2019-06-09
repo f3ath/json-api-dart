@@ -1,3 +1,4 @@
+import 'package:json_api/json_api.dart';
 import 'package:json_api/src/document/decoding_exception.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/pagination.dart';
@@ -36,6 +37,10 @@ class ResourceCollectionData extends PrimaryData {
     throw DecodingException(
         'Can not decode ResourceObjectCollection from $json');
   }
+
+  get length => collection.length;
+
+  List<Resource> unwrap() => collection.map((_) => _.unwrap()).toList();
 
   @override
   Map<String, Object> toJson() {

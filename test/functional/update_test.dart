@@ -60,7 +60,7 @@ void main() async {
     /// https://jsonapi.org/format/#crud-updating-responses-200
     test('200 OK', () async {
       final r0 = await client.fetchResource(route.resource('companies', '1'));
-      final original = r0.document.data.toResource();
+      final original = r0.document.data.unwrap();
 
       expect(original.attributes['name'], 'Tesla');
       expect(original.attributes['nasdaq'], isNull);
@@ -73,7 +73,7 @@ void main() async {
 
       final r1 = await client.updateResource(
           route.resource('companies', '1'), original);
-      final updated = r1.document.data.toResource();
+      final updated = r1.document.data.unwrap();
 
       expect(r1.status, 200);
       expect(updated.attributes['name'], 'Tesla');
@@ -93,7 +93,7 @@ void main() async {
     /// https://jsonapi.org/format/#crud-updating-responses-204
     test('204 No Content', () async {
       final r0 = await client.fetchResource(route.resource('models', '3'));
-      final original = r0.document.data.toResource();
+      final original = r0.document.data.unwrap();
 
       expect(original.attributes['name'], 'Model X');
 
@@ -106,7 +106,7 @@ void main() async {
 
       final r2 = await client.fetchResource(route.resource('models', '3'));
 
-      expect(r2.data.toResource().attributes['name'], 'Model XXX');
+      expect(r2.data.unwrap().attributes['name'], 'Model XXX');
     });
 
     /// A server MAY return 409 Conflict when processing a PATCH request
@@ -120,7 +120,7 @@ void main() async {
     /// https://jsonapi.org/format/#crud-updating-responses-409
     test('409 Conflict - Endpoint mismatch', () async {
       final r0 = await client.fetchResource(route.resource('models', '3'));
-      final original = r0.document.data.toResource();
+      final original = r0.document.data.unwrap();
 
       final r1 = await client.updateResource(
           route.resource('companies', '1'), original);
@@ -163,7 +163,7 @@ void main() async {
         test('204 No Content', () async {
           final url = route.relationship('companies', '1', 'hq');
           final r0 = await client.fetchToOne(url);
-          final original = r0.document.data.toIdentifier();
+          final original = r0.document.data.unwrap();
           expect(original.id, '2');
 
           final r1 =
@@ -171,7 +171,7 @@ void main() async {
           expect(r1.status, 204);
 
           final r2 = await client.fetchToOne(url);
-          final updated = r2.document.data.toIdentifier();
+          final updated = r2.document.data.unwrap();
           expect(updated.type, original.type);
           expect(updated.id, '1');
         });
@@ -182,14 +182,14 @@ void main() async {
           final url = route.relationship('companies', '1', 'hq');
 
           final r0 = await client.fetchToOne(url);
-          final original = r0.document.data.toIdentifier();
+          final original = r0.document.data.unwrap();
           expect(original.id, '2');
 
           final r1 = await client.deleteToOne(url);
           expect(r1.status, 204);
 
           final r2 = await client.fetchToOne(url);
-          expect(r2.document.data.toIdentifier(), isNull);
+          expect(r2.document.data.unwrap(), isNull);
         });
       });
     }, testOn: 'vm');

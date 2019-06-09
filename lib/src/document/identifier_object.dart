@@ -11,10 +11,6 @@ class IdentifierObject {
 
   IdentifierObject(this.type, this.id, {this.meta});
 
-  static IdentifierObject wrap(Identifier identifier,
-          {Map<String, String> meta}) =>
-      IdentifierObject(identifier.type, identifier.id, meta: meta);
-
   static IdentifierObject decodeJson(Object json) {
     if (json is Map) {
       return IdentifierObject(json['type'], json['id'], meta: json['meta']);
