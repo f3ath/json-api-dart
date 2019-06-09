@@ -179,7 +179,7 @@ void main() async {
       final r = await client.fetchToOne(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.toIdentifier().type, 'cities');
+      expect(r.data.identifier.type, 'cities');
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:$port/companies/1/hq');
@@ -190,7 +190,7 @@ void main() async {
       final r = await client.fetchToOne(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
-      expect(r.data.toIdentifier(), isNull);
+      expect(r.data.identifier, isNull);
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:$port/companies/3/hq');
@@ -202,7 +202,7 @@ void main() async {
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data, TypeMatcher<ToOne>());
-      expect((r.data as ToOne).toIdentifier().type, 'cities');
+      expect((r.data as ToOne).identifier.type, 'cities');
       expect(r.data.self.uri, uri);
       expect(r.data.related.uri.toString(),
           'http://localhost:$port/companies/1/hq');

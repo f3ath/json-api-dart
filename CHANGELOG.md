@@ -16,7 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Meta property is not not defensively copied, but set directly. Meta property behavior is unified across 
     the Document model.
 - `Pagination.toLinks()` renamed to `Pagination.links`
-- `ToMany.toIdentifiers()` renamed to ToMany.identifiers`
+- `ToOne.toIdentifier()` renamed to `ToOne.identifier`
+- `ToMany.toIdentifiers()` renamed to `ToMany.identifiers`
 - `IdentifierObject` constructor requires an `Identifier` as an argument 
 
 ### Removed

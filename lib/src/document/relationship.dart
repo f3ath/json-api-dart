@@ -99,15 +99,16 @@ class ToOne extends Relationship {
     throw DecodingException('Can not decode ToOne from $json');
   }
 
-  Map<String, Object> toJson() => super.toJson()..['data'] = linkage;
-
   /// Converts to [Identifier].
   /// For empty relationships return null.
-  Identifier toIdentifier() => linkage?.identifier;
+  Identifier get identifier => linkage?.identifier;
 
   @override
   bool identifies(ResourceObject resourceObject) =>
-      resourceObject.toResource().toIdentifier().equals(toIdentifier());
+      resourceObject.toResource().toIdentifier().equals(identifier);
+
+  @override
+  Map<String, Object> toJson() => super.toJson()..['data'] = linkage;
 }
 
 /// Relationship to-many
@@ -149,11 +150,6 @@ class ToMany extends Relationship {
     throw DecodingException('Can not decode ToMany from $json');
   }
 
-  Map<String, Object> toJson() => {
-        ...super.toJson(),
-        'data': linkage,
-      };
-
   /// Converts to List<[Identifier]>.
   /// For empty relationships returns an empty List.
   List<Identifier> get identifiers => linkage.map((_) => _.identifier).toList();
@@ -161,4 +157,10 @@ class ToMany extends Relationship {
   @override
   bool identifies(ResourceObject resourceObject) =>
       identifiers.any(resourceObject.toResource().toIdentifier().equals);
+
+  @override
+  Map<String, Object> toJson() => {
+        ...super.toJson(),
+        'data': linkage,
+      };
 }
