@@ -3,7 +3,7 @@ import 'package:json_api/src/document/identifier.dart';
 
 /// [IdentifierObject] is a JSON representation of the [Identifier].
 /// It carries all JSON-related logic and the Meta-data.
-class IdentifierObject implements Identifier {
+class IdentifierObject {
   final Identifier identifier;
 
   final Map<String, String> meta;
@@ -27,10 +27,4 @@ class IdentifierObject implements Identifier {
         'id': id,
         if (meta != null) ...{'meta': meta},
       };
-
-  @override
-  bool equals(Identifier another) => identifier.equals(another);
-
-  @override
-  String toString() => "IdentifierObject($type:$id)";
 }

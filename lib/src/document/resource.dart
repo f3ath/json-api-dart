@@ -23,6 +23,9 @@ class Resource {
   /// to-many relationships
   final toMany = <String, List<Identifier>>{};
 
+  /// True if the Resource has a non-empty id
+  bool get hasId => id != null && id.isNotEmpty;
+
   Resource(this.type, this.id,
       {Map<String, Object> attributes,
       Map<String, Identifier> toOne,
@@ -38,6 +41,10 @@ class Resource {
     if (id == null) throw StateError('Incomplete object: id is null');
     return Identifier(type, id);
   }
+
+  /// Returns a copy of the resource with the new [id]
+  Resource withId(String id) =>
+      Resource(type, id, attributes: attributes, toMany: toMany, toOne: toOne);
 
   @override
   String toString() => 'Resource(${type}:${id})';

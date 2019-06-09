@@ -129,7 +129,7 @@ class CarsController implements Controller {
       return;
     }
 
-    if (resource.id != null) {
+    if (resource.hasId) {
       if (dao.fetchById(resource.id) != null) {
         request
             .errorConflict([JsonApiError(detail: 'Resource already exists')]);
@@ -141,10 +141,7 @@ class CarsController implements Controller {
       return;
     }
 
-    final created = dao.create(Resource(resource.type, Uuid().v4(),
-        attributes: resource.attributes,
-        toMany: resource.toMany,
-        toOne: resource.toOne));
+    final created = dao.create(resource.withId(Uuid().v4()));
 
     if (request.target.type == 'models') {
       // Insertion is artificially delayed
