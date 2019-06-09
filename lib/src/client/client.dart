@@ -2,18 +2,16 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:json_api/src/client/client_document_builder.dart';
 import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/client/status_code.dart';
 import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/identifier_object.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/resource_collection_data.dart';
 import 'package:json_api/src/document/resource_data.dart';
-import 'package:json_api/src/document/resource_object.dart';
-import 'package:json_api/src/nullable.dart';
 
 typedef http.BaseClient HttpClientFactory();
 
@@ -22,76 +20,78 @@ class JsonApiClient {
   static const contentType = 'application/vnd.api+json';
 
   final HttpClientFactory _createClient;
+  final ClientDocumentBuilder _builder;
 
   /// JSON:API client uses Dart's native [http.Client] internally.
   /// Pass the [factory] parameter to customize or intercept calls to the HTTP client.
-  const JsonApiClient({http.BaseClient factory()})
-      : _createClient = factory ?? _defaultFactory;
+  const JsonApiClient(
+      {http.BaseClient factory(), ClientDocumentBuilder builder})
+      : _createClient = factory ?? _defaultFactory,
+        _builder = builder ?? const ClientDocumentBuilder();
 
   /// Fetches a resource collection by sending a GET request to the [uri].
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ResourceCollectionData>> fetchCollection(Uri uri,
-          {Map<String, String> headers = const {}}) =>
-      _get(ResourceCollectionData.decodeJson, uri, headers);
+          {Map<String, String> headers}) =>
+      _httpGet(uri, headers, ResourceCollectionData.decodeJson);
 
   /// Fetches a single resource
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ResourceData>> fetchResource(Uri uri,
-          {Map<String, String> headers = const {}}) =>
-      _get(ResourceData.decodeJson, uri, headers);
+          {Map<String, String> headers}) =>
+      _httpGet(uri, headers, ResourceData.decodeJson);
 
   /// Fetches a to-one relationship
   /// Use [headers] to pass extra HTTP headers.
-  Future<Response<ToOne>> fetchToOne(Uri uri,
-          {Map<String, String> headers = const {}}) =>
-      _get(ToOne.decodeJson, uri, headers);
+  Future<Response<ToOne>> fetchToOne(Uri uri, {Map<String, String> headers}) =>
+      _httpGet(uri, headers, ToOne.decodeJson);
 
   /// Fetches a to-many relationship
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ToMany>> fetchToMany(Uri uri,
-          {Map<String, String> headers = const {}}) =>
-      _get(ToMany.decodeJson, uri, headers);
+          {Map<String, String> headers}) =>
+      _httpGet(uri, headers, ToMany.decodeJson);
 
   /// Fetches a to-one or to-many relationship.
   /// The actual type of the relationship can be determined afterwards.
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<Relationship>> fetchRelationship(Uri uri,
-          {Map<String, String> headers = const {}}) =>
-      _get(Relationship.decodeJson, uri, headers);
+          {Map<String, String> headers}) =>
+      _httpGet(uri, headers, Relationship.decodeJson);
 
   /// Creates a new resource. The resource will be added to a collection
   /// according to its type.
   ///
   /// https://jsonapi.org/format/#crud-creating
   Future<Response<ResourceData>> createResource(Uri uri, Resource resource,
-          {Map<String, String> headers = const {}}) =>
-      _post(ResourceData.decodeJson, uri, _wrapResource(resource), headers);
+          {Map<String, String> headers}) =>
+      _httpPost(
+          uri, headers, ResourceData.decodeJson, _builder.resource(resource));
 
   /// Deletes the resource.
   ///
   /// https://jsonapi.org/format/#crud-deleting
-  Future<Response> deleteResource(Uri uri,
-          {Map<String, String> headers = const {}}) =>
-      _delete(null, uri, headers);
+  Future<Response> deleteResource(Uri uri, {Map<String, String> headers}) =>
+      _httpDelete(uri, headers);
 
   /// Updates the resource via PATCH request.
   ///
   /// https://jsonapi.org/format/#crud-updating
   Future<Response<ResourceData>> updateResource(Uri uri, Resource resource,
-          {Map<String, String> headers = const {}}) =>
-      _patch(ResourceData.decodeJson, uri, _wrapResource(resource), headers);
+          {Map<String, String> headers}) =>
+      _httpPatch(
+          uri, headers, ResourceData.decodeJson, _builder.resource(resource));
 
   /// Updates a to-one relationship via PATCH request
   ///
   /// https://jsonapi.org/format/#crud-updating-to-one-relationships
   Future<Response<ToOne>> replaceToOne(Uri uri, Identifier identifier,
-          {Map<String, String> headers = const {}}) =>
-      _patch(ToOne.decodeJson, uri, _toOne(identifier), headers);
+          {Map<String, String> headers}) =>
+      _httpPatch(uri, headers, ToOne.decodeJson, _builder.toOne(identifier));
 
   /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
   /// with id = null.
-  Future<Response<ToOne>> deleteToOne(Uri uri,
-          {Map<String, String> headers = const {}}) =>
+  Future<Response<ToOne>> deleteToOne(Uri uri, {Map<String, String> headers}) =>
       replaceToOne(uri, null, headers: headers);
 
   /// Replaces a to-many relationship with the given set of [identifiers].
@@ -102,8 +102,8 @@ class JsonApiClient {
   ///
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> identifiers,
-          {Map<String, String> headers = const {}}) =>
-      _patch(ToMany.decodeJson, uri, _toMany(identifiers), headers);
+          {Map<String, String> headers}) =>
+      _httpPatch(uri, headers, ToMany.decodeJson, _builder.toMany(identifiers));
 
   /// Adds the given set of [identifiers] to a to-many relationship.
   ///
@@ -124,90 +124,104 @@ class JsonApiClient {
   ///
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> identifiers,
-          {Map<String, String> headers = const {}}) =>
-      _post(ToMany.decodeJson, uri, _toMany(identifiers), headers);
+          {Map<String, String> headers}) =>
+      _httpPost(uri, headers, ToMany.decodeJson, _builder.toMany(identifiers));
 
-  ResourceData _wrapResource(Resource resource, {Map<String, String> meta}) =>
-      ResourceData(ResourceObject(
-        resource.type,
-        resource.id,
-        attributes: resource.attributes,
-        relationships: <String, Relationship>{
-          ...resource.toOne.map((k, v) => MapEntry(k, _toOne(v))),
-          ...resource.toMany.map((k, v) => MapEntry(k, _toMany(v)))
-        },
-      ));
-
-  ToMany _toMany(List<Identifier> v) => ToMany(v.map(_wrapIdentifier));
-
-  ToOne _toOne(Identifier v) => ToOne(nullable(_wrapIdentifier)(v));
-
-  IdentifierObject _wrapIdentifier(Identifier identifier) =>
-      IdentifierObject(identifier.type, identifier.id);
-
-  Future<Response<D>> _get<D extends PrimaryData>(
-          D parse(Object _), uri, Map<String, String> headers) =>
-      _call(
-          parse,
-          (_) => _.get(uri, headers: {
-                ...headers,
+  Future<Response<D>> _httpGet<D extends PrimaryData>(
+    Uri uri,
+    Map<String, String> headers,
+    D decodePrimaryData(Object _),
+  ) =>
+      _wrapHttpCall(
+        (_) => _.get(
+              uri,
+              headers: {
+                ...headers ?? {},
                 'Accept': contentType,
-              }));
+              },
+            ),
+        decodePrimaryData,
+      );
 
-  Future<Response<D>> _post<D extends PrimaryData>(D parse(Object _), uri,
-          PrimaryData data, Map<String, String> headers) =>
-      _call(
-          parse,
-          (_) => _.post(uri, body: _body(data), headers: {
-                ...headers,
+  Future<Response<D>> _httpPost<D extends PrimaryData>(
+    Uri uri,
+    Map<String, String> headers,
+    D decodePrimaryData(Object _),
+    Document doc,
+  ) =>
+      _wrapHttpCall(
+        (_) => _.post(
+              uri,
+              body: json.encode(doc),
+              headers: {
+                ...headers ?? {},
                 'Accept': contentType,
                 'Content-Type': contentType,
-              }));
+              },
+            ),
+        decodePrimaryData,
+      );
 
-  Future<Response<D>> _delete<D extends PrimaryData>(
-          D parse(Object _), uri, Map<String, String> headers) =>
-      _call(
-          parse,
-          (_) => _.delete(uri, headers: {
-                ...headers,
+  Future<Response<D>> _httpDelete<D extends PrimaryData>(
+    Uri uri,
+    Map<String, String> headers,
+  ) =>
+      _wrapHttpCall(
+        (_) => _.delete(
+              uri,
+              headers: {
+                ...headers ?? {},
                 'Accept': contentType,
-              }));
+              },
+            ),
+      );
 
-  Future<Response<D>> _patch<D extends PrimaryData>(D parse(Object _), uri,
-          PrimaryData data, Map<String, String> headers) =>
-      _call(
-          parse,
-          (_) => _.patch(uri, body: _body(data), headers: {
-                ...headers,
+  Future<Response<D>> _httpPatch<D extends PrimaryData>(
+    uri,
+    Map<String, String> headers,
+    D decodePrimaryData(Object _),
+    Document doc,
+  ) =>
+      _wrapHttpCall(
+        (_) => _.patch(
+              uri,
+              body: json.encode(doc),
+              headers: {
+                ...headers ?? {},
                 'Accept': contentType,
                 'Content-Type': contentType,
-              }));
+              },
+            ),
+        decodePrimaryData,
+      );
 
-  String _body(PrimaryData data) => json.encode(Document(data));
-
-  Future<Response<D>> _call<D extends PrimaryData>(
-      D decodePrimaryData(Object json),
-      Future<http.Response> fn(http.Client client)) async {
+  Future<Response<D>> _wrapHttpCall<D extends PrimaryData>(
+    Future<http.Response> httpCall(http.Client client), [
+    D decodePrimaryData(Object _),
+  ]) async {
     final client = _createClient();
     try {
-      final response = await fn(client);
-      if (response.body.isEmpty) {
-        return Response(response.statusCode, response.headers);
-      }
-      final body = json.decode(response.body);
-      if (StatusCode(response.statusCode).isPending) {
-        return Response(response.statusCode, response.headers,
-            asyncDocument: body == null
-                ? null
-                : Document.decodeJson(body, ResourceData.decodeJson));
-      }
-      return Response(response.statusCode, response.headers,
-          document: body == null
-              ? null
-              : Document.decodeJson(body, decodePrimaryData));
+      return _buildResponse(await httpCall(client), decodePrimaryData);
     } finally {
       client.close();
     }
+  }
+
+  Response<D> _buildResponse<D extends PrimaryData>(
+      http.Response response, D decodePrimaryData(Object _)) {
+    if (response.body.isEmpty) {
+      return Response(response.statusCode, response.headers);
+    }
+    final body = json.decode(response.body);
+    if (StatusCode(response.statusCode).isPending) {
+      return Response(response.statusCode, response.headers,
+          asyncDocument: body == null
+              ? null
+              : Document.decodeJson(body, ResourceData.decodeJson));
+    }
+    return Response(response.statusCode, response.headers,
+        document:
+            body == null ? null : Document.decodeJson(body, decodePrimaryData));
   }
 }
 

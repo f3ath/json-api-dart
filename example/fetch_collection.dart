@@ -9,7 +9,7 @@ void main() async {
 
   final resource = response.data.unwrap().first;
 
-  print('The collection page size is ${response.data.length}');
+  print('The collection page size is ${response.data.collection.length}');
   print('The first element is ${resource}');
   print('Attributes:');
   resource.attributes.forEach((k, v) => print('$k=$v'));

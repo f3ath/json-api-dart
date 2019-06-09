@@ -4,13 +4,12 @@ import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/pagination.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource_object.dart';
+import 'package:json_api/src/nullable.dart';
 
 /// Represents a resource collection or a collection of related resources of a to-many relationship
 class ResourceCollectionData extends PrimaryData {
   final collection = <ResourceObject>[];
   final Pagination pagination;
-
-  Map<String, Link> get links => {...super.links, ...pagination.links};
 
   ResourceCollectionData(Iterable<ResourceObject> collection,
       {Link self,
@@ -23,22 +22,20 @@ class ResourceCollectionData extends PrimaryData {
   static ResourceCollectionData decodeJson(Object json) {
     if (json is Map) {
       final links = Link.decodeJsonMap(json['links']);
-      final included = json['included'];
       final data = json['data'];
       if (data is List) {
         return ResourceCollectionData(data.map(ResourceObject.decodeJson),
             self: links['self'],
             pagination: Pagination.fromLinks(links),
-            included: included == null
-                ? null
-                : ResourceObject.decodeJsonList(included));
+            included:
+                nullable(ResourceObject.decodeJsonList)(json['included']));
       }
     }
     throw DecodingException(
         'Can not decode ResourceObjectCollection from $json');
   }
 
-  get length => collection.length;
+  Map<String, Link> get links => {...super.links, ...pagination.links};
 
   List<Resource> unwrap() => collection.map((_) => _.unwrap()).toList();
 

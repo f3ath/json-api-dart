@@ -33,16 +33,6 @@ class Resource {
     this.toMany.addAll(toMany ?? {});
   }
 
-  /// Convert to Identifier
-  Identifier toIdentifier() {
-    if (id == null) throw StateError('Incomplete object: id is null');
-    return Identifier(type, id);
-  }
-
-  /// Returns a copy of the resource with the new [id]
-  Resource withId(String id) =>
-      Resource(type, id, attributes: attributes, toMany: toMany, toOne: toOne);
-
   @override
   String toString() => 'Resource(${type}:${id})';
 }

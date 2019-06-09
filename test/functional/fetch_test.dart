@@ -89,11 +89,11 @@ void main() async {
       final uri = route.related('companies', '1', 'models');
       final r0 = await client.fetchCollection(uri);
       final firstPage = r0.data;
-      expect(firstPage.length, 1);
+      expect(firstPage.collection.length, 1);
 
       final r1 = await client.fetchCollection(firstPage.pagination.last.uri);
       final lastPage = r1.data;
-      expect(lastPage.length, 1);
+      expect(lastPage.collection.length, 1);
     });
 
     test('404', () async {

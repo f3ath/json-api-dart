@@ -141,7 +141,10 @@ class CarsController implements Controller {
       return;
     }
 
-    final created = dao.create(resource.withId(Uuid().v4()));
+    final created = dao.create(Resource(resource.type, Uuid().v4(),
+        attributes: resource.attributes,
+        toMany: resource.toMany,
+        toOne: resource.toOne));
 
     if (request.target.type == 'models') {
       // Insertion is artificially delayed
