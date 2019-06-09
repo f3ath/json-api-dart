@@ -156,7 +156,8 @@ class ToMany extends Relationship {
 
   /// Converts to List<[Identifier]>.
   /// For empty relationships returns an empty List.
-  List<Identifier> get identifiers => linkage.map((_) => _.identifier).toList();
+  List<Identifier> get identifiers =>
+      linkage.map((_) => _.identifier).toList();
 
   @override
   bool identifies(ResourceObject resourceObject) =>

@@ -36,8 +36,8 @@ void main() {
           true);
 
       expect(
-          ToMany([IdentifierObject(Identifier('apples', '1'))],
-              included: [apple]).isFullyLinked,
+          ToMany([IdentifierObject(Identifier('apples', '1'))], included: [apple])
+              .isFullyLinked,
           true);
     });
 
