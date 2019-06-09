@@ -39,6 +39,4 @@ class ResourceData extends PrimaryData {
   }
 
   Resource toResource() => resourceObject.unwrap();
-
-  bool identifies(ResourceObject r) => resourceObject.identifies(r);
 }

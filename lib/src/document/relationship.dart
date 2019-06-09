@@ -61,8 +61,6 @@ class Relationship extends PrimaryData {
     if (links.isNotEmpty) json['links'] = links;
     return json;
   }
-
-  bool identifies(ResourceObject resourceObject) => false;
 }
 
 /// Relationship to-one
@@ -105,9 +103,6 @@ class ToOne extends Relationship {
   /// For empty relationships return null.
   Identifier toIdentifier() => linkage?.unwrap();
 
-  @override
-  bool identifies(ResourceObject resourceObject) =>
-      resourceObject.unwrap().toIdentifier().equals(toIdentifier());
 }
 
 /// Relationship to-many
@@ -159,7 +154,4 @@ class ToMany extends Relationship {
   List<Identifier> get identifiers =>
       linkage.map((_) => _.unwrap()).toList();
 
-  @override
-  bool identifies(ResourceObject resourceObject) =>
-      identifiers.any(resourceObject.unwrap().toIdentifier().equals);
 }

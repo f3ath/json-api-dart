@@ -20,16 +20,6 @@ abstract class PrimaryData {
         if (self != null) ...{'self': self}
       };
 
-  /// For Compound document data returns true if the data is fully linked
-  ///
-  /// Details: http://jsonapi.org/format/#document-compound-documents
-  get isFullyLinked =>
-      !isCompound ||
-      included.every((resource) =>
-          identifies(resource) ||
-          included
-              .any((other) => other != resource && other.identifies(resource)));
-
   /// Documents with included resources are called compound
   ///
   /// Details: http://jsonapi.org/format/#document-compound-documents
@@ -38,6 +28,4 @@ abstract class PrimaryData {
   /// Top-level JSON object
   Map<String, Object> toJson() =>
       (included != null) ? {'included': included} : {};
-
-  bool identifies(ResourceObject resourceObject);
 }

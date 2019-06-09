@@ -106,10 +106,4 @@ class ResourceObject {
     return Resource(type, id,
         attributes: attributes, toOne: toOne, toMany: toMany);
   }
-
-  /// Returns true if this resource object identifies the [other].
-  /// For a ResourceObject "identifies" means contains an IdentifierObject
-  /// pointing to the [other].
-  bool identifies(ResourceObject other) =>
-      relationships.values.any((_) => _.identifies(other));
 }
