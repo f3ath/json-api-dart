@@ -101,7 +101,7 @@ class ToOne extends Relationship {
 
   /// Converts to [Identifier].
   /// For empty relationships return null.
-  Identifier get identifier => linkage?.identifier;
+  Identifier get identifier => linkage;
 
   @override
   bool identifies(ResourceObject resourceObject) =>
@@ -152,7 +152,7 @@ class ToMany extends Relationship {
 
   /// Converts to List<[Identifier]>.
   /// For empty relationships returns an empty List.
-  List<Identifier> get identifiers => linkage.map((_) => _.identifier).toList();
+  List<Identifier> get identifiers => linkage;
 
   @override
   bool identifies(ResourceObject resourceObject) =>
