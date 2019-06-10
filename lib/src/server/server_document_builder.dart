@@ -18,10 +18,10 @@ import 'package:json_api/src/url_design.dart';
 /// The Document builder is used by JsonApiServer. It abstracts the process
 /// of building response documents and is responsible for such aspects as
 ///  adding `meta` and `jsonapi` attributes and generating links
-class DocumentBuilder {
+class ServerDocumentBuilder {
   final UrlDesign _urlDesign;
 
-  const DocumentBuilder(this._urlDesign);
+  const ServerDocumentBuilder(this._urlDesign);
 
   /// A document containing a list of errors
   Document errorDocument(Iterable<JsonApiError> errors) =>

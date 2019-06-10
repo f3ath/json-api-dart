@@ -4,7 +4,7 @@ import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/collection.dart';
-import 'package:json_api/src/server/document_builder.dart';
+import 'package:json_api/src/server/server_document_builder.dart';
 import 'package:json_api/src/server/page.dart';
 import 'package:json_api/src/server/request_target.dart';
 
@@ -15,7 +15,7 @@ abstract class Response {
 
   const Response(this.status);
 
-  Document getDocument(DocumentBuilder builder, Uri self);
+  Document getDocument(ServerDocumentBuilder builder, Uri self);
 
   Map<String, String> getHeaders(UrlDesign schema) =>
       {'Content-Type': 'application/vnd.api+json'};
@@ -26,7 +26,7 @@ class ErrorResponse extends Response {
 
   const ErrorResponse(int status, this.errors) : super(status);
 
-  Document getDocument(DocumentBuilder builder, Uri self) =>
+  Document getDocument(ServerDocumentBuilder builder, Uri self) =>
       builder.errorDocument(errors);
 
   const ErrorResponse.notImplemented(this.errors) : super(501);
@@ -50,7 +50,7 @@ class CollectionResponse extends Response {
       : super(200);
 
   @override
-  Document getDocument(DocumentBuilder builder, Uri self) => builder
+  Document getDocument(ServerDocumentBuilder builder, Uri self) => builder
       .collectionDocument(collection, self, included: included, page: page);
 }
 
@@ -62,7 +62,7 @@ class ResourceResponse extends Response {
       : super(200);
 
   @override
-  Document getDocument(DocumentBuilder builder, Uri self) =>
+  Document getDocument(ServerDocumentBuilder builder, Uri self) =>
       builder.resourceDocument(resource, self, included: included);
 }
 
@@ -74,7 +74,7 @@ class RelatedResourceResponse extends Response {
       : super(200);
 
   @override
-  Document getDocument(DocumentBuilder builder, Uri self) =>
+  Document getDocument(ServerDocumentBuilder builder, Uri self) =>
       builder.relatedResourceDocument(resource, self);
 }
 
@@ -88,7 +88,7 @@ class RelatedCollectionResponse extends Response {
       : super(200);
 
   @override
-  Document getDocument(DocumentBuilder builder, Uri self) =>
+  Document getDocument(ServerDocumentBuilder builder, Uri self) =>
       builder.relatedCollectionDocument(collection, self, page: page);
 }
 
@@ -99,7 +99,7 @@ class ToOneResponse extends Response {
   const ToOneResponse(this.target, this.identifier) : super(200);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
+  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
       builder.toOneDocument(identifier, target, self);
 }
 
@@ -110,7 +110,7 @@ class ToManyResponse extends Response {
   const ToManyResponse(this.target, this.collection) : super(200);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
+  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
       builder.toManyDocument(collection, target, self);
 }
 
@@ -120,7 +120,7 @@ class MetaResponse extends Response {
   MetaResponse(this.meta) : super(200);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
+  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
       builder.metaDocument(meta);
 }
 
@@ -128,7 +128,7 @@ class NoContent extends Response {
   const NoContent() : super(204);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) => null;
+  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) => null;
 }
 
 class SeeOther extends Response {
@@ -137,7 +137,7 @@ class SeeOther extends Response {
   SeeOther(this.resource) : super(303);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) => null;
+  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) => null;
 
   @override
   Map<String, String> getHeaders(UrlDesign schema) => super.getHeaders(schema)
@@ -150,7 +150,7 @@ class ResourceCreated extends Response {
   ResourceCreated(this.resource) : super(201);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
+  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
       builder.resourceDocument(resource, self);
 
   @override
@@ -164,7 +164,7 @@ class ResourceUpdated extends Response {
   ResourceUpdated(this.resource) : super(200);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
+  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
       builder.resourceDocument(resource, self);
 }
 
@@ -174,7 +174,7 @@ class Accepted extends Response {
   Accepted(this.resource) : super(202);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
+  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
       builder.resourceDocument(resource, self);
 
   @override

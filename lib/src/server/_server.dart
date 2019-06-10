@@ -1,6 +1,6 @@
 export 'package:json_api/src/server/collection.dart';
 export 'package:json_api/src/server/controller.dart';
-export 'package:json_api/src/server/document_builder.dart';
+export 'package:json_api/src/server/server_document_builder.dart';
 export 'package:json_api/src/server/inclusion_request.dart';
 export 'package:json_api/src/server/numbered_page.dart';
 export 'package:json_api/src/server/page.dart';
