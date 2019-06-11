@@ -4,9 +4,9 @@ import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/collection.dart';
-import 'package:json_api/src/server/server_document_builder.dart';
 import 'package:json_api/src/server/page.dart';
 import 'package:json_api/src/server/request_target.dart';
+import 'package:json_api/src/server/server_document_builder.dart';
 
 import '../url_design.dart';
 
@@ -128,7 +128,8 @@ class NoContent extends Response {
   const NoContent() : super(204);
 
   @override
-  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) => null;
+  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
+      null;
 }
 
 class SeeOther extends Response {
@@ -137,7 +138,8 @@ class SeeOther extends Response {
   SeeOther(this.resource) : super(303);
 
   @override
-  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) => null;
+  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
+      null;
 
   @override
   Map<String, String> getHeaders(UrlDesign schema) => super.getHeaders(schema)

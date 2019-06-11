@@ -5,7 +5,6 @@ import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/response.dart';
 
-
 abstract class Controller {
   bool supportsType(String type);
 
