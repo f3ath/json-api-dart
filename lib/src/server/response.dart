@@ -124,18 +124,18 @@ class MetaResponse extends Response {
       builder.metaDocument(meta);
 }
 
-class NoContent extends Response {
-  const NoContent() : super(204);
+class NoContentResponse extends Response {
+  const NoContentResponse() : super(204);
 
   @override
   Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
       null;
 }
 
-class SeeOther extends Response {
+class SeeOtherResponse extends Response {
   final Resource resource;
 
-  SeeOther(this.resource) : super(303);
+  SeeOtherResponse(this.resource) : super(303);
 
   @override
   Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
@@ -146,10 +146,10 @@ class SeeOther extends Response {
     ..['Location'] = schema.resource(resource.type, resource.id).toString();
 }
 
-class ResourceCreated extends Response {
+class ResourceCreatedResponse extends Response {
   final Resource resource;
 
-  ResourceCreated(this.resource) : super(201);
+  ResourceCreatedResponse(this.resource) : super(201);
 
   @override
   Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
@@ -160,20 +160,20 @@ class ResourceCreated extends Response {
     ..['Location'] = schema.resource(resource.type, resource.id).toString();
 }
 
-class ResourceUpdated extends Response {
+class ResourceUpdatedResponse extends Response {
   final Resource resource;
 
-  ResourceUpdated(this.resource) : super(200);
+  ResourceUpdatedResponse(this.resource) : super(200);
 
   @override
   Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
       builder.resourceDocument(resource, self);
 }
 
-class Accepted extends Response {
+class AcceptedResponse extends Response {
   final Resource resource;
 
-  Accepted(this.resource) : super(202);
+  AcceptedResponse(this.resource) : super(202);
 
   @override
   Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>

@@ -1,159 +1,103 @@
 import 'dart:async';
 
+import 'package:json_api/document.dart';
 import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/relationship.dart';
-import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/resource_data.dart';
-import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/page.dart';
 import 'package:json_api/src/server/request_target.dart';
 import 'package:json_api/src/server/response.dart';
 
-abstract class Request {
+abstract class _Request implements CanCallController {
   RequestTarget get target;
-
-  FutureOr<Response> call(
-      Controller controller, Map<String, List<String>> query, Object payload);
-
-  Response errorNotFound(List<JsonApiError> errors) =>
-      ErrorResponse.notFound(errors);
-
-  Response errorConflict(List<JsonApiError> errors) =>
-      ErrorResponse.conflict(errors);
-
-  Response error(int status, List<JsonApiError> errors) =>
-      ErrorResponse(status, errors);
 }
 
-class FetchCollection extends Request {
+class _FetchCollectionRequest extends _Request
+    implements FetchCollectionRequest {
   final CollectionTarget target;
 
-  FetchCollection(this.target);
+  _FetchCollectionRequest(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.fetchCollection(this, query);
-
-  Response sendCollection(Collection<Resource> resources,
-          {Iterable<Resource> included = const [], Page page}) =>
-      CollectionResponse(resources, included: included, page: page);
 }
 
-class FetchResource extends Request {
+class _FetchResourceRequest extends _Request implements FetchResourceRequest {
   final ResourceTarget target;
 
-  FetchResource(this.target);
+  _FetchResourceRequest(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.fetchResource(this, query);
-
-  Response sendResource(Resource resource, {Iterable<Resource> included}) =>
-      ResourceResponse(resource, included: included);
-
-  Response sendSeeOther(Resource resource) => SeeOther(resource);
 }
 
-class FetchRelated extends Request {
+class _FetchRelatedRequest extends _Request implements FetchRelatedRequest {
   final RelatedTarget target;
 
-  FetchRelated(this.target);
+  _FetchRelatedRequest(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.fetchRelated(this, query);
-
-  Response sendResource(Resource resource) => RelatedResourceResponse(resource);
-
-  Response sendCollection(Collection<Resource> collection,
-          {Iterable<Resource> included = const [], Page page}) =>
-      RelatedCollectionResponse(collection, included: included, page: page);
 }
 
-class FetchRelationship extends Request {
+class _FetchRelationshipRequest extends _Request
+    implements FetchRelationshipRequest {
   final RelationshipTarget target;
 
-  FetchRelationship(this.target);
+  _FetchRelationshipRequest(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.fetchRelationship(this, query);
-
-  Response sendToOne(Identifier identifier) =>
-      ToOneResponse(target, identifier);
-
-  Response sendToMany(List<Identifier> collection) =>
-      ToManyResponse(target, collection);
 }
 
-class DeleteResource extends Request {
+class _DeleteResourceRequest extends _Request implements DeleteResourceRequest {
   final ResourceTarget target;
 
-  DeleteResource(this.target);
+  _DeleteResourceRequest(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.deleteResource(this);
-
-  Response sendNoContent() => NoContent();
-
-  Response sendMeta(Map<String, Object> map) => MetaResponse(map);
 }
 
-class UpdateResource extends Request {
+class _UpdateResourceRequest extends _Request implements UpdateResourceRequest {
   final ResourceTarget target;
 
-  UpdateResource(this.target);
+  _UpdateResourceRequest(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
           Map<String, List<String>> query, Object payload) =>
-      controller.updateResource(
-          this,
-          Document.decodeJson(payload, ResourceData.decodeJson)
-              .data
-              .resourceObject
-              .unwrap());
-
-  Response sendNoContent() => NoContent();
-
-  Response sendUpdated(Resource resource) => ResourceUpdated(resource);
+      controller.updateResource(this,
+          Document.decodeJson(payload, ResourceData.decodeJson).data.unwrap());
 }
 
-class CreateResource extends Request {
+class _CreateResourceRequest extends _Request implements CreateResourceRequest {
   final CollectionTarget target;
 
-  CreateResource(this.target);
+  _CreateResourceRequest(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
           Map<String, List<String>> query, Object payload) =>
-      controller.createResource(
-          this,
-          Document.decodeJson(payload, ResourceData.decodeJson)
-              .data
-              .resourceObject
-              .unwrap());
-
-  Response sendNoContent() => NoContent();
-
-  Response sendAccepted(Resource resource) => Accepted(resource);
-
-  Response sendCreated(Resource resource) => ResourceCreated(resource);
+      controller.createResource(this,
+          Document.decodeJson(payload, ResourceData.decodeJson).data.unwrap());
 }
 
-class UpdateRelationship extends Request {
+class _UpdateRelationshipRequest extends _Request
+    implements UpdateRelationshipRequest {
   final RelationshipTarget target;
 
-  UpdateRelationship(this.target);
+  _UpdateRelationshipRequest(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
@@ -165,15 +109,14 @@ class UpdateRelationship extends Request {
     if (rel is ToMany) {
       return controller.replaceToMany(this, rel.identifiers);
     }
+    return ErrorResponse.badRequest([]); //TODO: meaningful error
   }
-
-  Response sendNoContent() => NoContent();
 }
 
-class AddToMany extends Request {
+class _AddToManyRequest extends _Request implements AddToManyRequest {
   final RelationshipTarget target;
 
-  AddToMany(this.target);
+  _AddToManyRequest(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
@@ -182,17 +125,15 @@ class AddToMany extends Request {
     if (rel is ToMany) {
       return controller.addToMany(this, rel.identifiers);
     }
+    return ErrorResponse.badRequest([]); //TODO: meaningful error
   }
-
-  Response sendToMany(List<Identifier> identifiers) =>
-      ToManyResponse(target, identifiers);
 }
 
-class InvalidRequest extends Request {
+class _InvalidRequest extends _Request {
   final target = null;
   final Response _response;
 
-  InvalidRequest(this._response);
+  _InvalidRequest(this._response);
 
   @override
   Response call(Controller controller, Map<String, List<String>> query,
@@ -200,46 +141,46 @@ class InvalidRequest extends Request {
       _response;
 }
 
-class DefaultRequestFactory implements RequestFactory<Request> {
+class DefaultRequestFactory implements RequestFactory {
   const DefaultRequestFactory();
 
   @override
-  FetchCollection makeFetchCollectionRequest(CollectionTarget target) =>
-      FetchCollection(target);
+  CanCallController makeFetchCollectionRequest(CollectionTarget target) =>
+      _FetchCollectionRequest(target);
 
   @override
-  CreateResource makeCreateResourceRequest(CollectionTarget target) =>
-      CreateResource(target);
+  CanCallController makeCreateResourceRequest(CollectionTarget target) =>
+      _CreateResourceRequest(target);
 
   @override
-  FetchResource makeFetchResourceRequest(ResourceTarget target) =>
-      FetchResource(target);
+  CanCallController makeFetchResourceRequest(ResourceTarget target) =>
+      _FetchResourceRequest(target);
 
   @override
-  DeleteResource makeDeleteResourceRequest(ResourceTarget target) =>
-      DeleteResource(target);
+  CanCallController makeDeleteResourceRequest(ResourceTarget target) =>
+      _DeleteResourceRequest(target);
 
   @override
-  UpdateResource makeUpdateResourceRequest(ResourceTarget target) =>
-      UpdateResource(target);
+  CanCallController makeUpdateResourceRequest(ResourceTarget target) =>
+      _UpdateResourceRequest(target);
 
   @override
-  FetchRelationship makeFetchRelationshipRequest(RelationshipTarget target) =>
-      FetchRelationship(target);
+  CanCallController makeFetchRelationshipRequest(RelationshipTarget target) =>
+      _FetchRelationshipRequest(target);
 
   @override
-  AddToMany makeAddToManyRequest(RelationshipTarget target) =>
-      AddToMany(target);
+  CanCallController makeAddToManyRequest(RelationshipTarget target) =>
+      _AddToManyRequest(target);
 
   @override
-  FetchRelated makeFetchRelatedRequest(RelatedTarget target) =>
-      FetchRelated(target);
+  CanCallController makeFetchRelatedRequest(RelatedTarget target) =>
+      _FetchRelatedRequest(target);
 
   @override
-  UpdateRelationship makeUpdateRelationshipRequest(RelationshipTarget target) =>
-      UpdateRelationship(target);
+  CanCallController makeUpdateRelationshipRequest(RelationshipTarget target) =>
+      _UpdateRelationshipRequest(target);
 
   @override
-  InvalidRequest makeInvalidRequest(RequestTarget target) =>
-      InvalidRequest(ErrorResponse.methodNotAllowed([]));
+  CanCallController makeInvalidRequest(RequestTarget target) =>
+      _InvalidRequest(ErrorResponse.methodNotAllowed([]));
 }

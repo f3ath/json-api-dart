@@ -1,3 +1,5 @@
+import 'package:json_api/src/server/_server.dart';
+
 /// A JSON:API request may target:
 /// - a single primary resource
 /// - a primary resource collection
@@ -7,7 +9,7 @@ abstract class RequestTarget {
   String get type;
 
   /// Returns the request for the given [method]
-  R getRequest<R>(String method, RequestFactory<R> factory);
+  CanCallController getRequest(String method, RequestFactory factory);
 }
 
 class CollectionTarget implements RequestTarget {
@@ -16,7 +18,7 @@ class CollectionTarget implements RequestTarget {
   const CollectionTarget(this.type);
 
   @override
-  R getRequest<R>(String method, RequestFactory<R> factory) {
+  CanCallController getRequest(String method, RequestFactory factory) {
     method = method.toUpperCase();
     if (method == 'GET') return factory.makeFetchCollectionRequest(this);
     if (method == 'POST') return factory.makeCreateResourceRequest(this);
@@ -31,7 +33,7 @@ class ResourceTarget implements RequestTarget {
   const ResourceTarget(this.type, this.id);
 
   @override
-  R getRequest<R>(String method, RequestFactory<R> factory) {
+  CanCallController getRequest(String method, RequestFactory factory) {
     method = method.toUpperCase();
     if (method == 'GET') return factory.makeFetchResourceRequest(this);
     if (method == 'DELETE') return factory.makeDeleteResourceRequest(this);
@@ -48,7 +50,7 @@ class RelationshipTarget implements RequestTarget {
   const RelationshipTarget(this.type, this.id, this.relationship);
 
   @override
-  R getRequest<R>(String method, RequestFactory<R> factory) {
+  CanCallController getRequest(String method, RequestFactory factory) {
     method = method.toUpperCase();
     if (method == 'GET') return factory.makeFetchRelationshipRequest(this);
     if (method == 'PATCH') return factory.makeUpdateRelationshipRequest(this);
@@ -65,31 +67,31 @@ class RelatedTarget implements RequestTarget {
   const RelatedTarget(this.type, this.id, this.relationship);
 
   @override
-  R getRequest<R>(String method, RequestFactory<R> factory) {
+  CanCallController getRequest(String method, RequestFactory factory) {
     method = method.toUpperCase();
     if (method == 'GET') return factory.makeFetchRelatedRequest(this);
     return factory.makeInvalidRequest(this);
   }
 }
 
-abstract class RequestFactory<R> {
-  R makeFetchCollectionRequest(CollectionTarget target);
+abstract class RequestFactory {
+  CanCallController makeFetchCollectionRequest(CollectionTarget target);
 
-  R makeCreateResourceRequest(CollectionTarget target);
+  CanCallController makeCreateResourceRequest(CollectionTarget target);
 
-  R makeFetchResourceRequest(ResourceTarget target);
+  CanCallController makeFetchResourceRequest(ResourceTarget target);
 
-  R makeDeleteResourceRequest(ResourceTarget target);
+  CanCallController makeDeleteResourceRequest(ResourceTarget target);
 
-  R makeUpdateResourceRequest(ResourceTarget target);
+  CanCallController makeUpdateResourceRequest(ResourceTarget target);
 
-  R makeFetchRelationshipRequest(RelationshipTarget target);
+  CanCallController makeFetchRelationshipRequest(RelationshipTarget target);
 
-  R makeUpdateRelationshipRequest(RelationshipTarget target);
+  CanCallController makeUpdateRelationshipRequest(RelationshipTarget target);
 
-  R makeAddToManyRequest(RelationshipTarget target);
+  CanCallController makeAddToManyRequest(RelationshipTarget target);
 
-  R makeFetchRelatedRequest(RelatedTarget target);
+  CanCallController makeFetchRelatedRequest(RelatedTarget target);
 
-  R makeInvalidRequest(RequestTarget target);
+  CanCallController makeInvalidRequest(RequestTarget target);
 }

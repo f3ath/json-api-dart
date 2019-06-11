@@ -2,35 +2,84 @@ import 'dart:async';
 
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/resource.dart';
-import 'package:json_api/src/server/request.dart';
+import 'package:json_api/src/server/request_target.dart';
 import 'package:json_api/src/server/response.dart';
 
 abstract class Controller {
   bool supportsType(String type);
 
   FutureOr<Response> fetchCollection(
-      FetchCollection request, Map<String, List<String>> query);
+      FetchCollectionRequest request, Map<String, List<String>> query);
 
   FutureOr<Response> fetchResource(
-      FetchResource request, Map<String, List<String>> query);
+      FetchResourceRequest request, Map<String, List<String>> query);
 
   FutureOr<Response> fetchRelated(
-      FetchRelated request, Map<String, List<String>> query);
+      FetchRelatedRequest request, Map<String, List<String>> query);
 
   FutureOr<Response> fetchRelationship(
-      FetchRelationship request, Map<String, List<String>> query);
+      FetchRelationshipRequest request, Map<String, List<String>> query);
 
-  FutureOr<Response> deleteResource(DeleteResource request);
+  FutureOr<Response> deleteResource(DeleteResourceRequest request);
 
-  FutureOr<Response> createResource(CreateResource request, Resource resource);
+  FutureOr<Response> createResource(
+      CreateResourceRequest request, Resource resource);
 
-  FutureOr<Response> updateResource(UpdateResource request, Resource resource);
+  FutureOr<Response> updateResource(
+      UpdateResourceRequest request, Resource resource);
 
   FutureOr<Response> replaceToOne(
-      UpdateRelationship request, Identifier identifier);
+      UpdateRelationshipRequest request, Identifier identifier);
 
   FutureOr<Response> replaceToMany(
-      UpdateRelationship request, List<Identifier> identifiers);
+      UpdateRelationshipRequest request, List<Identifier> identifiers);
 
-  FutureOr<Response> addToMany(AddToMany request, List<Identifier> identifiers);
+  FutureOr<Response> addToMany(
+      AddToManyRequest request, List<Identifier> identifiers);
+}
+
+/// Performs double-dispatch on Controller methods
+abstract class CanCallController {
+  FutureOr<Response> call(
+      Controller controller, Map<String, List<String>> query, Object payload);
+}
+
+abstract class ControllerRequest {
+  RequestTarget get target;
+}
+
+abstract class FetchCollectionRequest implements ControllerRequest {
+  CollectionTarget get target;
+}
+
+abstract class CreateResourceRequest implements ControllerRequest {
+  CollectionTarget get target;
+}
+
+abstract class FetchResourceRequest implements ControllerRequest {
+  ResourceTarget get target;
+}
+
+abstract class DeleteResourceRequest implements ControllerRequest {
+  ResourceTarget get target;
+}
+
+abstract class UpdateResourceRequest implements ControllerRequest {
+  ResourceTarget get target;
+}
+
+abstract class FetchRelatedRequest implements ControllerRequest {
+  RelatedTarget get target;
+}
+
+abstract class FetchRelationshipRequest implements ControllerRequest {
+  RelationshipTarget get target;
+}
+
+abstract class AddToManyRequest implements ControllerRequest {
+  RelationshipTarget get target;
+}
+
+abstract class UpdateRelationshipRequest implements ControllerRequest {
+  RelationshipTarget get target;
 }
