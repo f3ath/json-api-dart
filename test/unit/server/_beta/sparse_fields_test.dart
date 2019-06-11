@@ -1,4 +1,4 @@
-import 'package:json_api/src/server/_server.dart';
+import 'package:json_api/src/server/_beta/sparse_fields.dart';
 import 'package:test/test.dart';
 
 void main() {

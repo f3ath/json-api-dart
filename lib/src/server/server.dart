@@ -2,16 +2,18 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:json_api/src/document/json_api_error.dart';
+import 'package:json_api/src/server/_server.dart';
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/server_document_builder.dart';
 import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/routing.dart';
+import 'package:json_api/src/server/server_document_builder.dart';
 
 class Server {
   final Routing routing;
   final Controller controller;
   final ServerDocumentBuilder builder;
   final String allowOrigin;
+  final requestFactory = const DefaultRequestFactory();
 
   Server(this.routing, this.controller, {this.allowOrigin = '*'})
       : builder = ServerDocumentBuilder(routing);
@@ -27,17 +29,17 @@ class Server {
               [JsonApiError(detail: 'Unknown resource type')]));
     }
 
-    final request = target.getRequest(http.method);
-    if (request == null) {
-      return _send(http, ErrorResponse.methodNotAllowed([]));
-    }
+    final request = target.getRequest(http.method, requestFactory);
 
     final body = await http.transform(utf8.decoder).join();
 
-    await request.call(controller, http.requestedUri.queryParametersAll,
-        body.isNotEmpty ? json.decode(body) : null);
+    final response = await request.call(
+            controller,
+            http.requestedUri.queryParametersAll,
+            body.isNotEmpty ? json.decode(body) : null) ??
+        ErrorResponse.notImplemented([]);
 
-    return _send(http, request.response);
+    return _send(http, response);
   }
 
   Future _send(HttpRequest http, Response response) {

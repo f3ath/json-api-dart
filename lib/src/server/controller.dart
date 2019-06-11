@@ -3,33 +3,35 @@ import 'dart:async';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/request.dart';
+import 'package:json_api/src/server/response.dart';
+
 
 abstract class Controller {
   bool supportsType(String type);
 
-  FutureOr<void> fetchCollection(
+  FutureOr<Response> fetchCollection(
       FetchCollection request, Map<String, List<String>> query);
 
-  FutureOr<void> fetchResource(
+  FutureOr<Response> fetchResource(
       FetchResource request, Map<String, List<String>> query);
 
-  FutureOr<void> fetchRelated(
+  FutureOr<Response> fetchRelated(
       FetchRelated request, Map<String, List<String>> query);
 
-  FutureOr<void> fetchRelationship(
+  FutureOr<Response> fetchRelationship(
       FetchRelationship request, Map<String, List<String>> query);
 
-  FutureOr<void> deleteResource(DeleteResource request);
+  FutureOr<Response> deleteResource(DeleteResource request);
 
-  FutureOr<void> createResource(CreateResource request, Resource resource);
+  FutureOr<Response> createResource(CreateResource request, Resource resource);
 
-  FutureOr<void> updateResource(UpdateResource request, Resource resource);
+  FutureOr<Response> updateResource(UpdateResource request, Resource resource);
 
-  FutureOr<void> replaceToOne(
+  FutureOr<Response> replaceToOne(
       UpdateRelationship request, Identifier identifier);
 
-  FutureOr<void> replaceToMany(
+  FutureOr<Response> replaceToMany(
       UpdateRelationship request, List<Identifier> identifiers);
 
-  FutureOr<void> addToMany(AddToMany request, List<Identifier> identifiers);
+  FutureOr<Response> addToMany(AddToMany request, List<Identifier> identifiers);
 }

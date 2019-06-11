@@ -13,26 +13,19 @@ import 'package:json_api/src/server/request_target.dart';
 import 'package:json_api/src/server/response.dart';
 
 abstract class Request {
-  Response _response = ErrorResponse.notImplemented([]);
-
   RequestTarget get target;
 
-  Response get response => _response;
-
-  FutureOr<void> call(
+  FutureOr<Response> call(
       Controller controller, Map<String, List<String>> query, Object payload);
 
-  void errorNotFound(List<JsonApiError> errors) {
-    _response = ErrorResponse.notFound(errors);
-  }
+  Response errorNotFound(List<JsonApiError> errors) =>
+      ErrorResponse.notFound(errors);
 
-  void errorConflict(List<JsonApiError> errors) {
-    _response = ErrorResponse.conflict(errors);
-  }
+  Response errorConflict(List<JsonApiError> errors) =>
+      ErrorResponse.conflict(errors);
 
-  void error(int status, List<JsonApiError> errors) {
-    _response = ErrorResponse(status, errors);
-  }
+  Response error(int status, List<JsonApiError> errors) =>
+      ErrorResponse(status, errors);
 }
 
 class FetchCollection extends Request {
@@ -41,14 +34,13 @@ class FetchCollection extends Request {
   FetchCollection(this.target);
 
   @override
-  FutureOr<void> call(Controller controller, Map<String, List<String>> query,
-          Object payload) =>
+  FutureOr<Response> call(Controller controller,
+          Map<String, List<String>> query, Object payload) =>
       controller.fetchCollection(this, query);
 
-  void sendCollection(Collection<Resource> resources,
-      {Iterable<Resource> included = const [], Page page}) {
-    _response = CollectionResponse(resources, included: included, page: page);
-  }
+  Response sendCollection(Collection<Resource> resources,
+          {Iterable<Resource> included = const [], Page page}) =>
+      CollectionResponse(resources, included: included, page: page);
 }
 
 class FetchResource extends Request {
@@ -61,13 +53,10 @@ class FetchResource extends Request {
           Map<String, List<String>> query, Object payload) =>
       controller.fetchResource(this, query);
 
-  void sendResource(Resource resource, {Iterable<Resource> included}) {
-    _response = ResourceResponse(resource, included: included);
-  }
+  Response sendResource(Resource resource, {Iterable<Resource> included}) =>
+      ResourceResponse(resource, included: included);
 
-  void sendSeeOther(Resource resource) {
-    _response = SeeOther(resource);
-  }
+  Response sendSeeOther(Resource resource) => SeeOther(resource);
 }
 
 class FetchRelated extends Request {
@@ -80,15 +69,11 @@ class FetchRelated extends Request {
           Map<String, List<String>> query, Object payload) =>
       controller.fetchRelated(this, query);
 
-  void sendResource(Resource resource) {
-    _response = RelatedResourceResponse(resource);
-  }
+  Response sendResource(Resource resource) => RelatedResourceResponse(resource);
 
-  void sendCollection(Collection<Resource> collection,
-      {Iterable<Resource> included = const [], Page page}) {
-    _response =
-        RelatedCollectionResponse(collection, included: included, page: page);
-  }
+  Response sendCollection(Collection<Resource> collection,
+          {Iterable<Resource> included = const [], Page page}) =>
+      RelatedCollectionResponse(collection, included: included, page: page);
 }
 
 class FetchRelationship extends Request {
@@ -97,17 +82,15 @@ class FetchRelationship extends Request {
   FetchRelationship(this.target);
 
   @override
-  FutureOr<void> call(Controller controller, Map<String, List<String>> query,
-          Object payload) =>
+  FutureOr<Response> call(Controller controller,
+          Map<String, List<String>> query, Object payload) =>
       controller.fetchRelationship(this, query);
 
-  void sendToOne(Identifier identifier) {
-    _response = ToOneResponse(target, identifier);
-  }
+  Response sendToOne(Identifier identifier) =>
+      ToOneResponse(target, identifier);
 
-  void sendToMany(List<Identifier> collection) {
-    _response = ToManyResponse(target, collection);
-  }
+  Response sendToMany(List<Identifier> collection) =>
+      ToManyResponse(target, collection);
 }
 
 class DeleteResource extends Request {
@@ -116,17 +99,13 @@ class DeleteResource extends Request {
   DeleteResource(this.target);
 
   @override
-  FutureOr<void> call(Controller controller, Map<String, List<String>> query,
-          Object payload) =>
+  FutureOr<Response> call(Controller controller,
+          Map<String, List<String>> query, Object payload) =>
       controller.deleteResource(this);
 
-  void sendNoContent() {
-    _response = NoContent();
-  }
+  Response sendNoContent() => NoContent();
 
-  void sendMeta(Map<String, Object> map) {
-    _response = MetaResponse(map);
-  }
+  Response sendMeta(Map<String, Object> map) => MetaResponse(map);
 }
 
 class UpdateResource extends Request {
@@ -135,8 +114,8 @@ class UpdateResource extends Request {
   UpdateResource(this.target);
 
   @override
-  FutureOr<void> call(Controller controller, Map<String, List<String>> query,
-          Object payload) =>
+  FutureOr<Response> call(Controller controller,
+          Map<String, List<String>> query, Object payload) =>
       controller.updateResource(
           this,
           Document.decodeJson(payload, ResourceData.decodeJson)
@@ -144,13 +123,9 @@ class UpdateResource extends Request {
               .resourceObject
               .unwrap());
 
-  void sendNoContent() {
-    _response = NoContent();
-  }
+  Response sendNoContent() => NoContent();
 
-  void sendUpdated(Resource resource) {
-    _response = ResourceUpdated(resource);
-  }
+  Response sendUpdated(Resource resource) => ResourceUpdated(resource);
 }
 
 class CreateResource extends Request {
@@ -159,8 +134,8 @@ class CreateResource extends Request {
   CreateResource(this.target);
 
   @override
-  FutureOr<void> call(Controller controller, Map<String, List<String>> query,
-          Object payload) =>
+  FutureOr<Response> call(Controller controller,
+          Map<String, List<String>> query, Object payload) =>
       controller.createResource(
           this,
           Document.decodeJson(payload, ResourceData.decodeJson)
@@ -168,17 +143,11 @@ class CreateResource extends Request {
               .resourceObject
               .unwrap());
 
-  void sendNoContent() {
-    _response = NoContent();
-  }
+  Response sendNoContent() => NoContent();
 
-  void sendAccepted(Resource resource) {
-    _response = Accepted(resource);
-  }
+  Response sendAccepted(Resource resource) => Accepted(resource);
 
-  void sendCreated(Resource resource) {
-    _response = ResourceCreated(resource);
-  }
+  Response sendCreated(Resource resource) => ResourceCreated(resource);
 }
 
 class UpdateRelationship extends Request {
@@ -187,20 +156,18 @@ class UpdateRelationship extends Request {
   UpdateRelationship(this.target);
 
   @override
-  FutureOr<void> call(Controller controller, Map<String, List<String>> query,
-      Object payload) async {
+  FutureOr<Response> call(Controller controller,
+      Map<String, List<String>> query, Object payload) async {
     final rel = Relationship.decodeJson(payload);
     if (rel is ToOne) {
-      controller.replaceToOne(this, rel.unwrap());
+      return controller.replaceToOne(this, rel.unwrap());
     }
     if (rel is ToMany) {
-      controller.replaceToMany(this, rel.identifiers);
+      return controller.replaceToMany(this, rel.identifiers);
     }
   }
 
-  void sendNoContent() {
-    _response = NoContent();
-  }
+  Response sendNoContent() => NoContent();
 }
 
 class AddToMany extends Request {
@@ -209,27 +176,70 @@ class AddToMany extends Request {
   AddToMany(this.target);
 
   @override
-  FutureOr<void> call(Controller controller, Map<String, List<String>> query,
-      Object payload) async {
+  FutureOr<Response> call(Controller controller,
+      Map<String, List<String>> query, Object payload) async {
     final rel = Relationship.decodeJson(payload);
     if (rel is ToMany) {
-      controller.addToMany(this, rel.identifiers);
+      return controller.addToMany(this, rel.identifiers);
     }
   }
 
-  void sendToMany(List<Identifier> identifiers) {
-    _response = ToManyResponse(target, identifiers);
-  }
+  Response sendToMany(List<Identifier> identifiers) =>
+      ToManyResponse(target, identifiers);
 }
 
 class InvalidRequest extends Request {
   final target = null;
+  final Response _response;
 
-  InvalidRequest(ErrorResponse response) {
-    _response = response;
-  }
+  InvalidRequest(this._response);
 
   @override
-  void call(
-      Controller controller, Map<String, List<String>> query, Object payload) {}
+  Response call(Controller controller, Map<String, List<String>> query,
+          Object payload) =>
+      _response;
+}
+
+class DefaultRequestFactory implements RequestFactory<Request> {
+  const DefaultRequestFactory();
+
+  @override
+  FetchCollection makeFetchCollectionRequest(CollectionTarget target) =>
+      FetchCollection(target);
+
+  @override
+  CreateResource makeCreateResourceRequest(CollectionTarget target) =>
+      CreateResource(target);
+
+  @override
+  FetchResource makeFetchResourceRequest(ResourceTarget target) =>
+      FetchResource(target);
+
+  @override
+  DeleteResource makeDeleteResourceRequest(ResourceTarget target) =>
+      DeleteResource(target);
+
+  @override
+  UpdateResource makeUpdateResourceRequest(ResourceTarget target) =>
+      UpdateResource(target);
+
+  @override
+  FetchRelationship makeFetchRelationshipRequest(RelationshipTarget target) =>
+      FetchRelationship(target);
+
+  @override
+  AddToMany makeAddToManyRequest(RelationshipTarget target) =>
+      AddToMany(target);
+
+  @override
+  FetchRelated makeFetchRelatedRequest(RelatedTarget target) =>
+      FetchRelated(target);
+
+  @override
+  UpdateRelationship makeUpdateRelationshipRequest(RelationshipTarget target) =>
+      UpdateRelationship(target);
+
+  @override
+  InvalidRequest makeInvalidRequest(RequestTarget target) =>
+      InvalidRequest(ErrorResponse.methodNotAllowed([]));
 }

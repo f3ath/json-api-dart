@@ -1,10 +1,13 @@
-import 'package:json_api/src/server/request.dart';
-
+/// A JSON:API request may target:
+/// - a single primary resource
+/// - a primary resource collection
+/// - a related resource or collection
+/// - a relationship itself
 abstract class RequestTarget {
   String get type;
 
-  /// Returns the request for the given [method], or null otherwise
-  Request getRequest(String method);
+  /// Returns the request for the given [method]
+  R getRequest<R>(String method, RequestFactory<R> factory);
 }
 
 class CollectionTarget implements RequestTarget {
@@ -13,11 +16,11 @@ class CollectionTarget implements RequestTarget {
   const CollectionTarget(this.type);
 
   @override
-  Request getRequest(String method) {
+  R getRequest<R>(String method, RequestFactory<R> factory) {
     method = method.toUpperCase();
-    if (method == 'GET') return FetchCollection(this);
-    if (method == 'POST') return CreateResource(this);
-    return null;
+    if (method == 'GET') return factory.makeFetchCollectionRequest(this);
+    if (method == 'POST') return factory.makeCreateResourceRequest(this);
+    return factory.makeInvalidRequest(this);
   }
 }
 
@@ -28,12 +31,12 @@ class ResourceTarget implements RequestTarget {
   const ResourceTarget(this.type, this.id);
 
   @override
-  Request getRequest(String method) {
+  R getRequest<R>(String method, RequestFactory<R> factory) {
     method = method.toUpperCase();
-    if (method == 'GET') return FetchResource(this);
-    if (method == 'DELETE') return DeleteResource(this);
-    if (method == 'PATCH') return UpdateResource(this);
-    return null;
+    if (method == 'GET') return factory.makeFetchResourceRequest(this);
+    if (method == 'DELETE') return factory.makeDeleteResourceRequest(this);
+    if (method == 'PATCH') return factory.makeUpdateResourceRequest(this);
+    return factory.makeInvalidRequest(this);
   }
 }
 
@@ -45,12 +48,12 @@ class RelationshipTarget implements RequestTarget {
   const RelationshipTarget(this.type, this.id, this.relationship);
 
   @override
-  Request getRequest(String method) {
+  R getRequest<R>(String method, RequestFactory<R> factory) {
     method = method.toUpperCase();
-    if (method == 'GET') return FetchRelationship(this);
-    if (method == 'PATCH') return UpdateRelationship(this);
-    if (method == 'POST') return AddToMany(this);
-    return null;
+    if (method == 'GET') return factory.makeFetchRelationshipRequest(this);
+    if (method == 'PATCH') return factory.makeUpdateRelationshipRequest(this);
+    if (method == 'POST') return factory.makeAddToManyRequest(this);
+    return factory.makeInvalidRequest(this);
   }
 }
 
@@ -62,9 +65,31 @@ class RelatedTarget implements RequestTarget {
   const RelatedTarget(this.type, this.id, this.relationship);
 
   @override
-  Request getRequest(String method) {
+  R getRequest<R>(String method, RequestFactory<R> factory) {
     method = method.toUpperCase();
-    if (method == 'GET') return FetchRelated(this);
-    return null;
+    if (method == 'GET') return factory.makeFetchRelatedRequest(this);
+    return factory.makeInvalidRequest(this);
   }
+}
+
+abstract class RequestFactory<R> {
+  R makeFetchCollectionRequest(CollectionTarget target);
+
+  R makeCreateResourceRequest(CollectionTarget target);
+
+  R makeFetchResourceRequest(ResourceTarget target);
+
+  R makeDeleteResourceRequest(ResourceTarget target);
+
+  R makeUpdateResourceRequest(ResourceTarget target);
+
+  R makeFetchRelationshipRequest(RelationshipTarget target);
+
+  R makeUpdateRelationshipRequest(RelationshipTarget target);
+
+  R makeAddToManyRequest(RelationshipTarget target);
+
+  R makeFetchRelatedRequest(RelatedTarget target);
+
+  R makeInvalidRequest(RequestTarget target);
 }

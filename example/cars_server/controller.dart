@@ -1,6 +1,8 @@
 import 'dart:async';
 
-import 'package:json_api/json_api.dart';
+import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/json_api_error.dart';
+import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/_server.dart';
 import 'package:uuid/uuid.dart';
 
@@ -14,29 +16,28 @@ class CarsController implements Controller {
   CarsController(this._dao, this._page);
 
   @override
-  void fetchCollection(
+  Response fetchCollection(
       FetchCollection request, Map<String, List<String>> query) {
     final dao = _getDao(request);
     final page = _page(query);
     final collection = dao.fetchCollection(page);
-    request.sendCollection(collection.map(dao.toResource), page: page);
+    return request.sendCollection(collection.map(dao.toResource), page: page);
   }
 
   @override
-  void fetchRelated(FetchRelated request, Map<String, List<String>> query) {
+  Response fetchRelated(FetchRelated request, Map<String, List<String>> query) {
     final dao = _getDao(request);
 
     final res = dao.fetchByIdAsResource(request.target.id);
     if (res == null) {
-      request.errorNotFound([JsonApiError(detail: 'Resource not found')]);
-      return;
+      return request
+          .errorNotFound([JsonApiError(detail: 'Resource not found')]);
     }
 
     if (res.toOne.containsKey(request.target.relationship)) {
       final id = res.toOne[request.target.relationship];
       final resource = _dao[id.type].fetchByIdAsResource(id.id);
-      request.sendResource(resource);
-      return;
+      return request.sendResource(resource);
     }
 
     if (res.toMany.containsKey(request.target.relationship)) {
@@ -46,26 +47,27 @@ class CarsController implements Controller {
           .skip(page.offset)
           .take(page.limit)
           .map((id) => _dao[id.type].fetchByIdAsResource(id.id));
-      request.sendCollection(Collection(resources, total: relationships.length),
+      return request.sendCollection(
+          Collection(resources, total: relationships.length),
           page: page);
-      return;
     }
-    request.errorNotFound([JsonApiError(detail: 'Relationship not found')]);
+    return request
+        .errorNotFound([JsonApiError(detail: 'Relationship not found')]);
   }
 
   @override
-  void fetchResource(FetchResource request, Map<String, List<String>> query) {
+  Response fetchResource(
+      FetchResource request, Map<String, List<String>> query) {
     final dao = _getDao(request);
 
     final obj = dao.fetchById(request.target.id);
 
     if (obj == null) {
-      request.errorNotFound([JsonApiError(detail: 'Resource not found')]);
-      return;
+      return request
+          .errorNotFound([JsonApiError(detail: 'Resource not found')]);
     }
     if (obj is Job && obj.resource != null) {
-      request.sendSeeOther(obj.resource);
-      return;
+      return request.sendSeeOther(obj.resource);
     }
 
     final fetchById = (Identifier _) => _dao[_.type].fetchByIdAsResource(_.id);
@@ -75,70 +77,65 @@ class CarsController implements Controller {
         .map(fetchById)
         .followedBy(res.toMany.values.expand((_) => _.map(fetchById)));
 
-    request.sendResource(res, included: children);
+    return request.sendResource(res, included: children);
   }
 
   @override
-  void fetchRelationship(
+  Response fetchRelationship(
       FetchRelationship request, Map<String, List<String>> query) {
     final dao = _getDao(request);
 
     final res = dao.fetchByIdAsResource(request.target.id);
     if (res == null) {
-      request.errorNotFound([JsonApiError(detail: 'Resource not found')]);
-      return;
+      return request
+          .errorNotFound([JsonApiError(detail: 'Resource not found')]);
     }
 
     if (res.toOne.containsKey(request.target.relationship)) {
       final id = res.toOne[request.target.relationship];
-      request.sendToOne(id);
-      return;
+      return request.sendToOne(id);
     }
 
     if (res.toMany.containsKey(request.target.relationship)) {
       final ids = res.toMany[request.target.relationship];
-      request.sendToMany(ids);
-      return;
+      return request.sendToMany(ids);
     }
-    request.errorNotFound([JsonApiError(detail: 'Relationship not found')]);
+    return request
+        .errorNotFound([JsonApiError(detail: 'Relationship not found')]);
   }
 
   @override
-  void deleteResource(DeleteResource request) {
+  Response deleteResource(DeleteResource request) {
     final dao = _getDao(request);
 
     final res = dao.fetchByIdAsResource(request.target.id);
     if (res == null) {
-      request.errorNotFound([JsonApiError(detail: 'Resource not found')]);
-      return;
+      return request
+          .errorNotFound([JsonApiError(detail: 'Resource not found')]);
     }
     final dependenciesCount = dao.deleteById(request.target.id);
     if (dependenciesCount == 0) {
-      request.sendNoContent();
-      return;
+      return request.sendNoContent();
     }
-    request.sendMeta({'dependenciesCount': dependenciesCount});
+    return request.sendMeta({'dependenciesCount': dependenciesCount});
   }
 
   @override
-  void createResource(CreateResource request, Resource resource) {
+  Response createResource(CreateResource request, Resource resource) {
     final dao = _getDao(request);
 
     if (request.target.type != resource.type) {
-      request.errorConflict([JsonApiError(detail: 'Incompatible type')]);
-      return;
+      return request.errorConflict([JsonApiError(detail: 'Incompatible type')]);
     }
 
     if (resource.id != null) {
       if (dao.fetchById(resource.id) != null) {
-        request
+        return request
             .errorConflict([JsonApiError(detail: 'Resource already exists')]);
-        return;
       }
       final created = dao.create(resource);
       dao.insert(created);
-      request.sendNoContent();
-      return;
+      return request.sendNoContent();
     }
 
     final created = dao.create(Resource(resource.type, Uuid().v4(),
@@ -153,60 +150,58 @@ class CarsController implements Controller {
         return dao.toResource(created);
       }));
       _dao['jobs'].insert(job);
-      request.sendAccepted(_dao['jobs'].toResource(job));
-      return;
+      return request.sendAccepted(_dao['jobs'].toResource(job));
     }
 
     dao.insert(created);
 
-    request.sendCreated(dao.toResource(created));
+    return request.sendCreated(dao.toResource(created));
   }
 
   @override
-  void updateResource(UpdateResource request, Resource resource) {
+  Response updateResource(UpdateResource request, Resource resource) {
     final dao = _getDao(request);
 
     if (request.target.type != resource.type) {
-      request.errorConflict([JsonApiError(detail: 'Incompatible type')]);
-      return;
+      return request.errorConflict([JsonApiError(detail: 'Incompatible type')]);
     }
     if (dao.fetchById(request.target.id) == null) {
-      request.errorNotFound([JsonApiError(detail: 'Resource not found')]);
-      return;
+      return request
+          .errorNotFound([JsonApiError(detail: 'Resource not found')]);
     }
     final updated = dao.update(request.target.id, resource);
     if (updated == null) {
-      request.sendNoContent();
-      return;
+      return request.sendNoContent();
     }
-    request.sendUpdated(updated);
+    return request.sendUpdated(updated);
   }
 
   @override
-  void replaceToOne(UpdateRelationship request, Identifier identifier) {
+  Response replaceToOne(UpdateRelationship request, Identifier identifier) {
     final dao = _getDao(request);
 
     dao.replaceToOne(
         request.target.id, request.target.relationship, identifier);
-    request.sendNoContent();
+    return request.sendNoContent();
   }
 
   @override
-  void replaceToMany(UpdateRelationship request, List<Identifier> identifiers) {
+  Response replaceToMany(
+      UpdateRelationship request, List<Identifier> identifiers) {
     final dao = _getDao(request);
 
     dao.replaceToMany(
         request.target.id, request.target.relationship, identifiers);
-    request.sendNoContent();
+    return request.sendNoContent();
   }
 
   DAO _getDao(Request request) => _dao[request.target.type];
 
   @override
-  void addToMany(AddToMany request, List<Identifier> identifiers) {
+  Response addToMany(AddToMany request, List<Identifier> identifiers) {
     final dao = _getDao(request);
 
-    request.sendToMany(dao.addToMany(
+    return request.sendToMany(dao.addToMany(
         request.target.id, request.target.relationship, identifiers));
   }
 
