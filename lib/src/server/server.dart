@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/server/_server.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/response.dart';
@@ -22,22 +21,22 @@ class Server {
     final target = routing.getTarget(http.requestedUri);
     if (target == null) {
       return _send(http, ErrorResponse.badRequest([]));
-    } else if (!controller.supportsType(target.type)) {
-      return _send(
-          http,
-          ErrorResponse.notFound(
-              [JsonApiError(detail: 'Unknown resource type')]));
     }
 
-    final request = target.getRequest(http.method, requestFactory);
+    final request = target.getDispatcher(http.method, requestFactory);
 
     final body = await http.transform(utf8.decoder).join();
 
-    final response = await request.call(
-            controller,
-            http.requestedUri.queryParametersAll,
-            body.isNotEmpty ? json.decode(body) : null) ??
-        ErrorResponse.notImplemented([]);
+    Response response;
+    try {
+      response = await request.dispatchCall(
+              controller,
+              http.requestedUri.queryParametersAll,
+              body.isNotEmpty ? json.decode(body) : null) ??
+          ErrorResponse.notImplemented([]);
+    } on ErrorResponse catch (e) {
+      response = e;
+    }
 
     return _send(http, response);
   }

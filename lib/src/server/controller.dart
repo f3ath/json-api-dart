@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:json_api/document.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/request_target.dart';
@@ -39,8 +40,8 @@ abstract class Controller {
 }
 
 /// Performs double-dispatch on Controller methods
-abstract class CanCallController {
-  FutureOr<Response> call(
+abstract class ControllerDispatcher {
+  FutureOr<Response> dispatchCall(
       Controller controller, Map<String, List<String>> query, Object payload);
 }
 

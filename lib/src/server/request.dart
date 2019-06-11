@@ -8,7 +8,7 @@ import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/request_target.dart';
 import 'package:json_api/src/server/response.dart';
 
-abstract class _Request implements CanCallController {
+abstract class _Request implements ControllerDispatcher {
   RequestTarget get target;
 }
 
@@ -19,7 +19,7 @@ class _FetchCollectionRequest extends _Request
   _FetchCollectionRequest(this.target);
 
   @override
-  FutureOr<Response> call(Controller controller,
+  FutureOr<Response> dispatchCall(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.fetchCollection(this, query);
 }
@@ -30,7 +30,7 @@ class _FetchResourceRequest extends _Request implements FetchResourceRequest {
   _FetchResourceRequest(this.target);
 
   @override
-  FutureOr<Response> call(Controller controller,
+  FutureOr<Response> dispatchCall(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.fetchResource(this, query);
 }
@@ -41,7 +41,7 @@ class _FetchRelatedRequest extends _Request implements FetchRelatedRequest {
   _FetchRelatedRequest(this.target);
 
   @override
-  FutureOr<Response> call(Controller controller,
+  FutureOr<Response> dispatchCall(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.fetchRelated(this, query);
 }
@@ -53,7 +53,7 @@ class _FetchRelationshipRequest extends _Request
   _FetchRelationshipRequest(this.target);
 
   @override
-  FutureOr<Response> call(Controller controller,
+  FutureOr<Response> dispatchCall(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.fetchRelationship(this, query);
 }
@@ -64,7 +64,7 @@ class _DeleteResourceRequest extends _Request implements DeleteResourceRequest {
   _DeleteResourceRequest(this.target);
 
   @override
-  FutureOr<Response> call(Controller controller,
+  FutureOr<Response> dispatchCall(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.deleteResource(this);
 }
@@ -75,7 +75,7 @@ class _UpdateResourceRequest extends _Request implements UpdateResourceRequest {
   _UpdateResourceRequest(this.target);
 
   @override
-  FutureOr<Response> call(Controller controller,
+  FutureOr<Response> dispatchCall(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.updateResource(this,
           Document.decodeJson(payload, ResourceData.decodeJson).data.unwrap());
@@ -87,7 +87,7 @@ class _CreateResourceRequest extends _Request implements CreateResourceRequest {
   _CreateResourceRequest(this.target);
 
   @override
-  FutureOr<Response> call(Controller controller,
+  FutureOr<Response> dispatchCall(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.createResource(this,
           Document.decodeJson(payload, ResourceData.decodeJson).data.unwrap());
@@ -100,7 +100,7 @@ class _UpdateRelationshipRequest extends _Request
   _UpdateRelationshipRequest(this.target);
 
   @override
-  FutureOr<Response> call(Controller controller,
+  FutureOr<Response> dispatchCall(Controller controller,
       Map<String, List<String>> query, Object payload) async {
     final rel = Relationship.decodeJson(payload);
     if (rel is ToOne) {
@@ -119,7 +119,7 @@ class _AddToManyRequest extends _Request implements AddToManyRequest {
   _AddToManyRequest(this.target);
 
   @override
-  FutureOr<Response> call(Controller controller,
+  FutureOr<Response> dispatchCall(Controller controller,
       Map<String, List<String>> query, Object payload) async {
     final rel = Relationship.decodeJson(payload);
     if (rel is ToMany) {
@@ -136,51 +136,51 @@ class _InvalidRequest extends _Request {
   _InvalidRequest(this._response);
 
   @override
-  Response call(Controller controller, Map<String, List<String>> query,
+  Response dispatchCall(Controller controller, Map<String, List<String>> query,
           Object payload) =>
       _response;
 }
 
-class DefaultRequestFactory implements RequestFactory {
+class DefaultRequestFactory implements ControllerDispatcherFactory {
   const DefaultRequestFactory();
 
   @override
-  CanCallController makeFetchCollectionRequest(CollectionTarget target) =>
+  ControllerDispatcher makeFetchCollectionRequest(CollectionTarget target) =>
       _FetchCollectionRequest(target);
 
   @override
-  CanCallController makeCreateResourceRequest(CollectionTarget target) =>
+  ControllerDispatcher makeCreateResourceRequest(CollectionTarget target) =>
       _CreateResourceRequest(target);
 
   @override
-  CanCallController makeFetchResourceRequest(ResourceTarget target) =>
+  ControllerDispatcher makeFetchResourceRequest(ResourceTarget target) =>
       _FetchResourceRequest(target);
 
   @override
-  CanCallController makeDeleteResourceRequest(ResourceTarget target) =>
+  ControllerDispatcher makeDeleteResourceRequest(ResourceTarget target) =>
       _DeleteResourceRequest(target);
 
   @override
-  CanCallController makeUpdateResourceRequest(ResourceTarget target) =>
+  ControllerDispatcher makeUpdateResourceRequest(ResourceTarget target) =>
       _UpdateResourceRequest(target);
 
   @override
-  CanCallController makeFetchRelationshipRequest(RelationshipTarget target) =>
+  ControllerDispatcher makeFetchRelationshipRequest(RelationshipTarget target) =>
       _FetchRelationshipRequest(target);
 
   @override
-  CanCallController makeAddToManyRequest(RelationshipTarget target) =>
+  ControllerDispatcher makeAddToManyRequest(RelationshipTarget target) =>
       _AddToManyRequest(target);
 
   @override
-  CanCallController makeFetchRelatedRequest(RelatedTarget target) =>
+  ControllerDispatcher makeFetchRelatedRequest(RelatedTarget target) =>
       _FetchRelatedRequest(target);
 
   @override
-  CanCallController makeUpdateRelationshipRequest(RelationshipTarget target) =>
+  ControllerDispatcher makeUpdateRelationshipRequest(RelationshipTarget target) =>
       _UpdateRelationshipRequest(target);
 
   @override
-  CanCallController makeInvalidRequest(RequestTarget target) =>
+  ControllerDispatcher makeInvalidRequest(RequestTarget target) =>
       _InvalidRequest(ErrorResponse.methodNotAllowed([]));
 }

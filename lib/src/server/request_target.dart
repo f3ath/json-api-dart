@@ -5,11 +5,13 @@ import 'package:json_api/src/server/_server.dart';
 /// - a primary resource collection
 /// - a related resource or collection
 /// - a relationship itself
-abstract class RequestTarget {
+abstract class RequestTarget implements ControllerDispatcherProvider {
   String get type;
+}
 
-  /// Returns the request for the given [method]
-  CanCallController getRequest(String method, RequestFactory factory);
+abstract class ControllerDispatcherProvider {
+  ControllerDispatcher getDispatcher(
+      String method, ControllerDispatcherFactory factory);
 }
 
 class CollectionTarget implements RequestTarget {
@@ -18,7 +20,8 @@ class CollectionTarget implements RequestTarget {
   const CollectionTarget(this.type);
 
   @override
-  CanCallController getRequest(String method, RequestFactory factory) {
+  ControllerDispatcher getDispatcher(
+      String method, ControllerDispatcherFactory factory) {
     method = method.toUpperCase();
     if (method == 'GET') return factory.makeFetchCollectionRequest(this);
     if (method == 'POST') return factory.makeCreateResourceRequest(this);
@@ -33,7 +36,8 @@ class ResourceTarget implements RequestTarget {
   const ResourceTarget(this.type, this.id);
 
   @override
-  CanCallController getRequest(String method, RequestFactory factory) {
+  ControllerDispatcher getDispatcher(
+      String method, ControllerDispatcherFactory factory) {
     method = method.toUpperCase();
     if (method == 'GET') return factory.makeFetchResourceRequest(this);
     if (method == 'DELETE') return factory.makeDeleteResourceRequest(this);
@@ -50,7 +54,8 @@ class RelationshipTarget implements RequestTarget {
   const RelationshipTarget(this.type, this.id, this.relationship);
 
   @override
-  CanCallController getRequest(String method, RequestFactory factory) {
+  ControllerDispatcher getDispatcher(
+      String method, ControllerDispatcherFactory factory) {
     method = method.toUpperCase();
     if (method == 'GET') return factory.makeFetchRelationshipRequest(this);
     if (method == 'PATCH') return factory.makeUpdateRelationshipRequest(this);
@@ -67,31 +72,32 @@ class RelatedTarget implements RequestTarget {
   const RelatedTarget(this.type, this.id, this.relationship);
 
   @override
-  CanCallController getRequest(String method, RequestFactory factory) {
+  ControllerDispatcher getDispatcher(
+      String method, ControllerDispatcherFactory factory) {
     method = method.toUpperCase();
     if (method == 'GET') return factory.makeFetchRelatedRequest(this);
     return factory.makeInvalidRequest(this);
   }
 }
 
-abstract class RequestFactory {
-  CanCallController makeFetchCollectionRequest(CollectionTarget target);
+abstract class ControllerDispatcherFactory {
+  ControllerDispatcher makeFetchCollectionRequest(CollectionTarget target);
 
-  CanCallController makeCreateResourceRequest(CollectionTarget target);
+  ControllerDispatcher makeCreateResourceRequest(CollectionTarget target);
 
-  CanCallController makeFetchResourceRequest(ResourceTarget target);
+  ControllerDispatcher makeFetchResourceRequest(ResourceTarget target);
 
-  CanCallController makeDeleteResourceRequest(ResourceTarget target);
+  ControllerDispatcher makeDeleteResourceRequest(ResourceTarget target);
 
-  CanCallController makeUpdateResourceRequest(ResourceTarget target);
+  ControllerDispatcher makeUpdateResourceRequest(ResourceTarget target);
 
-  CanCallController makeFetchRelationshipRequest(RelationshipTarget target);
+  ControllerDispatcher makeFetchRelationshipRequest(RelationshipTarget target);
 
-  CanCallController makeUpdateRelationshipRequest(RelationshipTarget target);
+  ControllerDispatcher makeUpdateRelationshipRequest(RelationshipTarget target);
 
-  CanCallController makeAddToManyRequest(RelationshipTarget target);
+  ControllerDispatcher makeAddToManyRequest(RelationshipTarget target);
 
-  CanCallController makeFetchRelatedRequest(RelatedTarget target);
+  ControllerDispatcher makeFetchRelatedRequest(RelatedTarget target);
 
-  CanCallController makeInvalidRequest(RequestTarget target);
+  ControllerDispatcher makeInvalidRequest(RequestTarget target);
 }

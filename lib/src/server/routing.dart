@@ -11,7 +11,7 @@ class Routing extends RecommendedUrlDesign {
   /// - [RelationshipTarget]
   /// - [RelatedTarget]
   /// - null if the target can not be determined
-  RequestTarget getTarget(Uri uri) {
+  ControllerDispatcherProvider getTarget(Uri uri) {
     final seg = uri.pathSegments;
     switch (seg.length) {
       case 1:

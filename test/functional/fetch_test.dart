@@ -100,7 +100,7 @@ void main() async {
       final r = await client.fetchCollection(route.collection('unicorns'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
-      expect(r.document.errors.first.detail, 'Unknown resource type');
+      expect(r.document.errors.first.detail, 'Unknown resource type unicorns');
     });
   }, testOn: 'vm');
 

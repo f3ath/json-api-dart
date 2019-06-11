@@ -200,7 +200,13 @@ class CarsController implements Controller {
     return NoContentResponse();
   }
 
-  DAO _getDao(ControllerRequest request) => _dao[request.target.type];
+  DAO _getDao(ControllerRequest request) {
+    final type = request.target.type;
+    if (_dao.containsKey(type)) return _dao[type];
+
+    throw ErrorResponse.notFound(
+        [JsonApiError(detail: 'Unknown resource type $type')]);
+  }
 
   @override
   Response addToMany(AddToManyRequest request, List<Identifier> identifiers) {
