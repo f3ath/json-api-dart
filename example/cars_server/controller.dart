@@ -18,7 +18,7 @@ class CarsController implements Controller {
   @override
   Response fetchCollection(
       FetchCollectionRequest request, Map<String, List<String>> query) {
-    final dao = _getDao(request);
+    final dao = _getDao(request.target.type);
     final page = _page(query);
     final collection = dao.fetchCollection(page);
     return CollectionResponse(collection.map(dao.toResource),
@@ -28,7 +28,7 @@ class CarsController implements Controller {
   @override
   Response fetchRelated(
       FetchRelatedRequest request, Map<String, List<String>> query) {
-    final dao = _getDao(request);
+    final dao = _getDao(request.target.type);
 
     final res = dao.fetchByIdAsResource(request.target.id);
     if (res == null) {
@@ -61,7 +61,7 @@ class CarsController implements Controller {
   @override
   Response fetchResource(
       FetchResourceRequest request, Map<String, List<String>> query) {
-    final dao = _getDao(request);
+    final dao = _getDao(request.target.type);
 
     final obj = dao.fetchById(request.target.id);
 
@@ -86,7 +86,7 @@ class CarsController implements Controller {
   @override
   Response fetchRelationship(
       FetchRelationshipRequest request, Map<String, List<String>> query) {
-    final dao = _getDao(request);
+    final dao = _getDao(request.target.type);
 
     final res = dao.fetchByIdAsResource(request.target.id);
     if (res == null) {
@@ -109,7 +109,7 @@ class CarsController implements Controller {
 
   @override
   Response deleteResource(DeleteResourceRequest request) {
-    final dao = _getDao(request);
+    final dao = _getDao(request.target.type);
 
     final res = dao.fetchByIdAsResource(request.target.id);
     if (res == null) {
@@ -125,7 +125,7 @@ class CarsController implements Controller {
 
   @override
   Response createResource(CreateResourceRequest request, Resource resource) {
-    final dao = _getDao(request);
+    final dao = _getDao(request.target.type);
 
     if (request.target.type != resource.type) {
       return ErrorResponse.conflict(
@@ -163,7 +163,7 @@ class CarsController implements Controller {
 
   @override
   Response updateResource(UpdateResourceRequest request, Resource resource) {
-    final dao = _getDao(request);
+    final dao = _getDao(request.target.type);
 
     if (request.target.type != resource.type) {
       return ErrorResponse.conflict(
@@ -183,7 +183,7 @@ class CarsController implements Controller {
   @override
   Response replaceToOne(
       UpdateRelationshipRequest request, Identifier identifier) {
-    final dao = _getDao(request);
+    final dao = _getDao(request.target.type);
 
     dao.replaceToOne(
         request.target.id, request.target.relationship, identifier);
@@ -193,24 +193,16 @@ class CarsController implements Controller {
   @override
   Response replaceToMany(
       UpdateRelationshipRequest request, List<Identifier> identifiers) {
-    final dao = _getDao(request);
+    final dao = _getDao(request.target.type);
 
     dao.replaceToMany(
         request.target.id, request.target.relationship, identifiers);
     return NoContentResponse();
   }
 
-  DAO _getDao(ControllerRequest request) {
-    final type = request.target.type;
-    if (_dao.containsKey(type)) return _dao[type];
-
-    throw ErrorResponse.notFound(
-        [JsonApiError(detail: 'Unknown resource type $type')]);
-  }
-
   @override
   Response addToMany(AddToManyRequest request, List<Identifier> identifiers) {
-    final dao = _getDao(request);
+    final dao = _getDao(request.target.type);
 
     return ToManyResponse(
         request.target,
@@ -218,6 +210,10 @@ class CarsController implements Controller {
             request.target.id, request.target.relationship, identifiers));
   }
 
-  @override
-  bool supportsType(String type) => _dao.containsKey(type);
+  DAO _getDao(String type) {
+    if (_dao.containsKey(type)) return _dao[type];
+
+    throw ErrorResponse.notFound(
+        [JsonApiError(detail: 'Unknown resource type $type')]);
+  }
 }

@@ -7,8 +7,6 @@ import 'package:json_api/src/server/request_target.dart';
 import 'package:json_api/src/server/response.dart';
 
 abstract class Controller {
-  bool supportsType(String type);
-
   FutureOr<Response> fetchCollection(
       FetchCollectionRequest request, Map<String, List<String>> query);
 
@@ -40,47 +38,43 @@ abstract class Controller {
 }
 
 /// Performs double-dispatch on Controller methods
-abstract class ControllerDispatcher {
-  FutureOr<Response> dispatchCall(
+abstract class Request {
+  FutureOr<Response> call(
       Controller controller, Map<String, List<String>> query, Object payload);
 }
 
-abstract class ControllerRequest {
-  RequestTarget get target;
-}
-
-abstract class FetchCollectionRequest implements ControllerRequest {
+abstract class FetchCollectionRequest {
   CollectionTarget get target;
 }
 
-abstract class CreateResourceRequest implements ControllerRequest {
+abstract class CreateResourceRequest {
   CollectionTarget get target;
 }
 
-abstract class FetchResourceRequest implements ControllerRequest {
+abstract class FetchResourceRequest {
   ResourceTarget get target;
 }
 
-abstract class DeleteResourceRequest implements ControllerRequest {
+abstract class DeleteResourceRequest {
   ResourceTarget get target;
 }
 
-abstract class UpdateResourceRequest implements ControllerRequest {
+abstract class UpdateResourceRequest {
   ResourceTarget get target;
 }
 
-abstract class FetchRelatedRequest implements ControllerRequest {
+abstract class FetchRelatedRequest {
   RelatedTarget get target;
 }
 
-abstract class FetchRelationshipRequest implements ControllerRequest {
+abstract class FetchRelationshipRequest {
   RelationshipTarget get target;
 }
 
-abstract class AddToManyRequest implements ControllerRequest {
+abstract class AddToManyRequest {
   RelationshipTarget get target;
 }
 
-abstract class UpdateRelationshipRequest implements ControllerRequest {
+abstract class UpdateRelationshipRequest {
   RelationshipTarget get target;
 }

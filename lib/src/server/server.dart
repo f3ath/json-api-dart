@@ -23,22 +23,23 @@ class Server {
       return _send(http, ErrorResponse.badRequest([]));
     }
 
-    final request = target.getDispatcher(http.method, requestFactory);
-
-    final body = await http.transform(utf8.decoder).join();
+    final request = target.getRequest(http.method, requestFactory);
 
     Response response;
     try {
-      response = await request.dispatchCall(
-              controller,
-              http.requestedUri.queryParametersAll,
-              body.isNotEmpty ? json.decode(body) : null) ??
-          ErrorResponse.notImplemented([]);
-    } on ErrorResponse catch (e) {
-      response = e;
+      response = await request.call(controller,
+          http.requestedUri.queryParametersAll, await _getPayload(http));
+    } on ErrorResponse catch (error) {
+      response = error;
     }
 
     return _send(http, response);
+  }
+
+  Future<Object> _getPayload(HttpRequest http) async {
+    final body = await http.transform(utf8.decoder).join();
+    if (body.isNotEmpty) return json.decode(body);
+    return null;
   }
 
   Future _send(HttpRequest http, Response response) {

@@ -8,99 +8,160 @@ import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/request_target.dart';
 import 'package:json_api/src/server/response.dart';
 
-abstract class _Request implements ControllerDispatcher {
-  RequestTarget get target;
+class DefaultRequestFactory implements RequestFactory {
+  const DefaultRequestFactory();
+
+  @override
+  Request makeFetchCollectionRequest(CollectionTarget target) =>
+      _FetchCollectionRequest(target);
+
+  @override
+  Request makeCreateResourceRequest(CollectionTarget target) =>
+      _CreateResourceRequest(target);
+
+  @override
+  Request makeFetchResourceRequest(ResourceTarget target) =>
+      _FetchResourceRequest(target);
+
+  @override
+  Request makeDeleteResourceRequest(ResourceTarget target) =>
+      _DeleteResourceRequest(target);
+
+  @override
+  Request makeUpdateResourceRequest(ResourceTarget target) =>
+      _UpdateResourceRequest(target);
+
+  @override
+  Request makeFetchRelationshipRequest(RelationshipTarget target) =>
+      _FetchRelationshipRequest(target);
+
+  @override
+  Request makeAddToManyRequest(RelationshipTarget target) =>
+      _AddToManyRequest(target);
+
+  @override
+  Request makeFetchRelatedRequest(RelatedTarget target) =>
+      _FetchRelatedRequest(target);
+
+  @override
+  Request makeUpdateRelationshipRequest(RelationshipTarget target) =>
+      _UpdateRelationshipRequest(target);
+
+  @override
+  Request makeInvalidRequest(RequestTarget target) =>
+      _InvalidRequest(ErrorResponse.methodNotAllowed([]));
 }
 
-class _FetchCollectionRequest extends _Request
-    implements FetchCollectionRequest {
+class _FetchCollectionRequest implements Request, FetchCollectionRequest {
   final CollectionTarget target;
 
   _FetchCollectionRequest(this.target);
 
   @override
-  FutureOr<Response> dispatchCall(Controller controller,
+  FutureOr<Response> call(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.fetchCollection(this, query);
+
+  @override
+  String get type => target.type;
 }
 
-class _FetchResourceRequest extends _Request implements FetchResourceRequest {
+class _FetchResourceRequest implements Request, FetchResourceRequest {
   final ResourceTarget target;
 
   _FetchResourceRequest(this.target);
 
   @override
-  FutureOr<Response> dispatchCall(Controller controller,
+  FutureOr<Response> call(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.fetchResource(this, query);
+
+  @override
+  String get type => target.type;
 }
 
-class _FetchRelatedRequest extends _Request implements FetchRelatedRequest {
+class _FetchRelatedRequest implements Request, FetchRelatedRequest {
   final RelatedTarget target;
 
   _FetchRelatedRequest(this.target);
 
   @override
-  FutureOr<Response> dispatchCall(Controller controller,
+  FutureOr<Response> call(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.fetchRelated(this, query);
+
+  @override
+  String get type => target.type;
+
+  @override
+  String get id => target.id;
 }
 
-class _FetchRelationshipRequest extends _Request
-    implements FetchRelationshipRequest {
+class _FetchRelationshipRequest implements Request, FetchRelationshipRequest {
   final RelationshipTarget target;
 
   _FetchRelationshipRequest(this.target);
 
   @override
-  FutureOr<Response> dispatchCall(Controller controller,
+  FutureOr<Response> call(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.fetchRelationship(this, query);
+
+  @override
+  String get type => target.type;
 }
 
-class _DeleteResourceRequest extends _Request implements DeleteResourceRequest {
+class _DeleteResourceRequest implements Request, DeleteResourceRequest {
   final ResourceTarget target;
 
   _DeleteResourceRequest(this.target);
 
   @override
-  FutureOr<Response> dispatchCall(Controller controller,
+  FutureOr<Response> call(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.deleteResource(this);
+
+  @override
+  String get type => target.type;
 }
 
-class _UpdateResourceRequest extends _Request implements UpdateResourceRequest {
+class _UpdateResourceRequest implements Request, UpdateResourceRequest {
   final ResourceTarget target;
 
   _UpdateResourceRequest(this.target);
 
   @override
-  FutureOr<Response> dispatchCall(Controller controller,
+  FutureOr<Response> call(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.updateResource(this,
           Document.decodeJson(payload, ResourceData.decodeJson).data.unwrap());
+
+  @override
+  String get type => target.type;
 }
 
-class _CreateResourceRequest extends _Request implements CreateResourceRequest {
+class _CreateResourceRequest implements Request, CreateResourceRequest {
   final CollectionTarget target;
 
   _CreateResourceRequest(this.target);
 
   @override
-  FutureOr<Response> dispatchCall(Controller controller,
+  FutureOr<Response> call(Controller controller,
           Map<String, List<String>> query, Object payload) =>
       controller.createResource(this,
           Document.decodeJson(payload, ResourceData.decodeJson).data.unwrap());
+
+  @override
+  String get type => target.type;
 }
 
-class _UpdateRelationshipRequest extends _Request
-    implements UpdateRelationshipRequest {
+class _UpdateRelationshipRequest implements Request, UpdateRelationshipRequest {
   final RelationshipTarget target;
 
   _UpdateRelationshipRequest(this.target);
 
   @override
-  FutureOr<Response> dispatchCall(Controller controller,
+  FutureOr<Response> call(Controller controller,
       Map<String, List<String>> query, Object payload) async {
     final rel = Relationship.decodeJson(payload);
     if (rel is ToOne) {
@@ -111,15 +172,18 @@ class _UpdateRelationshipRequest extends _Request
     }
     return ErrorResponse.badRequest([]); //TODO: meaningful error
   }
+
+  @override
+  String get type => target.type;
 }
 
-class _AddToManyRequest extends _Request implements AddToManyRequest {
+class _AddToManyRequest implements Request, AddToManyRequest {
   final RelationshipTarget target;
 
   _AddToManyRequest(this.target);
 
   @override
-  FutureOr<Response> dispatchCall(Controller controller,
+  FutureOr<Response> call(Controller controller,
       Map<String, List<String>> query, Object payload) async {
     final rel = Relationship.decodeJson(payload);
     if (rel is ToMany) {
@@ -127,60 +191,19 @@ class _AddToManyRequest extends _Request implements AddToManyRequest {
     }
     return ErrorResponse.badRequest([]); //TODO: meaningful error
   }
+
+  @override
+  String get type => target.type;
 }
 
-class _InvalidRequest extends _Request {
+class _InvalidRequest implements Request {
   final target = null;
   final Response _response;
 
   _InvalidRequest(this._response);
 
   @override
-  Response dispatchCall(Controller controller, Map<String, List<String>> query,
+  Response call(Controller controller, Map<String, List<String>> query,
           Object payload) =>
       _response;
-}
-
-class DefaultRequestFactory implements ControllerDispatcherFactory {
-  const DefaultRequestFactory();
-
-  @override
-  ControllerDispatcher makeFetchCollectionRequest(CollectionTarget target) =>
-      _FetchCollectionRequest(target);
-
-  @override
-  ControllerDispatcher makeCreateResourceRequest(CollectionTarget target) =>
-      _CreateResourceRequest(target);
-
-  @override
-  ControllerDispatcher makeFetchResourceRequest(ResourceTarget target) =>
-      _FetchResourceRequest(target);
-
-  @override
-  ControllerDispatcher makeDeleteResourceRequest(ResourceTarget target) =>
-      _DeleteResourceRequest(target);
-
-  @override
-  ControllerDispatcher makeUpdateResourceRequest(ResourceTarget target) =>
-      _UpdateResourceRequest(target);
-
-  @override
-  ControllerDispatcher makeFetchRelationshipRequest(RelationshipTarget target) =>
-      _FetchRelationshipRequest(target);
-
-  @override
-  ControllerDispatcher makeAddToManyRequest(RelationshipTarget target) =>
-      _AddToManyRequest(target);
-
-  @override
-  ControllerDispatcher makeFetchRelatedRequest(RelatedTarget target) =>
-      _FetchRelatedRequest(target);
-
-  @override
-  ControllerDispatcher makeUpdateRelationshipRequest(RelationshipTarget target) =>
-      _UpdateRelationshipRequest(target);
-
-  @override
-  ControllerDispatcher makeInvalidRequest(RequestTarget target) =>
-      _InvalidRequest(ErrorResponse.methodNotAllowed([]));
 }

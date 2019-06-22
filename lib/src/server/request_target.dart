@@ -5,13 +5,10 @@ import 'package:json_api/src/server/_server.dart';
 /// - a primary resource collection
 /// - a related resource or collection
 /// - a relationship itself
-abstract class RequestTarget implements ControllerDispatcherProvider {
+abstract class RequestTarget {
   String get type;
-}
 
-abstract class ControllerDispatcherProvider {
-  ControllerDispatcher getDispatcher(
-      String method, ControllerDispatcherFactory factory);
+  Request getRequest(String httpMethod, RequestFactory factory);
 }
 
 class CollectionTarget implements RequestTarget {
@@ -20,11 +17,10 @@ class CollectionTarget implements RequestTarget {
   const CollectionTarget(this.type);
 
   @override
-  ControllerDispatcher getDispatcher(
-      String method, ControllerDispatcherFactory factory) {
-    method = method.toUpperCase();
-    if (method == 'GET') return factory.makeFetchCollectionRequest(this);
-    if (method == 'POST') return factory.makeCreateResourceRequest(this);
+  Request getRequest(String httpMethod, RequestFactory factory) {
+    httpMethod = httpMethod.toUpperCase();
+    if (httpMethod == 'GET') return factory.makeFetchCollectionRequest(this);
+    if (httpMethod == 'POST') return factory.makeCreateResourceRequest(this);
     return factory.makeInvalidRequest(this);
   }
 }
@@ -36,12 +32,11 @@ class ResourceTarget implements RequestTarget {
   const ResourceTarget(this.type, this.id);
 
   @override
-  ControllerDispatcher getDispatcher(
-      String method, ControllerDispatcherFactory factory) {
-    method = method.toUpperCase();
-    if (method == 'GET') return factory.makeFetchResourceRequest(this);
-    if (method == 'DELETE') return factory.makeDeleteResourceRequest(this);
-    if (method == 'PATCH') return factory.makeUpdateResourceRequest(this);
+  Request getRequest(String httpMethod, RequestFactory factory) {
+    httpMethod = httpMethod.toUpperCase();
+    if (httpMethod == 'GET') return factory.makeFetchResourceRequest(this);
+    if (httpMethod == 'DELETE') return factory.makeDeleteResourceRequest(this);
+    if (httpMethod == 'PATCH') return factory.makeUpdateResourceRequest(this);
     return factory.makeInvalidRequest(this);
   }
 }
@@ -54,12 +49,12 @@ class RelationshipTarget implements RequestTarget {
   const RelationshipTarget(this.type, this.id, this.relationship);
 
   @override
-  ControllerDispatcher getDispatcher(
-      String method, ControllerDispatcherFactory factory) {
-    method = method.toUpperCase();
-    if (method == 'GET') return factory.makeFetchRelationshipRequest(this);
-    if (method == 'PATCH') return factory.makeUpdateRelationshipRequest(this);
-    if (method == 'POST') return factory.makeAddToManyRequest(this);
+  Request getRequest(String httpMethod, RequestFactory factory) {
+    httpMethod = httpMethod.toUpperCase();
+    if (httpMethod == 'GET') return factory.makeFetchRelationshipRequest(this);
+    if (httpMethod == 'PATCH')
+      return factory.makeUpdateRelationshipRequest(this);
+    if (httpMethod == 'POST') return factory.makeAddToManyRequest(this);
     return factory.makeInvalidRequest(this);
   }
 }
@@ -72,32 +67,31 @@ class RelatedTarget implements RequestTarget {
   const RelatedTarget(this.type, this.id, this.relationship);
 
   @override
-  ControllerDispatcher getDispatcher(
-      String method, ControllerDispatcherFactory factory) {
-    method = method.toUpperCase();
-    if (method == 'GET') return factory.makeFetchRelatedRequest(this);
+  Request getRequest(String httpMethod, RequestFactory factory) {
+    httpMethod = httpMethod.toUpperCase();
+    if (httpMethod == 'GET') return factory.makeFetchRelatedRequest(this);
     return factory.makeInvalidRequest(this);
   }
 }
 
-abstract class ControllerDispatcherFactory {
-  ControllerDispatcher makeFetchCollectionRequest(CollectionTarget target);
+abstract class RequestFactory {
+  Request makeFetchCollectionRequest(CollectionTarget target);
 
-  ControllerDispatcher makeCreateResourceRequest(CollectionTarget target);
+  Request makeCreateResourceRequest(CollectionTarget target);
 
-  ControllerDispatcher makeFetchResourceRequest(ResourceTarget target);
+  Request makeFetchResourceRequest(ResourceTarget target);
 
-  ControllerDispatcher makeDeleteResourceRequest(ResourceTarget target);
+  Request makeDeleteResourceRequest(ResourceTarget target);
 
-  ControllerDispatcher makeUpdateResourceRequest(ResourceTarget target);
+  Request makeUpdateResourceRequest(ResourceTarget target);
 
-  ControllerDispatcher makeFetchRelationshipRequest(RelationshipTarget target);
+  Request makeFetchRelationshipRequest(RelationshipTarget target);
 
-  ControllerDispatcher makeUpdateRelationshipRequest(RelationshipTarget target);
+  Request makeUpdateRelationshipRequest(RelationshipTarget target);
 
-  ControllerDispatcher makeAddToManyRequest(RelationshipTarget target);
+  Request makeAddToManyRequest(RelationshipTarget target);
 
-  ControllerDispatcher makeFetchRelatedRequest(RelatedTarget target);
+  Request makeFetchRelatedRequest(RelatedTarget target);
 
-  ControllerDispatcher makeInvalidRequest(RequestTarget target);
+  Request makeInvalidRequest(RequestTarget target);
 }
