@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:json_api/src/server/_server.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/response.dart';
-import 'package:json_api/src/server/routing.dart';
 import 'package:json_api/src/server/server_document_builder.dart';
 
 class Server {
@@ -12,22 +11,28 @@ class Server {
   final Controller controller;
   final ServerDocumentBuilder builder;
   final String allowOrigin;
-  final requestFactory = const DefaultRequestFactory();
 
   Server(this.routing, this.controller, {this.allowOrigin = '*'})
       : builder = ServerDocumentBuilder(routing);
 
   Future process(HttpRequest http) async {
-    final target = routing.getTarget(http.requestedUri);
-    if (target == null) {
-      return _send(http, ErrorResponse.badRequest([]));
-    }
-
-    final request = target.getRequest(http.method, requestFactory);
-
     Response response;
+
+    RequestTarget target = InvalidTarget();
+    routing.match(
+      http.requestedUri,
+      onCollection: (type) => target = CollectionTarget(type),
+      onResource: (type, id) => target = ResourceTarget(type, id),
+      onRelationship: (type, id, relationship) =>
+          target = RelationshipTarget(type, id, relationship),
+      onRelated: (type, id, relationship) =>
+          target = RelatedTarget(type, id, relationship),
+    );
     try {
-      response = await request.call(controller,
+      if (target == null) {
+        throw ErrorResponse.badRequest([]);
+      }
+      response = await target.getRequest(http.method).call(controller,
           http.requestedUri.queryParametersAll, await _getPayload(http));
     } on ErrorResponse catch (error) {
       response = error;

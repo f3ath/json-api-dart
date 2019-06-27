@@ -17,8 +17,8 @@ class CarsController implements Controller {
 
   @override
   Response fetchCollection(
-      FetchCollectionRequest request, Map<String, List<String>> query) {
-    final dao = _getDao(request.target.type);
+      CollectionTarget target, Map<String, List<String>> query) {
+    final dao = _getDao(target.type);
     final page = _page(query);
     final collection = dao.fetchCollection(page);
     return CollectionResponse(collection.map(dao.toResource),
@@ -26,25 +26,24 @@ class CarsController implements Controller {
   }
 
   @override
-  Response fetchRelated(
-      FetchRelatedRequest request, Map<String, List<String>> query) {
-    final dao = _getDao(request.target.type);
+  Response fetchRelated(RelatedTarget target, Map<String, List<String>> query) {
+    final dao = _getDao(target.type);
 
-    final res = dao.fetchByIdAsResource(request.target.id);
+    final res = dao.fetchByIdAsResource(target.id);
     if (res == null) {
       return ErrorResponse.notFound(
           [JsonApiError(detail: 'Resource not found')]);
     }
 
-    if (res.toOne.containsKey(request.target.relationship)) {
-      final id = res.toOne[request.target.relationship];
+    if (res.toOne.containsKey(target.relationship)) {
+      final id = res.toOne[target.relationship];
       final resource = _dao[id.type].fetchByIdAsResource(id.id);
       return RelatedResourceResponse(resource);
     }
 
-    if (res.toMany.containsKey(request.target.relationship)) {
+    if (res.toMany.containsKey(target.relationship)) {
       final page = _page(query);
-      final relationships = res.toMany[request.target.relationship];
+      final relationships = res.toMany[target.relationship];
       final resources = relationships
           .skip(page.offset)
           .take(page.limit)
@@ -60,10 +59,10 @@ class CarsController implements Controller {
 
   @override
   Response fetchResource(
-      FetchResourceRequest request, Map<String, List<String>> query) {
-    final dao = _getDao(request.target.type);
+      ResourceTarget target, Map<String, List<String>> query) {
+    final dao = _getDao(target.type);
 
-    final obj = dao.fetchById(request.target.id);
+    final obj = dao.fetchById(target.id);
 
     if (obj == null) {
       return ErrorResponse.notFound(
@@ -85,38 +84,38 @@ class CarsController implements Controller {
 
   @override
   Response fetchRelationship(
-      FetchRelationshipRequest request, Map<String, List<String>> query) {
-    final dao = _getDao(request.target.type);
+      RelationshipTarget target, Map<String, List<String>> query) {
+    final dao = _getDao(target.type);
 
-    final res = dao.fetchByIdAsResource(request.target.id);
+    final res = dao.fetchByIdAsResource(target.id);
     if (res == null) {
       return ErrorResponse.notFound(
           [JsonApiError(detail: 'Resource not found')]);
     }
 
-    if (res.toOne.containsKey(request.target.relationship)) {
-      final id = res.toOne[request.target.relationship];
-      return ToOneResponse(request.target, id);
+    if (res.toOne.containsKey(target.relationship)) {
+      final id = res.toOne[target.relationship];
+      return ToOneResponse(target, id);
     }
 
-    if (res.toMany.containsKey(request.target.relationship)) {
-      final ids = res.toMany[request.target.relationship];
-      return ToManyResponse(request.target, ids);
+    if (res.toMany.containsKey(target.relationship)) {
+      final ids = res.toMany[target.relationship];
+      return ToManyResponse(target, ids);
     }
     return ErrorResponse.notFound(
         [JsonApiError(detail: 'Relationship not found')]);
   }
 
   @override
-  Response deleteResource(DeleteResourceRequest request) {
-    final dao = _getDao(request.target.type);
+  Response deleteResource(ResourceTarget target) {
+    final dao = _getDao(target.type);
 
-    final res = dao.fetchByIdAsResource(request.target.id);
+    final res = dao.fetchByIdAsResource(target.id);
     if (res == null) {
       return ErrorResponse.notFound(
           [JsonApiError(detail: 'Resource not found')]);
     }
-    final dependenciesCount = dao.deleteById(request.target.id);
+    final dependenciesCount = dao.deleteById(target.id);
     if (dependenciesCount == 0) {
       return NoContentResponse();
     }
@@ -124,10 +123,10 @@ class CarsController implements Controller {
   }
 
   @override
-  Response createResource(CreateResourceRequest request, Resource resource) {
-    final dao = _getDao(request.target.type);
+  Response createResource(CollectionTarget target, Resource resource) {
+    final dao = _getDao(target.type);
 
-    if (request.target.type != resource.type) {
+    if (target.type != resource.type) {
       return ErrorResponse.conflict(
           [JsonApiError(detail: 'Incompatible type')]);
     }
@@ -146,7 +145,7 @@ class CarsController implements Controller {
         toMany: resource.toMany,
         toOne: resource.toOne));
 
-    if (request.target.type == 'models') {
+    if (target.type == 'models') {
       // Insertion is artificially delayed
       final job = Job(Future.delayed(Duration(milliseconds: 100), () {
         dao.insert(created);
@@ -162,18 +161,18 @@ class CarsController implements Controller {
   }
 
   @override
-  Response updateResource(UpdateResourceRequest request, Resource resource) {
-    final dao = _getDao(request.target.type);
+  Response updateResource(ResourceTarget target, Resource resource) {
+    final dao = _getDao(target.type);
 
-    if (request.target.type != resource.type) {
+    if (target.type != resource.type) {
       return ErrorResponse.conflict(
           [JsonApiError(detail: 'Incompatible type')]);
     }
-    if (dao.fetchById(request.target.id) == null) {
+    if (dao.fetchById(target.id) == null) {
       return ErrorResponse.notFound(
           [JsonApiError(detail: 'Resource not found')]);
     }
-    final updated = dao.update(request.target.id, resource);
+    final updated = dao.update(target.id, resource);
     if (updated == null) {
       return NoContentResponse();
     }
@@ -181,33 +180,28 @@ class CarsController implements Controller {
   }
 
   @override
-  Response replaceToOne(
-      UpdateRelationshipRequest request, Identifier identifier) {
-    final dao = _getDao(request.target.type);
+  Response replaceToOne(RelationshipTarget target, Identifier identifier) {
+    final dao = _getDao(target.type);
 
-    dao.replaceToOne(
-        request.target.id, request.target.relationship, identifier);
+    dao.replaceToOne(target.id, target.relationship, identifier);
     return NoContentResponse();
   }
 
   @override
   Response replaceToMany(
-      UpdateRelationshipRequest request, List<Identifier> identifiers) {
-    final dao = _getDao(request.target.type);
+      RelationshipTarget target, List<Identifier> identifiers) {
+    final dao = _getDao(target.type);
 
-    dao.replaceToMany(
-        request.target.id, request.target.relationship, identifiers);
+    dao.replaceToMany(target.id, target.relationship, identifiers);
     return NoContentResponse();
   }
 
   @override
-  Response addToMany(AddToManyRequest request, List<Identifier> identifiers) {
-    final dao = _getDao(request.target.type);
+  Response addToMany(RelationshipTarget target, List<Identifier> identifiers) {
+    final dao = _getDao(target.type);
 
     return ToManyResponse(
-        request.target,
-        dao.addToMany(
-            request.target.id, request.target.relationship, identifiers));
+        target, dao.addToMany(target.id, target.relationship, identifiers));
   }
 
   DAO _getDao(String type) {

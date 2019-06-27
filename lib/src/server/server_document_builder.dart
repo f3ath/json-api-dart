@@ -12,14 +12,14 @@ import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/page.dart';
-import 'package:json_api/src/server/request_target.dart';
-import 'package:json_api/src/url_design.dart';
+import 'package:json_api/src/server/request.dart';
+import 'package:json_api/src/routing.dart';
 
 /// The Document builder is used by JsonApiServer. It abstracts the process
 /// of building response documents and is responsible for such aspects as
 ///  adding `meta` and `jsonapi` attributes and generating links
 class ServerDocumentBuilder {
-  final UrlDesign _urlDesign;
+  final Routing _urlDesign;
 
   const ServerDocumentBuilder(this._urlDesign);
 
