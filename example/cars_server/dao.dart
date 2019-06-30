@@ -1,6 +1,7 @@
 import 'package:json_api/json_api.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/server/_server.dart';
+import 'package:json_api/src/server/pagination/slice.dart';
 
 import 'job_queue.dart';
 import 'model.dart';
@@ -21,9 +22,9 @@ abstract class DAO<T> {
 
   void insert(T t); // => collection[t.id] = t;
 
-  Collection<T> fetchCollection(Page page) =>
-      Collection(_collection.values.skip(page.offset).take(page.limit).toList(),
-          total: _collection.length);
+  Collection<T> fetchCollection(Slice slice) => Collection(
+      _collection.values.skip(slice.offset).take(slice.limit).toList(),
+      total: _collection.length);
 
   /// Returns the number of depending objects the entity had
   int deleteById(String id) {

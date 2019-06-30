@@ -132,7 +132,12 @@ class ToMany extends Relationship {
             data.map(IdentifierObject.decodeJson),
             self: links['self'],
             related: links['related'],
-            pagination: Pagination.fromLinks(links),
+            pagination: Pagination(
+        first: links['first'],
+        last: links['last'],
+        next: links['next'],
+        prev: links['prev'],
+      ),
           );
         }
       }

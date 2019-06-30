@@ -6,14 +6,14 @@ import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/server_document_builder.dart';
 
-class Server {
+class JsonApiServer {
   final Routing routing;
   final Controller controller;
-  final ServerDocumentBuilder builder;
+  final ServerDocumentBuilder documentBuilder;
   final String allowOrigin;
 
-  Server(this.routing, this.controller, {this.allowOrigin = '*'})
-      : builder = ServerDocumentBuilder(routing);
+  JsonApiServer(this.routing, this.controller, this.documentBuilder,
+      {this.allowOrigin = '*'});
 
   Future process(HttpRequest http) async {
     Response response;
@@ -53,7 +53,7 @@ class Server {
     if (allowOrigin != null) {
       http.response.headers.add('Access-Control-Allow-Origin', allowOrigin);
     }
-    final doc = response.getDocument(builder, http.requestedUri);
+    final doc = response.getDocument(documentBuilder, http.requestedUri);
     if (doc != null) {
       http.response.write(json.encode(doc));
     }

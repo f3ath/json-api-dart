@@ -11,18 +11,21 @@ import 'job_queue.dart';
 
 class CarsController implements Controller {
   final Map<String, DAO> _dao;
-  final PageFactory _page;
 
-  CarsController(this._dao, this._page);
+  final _pagination = FixedSizePage(1);
+
+  CarsController(this._dao);
 
   @override
   Response fetchCollection(
       CollectionTarget target, Map<String, List<String>> query) {
     final dao = _getDao(target.type);
-    final page = _page(query);
-    final collection = dao.fetchCollection(page);
-    return CollectionResponse(collection.map(dao.toResource),
-        included: const [], page: page);
+    final collection =
+        dao.fetchCollection(_pagination.getSlice(Page.decode(query)));
+    return CollectionResponse(
+        Collection(collection.elements.map(dao.toResource),
+            total: collection.total),
+        included: const []);
   }
 
   @override
@@ -42,16 +45,15 @@ class CarsController implements Controller {
     }
 
     if (res.toMany.containsKey(target.relationship)) {
-      final page = _page(query);
+      final slice = _pagination.getSlice(Page.decode(query));
       final relationships = res.toMany[target.relationship];
       final resources = relationships
-          .skip(page.offset)
-          .take(page.limit)
+          .skip(slice.offset)
+          .take(slice.limit)
           .map((id) => _dao[id.type].fetchByIdAsResource(id.id));
       return RelatedCollectionResponse(
           Collection(resources, total: relationships.length),
-          included: const [],
-          page: page);
+          included: const []);
     }
     return ErrorResponse.notFound(
         [JsonApiError(detail: 'Relationship not found')]);

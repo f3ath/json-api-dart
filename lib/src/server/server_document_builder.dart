@@ -1,27 +1,29 @@
+import 'package:json_api/document.dart';
 import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/identifier_object.dart';
 import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/pagination.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/resource_collection_data.dart';
 import 'package:json_api/src/document/resource_data.dart';
 import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/server/collection.dart';
-import 'package:json_api/src/server/page.dart';
-import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/routing.dart';
+import 'package:json_api/src/server/collection.dart';
+import 'package:json_api/src/server/pagination/pagination_strategy.dart';
+import 'package:json_api/src/server/request/page.dart';
+import 'package:json_api/src/server/request/request.dart';
 
 /// The Document builder is used by JsonApiServer. It abstracts the process
 /// of building response documents and is responsible for such aspects as
 ///  adding `meta` and `jsonapi` attributes and generating links
 class ServerDocumentBuilder {
   final Routing _urlDesign;
+  final PaginationStrategy _paginationStrategy;
 
-  const ServerDocumentBuilder(this._urlDesign);
+  const ServerDocumentBuilder(this._urlDesign, this._paginationStrategy);
 
   /// A document containing a list of errors
   Document errorDocument(Iterable<JsonApiError> errors) =>
@@ -30,16 +32,18 @@ class ServerDocumentBuilder {
   /// A collection of (primary) resources
   Document<ResourceCollectionData> collectionDocument(
           Collection<Resource> collection, Uri self,
-          {Iterable<Resource> included, Page page}) =>
-      Document(ResourceCollectionData(collection.map(_resourceObject).elements,
-          self: _link(self), pagination: _pagination(page, self, collection)));
+          {Iterable<Resource> included}) =>
+      Document(ResourceCollectionData(collection.elements.map(_resourceObject),
+          self: _link(self),
+          pagination: _paginationLinks(self, collection.total)));
 
   /// A collection of related resources
   Document<ResourceCollectionData> relatedCollectionDocument(
           Collection<Resource> collection, Uri self,
-          {Iterable<Resource> included, Page page}) =>
-      Document(ResourceCollectionData(collection.map(_resourceObject).elements,
-          self: _link(self), pagination: _pagination(page, self, collection)));
+          {Iterable<Resource> included}) =>
+      Document(ResourceCollectionData(collection.elements.map(_resourceObject),
+          self: _link(self),
+          pagination: _paginationLinks(self, collection.total)));
 
   /// A single (primary) resource
   Document<ResourceData> resourceDocument(Resource resource, Uri self,
@@ -99,13 +103,15 @@ class ServerDocumentBuilder {
         self: _link(_urlDesign.resource(resource.type, resource.id)));
   }
 
-  Pagination _pagination(
-          Page page, Uri self, Collection<Resource> collection) =>
-      Pagination(
-          first: _link(page?.first()?.addTo(self)),
-          last: _link(page?.last(collection.total)?.addTo(self)),
-          prev: _link(page?.prev()?.addTo(self)),
-          next: _link(page?.next(collection.total)?.addTo(self)));
+  Pagination _paginationLinks(Uri uri, int total) {
+    final page = Page.decode(uri.queryParametersAll);
+    return Pagination(
+      first: _link(_paginationStrategy.first().addTo(uri)),
+      last: _link(_paginationStrategy.last(total)?.addTo(uri)),
+      prev: _link(_paginationStrategy.prev(page)?.addTo(uri)),
+      next: _link(_paginationStrategy.next(page, total)?.addTo(uri)),
+    );
+  }
 
   Link _link(Uri uri) => uri == null ? null : Link(uri);
 }

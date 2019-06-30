@@ -26,7 +26,7 @@ class ResourceCollectionData extends PrimaryData {
       if (data is List) {
         return ResourceCollectionData(data.map(ResourceObject.decodeJson),
             self: links['self'],
-            pagination: Pagination.fromLinks(links),
+            pagination: Pagination.fromLinksMap(links),
             included:
                 nullable(ResourceObject.decodeJsonList)(json['included']));
       }

@@ -4,8 +4,7 @@ import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/collection.dart';
-import 'package:json_api/src/server/page.dart';
-import 'package:json_api/src/server/request.dart';
+import 'package:json_api/src/server/request/request.dart';
 import 'package:json_api/src/server/server_document_builder.dart';
 
 import '../routing.dart';
@@ -43,15 +42,13 @@ class ErrorResponse extends Response {
 class CollectionResponse extends Response {
   final Collection<Resource> collection;
   final Iterable<Resource> included;
-  final Page page;
 
-  const CollectionResponse(this.collection,
-      {this.included = const [], this.page})
+  const CollectionResponse(this.collection, {this.included = const []})
       : super(200);
 
   @override
-  Document getDocument(ServerDocumentBuilder builder, Uri self) => builder
-      .collectionDocument(collection, self, included: included, page: page);
+  Document getDocument(ServerDocumentBuilder builder, Uri self) =>
+      builder.collectionDocument(collection, self, included: included);
 }
 
 class ResourceResponse extends Response {
@@ -81,15 +78,13 @@ class RelatedResourceResponse extends Response {
 class RelatedCollectionResponse extends Response {
   final Collection<Resource> collection;
   final Iterable<Resource> included;
-  final Page page;
 
-  const RelatedCollectionResponse(this.collection,
-      {this.included = const [], this.page})
+  const RelatedCollectionResponse(this.collection, {this.included = const []})
       : super(200);
 
   @override
   Document getDocument(ServerDocumentBuilder builder, Uri self) =>
-      builder.relatedCollectionDocument(collection, self, page: page);
+      builder.relatedCollectionDocument(collection, self);
 }
 
 class ToOneResponse extends Response {

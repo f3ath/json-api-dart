@@ -1,30 +1,30 @@
-import 'package:json_api/src/server/_server.dart';
+import 'package:json_api/src/server/pagination/fixed_size_page.dart';
+import 'package:json_api/src/server/request/page.dart';
 import 'package:test/test.dart';
 
 void main() {
   test('page size must be posititve', () {
-    expect(() => NumberedPage(1, 0), throwsArgumentError);
-  });
-
-  test('page number must be posititve', () {
-    expect(() => NumberedPage(-2, 2), throwsArgumentError);
+    expect(() => FixedSizePage(0), throwsArgumentError);
   });
 
   test('no pages after last', () {
-    expect(NumberedPage(3, 10).next(30), isNull);
+    final page = Page({'number': '4'});
+    final pagination = FixedSizePage(3);
+    expect(pagination.next(page, 10), isNull);
   });
 
   test('no pages before first', () {
-    expect(NumberedPage(1, 10).prev(), isNull);
+    final page = Page({'number': '1'});
+    final pagination = FixedSizePage(3);
+    expect(pagination.prev(page), isNull);
   });
 
   test('pagination', () {
-    expect(NumberedPage(1, 10).first().number, 1);
-    expect(NumberedPage(1, 10).prev(), isNull);
-    expect(NumberedPage(1, 10).last(9).number, 1);
-    expect(NumberedPage(1, 10).last(10).number, 1);
-    expect(NumberedPage(1, 10).last(11).number, 2);
-    expect(NumberedPage(1, 10).last(99).number, 10);
-    expect(NumberedPage(1, 10).last(101).number, 11);
+    final page = Page({'number': '4'});
+    final pagination = FixedSizePage(3);
+    expect(pagination.prev(page)['number'], '3');
+    expect(pagination.next(page, 100)['number'], '5');
+    expect(pagination.first()['number'], '1');
+    expect(pagination.last(100)['number'], '34');
   });
 }

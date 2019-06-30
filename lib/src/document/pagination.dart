@@ -8,7 +8,7 @@ class Pagination {
 
   const Pagination({this.last, this.first, this.prev, this.next});
 
-  static Pagination fromLinks(Map<String, Link> links) => Pagination(
+  static Pagination fromLinksMap(Map<String, Link> links) => Pagination(
         first: links['first'],
         last: links['last'],
         next: links['next'],
