@@ -51,8 +51,7 @@ class Document<Data extends PrimaryData> {
   Map<String, Object> toJson() => {
         if (data != null)
           ...data.toJson()
-        else
-          if (errors != null) ...{'errors': errors},
+        else if (errors != null) ...{'errors': errors},
         if (meta != null) ...{'meta': meta},
         if (api != null) ...{'jsonapi': api},
       };

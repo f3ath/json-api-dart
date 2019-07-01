@@ -134,12 +134,12 @@ class JsonApiClient {
   ) =>
       _wrapHttpCall(
         (_) => _.get(
-              uri,
-              headers: {
-                ...headers ?? {},
-                'Accept': contentType,
-              },
-            ),
+          uri,
+          headers: {
+            ...headers ?? {},
+            'Accept': contentType,
+          },
+        ),
         decodePrimaryData,
       );
 
@@ -151,14 +151,14 @@ class JsonApiClient {
   ) =>
       _wrapHttpCall(
         (_) => _.post(
-              uri,
-              body: json.encode(doc),
-              headers: {
-                ...headers ?? {},
-                'Accept': contentType,
-                'Content-Type': contentType,
-              },
-            ),
+          uri,
+          body: json.encode(doc),
+          headers: {
+            ...headers ?? {},
+            'Accept': contentType,
+            'Content-Type': contentType,
+          },
+        ),
         decodePrimaryData,
       );
 
@@ -168,12 +168,12 @@ class JsonApiClient {
   ) =>
       _wrapHttpCall(
         (_) => _.delete(
-              uri,
-              headers: {
-                ...headers ?? {},
-                'Accept': contentType,
-              },
-            ),
+          uri,
+          headers: {
+            ...headers ?? {},
+            'Accept': contentType,
+          },
+        ),
       );
 
   Future<Response<D>> _httpPatch<D extends PrimaryData>(
@@ -184,14 +184,14 @@ class JsonApiClient {
   ) =>
       _wrapHttpCall(
         (_) => _.patch(
-              uri,
-              body: json.encode(doc),
-              headers: {
-                ...headers ?? {},
-                'Accept': contentType,
-                'Content-Type': contentType,
-              },
-            ),
+          uri,
+          body: json.encode(doc),
+          headers: {
+            ...headers ?? {},
+            'Accept': contentType,
+            'Content-Type': contentType,
+          },
+        ),
         decodePrimaryData,
       );
 

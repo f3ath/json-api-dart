@@ -133,11 +133,11 @@ class ToMany extends Relationship {
             self: links['self'],
             related: links['related'],
             pagination: Pagination(
-        first: links['first'],
-        last: links['last'],
-        next: links['next'],
-        prev: links['prev'],
-      ),
+              first: links['first'],
+              last: links['last'],
+              next: links['next'],
+              prev: links['prev'],
+            ),
           );
         }
       }
