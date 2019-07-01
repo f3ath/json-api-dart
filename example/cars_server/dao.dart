@@ -21,9 +21,8 @@ abstract class DAO<T> {
 
   void insert(T t); // => collection[t.id] = t;
 
-  Collection<T> fetchCollection(int limit, int offset) =>
-      Collection(_collection.values.skip(offset).take(limit).toList(),
-          total: _collection.length);
+  Collection<T> fetchCollection(int limit, int offset) => Collection(
+      _collection.values.skip(offset).take(limit).toList(), _collection.length);
 
   /// Returns the number of depending objects the entity had
   int deleteById(String id) {

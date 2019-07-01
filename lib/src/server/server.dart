@@ -31,7 +31,8 @@ class Server {
   }
 
   Future<Object> _getPayload(HttpRequest http) async {
-    final body = await http.transform(utf8.decoder).join();
+    // @see https://github.com/dart-lang/sdk/issues/36900
+    final body = await http.cast<List<int>>().transform(utf8.decoder).join();
     if (body.isNotEmpty) return json.decode(body);
     return null;
   }

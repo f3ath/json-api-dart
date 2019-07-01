@@ -1,4 +1,4 @@
-import 'package:json_api/routing.dart';
+import 'package:json_api/src/routing/routing.dart';
 
 /// Routing (URL Design) describes how the endpoints are organized.
 class PathBasedRouting implements Routing {

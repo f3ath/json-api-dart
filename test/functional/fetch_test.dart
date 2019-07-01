@@ -10,7 +10,7 @@ void main() async {
   HttpServer server;
   final client = JsonApiClient();
   final port = 8083;
-  final route = Routing(Uri.parse('http://localhost:$port'));
+  final route = PathBasedRouting(Uri.parse('http://localhost:$port'));
   setUp(() async {
     server = await createServer(InternetAddress.loopbackIPv4, port);
   });

@@ -34,14 +34,16 @@ class ServerDocumentBuilder {
           Collection<Resource> collection, Uri self,
           {Iterable<Resource> included}) =>
       Document(ResourceCollectionData(collection.elements.map(_resourceObject),
-          self: _link(self), pagination: _pagination(self, collection.total)));
+          self: _link(self),
+          pagination: _pagination(self, collection.totalCount)));
 
   /// A collection of related resources
   Document<ResourceCollectionData> relatedCollectionDocument(
           Collection<Resource> collection, Uri self,
           {Iterable<Resource> included}) =>
       Document(ResourceCollectionData(collection.elements.map(_resourceObject),
-          self: _link(self), pagination: _pagination(self, collection.total)));
+          self: _link(self),
+          pagination: _pagination(self, collection.totalCount)));
 
   /// A single (primary) resource
   Document<ResourceData> resourceDocument(Resource resource, Uri self,
@@ -106,7 +108,7 @@ class ServerDocumentBuilder {
   Pagination _pagination(Uri uri, int total) {
     final page = Page.decode(uri.queryParametersAll);
     return Pagination(
-      first: _link(_paginationStrategy.first().addTo(uri)),
+      first: _link(_paginationStrategy.first()?.addTo(uri)),
       last: _link(_paginationStrategy.last(total)?.addTo(uri)),
       prev: _link(_paginationStrategy.prev(page)?.addTo(uri)),
       next: _link(_paginationStrategy.next(page, total)?.addTo(uri)),

@@ -4,7 +4,6 @@ import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/_server.dart';
-import 'package:json_api/src/server/request/target.dart';
 import 'package:uuid/uuid.dart';
 
 import 'dao.dart';
@@ -24,9 +23,7 @@ class CarsController implements Controller {
     final page = Page.decode(query);
     final collection =
         dao.fetchCollection(_pagination.limit(page), _pagination.offset(page));
-    return CollectionResponse(
-        Collection(collection.elements.map(dao.toResource),
-            total: collection.total),
+    return CollectionResponse(collection.map(dao.toResource),
         included: const []);
   }
 
@@ -48,7 +45,7 @@ class CarsController implements Controller {
           .take(_pagination.limit(page))
           .map((id) => _dao[id.type].fetchByIdAsResource(id.id));
       return RelatedCollectionResponse(
-          Collection(resources, total: relationships.length),
+          Collection(resources, relationships.length),
           included: const []);
     }
     return ErrorResponse.notFound(
