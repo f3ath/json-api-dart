@@ -1,10 +1,11 @@
 import 'package:json_api/src/server/request/page.dart';
-import 'package:json_api/src/server/pagination/slice.dart';
 
 /// Pagination strategy determines how pagination information is encoded in the
 /// URL query parameter
 abstract class PaginationStrategy {
-  Slice getSlice(Page page);
+  int limit(Page page);
+
+  int offset(Page page);
 
   Page first();
 

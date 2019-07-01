@@ -20,8 +20,9 @@ class CarsController implements Controller {
   Response fetchCollection(
       CollectionTarget target, Map<String, List<String>> query) {
     final dao = _getDao(target.type);
+    final page = Page.decode(query);
     final collection =
-        dao.fetchCollection(_pagination.getSlice(Page.decode(query)));
+        dao.fetchCollection(_pagination.limit(page), _pagination.offset(page));
     return CollectionResponse(
         Collection(collection.elements.map(dao.toResource),
             total: collection.total),
@@ -31,6 +32,7 @@ class CarsController implements Controller {
   @override
   Response fetchRelated(RelatedTarget target, Map<String, List<String>> query) {
     final dao = _getDao(target.type);
+    final page = Page.decode(query);
 
     final res = dao.fetchByIdAsResource(target.id);
     if (res == null) {
@@ -45,11 +47,10 @@ class CarsController implements Controller {
     }
 
     if (res.toMany.containsKey(target.relationship)) {
-      final slice = _pagination.getSlice(Page.decode(query));
       final relationships = res.toMany[target.relationship];
       final resources = relationships
-          .skip(slice.offset)
-          .take(slice.limit)
+          .skip(_pagination.offset(page))
+          .take(_pagination.limit(page))
           .map((id) => _dao[id.type].fetchByIdAsResource(id.id));
       return RelatedCollectionResponse(
           Collection(resources, total: relationships.length),

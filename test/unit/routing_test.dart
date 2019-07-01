@@ -1,4 +1,4 @@
-import 'package:json_api/src/routing.dart';
+import 'package:json_api/src/routing/routing.dart';
 import 'package:test/test.dart';
 
 void main() {

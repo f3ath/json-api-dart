@@ -1,5 +1,8 @@
+import 'package:json_api/src/routing/route_builder.dart';
+import 'package:json_api/src/routing/route_matcher.dart';
+
 /// Routing (URL Design) describes how the endpoints are organized.
-class Routing {
+class Routing implements RouteBuilder, RouteMatcher {
   static const _relationships = 'relationships';
   final Uri _base;
 

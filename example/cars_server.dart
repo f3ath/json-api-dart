@@ -58,7 +58,7 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
   final routing = Routing(Uri.parse('http://localhost:$port'));
   final pagination = FixedSizePage(1);
   final documentBuilder = ServerDocumentBuilder(routing, pagination);
-  final jsonApiServer = JsonApiServer(routing, controller, documentBuilder);
+  final jsonApiServer = Server(routing, controller, documentBuilder);
 
   httpServer.forEach(jsonApiServer.process);
   return httpServer;

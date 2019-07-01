@@ -3,11 +3,10 @@ import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/src/routing/route_builder.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/request/request.dart';
 import 'package:json_api/src/server/server_document_builder.dart';
-
-import '../routing.dart';
 
 abstract class Response {
   final int status;
@@ -16,7 +15,7 @@ abstract class Response {
 
   Document getDocument(ServerDocumentBuilder builder, Uri self);
 
-  Map<String, String> getHeaders(Routing schema) =>
+  Map<String, String> getHeaders(RouteBuilder route) =>
       {'Content-Type': 'application/vnd.api+json'};
 }
 
@@ -137,8 +136,8 @@ class SeeOtherResponse extends Response {
       null;
 
   @override
-  Map<String, String> getHeaders(Routing schema) => super.getHeaders(schema)
-    ..['Location'] = schema.resource(resource.type, resource.id).toString();
+  Map<String, String> getHeaders(RouteBuilder route) => super.getHeaders(route)
+    ..['Location'] = route.resource(resource.type, resource.id).toString();
 }
 
 class ResourceCreatedResponse extends Response {
@@ -151,8 +150,8 @@ class ResourceCreatedResponse extends Response {
       builder.resourceDocument(resource, self);
 
   @override
-  Map<String, String> getHeaders(Routing schema) => super.getHeaders(schema)
-    ..['Location'] = schema.resource(resource.type, resource.id).toString();
+  Map<String, String> getHeaders(RouteBuilder route) => super.getHeaders(route)
+    ..['Location'] = route.resource(resource.type, resource.id).toString();
 }
 
 class ResourceUpdatedResponse extends Response {
@@ -175,7 +174,7 @@ class AcceptedResponse extends Response {
       builder.resourceDocument(resource, self);
 
   @override
-  Map<String, String> getHeaders(Routing schema) => super.getHeaders(schema)
+  Map<String, String> getHeaders(RouteBuilder route) => super.getHeaders(route)
     ..['Content-Location'] =
-        schema.resource(resource.type, resource.id).toString();
+        route.resource(resource.type, resource.id).toString();
 }

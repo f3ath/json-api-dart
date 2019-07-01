@@ -6,13 +6,13 @@ import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/server_document_builder.dart';
 
-class JsonApiServer {
+class Server {
   final Routing routing;
   final Controller controller;
   final ServerDocumentBuilder documentBuilder;
   final String allowOrigin;
 
-  JsonApiServer(this.routing, this.controller, this.documentBuilder,
+  Server(this.routing, this.controller, this.documentBuilder,
       {this.allowOrigin = '*'});
 
   Future process(HttpRequest http) async {
