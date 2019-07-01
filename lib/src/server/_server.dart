@@ -1,4 +1,4 @@
-export 'package:json_api/src/routing/routing.dart';
+export 'package:json_api/routing.dart';
 export 'package:json_api/src/server/collection.dart';
 export 'package:json_api/src/server/controller.dart';
 export 'package:json_api/src/server/pagination/fixed_size_page.dart';

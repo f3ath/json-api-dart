@@ -1,4 +1,5 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/routing.dart';
 import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/identifier_object.dart';
@@ -10,7 +11,6 @@ import 'package:json_api/src/document/resource_collection_data.dart';
 import 'package:json_api/src/document/resource_data.dart';
 import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/routing/routing.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/pagination/pagination_strategy.dart';
 import 'package:json_api/src/server/request/page.dart';

@@ -1,4 +1,4 @@
-import 'package:json_api/src/routing/routing.dart';
+import 'package:json_api/routing.dart';
 import 'package:json_api/src/server/request/target.dart';
 
 RequestTarget matchTarget(RouteMatcher matcher, Uri uri) {
