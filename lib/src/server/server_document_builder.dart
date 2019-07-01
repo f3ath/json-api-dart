@@ -10,11 +10,11 @@ import 'package:json_api/src/document/resource_collection_data.dart';
 import 'package:json_api/src/document/resource_data.dart';
 import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/routing/route_builder.dart';
+import 'package:json_api/src/routing/routing.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/pagination/pagination_strategy.dart';
 import 'package:json_api/src/server/request/page.dart';
-import 'package:json_api/src/server/request/request.dart';
+import 'package:json_api/src/server/request/target.dart';
 
 /// The Document builder is used by JsonApiServer. It abstracts the process
 /// of building response documents and is responsible for such aspects as
@@ -34,16 +34,14 @@ class ServerDocumentBuilder {
           Collection<Resource> collection, Uri self,
           {Iterable<Resource> included}) =>
       Document(ResourceCollectionData(collection.elements.map(_resourceObject),
-          self: _link(self),
-          pagination: _paginationLinks(self, collection.total)));
+          self: _link(self), pagination: _pagination(self, collection.total)));
 
   /// A collection of related resources
   Document<ResourceCollectionData> relatedCollectionDocument(
           Collection<Resource> collection, Uri self,
           {Iterable<Resource> included}) =>
       Document(ResourceCollectionData(collection.elements.map(_resourceObject),
-          self: _link(self),
-          pagination: _paginationLinks(self, collection.total)));
+          self: _link(self), pagination: _pagination(self, collection.total)));
 
   /// A single (primary) resource
   Document<ResourceData> resourceDocument(Resource resource, Uri self,
@@ -105,7 +103,7 @@ class ServerDocumentBuilder {
         self: _link(_routeBuilder.resource(resource.type, resource.id)));
   }
 
-  Pagination _paginationLinks(Uri uri, int total) {
+  Pagination _pagination(Uri uri, int total) {
     final page = Page.decode(uri.queryParametersAll);
     return Pagination(
       first: _link(_paginationStrategy.first().addTo(uri)),

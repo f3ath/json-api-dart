@@ -4,6 +4,7 @@ import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/_server.dart';
+import 'package:json_api/src/server/request/target.dart';
 import 'package:uuid/uuid.dart';
 
 import 'dao.dart';
@@ -19,7 +20,7 @@ class CarsController implements Controller {
   @override
   Response fetchCollection(
       CollectionTarget target, Map<String, List<String>> query) {
-    final dao = _getDao(target.type);
+    final dao = _getDaoOrThrow(target.type);
     final page = Page.decode(query);
     final collection =
         dao.fetchCollection(_pagination.limit(page), _pagination.offset(page));
@@ -31,14 +32,7 @@ class CarsController implements Controller {
 
   @override
   Response fetchRelated(RelatedTarget target, Map<String, List<String>> query) {
-    final dao = _getDao(target.type);
-    final page = Page.decode(query);
-
-    final res = dao.fetchByIdAsResource(target.id);
-    if (res == null) {
-      return ErrorResponse.notFound(
-          [JsonApiError(detail: 'Resource not found')]);
-    }
+    final res = _fetchResourceOrThrow(target.type, target.id);
 
     if (res.toOne.containsKey(target.relationship)) {
       final id = res.toOne[target.relationship];
@@ -47,6 +41,7 @@ class CarsController implements Controller {
     }
 
     if (res.toMany.containsKey(target.relationship)) {
+      final page = Page.decode(query);
       final relationships = res.toMany[target.relationship];
       final resources = relationships
           .skip(_pagination.offset(page))
@@ -63,7 +58,7 @@ class CarsController implements Controller {
   @override
   Response fetchResource(
       ResourceTarget target, Map<String, List<String>> query) {
-    final dao = _getDao(target.type);
+    final dao = _getDaoOrThrow(target.type);
 
     final obj = dao.fetchById(target.id);
 
@@ -88,13 +83,7 @@ class CarsController implements Controller {
   @override
   Response fetchRelationship(
       RelationshipTarget target, Map<String, List<String>> query) {
-    final dao = _getDao(target.type);
-
-    final res = dao.fetchByIdAsResource(target.id);
-    if (res == null) {
-      return ErrorResponse.notFound(
-          [JsonApiError(detail: 'Resource not found')]);
-    }
+    final res = _fetchResourceOrThrow(target.type, target.id);
 
     if (res.toOne.containsKey(target.relationship)) {
       final id = res.toOne[target.relationship];
@@ -111,11 +100,11 @@ class CarsController implements Controller {
 
   @override
   Response deleteResource(ResourceTarget target) {
-    final dao = _getDao(target.type);
+    final dao = _getDaoOrThrow(target.type);
 
     final res = dao.fetchByIdAsResource(target.id);
     if (res == null) {
-      return ErrorResponse.notFound(
+      throw ErrorResponse.notFound(
           [JsonApiError(detail: 'Resource not found')]);
     }
     final dependenciesCount = dao.deleteById(target.id);
@@ -127,12 +116,9 @@ class CarsController implements Controller {
 
   @override
   Response createResource(CollectionTarget target, Resource resource) {
-    final dao = _getDao(target.type);
+    final dao = _getDaoOrThrow(target.type);
 
-    if (target.type != resource.type) {
-      return ErrorResponse.conflict(
-          [JsonApiError(detail: 'Incompatible type')]);
-    }
+    _throwIfIncompatibleTypes(target.type, resource.type);
 
     if (resource.id != null) {
       if (dao.fetchById(resource.id) != null) {
@@ -165,12 +151,9 @@ class CarsController implements Controller {
 
   @override
   Response updateResource(ResourceTarget target, Resource resource) {
-    final dao = _getDao(target.type);
+    final dao = _getDaoOrThrow(target.type);
 
-    if (target.type != resource.type) {
-      return ErrorResponse.conflict(
-          [JsonApiError(detail: 'Incompatible type')]);
-    }
+    _throwIfIncompatibleTypes(target.type, resource.type);
     if (dao.fetchById(target.id) == null) {
       return ErrorResponse.notFound(
           [JsonApiError(detail: 'Resource not found')]);
@@ -184,7 +167,7 @@ class CarsController implements Controller {
 
   @override
   Response replaceToOne(RelationshipTarget target, Identifier identifier) {
-    final dao = _getDao(target.type);
+    final dao = _getDaoOrThrow(target.type);
 
     dao.replaceToOne(target.id, target.relationship, identifier);
     return NoContentResponse();
@@ -193,7 +176,7 @@ class CarsController implements Controller {
   @override
   Response replaceToMany(
       RelationshipTarget target, List<Identifier> identifiers) {
-    final dao = _getDao(target.type);
+    final dao = _getDaoOrThrow(target.type);
 
     dao.replaceToMany(target.id, target.relationship, identifiers);
     return NoContentResponse();
@@ -201,16 +184,32 @@ class CarsController implements Controller {
 
   @override
   Response addToMany(RelationshipTarget target, List<Identifier> identifiers) {
-    final dao = _getDao(target.type);
+    final dao = _getDaoOrThrow(target.type);
 
     return ToManyResponse(
         target, dao.addToMany(target.id, target.relationship, identifiers));
   }
 
-  DAO _getDao(String type) {
+  void _throwIfIncompatibleTypes(String target, String actual) {
+    if (target != actual) {
+      throw ErrorResponse.conflict([JsonApiError(detail: 'Incompatible type')]);
+    }
+  }
+
+  DAO _getDaoOrThrow(String type) {
     if (_dao.containsKey(type)) return _dao[type];
 
     throw ErrorResponse.notFound(
         [JsonApiError(detail: 'Unknown resource type $type')]);
+  }
+
+  Resource _fetchResourceOrThrow(String type, String id) {
+    final dao = _getDaoOrThrow(type);
+    final resource = dao.fetchByIdAsResource(id);
+    if (resource == null) {
+      throw ErrorResponse.notFound(
+          [JsonApiError(detail: 'Resource not found')]);
+    }
+    return resource;
   }
 }

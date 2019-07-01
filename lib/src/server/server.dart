@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:json_api/src/server/_server.dart';
 import 'package:json_api/src/server/controller.dart';
+import 'package:json_api/src/server/request/match_target.dart';
 import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/server_document_builder.dart';
 
@@ -16,22 +17,10 @@ class Server {
       {this.allowOrigin = '*'});
 
   Future process(HttpRequest http) async {
-    Response response;
+    final target = matchTarget(routing, http.requestedUri);
 
-    RequestTarget target = InvalidTarget();
-    routing.match(
-      http.requestedUri,
-      onCollection: (type) => target = CollectionTarget(type),
-      onResource: (type, id) => target = ResourceTarget(type, id),
-      onRelationship: (type, id, relationship) =>
-          target = RelationshipTarget(type, id, relationship),
-      onRelated: (type, id, relationship) =>
-          target = RelatedTarget(type, id, relationship),
-    );
+    Response response;
     try {
-      if (target == null) {
-        throw ErrorResponse.badRequest([]);
-      }
       response = await target.getRequest(http.method).call(controller,
           http.requestedUri.queryParametersAll, await _getPayload(http));
     } on ErrorResponse catch (error) {
