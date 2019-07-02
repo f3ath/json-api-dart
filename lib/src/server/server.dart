@@ -1,27 +1,27 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/src/server/_server.dart';
+import 'package:json_api/server.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/request/match_target.dart';
 import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/server_document_builder.dart';
 
 class Server {
-  final UrlDesign routing;
+  final UrlDesign urlDesign;
   final Controller controller;
   final ServerDocumentBuilder documentBuilder;
   final String allowOrigin;
 
-  Server(this.routing, this.controller, this.documentBuilder,
+  Server(this.urlDesign, this.controller, this.documentBuilder,
       {this.allowOrigin = '*'});
 
   Future process(HttpRequest http) async {
-    final target = matchTarget(routing, http.requestedUri);
+    final target = matchTarget(urlDesign, http.requestedUri);
 
     Response response;
     try {
-      response = await target.getRequest(http.method).call(controller,
+      response = await target.getCommand(http.method).call(controller,
           http.requestedUri.queryParametersAll, await _getPayload(http));
     } on ErrorResponse catch (error) {
       response = error;
@@ -39,7 +39,7 @@ class Server {
 
   Future _send(HttpRequest http, Response response) {
     http.response.statusCode = response.status;
-    response.getHeaders(routing).forEach(http.response.headers.add);
+    response.getHeaders(urlDesign).forEach(http.response.headers.add);
     if (allowOrigin != null) {
       http.response.headers.add('Access-Control-Allow-Origin', allowOrigin);
     }

@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:json_api/json_api.dart';
-import 'package:json_api/src/server/_server.dart';
+import 'package:json_api/server.dart';
 import 'package:test/test.dart';
 
 import '../../example/cars_server.dart';
@@ -10,7 +10,7 @@ void main() async {
   HttpServer server;
   final client = JsonApiClient();
   final port = 8083;
-  final route = PathBasedRouting(Uri.parse('http://localhost:$port'));
+  final route = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
   setUp(() async {
     server = await createServer(InternetAddress.loopbackIPv4, port);
   });

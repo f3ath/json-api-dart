@@ -1,6 +1,6 @@
 import 'package:json_api/json_api.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/server/_server.dart';
+import 'package:json_api/server.dart';
 
 import 'job_queue.dart';
 import 'model.dart';

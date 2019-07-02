@@ -34,9 +34,3 @@ abstract class Controller {
   FutureOr<Response> addToMany(
       RelationshipTarget target, List<Identifier> identifiers);
 }
-
-/// Performs double-dispatch on Controller methods
-abstract class Request {
-  FutureOr<Response> call(
-      Controller controller, Map<String, List<String>> query, Object payload);
-}

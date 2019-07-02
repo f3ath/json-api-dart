@@ -2,7 +2,7 @@ import 'package:json_api/url_design.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final routing = PathBasedRouting(Uri.parse('http://example.com/api'));
+  final routing = PathBasedUrlDesign(Uri.parse('http://example.com/api'));
 
   group('URL construction', () {
     test('Collection URL adds type', () {

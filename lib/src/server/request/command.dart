@@ -8,10 +8,10 @@ import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/request/target.dart';
 import 'package:json_api/src/server/response.dart';
 
-class FetchCollectionRequest implements Request {
+class FetchCollectionCommand implements ControllerCommand {
   final CollectionTarget target;
 
-  FetchCollectionRequest(this.target);
+  FetchCollectionCommand(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
@@ -19,10 +19,10 @@ class FetchCollectionRequest implements Request {
       controller.fetchCollection(target, query);
 }
 
-class FetchResourceRequest implements Request {
+class FetchResourceCommand implements ControllerCommand {
   final ResourceTarget target;
 
-  FetchResourceRequest(this.target);
+  FetchResourceCommand(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
@@ -30,10 +30,10 @@ class FetchResourceRequest implements Request {
       controller.fetchResource(target, query);
 }
 
-class FetchRelatedRequest implements Request {
+class FetchRelatedCommand implements ControllerCommand {
   final RelatedTarget target;
 
-  FetchRelatedRequest(this.target);
+  FetchRelatedCommand(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
@@ -41,10 +41,10 @@ class FetchRelatedRequest implements Request {
       controller.fetchRelated(target, query);
 }
 
-class FetchRelationshipRequest implements Request {
+class FetchRelationshipCommand implements ControllerCommand {
   final RelationshipTarget target;
 
-  FetchRelationshipRequest(this.target);
+  FetchRelationshipCommand(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
@@ -52,10 +52,10 @@ class FetchRelationshipRequest implements Request {
       controller.fetchRelationship(target, query);
 }
 
-class DeleteResourceRequest implements Request {
+class DeleteResourceCommand implements ControllerCommand {
   final ResourceTarget target;
 
-  DeleteResourceRequest(this.target);
+  DeleteResourceCommand(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
@@ -63,10 +63,10 @@ class DeleteResourceRequest implements Request {
       controller.deleteResource(target);
 }
 
-class UpdateResourceRequest implements Request {
+class UpdateResourceCommand implements ControllerCommand {
   final ResourceTarget target;
 
-  UpdateResourceRequest(this.target);
+  UpdateResourceCommand(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
@@ -75,10 +75,10 @@ class UpdateResourceRequest implements Request {
           Document.decodeJson(payload, ResourceData.decodeJson).data.unwrap());
 }
 
-class CreateResourceRequest implements Request {
+class CreateResourceCommand implements ControllerCommand {
   final CollectionTarget target;
 
-  CreateResourceRequest(this.target);
+  CreateResourceCommand(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
@@ -87,10 +87,10 @@ class CreateResourceRequest implements Request {
           Document.decodeJson(payload, ResourceData.decodeJson).data.unwrap());
 }
 
-class UpdateRelationshipRequest implements Request {
+class UpdateRelationshipCommand implements ControllerCommand {
   final RelationshipTarget target;
 
-  UpdateRelationshipRequest(this.target);
+  UpdateRelationshipCommand(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
@@ -106,10 +106,10 @@ class UpdateRelationshipRequest implements Request {
   }
 }
 
-class AddToManyRequest implements Request {
+class AddToManyCommand implements ControllerCommand {
   final RelationshipTarget target;
 
-  AddToManyRequest(this.target);
+  AddToManyCommand(this.target);
 
   @override
   FutureOr<Response> call(Controller controller,
@@ -122,11 +122,11 @@ class AddToManyRequest implements Request {
   }
 }
 
-class InvalidRequest implements Request {
+class InvalidCommand implements ControllerCommand {
   final target = null;
   final Response _response;
 
-  InvalidRequest(this._response);
+  InvalidCommand(this._response);
 
   @override
   Response call(Controller controller, Map<String, List<String>> query,

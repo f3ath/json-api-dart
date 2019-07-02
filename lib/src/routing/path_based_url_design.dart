@@ -1,10 +1,13 @@
 import 'package:json_api/src/routing/url_design.dart';
 
-class PathBasedRouting implements UrlDesign {
+/// URL Design where the target is determined by the URL path.
+/// This is the recommended design according to the JSON:API standard.
+/// @see https://jsonapi.org/recommendations/#urls
+class PathBasedUrlDesign implements UrlDesign {
   static const _relationships = 'relationships';
   final Uri base;
 
-  PathBasedRouting(this.base);
+  PathBasedUrlDesign(this.base);
 
   /// Returns a URL for the primary resource collection of type [type]
   Uri collection(String type) => _appendToBase([type]);

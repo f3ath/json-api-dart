@@ -1,6 +1,14 @@
+import 'dart:async';
+
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/request/request.dart';
+import 'package:json_api/src/server/request/command.dart';
 import 'package:json_api/src/server/response.dart';
+
+/// Performs double-dispatch on Controller methods
+abstract class ControllerCommand {
+  FutureOr<Response> call(
+      Controller controller, Map<String, List<String>> query, Object payload);
+}
 
 /// A JSON:API request may target:
 /// - a single primary resource
@@ -8,7 +16,7 @@ import 'package:json_api/src/server/response.dart';
 /// - a related resource or collection
 /// - a relationship itself
 abstract class RequestTarget {
-  Request getRequest(String httpMethod);
+  ControllerCommand getCommand(String httpMethod);
 }
 
 class CollectionTarget implements RequestTarget {
@@ -17,11 +25,11 @@ class CollectionTarget implements RequestTarget {
   const CollectionTarget(this.type);
 
   @override
-  Request getRequest(String httpMethod) {
+  ControllerCommand getCommand(String httpMethod) {
     httpMethod = httpMethod.toUpperCase();
-    if (httpMethod == 'GET') return FetchCollectionRequest(this);
-    if (httpMethod == 'POST') return CreateResourceRequest(this);
-    return InvalidRequest(ErrorResponse.methodNotAllowed([]));
+    if (httpMethod == 'GET') return FetchCollectionCommand(this);
+    if (httpMethod == 'POST') return CreateResourceCommand(this);
+    return InvalidCommand(ErrorResponse.methodNotAllowed([]));
   }
 }
 
@@ -32,12 +40,12 @@ class ResourceTarget implements RequestTarget {
   const ResourceTarget(this.type, this.id);
 
   @override
-  Request getRequest(String httpMethod) {
+  ControllerCommand getCommand(String httpMethod) {
     httpMethod = httpMethod.toUpperCase();
-    if (httpMethod == 'GET') return FetchResourceRequest(this);
-    if (httpMethod == 'DELETE') return DeleteResourceRequest(this);
-    if (httpMethod == 'PATCH') return UpdateResourceRequest(this);
-    return InvalidRequest(ErrorResponse.methodNotAllowed([]));
+    if (httpMethod == 'GET') return FetchResourceCommand(this);
+    if (httpMethod == 'DELETE') return DeleteResourceCommand(this);
+    if (httpMethod == 'PATCH') return UpdateResourceCommand(this);
+    return InvalidCommand(ErrorResponse.methodNotAllowed([]));
   }
 }
 
@@ -49,12 +57,12 @@ class RelationshipTarget implements RequestTarget {
   const RelationshipTarget(this.type, this.id, this.relationship);
 
   @override
-  Request getRequest(String httpMethod) {
+  ControllerCommand getCommand(String httpMethod) {
     httpMethod = httpMethod.toUpperCase();
-    if (httpMethod == 'GET') return FetchRelationshipRequest(this);
-    if (httpMethod == 'PATCH') return UpdateRelationshipRequest(this);
-    if (httpMethod == 'POST') return AddToManyRequest(this);
-    return InvalidRequest(ErrorResponse.methodNotAllowed([]));
+    if (httpMethod == 'GET') return FetchRelationshipCommand(this);
+    if (httpMethod == 'PATCH') return UpdateRelationshipCommand(this);
+    if (httpMethod == 'POST') return AddToManyCommand(this);
+    return InvalidCommand(ErrorResponse.methodNotAllowed([]));
   }
 }
 
@@ -66,10 +74,10 @@ class RelatedTarget implements RequestTarget {
   const RelatedTarget(this.type, this.id, this.relationship);
 
   @override
-  Request getRequest(String httpMethod) {
+  ControllerCommand getCommand(String httpMethod) {
     httpMethod = httpMethod.toUpperCase();
-    if (httpMethod == 'GET') return FetchRelatedRequest(this);
-    return InvalidRequest(ErrorResponse.methodNotAllowed([]));
+    if (httpMethod == 'GET') return FetchRelatedCommand(this);
+    return InvalidCommand(ErrorResponse.methodNotAllowed([]));
   }
 }
 
@@ -77,7 +85,7 @@ class InvalidTarget implements RequestTarget {
   const InvalidTarget();
 
   @override
-  Request getRequest(String httpMethod) {
-    return InvalidRequest(ErrorResponse.badRequest([]));
+  ControllerCommand getCommand(String httpMethod) {
+    return InvalidCommand(ErrorResponse.badRequest([]));
   }
 }
