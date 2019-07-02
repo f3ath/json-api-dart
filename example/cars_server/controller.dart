@@ -1,9 +1,10 @@
 import 'dart:async';
 
+import 'package:json_api/server.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/resource.dart';
-import 'package:json_api/server.dart';
+import 'package:json_api/src/server/request/query.dart';
 import 'package:uuid/uuid.dart';
 
 import 'dao.dart';
@@ -17,18 +18,16 @@ class CarsController implements Controller {
   CarsController(this._dao);
 
   @override
-  Response fetchCollection(
-      CollectionTarget target, Map<String, List<String>> query) {
+  Response fetchCollection(CollectionTarget target, Query query) {
     final dao = _getDaoOrThrow(target.type);
-    final page = Page.decode(query);
-    final collection =
-        dao.fetchCollection(_pagination.limit(page), _pagination.offset(page));
+    final collection = dao.fetchCollection(
+        _pagination.limit(query.page), _pagination.offset(query.page));
     return CollectionResponse(collection.map(dao.toResource),
         included: const []);
   }
 
   @override
-  Response fetchRelated(RelatedTarget target, Map<String, List<String>> query) {
+  Response fetchRelated(RelatedTarget target, Query query) {
     final res = _fetchResourceOrThrow(target.type, target.id);
 
     if (res.toOne.containsKey(target.relationship)) {
@@ -38,11 +37,10 @@ class CarsController implements Controller {
     }
 
     if (res.toMany.containsKey(target.relationship)) {
-      final page = Page.decode(query);
       final relationships = res.toMany[target.relationship];
       final resources = relationships
-          .skip(_pagination.offset(page))
-          .take(_pagination.limit(page))
+          .skip(_pagination.offset(query.page))
+          .take(_pagination.limit(query.page))
           .map((id) => _dao[id.type].fetchByIdAsResource(id.id));
       return RelatedCollectionResponse(
           Collection(resources, relationships.length),
@@ -53,8 +51,7 @@ class CarsController implements Controller {
   }
 
   @override
-  Response fetchResource(
-      ResourceTarget target, Map<String, List<String>> query) {
+  Response fetchResource(ResourceTarget target, Query query) {
     final dao = _getDaoOrThrow(target.type);
 
     final obj = dao.fetchById(target.id);
@@ -78,8 +75,7 @@ class CarsController implements Controller {
   }
 
   @override
-  Response fetchRelationship(
-      RelationshipTarget target, Map<String, List<String>> query) {
+  Response fetchRelationship(RelationshipTarget target, Query query) {
     final res = _fetchResourceOrThrow(target.type, target.id);
 
     if (res.toOne.containsKey(target.relationship)) {

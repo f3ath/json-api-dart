@@ -3,21 +3,18 @@ import 'dart:async';
 import 'package:json_api/document.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/src/server/request/query.dart';
 import 'package:json_api/src/server/request/target.dart';
 import 'package:json_api/src/server/response.dart';
 
 abstract class Controller {
-  FutureOr<Response> fetchCollection(
-      CollectionTarget target, Map<String, List<String>> query);
+  FutureOr<Response> fetchCollection(CollectionTarget target, Query query);
 
-  FutureOr<Response> fetchResource(
-      ResourceTarget target, Map<String, List<String>> query);
+  FutureOr<Response> fetchResource(ResourceTarget target, Query query);
 
-  FutureOr<Response> fetchRelated(
-      RelatedTarget target, Map<String, List<String>> query);
+  FutureOr<Response> fetchRelated(RelatedTarget target, Query query);
 
-  FutureOr<Response> fetchRelationship(
-      RelationshipTarget target, Map<String, List<String>> query);
+  FutureOr<Response> fetchRelationship(RelationshipTarget target, Query query);
 
   FutureOr<Response> deleteResource(ResourceTarget target);
 

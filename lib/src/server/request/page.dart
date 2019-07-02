@@ -8,7 +8,7 @@ class Page {
     this._params.addAll(parameters);
   }
 
-  static Page decode(Map<String, List<String>> queryParameters) =>
+  factory Page.decode(Map<String, List<String>> queryParameters) =>
       Page(queryParameters
           .map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1), v.first))
             ..removeWhere((k, v) => k == null));
