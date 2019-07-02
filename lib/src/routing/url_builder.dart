@@ -1,4 +1,5 @@
-abstract class RouteBuilder {
+/// Builds URIs for specific targets
+abstract class UrlBuilder {
   /// Returns a URL for the primary resource collection of type [type]
   Uri collection(String type);
 
@@ -15,15 +16,3 @@ abstract class RouteBuilder {
   /// Returns a URL for the primary resource of type [type] with id [id]
   Uri resource(String type, String id);
 }
-
-abstract class RouteMatcher {
-  /// Matches the target of the [uri]. If the target can be determined,
-  /// the corresponding callback will be called with the target parameters.
-  void match(Uri uri,
-      {onCollection(String type),
-      onResource(String type, String id),
-      onRelationship(String type, String id, String relationship),
-      onRelated(String type, String id, String relationship)});
-}
-
-abstract class Routing implements RouteMatcher, RouteBuilder {}

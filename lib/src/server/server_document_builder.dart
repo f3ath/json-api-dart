@@ -1,5 +1,5 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/routing.dart';
+import 'package:json_api/url_design.dart';
 import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/identifier_object.dart';
@@ -20,7 +20,7 @@ import 'package:json_api/src/server/request/target.dart';
 /// of building response documents and is responsible for such aspects as
 ///  adding `meta` and `jsonapi` attributes and generating links
 class ServerDocumentBuilder {
-  final RouteBuilder _routeBuilder;
+  final UrlBuilder _routeBuilder;
   final PaginationStrategy _paginationStrategy;
 
   const ServerDocumentBuilder(this._routeBuilder, this._paginationStrategy);

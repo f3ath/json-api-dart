@@ -1,4 +1,4 @@
-import 'package:json_api/routing.dart';
+import 'package:json_api/url_design.dart';
 import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/json_api_error.dart';
@@ -15,7 +15,7 @@ abstract class Response {
 
   Document getDocument(ServerDocumentBuilder builder, Uri self);
 
-  Map<String, String> getHeaders(RouteBuilder route) =>
+  Map<String, String> getHeaders(UrlBuilder route) =>
       {'Content-Type': 'application/vnd.api+json'};
 }
 
@@ -136,7 +136,7 @@ class SeeOtherResponse extends Response {
       null;
 
   @override
-  Map<String, String> getHeaders(RouteBuilder route) => super.getHeaders(route)
+  Map<String, String> getHeaders(UrlBuilder route) => super.getHeaders(route)
     ..['Location'] = route.resource(resource.type, resource.id).toString();
 }
 
@@ -150,7 +150,7 @@ class ResourceCreatedResponse extends Response {
       builder.resourceDocument(resource, self);
 
   @override
-  Map<String, String> getHeaders(RouteBuilder route) => super.getHeaders(route)
+  Map<String, String> getHeaders(UrlBuilder route) => super.getHeaders(route)
     ..['Location'] = route.resource(resource.type, resource.id).toString();
 }
 
@@ -174,7 +174,7 @@ class AcceptedResponse extends Response {
       builder.resourceDocument(resource, self);
 
   @override
-  Map<String, String> getHeaders(RouteBuilder route) => super.getHeaders(route)
+  Map<String, String> getHeaders(UrlBuilder route) => super.getHeaders(route)
     ..['Content-Location'] =
         route.resource(resource.type, resource.id).toString();
 }

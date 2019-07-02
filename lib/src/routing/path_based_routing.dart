@@ -1,11 +1,10 @@
-import 'package:json_api/src/routing/routing.dart';
+import 'package:json_api/src/routing/url_design.dart';
 
-/// Routing (URL Design) describes how the endpoints are organized.
-class PathBasedRouting implements Routing {
+class PathBasedRouting implements UrlDesign {
   static const _relationships = 'relationships';
-  final Uri _base;
+  final Uri base;
 
-  PathBasedRouting(this._base);
+  PathBasedRouting(this.base);
 
   /// Returns a URL for the primary resource collection of type [type]
   Uri collection(String type) => _appendToBase([type]);
@@ -47,10 +46,10 @@ class PathBasedRouting implements Routing {
   }
 
   Uri _appendToBase(List<String> segments) =>
-      _base.replace(pathSegments: _base.pathSegments + segments);
+      base.replace(pathSegments: base.pathSegments + segments);
 
   List<String> _getPathSegments(Uri uri) =>
-      uri.pathSegments.sublist(_base.pathSegments.length);
+      uri.pathSegments.sublist(base.pathSegments.length);
 
   bool _isRelationship(List<String> seg) =>
       seg.length == 4 && seg[2] == _relationships;
@@ -62,7 +61,7 @@ class PathBasedRouting implements Routing {
   bool _isCollection(List<String> seg) => seg.length == 1;
 
   bool _matchesBase(Uri uri) =>
-      _base.host == uri.host &&
-      _base.port == uri.port &&
-      uri.path.startsWith(_base.path);
+      base.host == uri.host &&
+      base.port == uri.port &&
+      uri.path.startsWith(base.path);
 }

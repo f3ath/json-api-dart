@@ -8,6 +8,11 @@ class Page {
     this._params.addAll(parameters);
   }
 
+  static Page decode(Map<String, List<String>> queryParameters) =>
+      Page(queryParameters
+          .map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1), v.first))
+            ..removeWhere((k, v) => k == null));
+
   Map<String, List<String>> encode() =>
       _params.map((k, v) => MapEntry('page[${k}]', [v]));
 
@@ -15,9 +20,4 @@ class Page {
 
   Uri addTo(Uri uri) =>
       uri.replace(queryParameters: {...uri.queryParameters, ...encode()});
-
-  static Page decode(Map<String, List<String>> queryParameters) =>
-      Page(queryParameters
-          .map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1), v.first))
-            ..removeWhere((k, v) => k == null));
 }

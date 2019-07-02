@@ -8,7 +8,7 @@ import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/server_document_builder.dart';
 
 class Server {
-  final Routing routing;
+  final UrlDesign routing;
   final Controller controller;
   final ServerDocumentBuilder documentBuilder;
   final String allowOrigin;
