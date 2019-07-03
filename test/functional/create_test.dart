@@ -11,7 +11,7 @@ void main() async {
   HttpServer server;
   final client = JsonApiClient();
   final port = 8081;
-  final route = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
+  final url = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
   setUp(() async {
     server = await createServer(InternetAddress.loopbackIPv4, port);
   });
@@ -34,7 +34,7 @@ void main() async {
       final newYork =
           Resource('cities', null, attributes: {'name': 'New York'});
       final r0 =
-          await client.createResource(route.collection('cities'), newYork);
+          await client.createResource(url.collection('cities'), newYork);
 
       expect(r0.status, 201);
       expect(r0.isSuccessful, true);
@@ -45,7 +45,7 @@ void main() async {
 
       // Make sure the resource is available
       final r1 = await client
-          .fetchResource(route.resource('cities', r0.data.unwrap().id));
+          .fetchResource(url.resource('cities', r0.data.unwrap().id));
       expect(r1.data.resourceObject.attributes['name'], 'New York');
     });
 
@@ -58,7 +58,7 @@ void main() async {
       final roadster2020 =
           Resource('models', null, attributes: {'name': 'Roadster 2020'});
       final r0 =
-          await client.createResource(route.collection('models'), roadster2020);
+          await client.createResource(url.collection('models'), roadster2020);
 
       expect(r0.status, 202);
       expect(r0.isSuccessful, false); // neither success
@@ -92,14 +92,14 @@ void main() async {
       final newYork =
           Resource('cities', '555', attributes: {'name': 'New York'});
       final r0 =
-          await client.createResource(route.collection('cities'), newYork);
+          await client.createResource(url.collection('cities'), newYork);
 
       expect(r0.status, 204);
       expect(r0.isSuccessful, true);
       expect(r0.document, isNull);
 
       // Make sure the resource is available
-      final r1 = await client.fetchResource(route.resource('cities', '555'));
+      final r1 = await client.fetchResource(url.resource('cities', '555'));
       expect(r1.data.unwrap().attributes['name'], 'New York');
     });
 
@@ -110,7 +110,7 @@ void main() async {
     test('409 Conflict - Resource already exists', () async {
       final newYork = Resource('cities', '1', attributes: {'name': 'New York'});
       final r0 =
-          await client.createResource(route.collection('cities'), newYork);
+          await client.createResource(url.collection('cities'), newYork);
 
       expect(r0.status, 409);
       expect(r0.isSuccessful, false);
@@ -126,7 +126,7 @@ void main() async {
       final newYork =
           Resource('cities', '555', attributes: {'name': 'New York'});
       final r0 =
-          await client.createResource(route.collection('companies'), newYork);
+          await client.createResource(url.collection('companies'), newYork);
 
       expect(r0.status, 409);
       expect(r0.isSuccessful, false);

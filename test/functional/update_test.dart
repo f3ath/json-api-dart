@@ -10,7 +10,7 @@ void main() async {
   HttpServer server;
   final client = JsonApiClient();
   final port = 8084;
-  final route = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
+  final url = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
   setUp(() async {
     server = await createServer(InternetAddress.loopbackIPv4, port);
   });
@@ -59,7 +59,7 @@ void main() async {
     ///
     /// https://jsonapi.org/format/#crud-updating-responses-200
     test('200 OK', () async {
-      final r0 = await client.fetchResource(route.resource('companies', '1'));
+      final r0 = await client.fetchResource(url.resource('companies', '1'));
       final original = r0.document.data.unwrap();
 
       expect(original.attributes['name'], 'Tesla');
@@ -72,7 +72,7 @@ void main() async {
       original.toOne['headquarters'] = null; // should be removed
 
       final r1 = await client.updateResource(
-          route.resource('companies', '1'), original);
+          url.resource('companies', '1'), original);
       final updated = r1.document.data.unwrap();
 
       expect(r1.status, 200);
@@ -92,7 +92,7 @@ void main() async {
     ///
     /// https://jsonapi.org/format/#crud-updating-responses-204
     test('204 No Content', () async {
-      final r0 = await client.fetchResource(route.resource('models', '3'));
+      final r0 = await client.fetchResource(url.resource('models', '3'));
       final original = r0.document.data.unwrap();
 
       expect(original.attributes['name'], 'Model X');
@@ -100,11 +100,11 @@ void main() async {
       original.attributes['name'] = 'Model XXX';
 
       final r1 =
-          await client.updateResource(route.resource('models', '3'), original);
+          await client.updateResource(url.resource('models', '3'), original);
       expect(r1.status, 204);
       expect(r1.document, isNull);
 
-      final r2 = await client.fetchResource(route.resource('models', '3'));
+      final r2 = await client.fetchResource(url.resource('models', '3'));
 
       expect(r2.data.unwrap().attributes['name'], 'Model XXX');
     });
@@ -119,11 +119,11 @@ void main() async {
     ///
     /// https://jsonapi.org/format/#crud-updating-responses-409
     test('409 Conflict - Endpoint mismatch', () async {
-      final r0 = await client.fetchResource(route.resource('models', '3'));
+      final r0 = await client.fetchResource(url.resource('models', '3'));
       final original = r0.document.data.unwrap();
 
       final r1 = await client.updateResource(
-          route.resource('companies', '1'), original);
+          url.resource('companies', '1'), original);
       expect(r1.status, 409);
       expect(r1.document.errors.first.detail, 'Incompatible type');
     });
@@ -161,16 +161,16 @@ void main() async {
     group('to-one', () {
       group('replace', () {
         test('204 No Content', () async {
-          final url = route.relationship('companies', '1', 'hq');
-          final r0 = await client.fetchToOne(url);
+          final relationship = url.relationship('companies', '1', 'hq');
+          final r0 = await client.fetchToOne(relationship);
           final original = r0.document.data.unwrap();
           expect(original.id, '2');
 
           final r1 =
-              await client.replaceToOne(url, Identifier(original.type, '1'));
+              await client.replaceToOne(relationship, Identifier(original.type, '1'));
           expect(r1.status, 204);
 
-          final r2 = await client.fetchToOne(url);
+          final r2 = await client.fetchToOne(relationship);
           final updated = r2.document.data.unwrap();
           expect(updated.type, original.type);
           expect(updated.id, '1');
@@ -179,16 +179,16 @@ void main() async {
 
       group('remove', () {
         test('204 No Content', () async {
-          final url = route.relationship('companies', '1', 'hq');
+          final relationship = url.relationship('companies', '1', 'hq');
 
-          final r0 = await client.fetchToOne(url);
+          final r0 = await client.fetchToOne(relationship);
           final original = r0.document.data.unwrap();
           expect(original.id, '2');
 
-          final r1 = await client.deleteToOne(url);
+          final r1 = await client.deleteToOne(relationship);
           expect(r1.status, 204);
 
-          final r2 = await client.fetchToOne(url);
+          final r2 = await client.fetchToOne(relationship);
           expect(r2.document.data.unwrap(), isNull);
         });
       });
@@ -210,16 +210,16 @@ void main() async {
       /// is not allowed by the server.
       group('replace', () {
         test('204 No Content', () async {
-          final url = route.relationship('companies', '1', 'models');
-          final r0 = await client.fetchToMany(url);
+          final relationship = url.relationship('companies', '1', 'models');
+          final r0 = await client.fetchToMany(relationship);
           final original = r0.data.identifiers.map((_) => _.id);
           expect(original, ['1', '2', '3', '4']);
 
           final r1 = await client.replaceToMany(
-              url, [Identifier('models', '5'), Identifier('models', '6')]);
+              relationship, [Identifier('models', '5'), Identifier('models', '6')]);
           expect(r1.status, 204);
 
-          final r2 = await client.fetchToMany(url);
+          final r2 = await client.fetchToMany(relationship);
           final updated = r2.data.identifiers.map((_) => _.id);
           expect(updated, ['5', '6']);
         });
@@ -242,13 +242,13 @@ void main() async {
       /// caused by multiple clients making the same changes to a relationship.
       group('add', () {
         test('200 OK', () async {
-          final url = route.relationship('companies', '1', 'models');
-          final r0 = await client.fetchToMany(url);
+          final relationship = url.relationship('companies', '1', 'models');
+          final r0 = await client.fetchToMany(relationship);
           final original = r0.data.identifiers.map((_) => _.id);
           expect(original, ['1', '2', '3', '4']);
 
           final r1 = await client.addToMany(
-              url, [Identifier('models', '1'), Identifier('models', '5')]);
+              relationship, [Identifier('models', '1'), Identifier('models', '5')]);
           expect(r1.status, 200);
 
           final updated = r1.data.identifiers.map((_) => _.id);
