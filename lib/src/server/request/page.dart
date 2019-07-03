@@ -16,7 +16,7 @@ class Page {
   Map<String, List<String>> encode() =>
       _params.map((k, v) => MapEntry('page[${k}]', [v]));
 
-  operator [](String key) => _params[key];
+  String operator [](String key) => _params[key];
 
   Uri addTo(Uri uri) =>
       uri.replace(queryParameters: {...uri.queryParameters, ...encode()});
