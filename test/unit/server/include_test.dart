@@ -6,7 +6,7 @@ void main() {
     final uri = Uri.parse('/articles/1?include=author,comments.author');
     final include = Include.decode(uri.queryParametersAll);
     expect(include.length, 2);
-    expect(include.resources.first, 'author');
-    expect(include.resources.last, 'comments.author');
+    expect(include.first, 'author');
+    expect(include.last, 'comments.author');
   });
 }

@@ -1,14 +1,16 @@
-class Include {
-  final resources = <String>[];
+import 'dart:collection';
 
-  Include(List<String> resources) {
-    this.resources.addAll(resources);
-  }
+class Include with IterableMixin {
+  final Iterable<String> _resources;
+
+  Include(this._resources);
 
   factory Include.decode(Map<String, List<String>> query) {
-    final resources = query['include'].expand((_) => _.split(',')).toList();
+    final resources = (query['include'] ?? []).expand((_) => _.split(','));
     return Include(resources);
   }
 
-  get length => resources.length;
+  @override
+  // TODO: implement iterator
+  Iterator get iterator => _resources.iterator;
 }
