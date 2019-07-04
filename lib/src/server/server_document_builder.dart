@@ -1,5 +1,4 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/url_design.dart';
 import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/identifier_object.dart';
@@ -13,8 +12,9 @@ import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/pagination/pagination_strategy.dart';
-import 'package:json_api/src/server/request/page.dart';
-import 'package:json_api/src/server/request/target.dart';
+import 'package:json_api/src/server/query/page.dart';
+import 'package:json_api/src/server/target.dart';
+import 'package:json_api/url_design.dart';
 
 /// The Document builder is used by JsonApiServer. It abstracts the process
 /// of building response documents and is responsible for such aspects as
@@ -31,45 +31,47 @@ class ServerDocumentBuilder {
 
   /// A collection of (primary) resources
   Document<ResourceCollectionData> collectionDocument(
-          Collection<Resource> collection, Uri self,
-          {Iterable<Resource> included}) =>
+          Collection<Resource> collection,
+          {Uri self,
+          Iterable<Resource> included}) =>
       Document(ResourceCollectionData(collection.elements.map(_resourceObject),
           self: _link(self),
           pagination: _pagination(self, collection.totalCount)));
 
   /// A collection of related resources
   Document<ResourceCollectionData> relatedCollectionDocument(
-          Collection<Resource> collection, Uri self,
-          {Iterable<Resource> included}) =>
+          Collection<Resource> collection,
+          {Uri self,
+          Iterable<Resource> included}) =>
       Document(ResourceCollectionData(collection.elements.map(_resourceObject),
           self: _link(self),
           pagination: _pagination(self, collection.totalCount)));
 
   /// A single (primary) resource
-  Document<ResourceData> resourceDocument(Resource resource, Uri self,
-          {Iterable<Resource> included}) =>
+  Document<ResourceData> resourceDocument(Resource resource,
+          {Uri self, Iterable<Resource> included}) =>
       Document(
         ResourceData(_resourceObject(resource),
             self: _link(self), included: included?.map(_resourceObject)),
       );
 
   /// A single related resource
-  Document<ResourceData> relatedResourceDocument(Resource resource, Uri self,
-          {Iterable<Resource> included}) =>
+  Document<ResourceData> relatedResourceDocument(Resource resource,
+          {Uri self, Iterable<Resource> included}) =>
       Document(ResourceData(_resourceObject(resource),
           included: included?.map(_resourceObject), self: _link(self)));
 
   /// A to-many relationship
   Document<ToMany> toManyDocument(Iterable<Identifier> identifiers,
-          RelationshipTarget target, Uri self) =>
+          {RelationshipTarget target, Uri self}) =>
       Document(ToMany(identifiers.map(_identifierObject),
           self: _link(self),
           related: _link(_routeBuilder.related(
               target.type, target.id, target.relationship))));
 
   /// A to-one relationship
-  Document<ToOne> toOneDocument(
-          Identifier identifier, RelationshipTarget target, Uri self) =>
+  Document<ToOne> toOneDocument(Identifier identifier,
+          {RelationshipTarget target, Uri self}) =>
       Document(ToOne(nullable(_identifierObject)(identifier),
           self: _link(self),
           related: _link(_routeBuilder.related(
@@ -106,6 +108,7 @@ class ServerDocumentBuilder {
   }
 
   Pagination _pagination(Uri uri, int total) {
+    if (uri == null) return Pagination();
     final page = Page.decode(uri.queryParametersAll);
     return Pagination(
       first: _link(_paginationStrategy.first()?.addTo(uri)),

@@ -4,7 +4,7 @@ abstract class TargetMatcher {
   /// the corresponding callback will be called with the target parameters.
   void match(Uri uri,
       {onCollection(String type),
-        onResource(String type, String id),
-        onRelationship(String type, String id, String relationship),
-        onRelated(String type, String id, String relationship)});
+      onResource(String type, String id),
+      onRelationship(String type, String id, String relationship),
+      onRelated(String type, String id, String relationship)});
 }

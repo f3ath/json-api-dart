@@ -1,12 +1,12 @@
-import 'package:json_api/url_design.dart';
 import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/collection.dart';
-import 'package:json_api/src/server/request/target.dart';
 import 'package:json_api/src/server/server_document_builder.dart';
+import 'package:json_api/src/server/target.dart';
+import 'package:json_api/url_design.dart';
 
 abstract class Response {
   final int status;
@@ -47,7 +47,7 @@ class CollectionResponse extends Response {
 
   @override
   Document getDocument(ServerDocumentBuilder builder, Uri self) =>
-      builder.collectionDocument(collection, self, included: included);
+      builder.collectionDocument(collection, self: self, included: included);
 }
 
 class ResourceResponse extends Response {
@@ -59,7 +59,7 @@ class ResourceResponse extends Response {
 
   @override
   Document getDocument(ServerDocumentBuilder builder, Uri self) =>
-      builder.resourceDocument(resource, self, included: included);
+      builder.resourceDocument(resource, self: self, included: included);
 }
 
 class RelatedResourceResponse extends Response {
@@ -71,7 +71,7 @@ class RelatedResourceResponse extends Response {
 
   @override
   Document getDocument(ServerDocumentBuilder builder, Uri self) =>
-      builder.relatedResourceDocument(resource, self);
+      builder.relatedResourceDocument(resource, self: self);
 }
 
 class RelatedCollectionResponse extends Response {
@@ -83,7 +83,7 @@ class RelatedCollectionResponse extends Response {
 
   @override
   Document getDocument(ServerDocumentBuilder builder, Uri self) =>
-      builder.relatedCollectionDocument(collection, self);
+      builder.relatedCollectionDocument(collection, self: self);
 }
 
 class ToOneResponse extends Response {
@@ -94,7 +94,7 @@ class ToOneResponse extends Response {
 
   @override
   Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
-      builder.toOneDocument(identifier, target, self);
+      builder.toOneDocument(identifier, target: target, self: self);
 }
 
 class ToManyResponse extends Response {
@@ -105,7 +105,7 @@ class ToManyResponse extends Response {
 
   @override
   Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
-      builder.toManyDocument(collection, target, self);
+      builder.toManyDocument(collection, target: target, self: self);
 }
 
 class MetaResponse extends Response {
@@ -136,8 +136,10 @@ class SeeOtherResponse extends Response {
       null;
 
   @override
-  Map<String, String> getHeaders(UrlBuilder route) => super.getHeaders(route)
-    ..['Location'] = route.resource(resource.type, resource.id).toString();
+  Map<String, String> getHeaders(UrlBuilder route) => {
+        ...super.getHeaders(route),
+        'Location': route.resource(resource.type, resource.id).toString()
+      };
 }
 
 class ResourceCreatedResponse extends Response {
@@ -147,11 +149,13 @@ class ResourceCreatedResponse extends Response {
 
   @override
   Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
-      builder.resourceDocument(resource, self);
+      builder.resourceDocument(resource, self: self);
 
   @override
-  Map<String, String> getHeaders(UrlBuilder route) => super.getHeaders(route)
-    ..['Location'] = route.resource(resource.type, resource.id).toString();
+  Map<String, String> getHeaders(UrlBuilder route) => {
+        ...super.getHeaders(route),
+        'Location': route.resource(resource.type, resource.id).toString()
+      };
 }
 
 class ResourceUpdatedResponse extends Response {
@@ -161,7 +165,7 @@ class ResourceUpdatedResponse extends Response {
 
   @override
   Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
-      builder.resourceDocument(resource, self);
+      builder.resourceDocument(resource, self: self);
 }
 
 class AcceptedResponse extends Response {
@@ -171,10 +175,12 @@ class AcceptedResponse extends Response {
 
   @override
   Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
-      builder.resourceDocument(resource, self);
+      builder.resourceDocument(resource, self: self);
 
   @override
-  Map<String, String> getHeaders(UrlBuilder route) => super.getHeaders(route)
-    ..['Content-Location'] =
-        route.resource(resource.type, resource.id).toString();
+  Map<String, String> getHeaders(UrlBuilder route) => {
+        ...super.getHeaders(route),
+        'Content-Location':
+            route.resource(resource.type, resource.id).toString(),
+      };
 }

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:json_api/src/routing/path_based_url_design.dart';
 import 'package:json_api/server.dart';
 import 'package:json_api/src/server/server_document_builder.dart';
+import 'package:json_api/url_design.dart';
 
 import 'cars_server/controller.dart';
 import 'cars_server/dao.dart';
@@ -56,10 +56,10 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
   });
 
   final httpServer = await HttpServer.bind(addr, port);
-  final routing = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
+  final urlDesign = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
   final pagination = FixedSizePage(1);
-  final documentBuilder = ServerDocumentBuilder(routing, pagination);
-  final jsonApiServer = Server(routing, controller, documentBuilder);
+  final documentBuilder = ServerDocumentBuilder(urlDesign, pagination);
+  final jsonApiServer = Server(urlDesign, controller, documentBuilder);
 
   httpServer.forEach(jsonApiServer.process);
   return httpServer;

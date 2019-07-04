@@ -1,4 +1,4 @@
-import 'package:json_api/src/server/request/include.dart';
+import 'package:json_api/src/server/query/include.dart';
 import 'package:test/test.dart';
 
 void main() {

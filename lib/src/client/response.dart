@@ -28,14 +28,14 @@ class Response<Data extends PrimaryData> {
   /// Primary Data from the async document (if any)
   ResourceData get asyncData => asyncDocument.data;
 
-  /// Was the request successful?
+  /// Was the query successful?
   ///
   /// For pending (202 Accepted) requests both [isSuccessful] and [isFailed]
   /// are always false.
   bool get isSuccessful => StatusCode(status).isSuccessful;
 
   /// This property is an equivalent of `202 Accepted` HTTP status.
-  /// It indicates that the request is accepted but not finished yet (e.g. queued).
+  /// It indicates that the query is accepted but not finished yet (e.g. queued).
   /// The [contentLocation] should have a link to the job queue resource and
   /// [asyncData] may contain a queued job resource object.
   ///

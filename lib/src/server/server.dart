@@ -1,52 +1,65 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/server.dart';
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/request/match_target.dart';
+import 'package:json_api/src/server/query/query.dart';
 import 'package:json_api/src/server/response.dart';
+import 'package:json_api/src/server/router.dart';
 import 'package:json_api/src/server/server_document_builder.dart';
+import 'package:json_api/url_design.dart';
 
 class Server {
   final UrlDesign urlDesign;
   final Controller controller;
   final ServerDocumentBuilder documentBuilder;
   final String allowOrigin;
+  final Router router;
 
   Server(this.urlDesign, this.controller, this.documentBuilder,
-      {this.allowOrigin = '*'});
+      {this.allowOrigin = '*'})
+      : router = Router(urlDesign);
 
-  Future process(HttpRequest http) async {
-    final target = matchTarget(urlDesign, http.requestedUri);
+  Future process(HttpRequest request) async {
+    final response = await _call(controller, request);
 
-    Response response;
+    _setStatus(request, response);
+    _setHeaders(request, response);
+    _writeBody(request, response);
+
+    return request.response.close();
+  }
+
+  Future<Response> _call(Controller controller, HttpRequest request) async {
+    final route = router.getRoute(request.requestedUri);
+    final query = Query(request.requestedUri.queryParametersAll);
+    final method = Method(request.method);
+    final body = await _getBody(request);
     try {
-      response = await target.getCommand(http.method).call(controller,
-          http.requestedUri.queryParametersAll, await _getPayload(http));
+      return await route.call(controller, query, method, body);
     } on ErrorResponse catch (error) {
-      response = error;
+      return error;
     }
-
-    return _send(http, response);
   }
 
-  Future<Object> _getPayload(HttpRequest http) async {
+  void _writeBody(HttpRequest request, Response response) {
+    final doc = response.getDocument(documentBuilder, request.requestedUri);
+    if (doc != null) request.response.write(json.encode(doc));
+  }
+
+  void _setStatus(HttpRequest request, Response response) {
+    request.response.statusCode = response.status;
+  }
+
+  void _setHeaders(HttpRequest request, Response response) {
+    final add = request.response.headers.add;
+    response.getHeaders(urlDesign).forEach(add);
+    if (allowOrigin != null) add('Access-Control-Allow-Origin', allowOrigin);
+  }
+
+  Future<Object> _getBody(HttpRequest request) async {
     // @see https://github.com/dart-lang/sdk/issues/36900
-    final body = await http.cast<List<int>>().transform(utf8.decoder).join();
-    if (body.isNotEmpty) return json.decode(body);
-    return null;
-  }
-
-  Future _send(HttpRequest http, Response response) {
-    http.response.statusCode = response.status;
-    response.getHeaders(urlDesign).forEach(http.response.headers.add);
-    if (allowOrigin != null) {
-      http.response.headers.add('Access-Control-Allow-Origin', allowOrigin);
-    }
-    final doc = response.getDocument(documentBuilder, http.requestedUri);
-    if (doc != null) {
-      http.response.write(json.encode(doc));
-    }
-    return http.response.close();
+    final body = await request.cast<List<int>>().transform(utf8.decoder).join();
+    return (body.isNotEmpty) ? json.decode(body) : null;
   }
 }

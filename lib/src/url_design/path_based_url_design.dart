@@ -1,4 +1,4 @@
-import 'package:json_api/src/routing/url_design.dart';
+import 'package:json_api/src/url_design/url_design.dart';
 
 /// URL Design where the target is determined by the URL path.
 /// This is the recommended design according to the JSON:API standard.

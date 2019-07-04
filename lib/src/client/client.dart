@@ -29,7 +29,7 @@ class JsonApiClient {
       : _createClient = factory ?? _defaultFactory,
         _builder = builder ?? const ClientDocumentBuilder();
 
-  /// Fetches a resource collection by sending a GET request to the [uri].
+  /// Fetches a resource collection by sending a GET query to the [uri].
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ResourceCollectionData>> fetchCollection(Uri uri,
           {Map<String, String> headers}) =>
@@ -74,7 +74,7 @@ class JsonApiClient {
   Future<Response> deleteResource(Uri uri, {Map<String, String> headers}) =>
       _httpDelete(uri, headers);
 
-  /// Updates the resource via PATCH request.
+  /// Updates the resource via PATCH query.
   ///
   /// https://jsonapi.org/format/#crud-updating
   Future<Response<ResourceData>> updateResource(Uri uri, Resource resource,
@@ -82,7 +82,7 @@ class JsonApiClient {
       _httpPatch(
           uri, headers, ResourceData.decodeJson, _builder.resource(resource));
 
-  /// Updates a to-one relationship via PATCH request
+  /// Updates a to-one relationship via PATCH query
   ///
   /// https://jsonapi.org/format/#crud-updating-to-one-relationships
   Future<Response<ToOne>> replaceToOne(Uri uri, Identifier identifier,
@@ -118,7 +118,7 @@ class JsonApiClient {
   /// If all of the specified resources can be added to, or are already present in,
   /// the relationship then the server MUST return a successful response.
   ///
-  /// Note: This approach ensures that a request is successful if the server’s state
+  /// Note: This approach ensures that a query is successful if the server’s state
   /// matches the requested state, and helps avoid pointless race conditions
   /// caused by multiple clients making the same changes to a relationship.
   ///

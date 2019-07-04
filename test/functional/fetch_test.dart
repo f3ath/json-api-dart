@@ -34,9 +34,8 @@ void main() async {
     });
 
     test('resource collection traversal', () async {
-      final uri = url
-          .collection('companies')
-          .replace(queryParameters: {'foo': 'bar'});
+      final uri =
+          url.collection('companies').replace(queryParameters: {'foo': 'bar'});
 
       final r0 = await client.fetchCollection(uri);
       final somePage = r0.data;
@@ -152,22 +151,20 @@ void main() async {
     });
 
     test('404 on type', () async {
-      final r =
-          await client.fetchResource(url.related('unicorns', '1', 'hq'));
+      final r = await client.fetchResource(url.related('unicorns', '1', 'hq'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });
 
     test('404 on id', () async {
-      final r =
-          await client.fetchResource(url.related('models', '555', 'hq'));
+      final r = await client.fetchResource(url.related('models', '555', 'hq'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });
 
     test('404 on relationship', () async {
-      final r = await client
-          .fetchResource(url.related('companies', '1', 'unicorn'));
+      final r =
+          await client.fetchResource(url.related('companies', '1', 'unicorn'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });

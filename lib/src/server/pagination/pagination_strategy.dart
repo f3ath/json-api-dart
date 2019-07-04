@@ -1,4 +1,4 @@
-import 'package:json_api/src/server/request/page.dart';
+import 'package:json_api/src/server/query/page.dart';
 
 /// Pagination strategy determines how pagination information is encoded in the
 /// URL query parameter

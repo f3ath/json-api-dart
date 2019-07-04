@@ -18,7 +18,7 @@ void main() async {
   tearDown(() async => await server.close());
 
   group('resource', () {
-    /// A server MUST return a 204 No Content status code if a deletion request
+    /// A server MUST return a 204 No Content status code if a deletion query
     /// is successful and no content is returned.
     ///
     /// https://jsonapi.org/format/#crud-deleting-responses-204
@@ -34,7 +34,7 @@ void main() async {
       expect(r1.status, 404);
     });
 
-    /// A server MUST return a 200 OK status code if a deletion request
+    /// A server MUST return a 200 OK status code if a deletion query
     /// is successful and the server responds with only top-level meta data.
     ///
     /// https://jsonapi.org/format/#crud-deleting-responses-200
@@ -52,7 +52,7 @@ void main() async {
 
     /// https://jsonapi.org/format/#crud-deleting-responses-404
     ///
-    /// A server SHOULD return a 404 Not Found status code if a deletion request
+    /// A server SHOULD return a 404 Not Found status code if a deletion query
     /// fails due to the resource not existing.
     test('404 Not Found', () async {
       final r0 = await client.deleteResource(url.resource('models', '555'));

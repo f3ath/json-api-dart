@@ -25,7 +25,7 @@ class JsonApiError {
   /// Like title, this field’s value can be localized.
   String detail;
 
-  /// A JSON Pointer [RFC6901] to the associated entity in the request document
+  /// A JSON Pointer [RFC6901] to the associated entity in the query document
   /// [e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute].
   String pointer;
 

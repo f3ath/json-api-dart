@@ -4,7 +4,6 @@ import 'package:json_api/server.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/resource.dart';
-import 'package:json_api/src/server/request/query.dart';
 import 'package:uuid/uuid.dart';
 
 import 'dao.dart';
@@ -27,7 +26,7 @@ class CarsController implements Controller {
   }
 
   @override
-  Response fetchRelated(RelatedTarget target, Query query) {
+  Response fetchRelated(RelationshipTarget target, Query query) {
     final res = _fetchResourceOrThrow(target.type, target.id);
 
     if (res.toOne.containsKey(target.relationship)) {
