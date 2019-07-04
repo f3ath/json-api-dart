@@ -1,4 +1,5 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/src/client/simple_document_builder.dart';
 import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/identifier_object.dart';
@@ -19,11 +20,11 @@ import 'package:json_api/url_design.dart';
 /// The Document builder is used by JsonApiServer. It abstracts the process
 /// of building response documents and is responsible for such aspects as
 ///  adding `meta` and `jsonapi` attributes and generating links
-class ServerDocumentBuilder {
-  final UrlBuilder _routeBuilder;
+class ServerDocumentBuilder implements SimpleDocumentBuilder {
+  final UrlBuilder _urlBuilder;
   final PaginationStrategy _paginationStrategy;
 
-  const ServerDocumentBuilder(this._routeBuilder, this._paginationStrategy);
+  const ServerDocumentBuilder(this._urlBuilder, this._paginationStrategy);
 
   /// A document containing a list of errors
   Document errorDocument(Iterable<JsonApiError> errors) =>
@@ -36,7 +37,8 @@ class ServerDocumentBuilder {
           Iterable<Resource> included}) =>
       Document(ResourceCollectionData(collection.elements.map(_resourceObject),
           self: _link(self),
-          pagination: _pagination(self, collection.totalCount)));
+          navigation: _navigation(self, collection.totalCount),
+          included: included?.map(_resourceObject)));
 
   /// A collection of related resources
   Document<ResourceCollectionData> relatedCollectionDocument(
@@ -45,7 +47,7 @@ class ServerDocumentBuilder {
           Iterable<Resource> included}) =>
       Document(ResourceCollectionData(collection.elements.map(_resourceObject),
           self: _link(self),
-          pagination: _pagination(self, collection.totalCount)));
+          navigation: _navigation(self, collection.totalCount)));
 
   /// A single (primary) resource
   Document<ResourceData> resourceDocument(Resource resource,
@@ -66,7 +68,7 @@ class ServerDocumentBuilder {
           {RelationshipTarget target, Uri self}) =>
       Document(ToMany(identifiers.map(_identifierObject),
           self: _link(self),
-          related: _link(_routeBuilder.related(
+          related: _link(_urlBuilder.related(
               target.type, target.id, target.relationship))));
 
   /// A to-one relationship
@@ -74,7 +76,7 @@ class ServerDocumentBuilder {
           {RelationshipTarget target, Uri self}) =>
       Document(ToOne(nullable(_identifierObject)(identifier),
           self: _link(self),
-          related: _link(_routeBuilder.related(
+          related: _link(_urlBuilder.related(
               target.type, target.id, target.relationship))));
 
   /// A document containing just a meta member
@@ -88,29 +90,29 @@ class ServerDocumentBuilder {
     relationships.addAll(resource.toOne.map((k, v) => MapEntry(
         k,
         ToOne(nullable(_identifierObject)(v),
-            self: _link(
-                _routeBuilder.relationship(resource.type, resource.id, k)),
+            self:
+                _link(_urlBuilder.relationship(resource.type, resource.id, k)),
             related:
-                _link(_routeBuilder.related(resource.type, resource.id, k))))));
+                _link(_urlBuilder.related(resource.type, resource.id, k))))));
 
     relationships.addAll(resource.toMany.map((k, v) => MapEntry(
         k,
         ToMany(v.map(_identifierObject),
-            self: _link(
-                _routeBuilder.relationship(resource.type, resource.id, k)),
+            self:
+                _link(_urlBuilder.relationship(resource.type, resource.id, k)),
             related:
-                _link(_routeBuilder.related(resource.type, resource.id, k))))));
+                _link(_urlBuilder.related(resource.type, resource.id, k))))));
 
     return ResourceObject(resource.type, resource.id,
         attributes: resource.attributes,
         relationships: relationships,
-        self: _link(_routeBuilder.resource(resource.type, resource.id)));
+        self: _link(_urlBuilder.resource(resource.type, resource.id)));
   }
 
-  Pagination _pagination(Uri uri, int total) {
-    if (uri == null) return Pagination();
+  Navigation _navigation(Uri uri, int total) {
+    if (uri == null) return Navigation();
     final page = Page.decode(uri.queryParametersAll);
-    return Pagination(
+    return Navigation(
       first: _link(_paginationStrategy.first()?.addTo(uri)),
       last: _link(_paginationStrategy.last(total)?.addTo(uri)),
       prev: _link(_paginationStrategy.prev(page)?.addTo(uri)),

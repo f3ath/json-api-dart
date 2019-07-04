@@ -2,7 +2,7 @@ import 'package:json_api/src/document/decoding_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/identifier_object.dart';
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/pagination.dart';
+import 'package:json_api/src/document/navigation.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/nullable.dart';
@@ -110,13 +110,13 @@ class ToMany extends Relationship {
   /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
   final linkage = <IdentifierObject>[];
 
-  final Pagination pagination;
+  final Navigation navigation;
 
   ToMany(Iterable<IdentifierObject> linkage,
       {Link self,
       Link related,
       Iterable<ResourceObject> included,
-      this.pagination = const Pagination()})
+      this.navigation = const Navigation()})
       : super(self: self, related: related, included: included) {
     this.linkage.addAll(linkage);
   }
@@ -132,12 +132,7 @@ class ToMany extends Relationship {
             data.map(IdentifierObject.decodeJson),
             self: links['self'],
             related: links['related'],
-            pagination: Pagination(
-              first: links['first'],
-              last: links['last'],
-              next: links['next'],
-              prev: links['prev'],
-            ),
+            navigation: Navigation.fromLinks(links),
           );
         }
       }

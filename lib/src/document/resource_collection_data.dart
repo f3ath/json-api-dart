@@ -1,7 +1,7 @@
 import 'package:json_api/json_api.dart';
 import 'package:json_api/src/document/decoding_exception.dart';
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/pagination.dart';
+import 'package:json_api/src/document/navigation.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/nullable.dart';
@@ -9,12 +9,12 @@ import 'package:json_api/src/nullable.dart';
 /// Represents a resource collection or a collection of related resources of a to-many relationship
 class ResourceCollectionData extends PrimaryData {
   final collection = <ResourceObject>[];
-  final Pagination pagination;
+  final Navigation navigation;
 
   ResourceCollectionData(Iterable<ResourceObject> collection,
       {Link self,
       Iterable<ResourceObject> included,
-      this.pagination = const Pagination()})
+      this.navigation = const Navigation()})
       : super(self: self, included: included) {
     this.collection.addAll(collection);
   }
@@ -26,7 +26,7 @@ class ResourceCollectionData extends PrimaryData {
       if (data is List) {
         return ResourceCollectionData(data.map(ResourceObject.decodeJson),
             self: links['self'],
-            pagination: Pagination.fromLinksMap(links),
+            navigation: Navigation.fromLinks(links),
             included:
                 nullable(ResourceObject.decodeJsonList)(json['included']));
       }
@@ -35,7 +35,7 @@ class ResourceCollectionData extends PrimaryData {
         'Can not decode ResourceObjectCollection from $json');
   }
 
-  Map<String, Link> get links => {...super.links, ...pagination.links};
+  Map<String, Link> get links => {...super.links, ...navigation.links};
 
   List<Resource> unwrap() => collection.map((_) => _.unwrap()).toList();
 

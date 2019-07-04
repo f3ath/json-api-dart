@@ -1,10 +1,10 @@
 import 'package:json_api/json_api.dart';
 import 'package:json_api/src/nullable.dart';
 
-class ClientDocumentBuilder {
-  const ClientDocumentBuilder();
+class SimpleDocumentBuilder {
+  const SimpleDocumentBuilder();
 
-  Document<ResourceData> resource(Resource resource) {
+  Document<ResourceData> resourceDocument(Resource resource) {
     return Document(ResourceData(ResourceObject(
       resource.type,
       resource.id,
@@ -16,10 +16,11 @@ class ClientDocumentBuilder {
     )));
   }
 
-  Document<ToMany> toMany(List<Identifier> identifiers) =>
+  Document<ToMany> toManyDocument(List<Identifier> identifiers) =>
       Document(_toMany(identifiers));
 
-  Document<ToOne> toOne(Identifier identifier) => Document(_toOne(identifier));
+  Document<ToOne> toOneDocument(Identifier identifier) =>
+      Document(_toOne(identifier));
 
   ToMany _toMany(List<Identifier> v) => ToMany(v.map(_identifier));
 

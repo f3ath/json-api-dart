@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:json_api/src/client/client_document_builder.dart';
+import 'package:json_api/src/client/simple_document_builder.dart';
 import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/client/status_code.dart';
 import 'package:json_api/src/document/document.dart';
@@ -20,14 +20,14 @@ class JsonApiClient {
   static const contentType = 'application/vnd.api+json';
 
   final HttpClientFactory _createClient;
-  final ClientDocumentBuilder _builder;
+  final SimpleDocumentBuilder _builder;
 
   /// JSON:API client uses Dart's native [http.Client] internally.
   /// Pass the [factory] parameter to customize or intercept calls to the HTTP client.
   const JsonApiClient(
-      {http.BaseClient factory(), ClientDocumentBuilder builder})
+      {http.BaseClient factory(), SimpleDocumentBuilder builder})
       : _createClient = factory ?? _defaultFactory,
-        _builder = builder ?? const ClientDocumentBuilder();
+        _builder = builder ?? const SimpleDocumentBuilder();
 
   /// Fetches a resource collection by sending a GET query to the [uri].
   /// Use [headers] to pass extra HTTP headers.
@@ -65,8 +65,8 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-creating
   Future<Response<ResourceData>> createResource(Uri uri, Resource resource,
           {Map<String, String> headers}) =>
-      _httpPost(
-          uri, headers, ResourceData.decodeJson, _builder.resource(resource));
+      _httpPost(uri, headers, ResourceData.decodeJson,
+          _builder.resourceDocument(resource));
 
   /// Deletes the resource.
   ///
@@ -79,15 +79,16 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating
   Future<Response<ResourceData>> updateResource(Uri uri, Resource resource,
           {Map<String, String> headers}) =>
-      _httpPatch(
-          uri, headers, ResourceData.decodeJson, _builder.resource(resource));
+      _httpPatch(uri, headers, ResourceData.decodeJson,
+          _builder.resourceDocument(resource));
 
   /// Updates a to-one relationship via PATCH query
   ///
   /// https://jsonapi.org/format/#crud-updating-to-one-relationships
   Future<Response<ToOne>> replaceToOne(Uri uri, Identifier identifier,
           {Map<String, String> headers}) =>
-      _httpPatch(uri, headers, ToOne.decodeJson, _builder.toOne(identifier));
+      _httpPatch(
+          uri, headers, ToOne.decodeJson, _builder.toOneDocument(identifier));
 
   /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
   /// with id = null.
@@ -103,7 +104,8 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> identifiers,
           {Map<String, String> headers}) =>
-      _httpPatch(uri, headers, ToMany.decodeJson, _builder.toMany(identifiers));
+      _httpPatch(uri, headers, ToMany.decodeJson,
+          _builder.toManyDocument(identifiers));
 
   /// Adds the given set of [identifiers] to a to-many relationship.
   ///
@@ -125,7 +127,8 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> identifiers,
           {Map<String, String> headers}) =>
-      _httpPost(uri, headers, ToMany.decodeJson, _builder.toMany(identifiers));
+      _httpPost(uri, headers, ToMany.decodeJson,
+          _builder.toManyDocument(identifiers));
 
   Future<Response<D>> _httpGet<D extends PrimaryData>(
     Uri uri,
