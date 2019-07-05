@@ -6,13 +6,13 @@ import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/client/simple_document_builder.dart';
 import 'package:json_api/src/client/status_code.dart';
 import 'package:json_api/src/document/document.dart';
+import 'package:json_api/src/document/document_builder.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/resource_collection_data.dart';
 import 'package:json_api/src/document/resource_data.dart';
-import 'package:json_api/src/document/document_builder.dart';
 
 typedef http.BaseClient HttpClientFactory();
 
