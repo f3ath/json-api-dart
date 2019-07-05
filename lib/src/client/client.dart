@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:json_api/src/client/simple_document_builder.dart';
 import 'package:json_api/src/client/response.dart';
+import 'package:json_api/src/client/simple_document_builder.dart';
 import 'package:json_api/src/client/status_code.dart';
 import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/identifier.dart';
@@ -12,6 +12,7 @@ import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/resource_collection_data.dart';
 import 'package:json_api/src/document/resource_data.dart';
+import 'package:json_api/src/document/document_builder.dart';
 
 typedef http.BaseClient HttpClientFactory();
 
@@ -27,7 +28,7 @@ class JsonApiClient {
   const JsonApiClient(
       {http.BaseClient factory(), SimpleDocumentBuilder builder})
       : _createClient = factory ?? _defaultFactory,
-        _builder = builder ?? const SimpleDocumentBuilder();
+        _builder = builder ?? const DocumentBuilder();
 
   /// Fetches a resource collection by sending a GET query to the [uri].
   /// Use [headers] to pass extra HTTP headers.

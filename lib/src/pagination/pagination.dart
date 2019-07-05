@@ -1,8 +1,8 @@
-import 'package:json_api/src/server/query/page.dart';
+import 'package:json_api/src/query/page.dart';
 
 /// Pagination strategy determines how pagination information is encoded in the
 /// URL query parameter
-abstract class PaginationStrategy {
+abstract class Pagination {
   /// Number of elements per page. Null for unlimited.
   int limit(Page page);
 

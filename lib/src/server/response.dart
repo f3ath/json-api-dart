@@ -1,11 +1,10 @@
 import 'package:json_api/src/document/document.dart';
+import 'package:json_api/src/document/document_builder.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource.dart';
-import 'package:json_api/src/server/collection.dart';
-import 'package:json_api/src/server/server_document_builder.dart';
-import 'package:json_api/src/server/target.dart';
+import 'package:json_api/src/target.dart';
 import 'package:json_api/url_design.dart';
 
 abstract class Response {
@@ -13,7 +12,7 @@ abstract class Response {
 
   const Response(this.status);
 
-  Document getDocument(ServerDocumentBuilder builder, Uri self);
+  Document getDocument(DocumentBuilder builder, Uri self);
 
   Map<String, String> getHeaders(UrlBuilder route) =>
       {'Content-Type': 'application/vnd.api+json'};
@@ -24,7 +23,7 @@ class ErrorResponse extends Response {
 
   const ErrorResponse(int status, this.errors) : super(status);
 
-  Document getDocument(ServerDocumentBuilder builder, Uri self) =>
+  Document getDocument(DocumentBuilder builder, Uri self) =>
       builder.errorDocument(errors);
 
   const ErrorResponse.notImplemented(this.errors) : super(501);
@@ -39,15 +38,18 @@ class ErrorResponse extends Response {
 }
 
 class CollectionResponse extends Response {
-  final Collection<Resource> collection;
+  final Iterable<Resource> collection;
   final Iterable<Resource> included;
+  final int total;
 
-  const CollectionResponse(this.collection, {this.included = const []})
+  const CollectionResponse(this.collection,
+      {this.included = const [], this.total})
       : super(200);
 
   @override
-  Document getDocument(ServerDocumentBuilder builder, Uri self) =>
-      builder.collectionDocument(collection, self: self, included: included);
+  Document getDocument(DocumentBuilder builder, Uri self) =>
+      builder.collectionDocument(collection,
+          self: self, included: included, total: total);
 }
 
 class ResourceResponse extends Response {
@@ -58,7 +60,7 @@ class ResourceResponse extends Response {
       : super(200);
 
   @override
-  Document getDocument(ServerDocumentBuilder builder, Uri self) =>
+  Document getDocument(DocumentBuilder builder, Uri self) =>
       builder.resourceDocument(resource, self: self, included: included);
 }
 
@@ -70,20 +72,22 @@ class RelatedResourceResponse extends Response {
       : super(200);
 
   @override
-  Document getDocument(ServerDocumentBuilder builder, Uri self) =>
+  Document getDocument(DocumentBuilder builder, Uri self) =>
       builder.relatedResourceDocument(resource, self: self);
 }
 
 class RelatedCollectionResponse extends Response {
-  final Collection<Resource> collection;
+  final Iterable<Resource> collection;
   final Iterable<Resource> included;
+  final int total;
 
-  const RelatedCollectionResponse(this.collection, {this.included = const []})
+  const RelatedCollectionResponse(this.collection,
+      {this.included = const [], this.total})
       : super(200);
 
   @override
-  Document getDocument(ServerDocumentBuilder builder, Uri self) =>
-      builder.relatedCollectionDocument(collection, self: self);
+  Document getDocument(DocumentBuilder builder, Uri self) =>
+      builder.relatedCollectionDocument(collection, self: self, total: total);
 }
 
 class ToOneResponse extends Response {
@@ -93,7 +97,7 @@ class ToOneResponse extends Response {
   const ToOneResponse(this.target, this.identifier) : super(200);
 
   @override
-  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
+  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
       builder.toOneDocument(identifier, target: target, self: self);
 }
 
@@ -104,7 +108,7 @@ class ToManyResponse extends Response {
   const ToManyResponse(this.target, this.collection) : super(200);
 
   @override
-  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
+  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
       builder.toManyDocument(collection, target: target, self: self);
 }
 
@@ -114,7 +118,7 @@ class MetaResponse extends Response {
   MetaResponse(this.meta) : super(200);
 
   @override
-  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
+  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
       builder.metaDocument(meta);
 }
 
@@ -122,8 +126,7 @@ class NoContentResponse extends Response {
   const NoContentResponse() : super(204);
 
   @override
-  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
-      null;
+  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) => null;
 }
 
 class SeeOtherResponse extends Response {
@@ -132,8 +135,7 @@ class SeeOtherResponse extends Response {
   SeeOtherResponse(this.resource) : super(303);
 
   @override
-  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
-      null;
+  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) => null;
 
   @override
   Map<String, String> getHeaders(UrlBuilder route) => {
@@ -148,7 +150,7 @@ class ResourceCreatedResponse extends Response {
   ResourceCreatedResponse(this.resource) : super(201);
 
   @override
-  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
+  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
       builder.resourceDocument(resource, self: self);
 
   @override
@@ -164,7 +166,7 @@ class ResourceUpdatedResponse extends Response {
   ResourceUpdatedResponse(this.resource) : super(200);
 
   @override
-  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
+  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
       builder.resourceDocument(resource, self: self);
 }
 
@@ -174,7 +176,7 @@ class AcceptedResponse extends Response {
   AcceptedResponse(this.resource) : super(202);
 
   @override
-  Document<PrimaryData> getDocument(ServerDocumentBuilder builder, Uri self) =>
+  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
       builder.resourceDocument(resource, self: self);
 
   @override

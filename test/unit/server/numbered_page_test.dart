@@ -1,5 +1,5 @@
-import 'package:json_api/src/server/pagination/fixed_size_page.dart';
-import 'package:json_api/src/server/query/page.dart';
+import 'package:json_api/src/pagination/fixed_size_page.dart';
+import 'package:json_api/src/query/page.dart';
 import 'package:test/test.dart';
 
 void main() {

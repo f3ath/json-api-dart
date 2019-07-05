@@ -21,8 +21,8 @@ class CarsController implements Controller {
     final dao = _getDaoOrThrow(target.type);
     final collection = dao.fetchCollection(
         _pagination.limit(query.page), _pagination.offset(query.page));
-    return CollectionResponse(collection.map(dao.toResource),
-        included: const []);
+    return CollectionResponse(collection.elements.map(dao.toResource),
+        included: const [], total: collection.totalCount);
   }
 
   @override
@@ -41,9 +41,8 @@ class CarsController implements Controller {
           .skip(_pagination.offset(query.page))
           .take(_pagination.limit(query.page))
           .map((id) => _dao[id.type].fetchByIdAsResource(id.id));
-      return RelatedCollectionResponse(
-          Collection(resources, relationships.length),
-          included: const []);
+      return RelatedCollectionResponse(resources,
+          total: relationships.length, included: const []);
     }
     return ErrorResponse.notFound(
         [JsonApiError(detail: 'Relationship not found')]);

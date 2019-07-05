@@ -2,17 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:json_api/src/document/document_builder.dart';
+import 'package:json_api/src/query/query.dart';
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/query/query.dart';
 import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/router.dart';
-import 'package:json_api/src/server/server_document_builder.dart';
 import 'package:json_api/url_design.dart';
 
 class Server {
   final UrlDesign urlDesign;
   final Controller controller;
-  final ServerDocumentBuilder documentBuilder;
+  final DocumentBuilder documentBuilder;
   final String allowOrigin;
   final Router router;
 
@@ -20,7 +20,7 @@ class Server {
       {this.allowOrigin = '*'})
       : router = Router(urlDesign);
 
-  Future process(HttpRequest request) async {
+  Future serve(HttpRequest request) async {
     final response = await _call(controller, request);
 
     _setStatus(request, response);

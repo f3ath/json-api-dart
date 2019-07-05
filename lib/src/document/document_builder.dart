@@ -11,20 +11,23 @@ import 'package:json_api/src/document/resource_collection_data.dart';
 import 'package:json_api/src/document/resource_data.dart';
 import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/server/collection.dart';
-import 'package:json_api/src/server/pagination/pagination_strategy.dart';
-import 'package:json_api/src/server/query/page.dart';
-import 'package:json_api/src/server/target.dart';
+import 'package:json_api/src/pagination/pagination.dart';
+import 'package:json_api/src/query/page.dart';
+import 'package:json_api/src/target.dart';
 import 'package:json_api/url_design.dart';
 
-/// The Document builder is used by JsonApiServer. It abstracts the process
+/// The Document builder is used by the Client and the Server. It abstracts the process
 /// of building response documents and is responsible for such aspects as
 ///  adding `meta` and `jsonapi` attributes and generating links
-class ServerDocumentBuilder implements SimpleDocumentBuilder {
+class DocumentBuilder implements SimpleDocumentBuilder {
   final UrlBuilder _urlBuilder;
-  final PaginationStrategy _paginationStrategy;
+  final Pagination _pagination;
 
-  const ServerDocumentBuilder(this._urlBuilder, this._paginationStrategy);
+  const DocumentBuilder(
+      {UrlBuilder urlBuilder = const _NullObjectUrlDesign(),
+      Pagination pagination = const _NoPagination()})
+      : _pagination = pagination,
+        _urlBuilder = urlBuilder;
 
   /// A document containing a list of errors
   Document errorDocument(Iterable<JsonApiError> errors) =>
@@ -32,22 +35,23 @@ class ServerDocumentBuilder implements SimpleDocumentBuilder {
 
   /// A collection of (primary) resources
   Document<ResourceCollectionData> collectionDocument(
-          Collection<Resource> collection,
+          Iterable<Resource> collection,
           {Uri self,
+          int total,
           Iterable<Resource> included}) =>
-      Document(ResourceCollectionData(collection.elements.map(_resourceObject),
+      Document(ResourceCollectionData(collection.map(_resourceObject),
           self: _link(self),
-          navigation: _navigation(self, collection.totalCount),
+          navigation: _navigation(self, total),
           included: included?.map(_resourceObject)));
 
   /// A collection of related resources
   Document<ResourceCollectionData> relatedCollectionDocument(
-          Collection<Resource> collection,
+          Iterable<Resource> collection,
           {Uri self,
+          int total,
           Iterable<Resource> included}) =>
-      Document(ResourceCollectionData(collection.elements.map(_resourceObject),
-          self: _link(self),
-          navigation: _navigation(self, collection.totalCount)));
+      Document(ResourceCollectionData(collection.map(_resourceObject),
+          self: _link(self), navigation: _navigation(self, total)));
 
   /// A single (primary) resource
   Document<ResourceData> resourceDocument(Resource resource,
@@ -68,16 +72,20 @@ class ServerDocumentBuilder implements SimpleDocumentBuilder {
           {RelationshipTarget target, Uri self}) =>
       Document(ToMany(identifiers.map(_identifierObject),
           self: _link(self),
-          related: _link(_urlBuilder.related(
-              target.type, target.id, target.relationship))));
+          related: target == null
+              ? null
+              : _link(_urlBuilder.related(
+                  target.type, target.id, target.relationship))));
 
   /// A to-one relationship
   Document<ToOne> toOneDocument(Identifier identifier,
           {RelationshipTarget target, Uri self}) =>
       Document(ToOne(nullable(_identifierObject)(identifier),
           self: _link(self),
-          related: _link(_urlBuilder.related(
-              target.type, target.id, target.relationship))));
+          related: target == null
+              ? null
+              : _link(_urlBuilder.related(
+                  target.type, target.id, target.relationship))));
 
   /// A document containing just a meta member
   Document metaDocument(Map<String, Object> meta) => Document.empty(meta);
@@ -113,12 +121,50 @@ class ServerDocumentBuilder implements SimpleDocumentBuilder {
     if (uri == null) return Navigation();
     final page = Page.decode(uri.queryParametersAll);
     return Navigation(
-      first: _link(_paginationStrategy.first()?.addTo(uri)),
-      last: _link(_paginationStrategy.last(total)?.addTo(uri)),
-      prev: _link(_paginationStrategy.prev(page)?.addTo(uri)),
-      next: _link(_paginationStrategy.next(page, total)?.addTo(uri)),
+      first: _link(_pagination.first()?.addTo(uri)),
+      last: _link(_pagination.last(total)?.addTo(uri)),
+      prev: _link(_pagination.prev(page)?.addTo(uri)),
+      next: _link(_pagination.next(page, total)?.addTo(uri)),
     );
   }
 
   Link _link(Uri uri) => uri == null ? null : Link(uri);
+}
+
+class _NullObjectUrlDesign implements UrlBuilder {
+  const _NullObjectUrlDesign();
+
+  @override
+  Uri collection(String type) => null;
+
+  @override
+  Uri related(String type, String id, String relationship) => null;
+
+  @override
+  Uri relationship(String type, String id, String relationship) => null;
+
+  @override
+  Uri resource(String type, String id) => null;
+}
+
+class _NoPagination implements Pagination {
+  const _NoPagination();
+
+  @override
+  Page first() => null;
+
+  @override
+  Page last(int total) => null;
+
+  @override
+  int limit(Page page) => -1;
+
+  @override
+  Page next(Page page, [int total]) => null;
+
+  @override
+  int offset(Page page) => 0;
+
+  @override
+  Page prev(Page page) => null;
 }

@@ -6,6 +6,4 @@ class Collection<T> {
   final int totalCount;
 
   Collection(this.elements, [this.totalCount]);
-
-  Collection<K> map<K>(K fn(T)) => Collection(elements.map(fn), totalCount);
 }
