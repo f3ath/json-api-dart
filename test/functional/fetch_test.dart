@@ -123,6 +123,7 @@ void main() async {
 
     test('single resource compound document', () async {
       final uri = url.resource('companies', '1');
+      final include = Include(['headquarters']);
       final r = await client.fetchResource(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);

@@ -89,7 +89,6 @@ your request, the [PrimaryData.included] property will contain them.
 For unsuccessful operations the [Response.data] property will be null. 
 If the server decided to include the error details in the response, those can be found in the  [Document.errors] property.
 
-
 #### Async processing
 Some servers may support [Asynchronous Processing].
 When the server responds with `202 Accepted`, the client expects the Primary Data to always be a Resource (usually
@@ -100,8 +99,8 @@ will point to the job queue resource. You can fetch the job queue resource perio
 the type of the returned resource. Once the operation is complete, the request will return the created resource.
 
 # Server
-The server included in this package is still under development. It is not suitable for real production environment
-except for really simple demo or testing cases.
+The server included in this package is still under development. It is not suitable for real production environment yet
+except maybe for really simple demo or testing cases.
 
 
 [Response]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response-class.html
