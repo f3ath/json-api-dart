@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:json_api/server.dart';
-import 'package:json_api/src/document/document_builder.dart';
+import 'package:json_api/src/document_builder.dart';
 import 'package:json_api/url_design.dart';
 
 import 'cars_server/controller.dart';

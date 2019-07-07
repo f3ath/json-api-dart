@@ -18,7 +18,7 @@ class CarsController implements Controller {
 
   @override
   Response fetchCollection(CollectionTarget target, Query query) {
-    final dao = _getDaoOrThrow(target.type);
+    final dao = _getDaoOrThrow(target);
     final collection = dao.fetchCollection(
         _pagination.limit(query.page), _pagination.offset(query.page));
     return CollectionResponse(collection.elements.map(dao.toResource),
@@ -27,7 +27,7 @@ class CarsController implements Controller {
 
   @override
   Response fetchRelated(RelationshipTarget target, Query query) {
-    final res = _fetchResourceOrThrow(target.type, target.id);
+    final res = _fetchResourceOrThrow(target);
 
     if (res.toOne.containsKey(target.relationship)) {
       final id = res.toOne[target.relationship];
@@ -50,7 +50,7 @@ class CarsController implements Controller {
 
   @override
   Response fetchResource(ResourceTarget target, Query query) {
-    final dao = _getDaoOrThrow(target.type);
+    final dao = _getDaoOrThrow(target);
 
     final obj = dao.fetchById(target.id);
 
@@ -74,7 +74,7 @@ class CarsController implements Controller {
 
   @override
   Response fetchRelationship(RelationshipTarget target, Query query) {
-    final res = _fetchResourceOrThrow(target.type, target.id);
+    final res = _fetchResourceOrThrow(target);
 
     if (res.toOne.containsKey(target.relationship)) {
       final id = res.toOne[target.relationship];
@@ -91,7 +91,7 @@ class CarsController implements Controller {
 
   @override
   Response deleteResource(ResourceTarget target) {
-    final dao = _getDaoOrThrow(target.type);
+    final dao = _getDaoOrThrow(target);
 
     final res = dao.fetchByIdAsResource(target.id);
     if (res == null) {
@@ -107,9 +107,9 @@ class CarsController implements Controller {
 
   @override
   Response createResource(CollectionTarget target, Resource resource) {
-    final dao = _getDaoOrThrow(target.type);
+    final dao = _getDaoOrThrow(target);
 
-    _throwIfIncompatibleTypes(target.type, resource.type);
+    _throwIfIncompatibleTypes(target, resource);
 
     if (resource.id != null) {
       if (dao.fetchById(resource.id) != null) {
@@ -142,9 +142,9 @@ class CarsController implements Controller {
 
   @override
   Response updateResource(ResourceTarget target, Resource resource) {
-    final dao = _getDaoOrThrow(target.type);
+    final dao = _getDaoOrThrow(target);
 
-    _throwIfIncompatibleTypes(target.type, resource.type);
+    _throwIfIncompatibleTypes(target, resource);
     if (dao.fetchById(target.id) == null) {
       return ErrorResponse.notFound(
           [JsonApiError(detail: 'Resource not found')]);
@@ -158,7 +158,7 @@ class CarsController implements Controller {
 
   @override
   Response replaceToOne(RelationshipTarget target, Identifier identifier) {
-    final dao = _getDaoOrThrow(target.type);
+    final dao = _getDaoOrThrow(target);
 
     dao.replaceToOne(target.id, target.relationship, identifier);
     return NoContentResponse();
@@ -167,7 +167,7 @@ class CarsController implements Controller {
   @override
   Response replaceToMany(
       RelationshipTarget target, List<Identifier> identifiers) {
-    final dao = _getDaoOrThrow(target.type);
+    final dao = _getDaoOrThrow(target);
 
     dao.replaceToMany(target.id, target.relationship, identifiers);
     return NoContentResponse();
@@ -175,28 +175,28 @@ class CarsController implements Controller {
 
   @override
   Response addToMany(RelationshipTarget target, List<Identifier> identifiers) {
-    final dao = _getDaoOrThrow(target.type);
+    final dao = _getDaoOrThrow(target);
 
     return ToManyResponse(
         target, dao.addToMany(target.id, target.relationship, identifiers));
   }
 
-  void _throwIfIncompatibleTypes(String target, String actual) {
-    if (target != actual) {
+  void _throwIfIncompatibleTypes(CollectionTarget target, Resource resource) {
+    if (target.type != resource.type) {
       throw ErrorResponse.conflict([JsonApiError(detail: 'Incompatible type')]);
     }
   }
 
-  DAO _getDaoOrThrow(String type) {
-    if (_dao.containsKey(type)) return _dao[type];
+  DAO _getDaoOrThrow(CollectionTarget target) {
+    if (_dao.containsKey(target.type)) return _dao[target.type];
 
     throw ErrorResponse.notFound(
-        [JsonApiError(detail: 'Unknown resource type $type')]);
+        [JsonApiError(detail: 'Unknown resource type ${target.type}')]);
   }
 
-  Resource _fetchResourceOrThrow(String type, String id) {
-    final dao = _getDaoOrThrow(type);
-    final resource = dao.fetchByIdAsResource(id);
+  Resource _fetchResourceOrThrow(ResourceTarget target) {
+    final dao = _getDaoOrThrow(target);
+    final resource = dao.fetchByIdAsResource(target.id);
     if (resource == null) {
       throw ErrorResponse.notFound(
           [JsonApiError(detail: 'Resource not found')]);

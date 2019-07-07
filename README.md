@@ -24,8 +24,30 @@ void main() async {
   resource.toMany.forEach((k, v) => print('$k=$v'));
 }
 ```
+To see this in action:
+ 
+ 1. start the server:
+```
+$ dart example/cars_server.dart
+Listening on 127.0.0.1:8080
+```
+2. run the script:
+```
+$ dart example/fetch_collection.dart 
+Status: 200
+Headers: {x-frame-options: SAMEORIGIN, content-type: application/vnd.api+json, x-xss-protection: 1; mode=block, x-content-type-options: nosniff, transfer-encoding: chunked, access-control-allow-origin: *}
+The collection page size is 1
+The first element is Resource(companies:1)
+Attributes:
+name=Tesla
+nasdaq=null
+updatedAt=2019-07-07T13:08:18.125737
+Relationships:
+hq=Identifier(cities:2)
+models=[Identifier(models:1), Identifier(models:2), Identifier(models:3), Identifier(models:4)]
+```
 
-The client provides a set of methods to manipulate resources and relationships.
+The client provides a set of methods to deal with resources and relationships.
 - Fetching
     - [fetchCollection](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/fetchCollection.html) - resource collection, either primary or related
     - [fetchResource](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/fetchResource.html) - a single resource, either primary or related
@@ -73,10 +95,13 @@ Some servers may support [Asynchronous Processing].
 When the server responds with `202 Accepted`, the client expects the Primary Data to always be a Resource (usually
 representing a job queue). In this case, [Response.document] and [Response.data] will be null. Instead, 
 the response document will be placed to [Response.asyncDocument] (and [Response.asyncData]). 
-Also in this case the [contentLocation](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/contentLocation.html)
+Also in this case the [Response.contentLocation]
 will point to the job queue resource. You can fetch the job queue resource periodically and check
 the type of the returned resource. Once the operation is complete, the request will return the created resource.
 
+# Server
+The server included in this package is still under development. It is not suitable for real production environment
+except for really simple demo or testing cases.
 
 
 [Response]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response-class.html
@@ -90,9 +115,7 @@ the type of the returned resource. Once the operation is complete, the request w
 [Response.status]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/status.html
 [Response.asyncDocument]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/asyncDocument.html
 [Response.asyncData]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/asyncData.html
-
 [PrimaryData.included]: https://pub.dev/documentation/json_api/latest/document/PrimaryData/included.html
-
 [Document.errors]: https://pub.dev/documentation/json_api/latest/document/Document/errors.html
 
 [Asynchronous Processing]: https://jsonapi.org/recommendations/#asynchronous-processing

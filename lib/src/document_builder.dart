@@ -1,15 +1,5 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/client/simple_document_builder.dart';
-import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/identifier_object.dart';
-import 'package:json_api/src/document/json_api_error.dart';
-import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/relationship.dart';
-import 'package:json_api/src/document/resource.dart';
-import 'package:json_api/src/document/resource_collection_data.dart';
-import 'package:json_api/src/document/resource_data.dart';
-import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/pagination/pagination.dart';
 import 'package:json_api/src/query/page.dart';

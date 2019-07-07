@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:http/http.dart';
 import 'package:json_api/json_api.dart';
 import 'package:json_api/server.dart';
 import 'package:test/test.dart';
@@ -9,14 +10,21 @@ import '../../example/cars_server.dart';
 
 void main() async {
   HttpServer server;
-  final client = JsonApiClient();
+  Client httpClient;
+  JsonApiClient client;
   final port = 8081;
   final url = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
+
   setUp(() async {
+    httpClient = Client();
+    client = JsonApiClient(httpClient);
     server = await createServer(InternetAddress.loopbackIPv4, port);
   });
 
-  tearDown(() async => await server.close());
+  tearDown(() async {
+    httpClient.close();
+    await server.close();
+  });
 
   group('resource', () {
     /// If a POST query did not include a Client-Generated ID and the requested

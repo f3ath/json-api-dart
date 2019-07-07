@@ -4,14 +4,14 @@ class CollectionTarget {
   const CollectionTarget(this.type);
 }
 
-class ResourceTarget {
+class ResourceTarget implements CollectionTarget {
   final String type;
   final String id;
 
   const ResourceTarget(this.type, this.id);
 }
 
-class RelationshipTarget {
+class RelationshipTarget implements ResourceTarget {
   final String type;
   final String id;
   final String relationship;

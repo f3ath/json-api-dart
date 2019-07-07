@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/src/document/document_builder.dart';
+import 'package:json_api/src/document_builder.dart';
 import 'package:json_api/src/query/query.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/response.dart';
