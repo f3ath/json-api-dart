@@ -1,9 +1,9 @@
 import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/document_builder.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/src/document_builder.dart';
 import 'package:json_api/src/target.dart';
 import 'package:json_api/url_design.dart';
 
