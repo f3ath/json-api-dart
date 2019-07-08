@@ -10,7 +10,7 @@ void main() {
     expect(fields['people'], ['name']);
   });
 
-  test('Can encode', () {
+  test('Can add to uri', () {
     final fields = Fields({
       'articles': ['title', 'body'],
       'people': ['name']

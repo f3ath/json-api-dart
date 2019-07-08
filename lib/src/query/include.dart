@@ -1,6 +1,8 @@
 import 'dart:collection';
 
-class Include with IterableMixin {
+import 'package:json_api/src/query/query_parameters.dart';
+
+class Include extends QueryParameters with IterableMixin<String> {
   final Iterable<String> _resources;
 
   Include(this._resources);
@@ -12,5 +14,9 @@ class Include with IterableMixin {
 
   @override
   // TODO: implement iterator
-  Iterator get iterator => _resources.iterator;
+  Iterator<String> get iterator => _resources.iterator;
+
+  @override
+  // TODO: implement queryParameters
+  Map<String, String> get queryParameters => {'include': join(',')};
 }

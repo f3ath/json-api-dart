@@ -12,8 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages 
     from your `pubspec.yaml`.
 - The min Dart SDK version bumped to `2.3.0`
-- The Document has been refactored with lots of **BREAKING CHANGES**. See the examples and the functional tests.
-- Meta property is not defensively copied, but set directly. Meta property behavior is unified across 
+- The Client requires an instance of HttpClient to be passed to the constructor explicitly.
+- Both the Document and the Server have been refactored with lots of **BREAKING CHANGES**. 
+    See the examples and the functional tests for details.
+- Meta properties are not defensively copied, but set directly. Meta property behavior is unified across 
     the Document model.
 
 ### Removed

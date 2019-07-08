@@ -1,6 +1,6 @@
 abstract class QueryParameters {
-  Map<String, List<String>> encode();
+  Map<String, String> get queryParameters;
 
-  Uri addTo(Uri uri) =>
-      uri.replace(queryParameters: {...uri.queryParameters, ...encode()});
+  Uri addTo(Uri uri) => uri
+      .replace(queryParameters: {...uri.queryParameters, ...queryParameters});
 }

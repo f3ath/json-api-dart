@@ -32,7 +32,7 @@ class Server {
 
   Future<Response> _call(Controller controller, HttpRequest request) async {
     final route = router.getRoute(request.requestedUri);
-    final query = Query(request.requestedUri.queryParametersAll);
+    final query = Query(request.requestedUri);
     final method = Method(request.method);
     final body = await _getBody(request);
     try {

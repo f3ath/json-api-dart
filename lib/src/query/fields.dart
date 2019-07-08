@@ -9,16 +9,13 @@ class Fields extends QueryParameters {
     _fields.addAll(fields);
   }
 
-  factory Fields.decode(Map<String, List<String>> queryParameters) {
-    return Fields(queryParameters.map(
-        (k, v) => MapEntry(_regex.firstMatch(k)?.group(1), v.first.split(',')))
-      ..removeWhere((k, v) => k == null));
-  }
+  static Fields decode(Map<String, List<String>> parameters) =>
+      Fields(parameters.map((k, v) =>
+          MapEntry(_regex.firstMatch(k)?.group(1), v.first.split(',')))
+        ..removeWhere((k, v) => k == null));
 
   List<String> operator [](String key) => _fields[key];
 
-  @override
-  Map<String, List<String>> encode() {
-    return _fields.map((k, v) => MapEntry('fields[$k]', [v.join(',')]));
-  }
+  Map<String, String> get queryParameters =>
+      _fields.map((k, v) => MapEntry('fields[$k]', v.join(',')));
 }
