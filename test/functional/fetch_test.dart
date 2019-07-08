@@ -12,7 +12,7 @@ void main() async {
   Client httpClient;
   JsonApiClient client;
   final port = 8083;
-  final url = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
+  final urlDesign = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
 
   setUp(() async {
     httpClient = Client();
@@ -27,23 +27,24 @@ void main() async {
 
   group('collection', () {
     test('resource collection', () async {
-      final uri = url.collection('companies');
+      final uri = urlDesign.collection('companies');
       final r = await client.fetchCollection(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       final resObj = r.data.collection.first;
       expect(resObj.attributes['name'], 'Tesla');
-      expect(resObj.self.uri.toString(), 'http://localhost:$port/companies/1');
-      expect(resObj.relationships['hq'].related.uri.toString(),
-          'http://localhost:$port/companies/1/hq');
-      expect(resObj.relationships['hq'].self.uri.toString(),
-          'http://localhost:$port/companies/1/relationships/hq');
+      expect(resObj.self.uri, urlDesign.resource('companies', '1'));
+      expect(resObj.relationships['hq'].related.uri,
+          urlDesign.related('companies', '1', 'hq'));
+      expect(resObj.relationships['hq'].self.uri,
+          urlDesign.relationship('companies', '1', 'hq'));
       expect(r.data.self.uri, uri);
     });
 
     test('resource collection traversal', () async {
-      final uri =
-          url.collection('companies').replace(queryParameters: {'foo': 'bar'});
+      final uri = urlDesign
+          .collection('companies')
+          .replace(queryParameters: {'foo': 'bar'});
 
       final r0 = await client.fetchCollection(uri);
       final somePage = r0.data;
@@ -84,7 +85,7 @@ void main() async {
     });
 
     test('related collection', () async {
-      final uri = url.related('companies', '1', 'models');
+      final uri = urlDesign.related('companies', '1', 'models');
       final r = await client.fetchCollection(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
@@ -93,7 +94,7 @@ void main() async {
     });
 
     test('related collection travesal', () async {
-      final uri = url.related('companies', '1', 'models');
+      final uri = urlDesign.related('companies', '1', 'models');
       final r0 = await client.fetchCollection(uri);
       final firstPage = r0.data;
       expect(firstPage.collection.length, 1);
@@ -104,7 +105,7 @@ void main() async {
     });
 
     test('404', () async {
-      final r = await client.fetchCollection(url.collection('unicorns'));
+      final r = await client.fetchCollection(urlDesign.collection('unicorns'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
       expect(r.document.errors.first.detail, 'Unknown resource type unicorns');
@@ -113,7 +114,7 @@ void main() async {
 
   group('single resource', () {
     test('single resource', () async {
-      final uri = url.resource('models', '1');
+      final uri = urlDesign.resource('models', '1');
       final r = await client.fetchResource(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
@@ -122,8 +123,7 @@ void main() async {
     });
 
     test('single resource compound document', () async {
-      final uri = url.resource('companies', '1');
-      final include = Include(['headquarters']);
+      final uri = urlDesign.resource('companies', '1');
       final r = await client.fetchResource(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
@@ -137,13 +137,13 @@ void main() async {
     });
 
     test('404 on type', () async {
-      final r = await client.fetchResource(url.resource('unicorns', '1'));
+      final r = await client.fetchResource(urlDesign.resource('unicorns', '1'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });
 
     test('404 on id', () async {
-      final r = await client.fetchResource(url.resource('models', '555'));
+      final r = await client.fetchResource(urlDesign.resource('models', '555'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });
@@ -151,7 +151,7 @@ void main() async {
 
   group('related resource', () {
     test('related resource', () async {
-      final uri = url.related('companies', '1', 'hq');
+      final uri = urlDesign.related('companies', '1', 'hq');
       final r = await client.fetchResource(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
@@ -160,20 +160,22 @@ void main() async {
     });
 
     test('404 on type', () async {
-      final r = await client.fetchResource(url.related('unicorns', '1', 'hq'));
+      final r =
+          await client.fetchResource(urlDesign.related('unicorns', '1', 'hq'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });
 
     test('404 on id', () async {
-      final r = await client.fetchResource(url.related('models', '555', 'hq'));
+      final r =
+          await client.fetchResource(urlDesign.related('models', '555', 'hq'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });
 
     test('404 on relationship', () async {
-      final r =
-          await client.fetchResource(url.related('companies', '1', 'unicorn'));
+      final r = await client
+          .fetchResource(urlDesign.related('companies', '1', 'unicorn'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });
@@ -181,7 +183,7 @@ void main() async {
 
   group('relationships', () {
     test('to-one', () async {
-      final uri = url.relationship('companies', '1', 'hq');
+      final uri = urlDesign.relationship('companies', '1', 'hq');
       final r = await client.fetchToOne(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
@@ -192,60 +194,55 @@ void main() async {
     });
 
     test('empty to-one', () async {
-      final uri = url.relationship('companies', '3', 'hq');
+      final uri = urlDesign.relationship('companies', '3', 'hq');
       final r = await client.fetchToOne(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data.unwrap(), isNull);
       expect(r.data.self.uri, uri);
-      expect(r.data.related.uri.toString(),
-          'http://localhost:$port/companies/3/hq');
+      expect(r.data.related.uri, urlDesign.related('companies', '3', 'hq'));
     });
 
     test('generic to-one', () async {
-      final uri = url.relationship('companies', '1', 'hq');
+      final uri = urlDesign.relationship('companies', '1', 'hq');
       final r = await client.fetchRelationship(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data, TypeMatcher<ToOne>());
       expect((r.data as ToOne).unwrap().type, 'cities');
       expect(r.data.self.uri, uri);
-      expect(r.data.related.uri.toString(),
-          'http://localhost:$port/companies/1/hq');
+      expect(r.data.related.uri, urlDesign.related('companies', '1', 'hq'));
     });
 
     test('to-many', () async {
-      final uri = url.relationship('companies', '1', 'models');
+      final uri = urlDesign.relationship('companies', '1', 'models');
       final r = await client.fetchToMany(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data.identifiers.first.type, 'models');
       expect(r.data.self.uri, uri);
-      expect(r.data.related.uri.toString(),
-          'http://localhost:$port/companies/1/models');
+      expect(r.data.related.uri, urlDesign.related('companies', '1', 'models'));
     });
 
     test('empty to-many', () async {
-      final uri = url.relationship('companies', '3', 'models');
+      final uri = urlDesign.relationship('companies', '3', 'models');
       final r = await client.fetchToMany(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data.identifiers, isEmpty);
       expect(r.data.self.uri, uri);
-      expect(r.data.related.uri.toString(),
-          'http://localhost:$port/companies/3/models');
+      expect(r.data.related.uri, urlDesign.related('companies', '3', 'models'));
     });
 
     test('generic to-many', () async {
-      final uri = url.relationship('companies', '1', 'models');
+      final uri = urlDesign.relationship('companies', '1', 'models');
       final r = await client.fetchRelationship(uri);
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data, TypeMatcher<ToMany>());
       expect((r.data as ToMany).identifiers.first.type, 'models');
       expect(r.data.self.uri, uri);
-      expect(r.data.related.uri.toString(),
-          'http://localhost:$port/companies/1/models');
+      expect(r.data.related.uri, urlDesign.related('companies', '1', 'models'));
     });
   }, testOn: 'vm');
 }

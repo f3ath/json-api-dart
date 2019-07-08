@@ -12,7 +12,7 @@ void main() async {
   Client httpClient;
   JsonApiClient client;
   final port = 8084;
-  final url = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
+  final urlDesign = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
 
   setUp(() async {
     httpClient = Client();
@@ -67,7 +67,8 @@ void main() async {
     ///
     /// https://jsonapi.org/format/#crud-updating-responses-200
     test('200 OK', () async {
-      final r0 = await client.fetchResource(url.resource('companies', '1'));
+      final r0 =
+          await client.fetchResource(urlDesign.resource('companies', '1'));
       final original = r0.document.data.unwrap();
 
       expect(original.attributes['name'], 'Tesla');
@@ -79,8 +80,8 @@ void main() async {
       original.toMany['models'].removeLast();
       original.toOne['headquarters'] = null; // should be removed
 
-      final r1 =
-          await client.updateResource(url.resource('companies', '1'), original);
+      final r1 = await client.updateResource(
+          urlDesign.resource('companies', '1'), original);
       final updated = r1.document.data.unwrap();
 
       expect(r1.status, 200);
@@ -100,19 +101,19 @@ void main() async {
     ///
     /// https://jsonapi.org/format/#crud-updating-responses-204
     test('204 No Content', () async {
-      final r0 = await client.fetchResource(url.resource('models', '3'));
+      final r0 = await client.fetchResource(urlDesign.resource('models', '3'));
       final original = r0.document.data.unwrap();
 
       expect(original.attributes['name'], 'Model X');
 
       original.attributes['name'] = 'Model XXX';
 
-      final r1 =
-          await client.updateResource(url.resource('models', '3'), original);
+      final r1 = await client.updateResource(
+          urlDesign.resource('models', '3'), original);
       expect(r1.status, 204);
       expect(r1.document, isNull);
 
-      final r2 = await client.fetchResource(url.resource('models', '3'));
+      final r2 = await client.fetchResource(urlDesign.resource('models', '3'));
 
       expect(r2.data.unwrap().attributes['name'], 'Model XXX');
     });
@@ -127,11 +128,11 @@ void main() async {
     ///
     /// https://jsonapi.org/format/#crud-updating-responses-409
     test('409 Conflict - Endpoint mismatch', () async {
-      final r0 = await client.fetchResource(url.resource('models', '3'));
+      final r0 = await client.fetchResource(urlDesign.resource('models', '3'));
       final original = r0.document.data.unwrap();
 
-      final r1 =
-          await client.updateResource(url.resource('companies', '1'), original);
+      final r1 = await client.updateResource(
+          urlDesign.resource('companies', '1'), original);
       expect(r1.status, 409);
       expect(r1.document.errors.first.detail, 'Incompatible type');
     });
@@ -169,7 +170,7 @@ void main() async {
     group('to-one', () {
       group('replace', () {
         test('204 No Content', () async {
-          final relationship = url.relationship('companies', '1', 'hq');
+          final relationship = urlDesign.relationship('companies', '1', 'hq');
           final r0 = await client.fetchToOne(relationship);
           final original = r0.document.data.unwrap();
           expect(original.id, '2');
@@ -187,7 +188,7 @@ void main() async {
 
       group('remove', () {
         test('204 No Content', () async {
-          final relationship = url.relationship('companies', '1', 'hq');
+          final relationship = urlDesign.relationship('companies', '1', 'hq');
 
           final r0 = await client.fetchToOne(relationship);
           final original = r0.document.data.unwrap();
@@ -218,7 +219,8 @@ void main() async {
       /// is not allowed by the server.
       group('replace', () {
         test('204 No Content', () async {
-          final relationship = url.relationship('companies', '1', 'models');
+          final relationship =
+              urlDesign.relationship('companies', '1', 'models');
           final r0 = await client.fetchToMany(relationship);
           final original = r0.data.identifiers.map((_) => _.id);
           expect(original, ['1', '2', '3', '4']);
@@ -250,13 +252,13 @@ void main() async {
       /// caused by multiple clients making the same changes to a relationship.
       group('add', () {
         test('200 OK', () async {
-          final relationship = url.relationship('companies', '1', 'models');
-          final r0 = await client.fetchToMany(relationship);
+          final models = urlDesign.relationship('companies', '1', 'models');
+          final r0 = await client.fetchToMany(models);
           final original = r0.data.identifiers.map((_) => _.id);
           expect(original, ['1', '2', '3', '4']);
 
-          final r1 = await client.addToMany(relationship,
-              [Identifier('models', '1'), Identifier('models', '5')]);
+          final r1 = await client.addToMany(
+              models, [Identifier('models', '1'), Identifier('models', '5')]);
           expect(r1.status, 200);
 
           final updated = r1.data.identifiers.map((_) => _.id);

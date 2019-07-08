@@ -102,6 +102,9 @@ the type of the returned resource. Once the operation is complete, the request w
 The server included in this package is still under development. It is not suitable for real production environment yet
 except maybe for really simple demo or testing cases.
 
+## URL Design
+##
+
 
 [Response]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response-class.html
 [Response.data]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/data.html

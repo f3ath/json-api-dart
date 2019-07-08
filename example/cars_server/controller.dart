@@ -4,6 +4,7 @@ import 'package:json_api/server.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/src/pagination/pagination.dart';
 import 'package:uuid/uuid.dart';
 
 import 'dao.dart';
@@ -12,9 +13,9 @@ import 'job_queue.dart';
 class CarsController implements Controller {
   final Map<String, DAO> _dao;
 
-  final _pagination = FixedSizePage(1);
+  final Pagination _pagination;
 
-  CarsController(this._dao);
+  CarsController(this._dao, this._pagination);
 
   @override
   Response fetchCollection(CollectionTarget target, Query query) {

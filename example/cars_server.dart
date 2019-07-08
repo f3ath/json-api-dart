@@ -48,16 +48,17 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
     Company('4')..name = 'Toyota',
   ].forEach(companies.insert);
 
+  final pagination = FixedSizePage(1);
+
   final controller = CarsController({
     'companies': companies,
     'cities': cities,
     'models': models,
     'jobs': JobDAO()
-  });
+  }, pagination);
 
   final httpServer = await HttpServer.bind(addr, port);
   final urlDesign = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
-  final pagination = FixedSizePage(1);
   final documentBuilder =
       DocumentBuilder(urlBuilder: urlDesign, pagination: pagination);
   final jsonApiServer = Server(urlDesign, controller, documentBuilder);
