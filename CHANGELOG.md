@@ -5,11 +5,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-### Changed
-- Dart >= 2.3.0 is now required
+## [2.0.0]
 
-### Added
-- `JsonApiClient` has `const` constructor
+### Changed
+- This package now consolidates the Client, the Server and the Document in one single library. 
+    It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages 
+    from your `pubspec.yaml`.
+- The min Dart SDK version bumped to `2.3.0`
+- The Client requires an instance of HttpClient to be passed to the constructor explicitly.
+- Both the Document and the Server have been refactored with lots of **BREAKING CHANGES**. 
+    See the examples and the functional tests for details.
+- Meta properties are not defensively copied, but set directly. Meta property behavior is unified across 
+    the Document model.
+
+### Removed
+- `JsonApiParser` is removed. Use the static `decodeJson` methods in the corresponding classes instead.
+
 
 ## [1.0.1] - 2019-04-05
 ### Fixed

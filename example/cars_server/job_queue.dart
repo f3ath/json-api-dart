@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:json_api_document/json_api_document.dart';
+import 'package:json_api/json_api.dart';
 import 'package:uuid/uuid.dart';
 
 class Job {

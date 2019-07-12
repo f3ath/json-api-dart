@@ -1,42 +1,53 @@
-Other JSON:API packages: [Document](https://pub.dartlang.org/packages/json_api_document) | [Server](https://pub.dartlang.org/packages/json_api_server)
+[JSON:API](http://jsonapi.org) is a specification for building APIs in JSON. 
 
----
-
-# JSON:API Client
-
-[JSON:API](http://jsonapi.org) is a specification for building APIs in JSON. This package implements 
-the Client.
-
-## Features
-- Fetching single resources, resource collections, related resources
-- Fetching/updating relationships
-- Creating/updating/deleting resources
-- Collection pagination
-- Compound documents (included resources)
-- Asynchronous processing 
-
-## Usage
-### Creating a client instance
-JSON:API Client uses the Dart's native HttpClient. Depending on the platform, 
-you may want to use either the one which comes from `dart:io` or the `BrowserClient`.
-
-In the VM/Flutter you don't need to provide any dependencies:
+# Client
+Quick usage example:
 ```dart
 import 'package:json_api/json_api.dart';
 
-final client = JsonApiClient();
+void main() async {
+  final client = JsonApiClient();
+  final companiesUri = Uri.parse('http://localhost:8080/companies');
+  final response = await client.fetchCollection(companiesUri);
+
+  print('Status: ${response.status}');
+  print('The collection page size is ${response.data.collection.length}');
+
+  final resource = response.data.collection.first.toResource();
+  print('The first element is ${resource}');
+
+  print('Attributes:');
+  resource.attributes.forEach((k, v) => print('$k=$v'));
+
+  print('Relationships:');
+  resource.toOne.forEach((k, v) => print('$k=$v'));
+  resource.toMany.forEach((k, v) => print('$k=$v'));
+}
+```
+To see this in action:
+ 
+ 1. start the server:
+```
+$ dart example/cars_server.dart
+Listening on 127.0.0.1:8080
+```
+2. run the script:
+```
+$ dart example/fetch_collection.dart 
+Status: 200
+Headers: {x-frame-options: SAMEORIGIN, content-type: application/vnd.api+json, x-xss-protection: 1; mode=block, x-content-type-options: nosniff, transfer-encoding: chunked, access-control-allow-origin: *}
+The collection page size is 1
+The first element is Resource(companies:1)
+Attributes:
+name=Tesla
+nasdaq=null
+updatedAt=2019-07-07T13:08:18.125737
+Relationships:
+hq=Identifier(cities:2)
+models=[Identifier(models:1), Identifier(models:2), Identifier(models:3), Identifier(models:4)]
 ```
 
-In a browser use the `BrowserClient`:
-```dart
-import 'package:json_api/json_api.dart';
-import 'package:http/browser_client.dart';
-
-final client = JsonApiClient(factory: () => BrowserClient());
-```
-
-### Making requests
-The client provides a set of methods to manipulate resources and relationships.
+The client provides a set of methods to deal with resources and relationships.
 - Fetching
     - [fetchCollection](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/fetchCollection.html) - resource collection, either primary or related
     - [fetchResource](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/fetchResource.html) - a single resource, either primary or related
@@ -54,92 +65,60 @@ The client provides a set of methods to manipulate resources and relationships.
     - [addToMany](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/addToMany.html) - adds the given identifiers to the existing to-many relationship
     
 These methods accept the target URI and the object to update (except for fetch and delete requests).
-You can also pass an optional map of HTTP headers e.g. for authentication. The return value
-is [Response](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response-class.html) object bearing the 
-HTTP response status and headers and the JSON:API
-document with the primary data according to the type of the request. 
+You can also pass an optional map of HTTP headers, e.g. for authentication. The return value
+is a [Response] object. 
 
-Here's a collection fetching example:
+You can get the status of the [Response] from either [Response.status] or one of the following properties: 
+- [Response.isSuccessful]
+- [Response.isFailed]
+- [Response.isAsync] (see [Asynchronous Processing])
 
-```dart
-import 'package:json_api/json_api.dart';
-
-void main() async {
-  final client = JsonApiClient();
-  final companiesUri = Uri.parse('http://localhost:8080/companies');
-  final response = await client.fetchCollection(companiesUri);
-
-  print('Status: ${response.status}');
-  print('Headers: ${response.headers}');
-
-  print('The collection page size is ${response.data.collection.length}');
-
-  final resource = response.data.collection.first.toResource();
-  print('The first element is ${resource}');
-
-  print('Attributes:');
-  resource.attributes.forEach((k, v) => print('$k=$v'));
-
-  print('Relationships:');
-  resource.toOne.forEach((k, v) => print('$k=$v'));
-  resource.toMany.forEach((k, v) => print('$k=$v'));
-}
-```
-
-### The Response object
-The Client always returns a [Response object](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response-class.html)
-which indicates either a successful, failed, or async (neither failed nor successful yet, see [here](https://jsonapi.org/recommendations/#asynchronous-processing)) operation.
-You can determine which one you have by reading these properties:
-- [isSuccessful](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/isSuccessful.html)
-- [isFailed](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/isFailed.html)
-- [isAsync](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/isAsync.html)
-
-The Response also contains [HTTP status](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/status.html)
-and a map of [HTTP headers](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/headers.html).
+The Response also contains the raw [Response.status] and a map of HTTP headers.
 Two headers used by JSON:API can be accessed directly for your convenience:
-- [location](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/location.html) - 
-the `Location:` header used in creation requests
-- [contentLocation](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/contentLocation.html) - 
-the `Content-Location:` header used for asynchronous processing
+- [Response.location] holds the `Location` header used in creation requests
+- [Response.contentLocation] holds the `Content-Location` header used for [Asynchronous Processing]
 
-### The Response Document
-The most important part of the Response is the [document](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/document.html)
-property which contains the JSON:API document sent by the server (if any). If the document has Primary Data, you
-can use [data](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/data.html) 
-shortcut to access it directly. Like the Document, the Response is generalized by the expected Primary Data
-which depends of the operation. The Document and the rest of the JSON:API object model are parts of [json_api_document](https://pub.dartlang.org/packages/json_api_document)
-which is a separate package. Refer to that package for [complete API documentation](https://pub.dartlang.org/documentation/json_api_document/latest/). 
-This README only gives a brief overview.
-
-#### Successful responses
-Most of the times when the response is successful, you can read the [data](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/data.html)
-property directly. It will be either a [primary resource](https://pub.dartlang.org/documentation/json_api_document/latest/json_api_document/ResourceData-class.html)
-, primary [resource collection](https://pub.dartlang.org/documentation/json_api_document/latest/json_api_document/ResourceCollectionData-class.html), 
-or a relationship: [to-one](https://pub.dartlang.org/documentation/json_api_document/latest/json_api_document/ToOne-class.html)
-or [to-many](https://pub.dartlang.org/documentation/json_api_document/latest/json_api_document/ToMany-class.html). 
-The collection-like data may also contain [pagination links](https://pub.dartlang.org/documentation/json_api_document/latest/json_api_document/Pagination-class.html).
+The most important part of the Response is the [Response.document] containing the JSON:API document sent by the server (if any). 
+If the document has the Primary Data, you can use [Response.data] shortcut to access it directly.
 
 #### Included resources
-If you requested related resources to be included in the response (see [Compound Documents](https://jsonapi.org/format/#document-compound-documents)) and the server fulfilled
-your request, the [included](https://pub.dartlang.org/documentation/json_api_document/latest/json_api_document/PrimaryData/included.html) property will contain them.
+If you requested related resources to be included in the response (see [Compound Documents]) and the server fulfilled
+your request, the [PrimaryData.included] property will contain them.
 
 #### Errors
-For unsuccessful operations the [data](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/data.html)
-property will be null. If the server decided to include the error details in the response, those can be found in the 
-[errors](https://pub.dartlang.org/documentation/json_api_document/latest/json_api_document/Document/errors.html) property.
-
+For unsuccessful operations the [Response.data] property will be null. 
+If the server decided to include the error details in the response, those can be found in the  [Document.errors] property.
 
 #### Async processing
-Some servers may support [Asynchronous Processing](https://jsonapi.org/recommendations/#asynchronous-processing).
+Some servers may support [Asynchronous Processing].
 When the server responds with `202 Accepted`, the client expects the Primary Data to always be a Resource (usually
-representing a job queue). In this case, the [document](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/document.html)
-and the [data](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/data.html) 
-properties of the Response will be null. Instead, 
-the response document will be placed to [asyncDocument](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/asyncDocument.html)
-(and [asyncData](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/asyncData.html)). 
-Also in this case the [contentLocation](https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/contentLocation.html)
+representing a job queue). In this case, [Response.document] and [Response.data] will be null. Instead, 
+the response document will be placed to [Response.asyncDocument] (and [Response.asyncData]). 
+Also in this case the [Response.contentLocation]
 will point to the job queue resource. You can fetch the job queue resource periodically and check
 the type of the returned resource. Once the operation is complete, the request will return the created resource.
 
-### Further reading
-For more usage examples refer to the [functional tests](https://github.com/f3ath/json-api-dart/tree/master/test/functional).
+# Server
+The server included in this package is still under development. It is not suitable for real production environment yet
+except maybe for really simple demo or testing cases.
+
+## URL Design
+##
+
+
+[Response]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response-class.html
+[Response.data]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/data.html
+[Response.document]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/document.html
+[Response.isSuccessful]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/isSuccessful.html
+[Response.isFailed]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/isFailed.html
+[Response.isAsync]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/isAsync.html
+[Response.location]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/location.html
+[Response.contentLocation]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/contentLocation.html
+[Response.status]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/status.html
+[Response.asyncDocument]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/asyncDocument.html
+[Response.asyncData]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/asyncData.html
+[PrimaryData.included]: https://pub.dev/documentation/json_api/latest/document/PrimaryData/included.html
+[Document.errors]: https://pub.dev/documentation/json_api/latest/document/Document/errors.html
+
+[Asynchronous Processing]: https://jsonapi.org/recommendations/#asynchronous-processing
+[Compound Documents]: https://jsonapi.org/format/#document-compound-documents
