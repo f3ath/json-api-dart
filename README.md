@@ -3,22 +3,24 @@
 # Client
 Quick usage example:
 ```dart
+import 'package:http/http.dart';
 import 'package:json_api/json_api.dart';
 
 void main() async {
-  final client = JsonApiClient();
+  final httpClient = Client();
+  final jsonApiClient = JsonApiClient(httpClient);
   final companiesUri = Uri.parse('http://localhost:8080/companies');
-  final response = await client.fetchCollection(companiesUri);
-
+  final response = await jsonApiClient.fetchCollection(companiesUri);
+  httpClient.close();
   print('Status: ${response.status}');
+  print('Headers: ${response.headers}');
+
+  final resource = response.data.unwrap().first;
+
   print('The collection page size is ${response.data.collection.length}');
-
-  final resource = response.data.collection.first.toResource();
   print('The first element is ${resource}');
-
   print('Attributes:');
   resource.attributes.forEach((k, v) => print('$k=$v'));
-
   print('Relationships:');
   resource.toOne.forEach((k, v) => print('$k=$v'));
   resource.toMany.forEach((k, v) => print('$k=$v'));
