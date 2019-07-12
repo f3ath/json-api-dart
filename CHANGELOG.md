@@ -5,7 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [2.0.0]
+
+## [2.0.1] - 2019-07-12
+### Fixed
+- Readme example is outdated
+
+## [2.0.0] - 2019-07-12
 
 ### Changed
 - This package now consolidates the Client, the Server and the Document in one single library. 
@@ -76,7 +81,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
-[Unreleased]: https://github.com/f3ath/json-api-dart/compare/1.0.1...HEAD
+[Unreleased]: https://github.com/f3ath/json-api-dart/compare/2.0.1...HEAD
+[2.0.1]: https://github.com/f3ath/json-api-dart/compare/2.0.0...2.0.1
+[2.0.0]: https://github.com/f3ath/json-api-dart/compare/1.0.1...2.0.0
 [1.0.1]: https://github.com/f3ath/json-api-dart/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/f3ath/json-api-dart/compare/0.6.0...1.0.0
 [0.6.0]: https://github.com/f3ath/json-api-dart/compare/0.5.0...0.6.0
