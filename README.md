@@ -101,11 +101,23 @@ will point to the job queue resource. You can fetch the job queue resource perio
 the type of the returned resource. Once the operation is complete, the request will return the created resource.
 
 # Server
-The server included in this package is still under development. It is not suitable for real production environment yet
+The server included in this package is still under development. It is not yet suitable for real production environment
 except maybe for really simple demo or testing cases.
 
 ## URL Design
-##
+The URL Design specifies the structure of the URLs used for specific targets. The JSON:API standard describes 4
+possible request targets:
+- Collections (parameterized by the resource type)
+- Individual resources (parameterized by the resource type and id)
+- Related resources and collections (parameterized by the resource type, resource id and the relation name)
+- Relationships (parameterized by the resource type, resource id and the relation name)
+
+The [URLBuilder] builds those 4 kinds of URLs by the given parameters. The [TargetMatcher] does the opposite,
+it determines the target of the given URL (if possible). Together they form the [UrlDesign].
+
+This package provides one built-in implementation of [UrlDesign] which is called [PathBasedUrlDesign].
+The [PathBasedUrlDesign] implements the [Recommended URL Design] allowing you to specify the a common prefix
+for all your JSON:API endpoints.
 
 
 [Response]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response-class.html
@@ -121,6 +133,11 @@ except maybe for really simple demo or testing cases.
 [Response.asyncData]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/asyncData.html
 [PrimaryData.included]: https://pub.dev/documentation/json_api/latest/document/PrimaryData/included.html
 [Document.errors]: https://pub.dev/documentation/json_api/latest/document/Document/errors.html
+[URLBuilder]: https://pub.dev/documentation/json_api/latest/url_design/UrlBuilder-class.html
+[TargetMatcher]: https://pub.dev/documentation/json_api/latest/url_design/TargetMatcher-class.html
+[UrlDesign]: https://pub.dev/documentation/json_api/latest/url_design/UrlDesign-class.html
+[PathBasedUrlDesign]: https://pub.dev/documentation/json_api/latest/url_design/PathBasedUrlDesign-class.html
 
 [Asynchronous Processing]: https://jsonapi.org/recommendations/#asynchronous-processing
 [Compound Documents]: https://jsonapi.org/format/#document-compound-documents
+[Recommended URL Design]: https://jsonapi.org/recommendations/#urls
