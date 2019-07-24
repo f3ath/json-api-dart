@@ -13,10 +13,8 @@ class Include extends QueryParameters with IterableMixin<String> {
   }
 
   @override
-  // TODO: implement iterator
   Iterator<String> get iterator => _resources.iterator;
 
   @override
-  // TODO: implement queryParameters
   Map<String, String> get queryParameters => {'include': join(',')};
 }

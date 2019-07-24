@@ -70,8 +70,6 @@ class ResourceObject {
   /// Extracts the [Resource] if possible. The standard allows relationships
   /// without `data` member. In this case the original [Resource] can not be
   /// recovered and this method will throw a [StateError].
-  ///
-  /// TODO: we probably need `isIncomplete` flag to check for this.
   Resource unwrap() {
     final toOne = <String, Identifier>{};
     final toMany = <String, List<Identifier>>{};
