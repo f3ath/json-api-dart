@@ -12,7 +12,6 @@ class Identifier {
 
   /// Neither [type] nor [id] can be null or empty.
   Identifier(this.type, this.id) {
-    // TODO: check for emptiness
     ArgumentError.checkNotNull(id, 'id');
     ArgumentError.checkNotNull(type, 'type');
   }
