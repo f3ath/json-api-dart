@@ -18,7 +18,7 @@ class ResourceObject {
   final Link self;
   final Map<String, Object> attributes;
   final Map<String, Relationship> relationships;
-  final Map<String, String> meta;
+  final Map<String, Object> meta;
 
   ResourceObject(this.type, this.id,
       {this.self,
@@ -40,7 +40,8 @@ class ResourceObject {
         return ResourceObject(json['type'], json['id'],
             attributes: attributes,
             relationships: Relationship.decodeJsonMap(relationships),
-            self: links['self']);
+            self: links['self'],
+            meta: json['meta']);
       }
     }
     throw DecodingException('Can not decode ResourceObject from $json');

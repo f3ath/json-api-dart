@@ -7,7 +7,7 @@ class IdentifierObject {
   final String type;
   final String id;
 
-  final Map<String, String> meta;
+  final Map<String, Object> meta;
 
   IdentifierObject(this.type, this.id, {this.meta});
 

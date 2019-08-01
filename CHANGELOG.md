@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.2] - 2019-08-01
+### Fixed
+- Meta members have incorrect type ([#54](https://github.com/f3ath/json-api-dart/issues/54))
+
 ## [2.0.1] - 2019-07-12
 ### Fixed
 - Readme example is outdated
@@ -81,7 +85,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
-[Unreleased]: https://github.com/f3ath/json-api-dart/compare/2.0.1...HEAD
+[Unreleased]: https://github.com/f3ath/json-api-dart/compare/2.0.2...HEAD
+[2.0.2]: https://github.com/f3ath/json-api-dart/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/f3ath/json-api-dart/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/f3ath/json-api-dart/compare/1.0.1...2.0.0
 [1.0.1]: https://github.com/f3ath/json-api-dart/compare/1.0.0...1.0.1
