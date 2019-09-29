@@ -51,20 +51,20 @@ models=[Identifier(models:1), Identifier(models:2), Identifier(models:3), Identi
 
 The client provides a set of methods to deal with resources and relationships.
 - Fetching
-    - [fetchCollection](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/fetchCollection.html) - resource collection, either primary or related
-    - [fetchResource](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/fetchResource.html) - a single resource, either primary or related
-    - [fetchRelationship](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/fetchRelationship.html) - a generic relationship (either to-one, to-many or even incomplete)
-    - [fetchToOne](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/fetchToOne.html) - a to-one relationship
-    - [fetchToMany](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/fetchToMany.html) - a to-many relationship
+    - [fetchCollection](https://pub.dev/documentation/json_api/latest/client/JsonApiClient/fetchCollection.html) - resource collection, either primary or related
+    - [fetchResource](https://pub.dev/documentation/json_api/latest/client/JsonApiClient/fetchResource.html) - a single resource, either primary or related
+    - [fetchRelationship](https://pub.dev/documentation/json_api/latest/client/JsonApiClient/fetchRelationship.html) - a generic relationship (either to-one, to-many or even incomplete)
+    - [fetchToOne](https://pub.dev/documentation/json_api/latest/client/JsonApiClient/fetchToOne.html) - a to-one relationship
+    - [fetchToMany](https://pub.dev/documentation/json_api/latest/client/JsonApiClient/fetchToMany.html) - a to-many relationship
 - Manipulating resources
-    - [createResource](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/createResource.html) - creates a new primary resource
-    - [updateResource](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/updateResource.html) - updates the existing resource by its type and id
-    - [deleteResource](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/deleteResource.html) - deletes the existing resource
+    - [createResource](https://pub.dev/documentation/json_api/latest/client/JsonApiClient/createResource.html) - creates a new primary resource
+    - [updateResource](https://pub.dev/documentation/json_api/latest/client/JsonApiClient/updateResource.html) - updates the existing resource by its type and id
+    - [deleteResource](https://pub.dev/documentation/json_api/latest/client/JsonApiClient/deleteResource.html) - deletes the existing resource
 - Manipulating relationships
-    - [replaceToOne](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/replaceToOne.html) - replaces the existing to-one relationship with a new resource identifier
-    - [deleteToOne](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/deleteToOne.html) - deletes the existing to-one relationship by setting the resource identifier to null
-    - [replaceToMany](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/replaceToMany.html) - replaces the existing to-many relationship with the given set of resource identifiers
-    - [addToMany](https://pub.dartlang.org/documentation/json_api/latest/json_api/JsonApiClient/addToMany.html) - adds the given identifiers to the existing to-many relationship
+    - [replaceToOne](https://pub.dev/documentation/json_api/latest/client/JsonApiClient/replaceToOne.html) - replaces the existing to-one relationship with a new resource identifier
+    - [deleteToOne](https://pub.dev/documentation/json_api/latest/client/JsonApiClient/deleteToOne.html) - deletes the existing to-one relationship by setting the resource identifier to null
+    - [replaceToMany](https://pub.dev/documentation/json_api/latest/client/JsonApiClient/replaceToMany.html) - replaces the existing to-many relationship with the given set of resource identifiers
+    - [addToMany](https://pub.dev/documentation/json_api/latest/client/JsonApiClient/addToMany.html) - adds the given identifiers to the existing to-many relationship
     
 These methods accept the target URI and the object to update (except for fetch and delete requests).
 You can also pass an optional map of HTTP headers, e.g. for authentication. The return value
@@ -120,17 +120,18 @@ The [PathBasedUrlDesign] implements the [Recommended URL Design] allowing you to
 for all your JSON:API endpoints.
 
 
-[Response]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response-class.html
-[Response.data]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/data.html
-[Response.document]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/document.html
-[Response.isSuccessful]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/isSuccessful.html
-[Response.isFailed]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/isFailed.html
-[Response.isAsync]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/isAsync.html
-[Response.location]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/location.html
-[Response.contentLocation]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/contentLocation.html
-[Response.status]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/status.html
-[Response.asyncDocument]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/asyncDocument.html
-[Response.asyncData]: https://pub.dartlang.org/documentation/json_api/latest/json_api/Response/asyncData.html
+[Response]: https://pub.dev/documentation/json_api/latest/client/Response-class.html
+[Response.data]: https://pub.dev/documentation/json_api/latest/client/Response/data.html
+[Response.document]: https://pub.dev/documentation/json_api/latest/client/Response/document.html
+[Response.isSuccessful]: https://pub.dev/documentation/json_api/latest/client/Response/isSuccessful.html
+[Response.isFailed]: https://pub.dev/documentation/json_api/latest/client/Response/isFailed.html
+[Response.isAsync]: https://pub.dev/documentation/json_api/latest/client/Response/isAsync.html
+[Response.location]: https://pub.dev/documentation/json_api/latest/client/Response/location.html
+[Response.contentLocation]: https://pub.dev/documentation/json_api/latest/client/Response/contentLocation.html
+[Response.status]: https://pub.dev/documentation/json_api/latest/client/Response/status.html
+[Response.asyncDocument]: https://pub.dev/documentation/json_api/latest/client/Response/asyncDocument.html
+[Response.asyncData]: https://pub.dev/documentation/json_api/latest/client/Response/asyncData.html
+
 [PrimaryData.included]: https://pub.dev/documentation/json_api/latest/document/PrimaryData/included.html
 [Document.errors]: https://pub.dev/documentation/json_api/latest/document/Document/errors.html
 [URLBuilder]: https://pub.dev/documentation/json_api/latest/url_design/UrlBuilder-class.html
