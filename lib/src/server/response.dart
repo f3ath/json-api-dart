@@ -1,9 +1,5 @@
-import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/json_api_error.dart';
-import 'package:json_api/src/document/primary_data.dart';
-import 'package:json_api/src/document/resource.dart';
-import 'package:json_api/src/document_builder.dart';
+import 'package:json_api/document.dart';
+import 'package:json_api/src/server/server_document_factory.dart';
 import 'package:json_api/src/target.dart';
 import 'package:json_api/url_design.dart';
 
@@ -12,9 +8,9 @@ abstract class Response {
 
   const Response(this.status);
 
-  Document buildDocument(DocumentBuilder builder, Uri self);
+  Document buildDocument(ServerDocumentFactory factory, Uri self);
 
-  Map<String, String> getHeaders(UrlBuilder route) =>
+  Map<String, String> getHeaders(UrlFactory route) =>
       {'Content-Type': 'application/vnd.api+json'};
 }
 
@@ -23,8 +19,8 @@ class ErrorResponse extends Response {
 
   const ErrorResponse(int status, this.errors) : super(status);
 
-  Document buildDocument(DocumentBuilder builder, Uri self) =>
-      builder.errorDocument(errors);
+  Document buildDocument(ServerDocumentFactory builder, Uri self) =>
+      builder.makeErrorDocument(errors);
 
   const ErrorResponse.notImplemented(this.errors) : super(501);
 
@@ -47,8 +43,9 @@ class CollectionResponse extends Response {
       : super(200);
 
   @override
-  Document buildDocument(DocumentBuilder builder, Uri self) =>
-      builder.collectionDocument(collection,
+  Document<ResourceCollectionData> buildDocument(
+          ServerDocumentFactory builder, Uri self) =>
+      builder.makeCollectionDocument(collection,
           self: self, included: included, total: total);
 }
 
@@ -60,7 +57,8 @@ class ResourceResponse extends Response {
       : super(200);
 
   @override
-  Document buildDocument(DocumentBuilder builder, Uri self) =>
+  Document<ResourceData> buildDocument(
+          ServerDocumentFactory builder, Uri self) =>
       builder.makeResourceDocument(resource, self: self, included: included);
 }
 
@@ -72,8 +70,9 @@ class RelatedResourceResponse extends Response {
       : super(200);
 
   @override
-  Document buildDocument(DocumentBuilder builder, Uri self) =>
-      builder.relatedResourceDocument(resource, self: self);
+  Document<ResourceData> buildDocument(
+          ServerDocumentFactory builder, Uri self) =>
+      builder.makeRelatedResourceDocument(resource, self: self);
 }
 
 class RelatedCollectionResponse extends Response {
@@ -86,8 +85,9 @@ class RelatedCollectionResponse extends Response {
       : super(200);
 
   @override
-  Document buildDocument(DocumentBuilder builder, Uri self) =>
-      builder.relatedCollectionDocument(collection, self: self, total: total);
+  Document<ResourceCollectionData> buildDocument(
+          ServerDocumentFactory builder, Uri self) =>
+      builder.makeRelatedCollectionDocument(collection, self: self, total: total);
 }
 
 class ToOneResponse extends Response {
@@ -97,7 +97,7 @@ class ToOneResponse extends Response {
   const ToOneResponse(this.target, this.identifier) : super(200);
 
   @override
-  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) =>
+  Document<ToOne> buildDocument(ServerDocumentFactory builder, Uri self) =>
       builder.makeToOneDocument(identifier, target: target, self: self);
 }
 
@@ -108,7 +108,7 @@ class ToManyResponse extends Response {
   const ToManyResponse(this.target, this.collection) : super(200);
 
   @override
-  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) =>
+  Document<ToMany> buildDocument(ServerDocumentFactory builder, Uri self) =>
       builder.makeToManyDocument(collection, target: target, self: self);
 }
 
@@ -118,15 +118,17 @@ class MetaResponse extends Response {
   MetaResponse(this.meta) : super(200);
 
   @override
-  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) =>
-      builder.metaDocument(meta);
+  Document buildDocument(ServerDocumentFactory builder, Uri self) =>
+      builder.makeMetaDocument(meta);
 }
 
 class NoContentResponse extends Response {
   const NoContentResponse() : super(204);
 
   @override
-  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) => null;
+  Document<PrimaryData> buildDocument(
+          ServerDocumentFactory builder, Uri self) =>
+      null;
 }
 
 class SeeOtherResponse extends Response {
@@ -135,10 +137,10 @@ class SeeOtherResponse extends Response {
   SeeOtherResponse(this.resource) : super(303);
 
   @override
-  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) => null;
+  Document buildDocument(ServerDocumentFactory builder, Uri self) => null;
 
   @override
-  Map<String, String> getHeaders(UrlBuilder route) => {
+  Map<String, String> getHeaders(UrlFactory route) => {
         ...super.getHeaders(route),
         'Location': route.resource(resource.type, resource.id).toString()
       };
@@ -150,11 +152,12 @@ class ResourceCreatedResponse extends Response {
   ResourceCreatedResponse(this.resource) : super(201);
 
   @override
-  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) =>
+  Document<ResourceData> buildDocument(
+          ServerDocumentFactory builder, Uri self) =>
       builder.makeResourceDocument(resource, self: self);
 
   @override
-  Map<String, String> getHeaders(UrlBuilder route) => {
+  Map<String, String> getHeaders(UrlFactory route) => {
         ...super.getHeaders(route),
         'Location': route.resource(resource.type, resource.id).toString()
       };
@@ -166,7 +169,8 @@ class ResourceUpdatedResponse extends Response {
   ResourceUpdatedResponse(this.resource) : super(200);
 
   @override
-  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) =>
+  Document<ResourceData> buildDocument(
+          ServerDocumentFactory builder, Uri self) =>
       builder.makeResourceDocument(resource, self: self);
 }
 
@@ -176,11 +180,12 @@ class AcceptedResponse extends Response {
   AcceptedResponse(this.resource) : super(202);
 
   @override
-  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) =>
+  Document<ResourceData> buildDocument(
+          ServerDocumentFactory builder, Uri self) =>
       builder.makeResourceDocument(resource, self: self);
 
   @override
-  Map<String, String> getHeaders(UrlBuilder route) => {
+  Map<String, String> getHeaders(UrlFactory route) => {
         ...super.getHeaders(route),
         'Content-Location':
             route.resource(resource.type, resource.id).toString(),

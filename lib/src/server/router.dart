@@ -7,24 +7,23 @@ import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/target.dart';
 import 'package:json_api/url_design.dart';
 
-class Router {
-  final TargetMatcher matcher;
+class RouteMapper implements TargetMapper<Route> {
+  const RouteMapper();
 
-  Router(this.matcher);
+  @override
+  collection(CollectionTarget target) => CollectionRoute(target);
 
-  Route getRoute(Uri uri) {
-    Route route = InvalidRoute();
-    matcher.match(
-      uri,
-      onCollection: (type) => route = CollectionRoute(CollectionTarget(type)),
-      onResource: (type, id) => route = ResourceRoute(ResourceTarget(type, id)),
-      onRelationship: (type, id, relationship) =>
-          route = RelationshipRoute(RelationshipTarget(type, id, relationship)),
-      onRelated: (type, id, relationship) =>
-          route = RelatedRoute(RelationshipTarget(type, id, relationship)),
-    );
-    return route;
-  }
+  @override
+  related(RelationshipTarget target) => RelatedRoute(target);
+
+  @override
+  relationship(RelationshipTarget target) => RelationshipRoute(target);
+
+  @override
+  resource(ResourceTarget target) => ResourceRoute(target);
+
+  @override
+  unmatched() => InvalidRoute();
 }
 
 abstract class Route {
@@ -44,8 +43,8 @@ class CollectionRoute extends Route {
       return controller.fetchCollection(target, query);
     }
     if (method.isPost()) {
-      return controller.createResource(target,
-          Document.fromJson(body, ResourceData.fromJson).data.unwrap());
+      return controller.createResource(
+          target, Document.fromJson(body, ResourceData.fromJson).data.unwrap());
     }
     return null;
   }
@@ -66,8 +65,8 @@ class ResourceRoute extends Route {
       return controller.deleteResource(target);
     }
     if (method.isPatch()) {
-      return controller.updateResource(target,
-          Document.fromJson(body, ResourceData.fromJson).data.unwrap());
+      return controller.updateResource(
+          target, Document.fromJson(body, ResourceData.fromJson).data.unwrap());
     }
     return null;
   }

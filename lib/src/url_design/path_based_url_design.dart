@@ -1,3 +1,5 @@
+import 'package:json_api/server.dart';
+import 'package:json_api/src/target.dart';
 import 'package:json_api/src/url_design/url_design.dart';
 
 /// URL Design where the target is determined by the URL path.
@@ -27,25 +29,23 @@ class PathBasedUrlDesign implements UrlDesign {
   /// Returns a URL for the primary resource of type [type] with id [id]
   Uri resource(String type, String id) => _appendToBase([type, id]);
 
-  /// Matches the target of the [uri]. If the target can be determined,
-  /// the corresponding callback will be called with the target parameters.
-  void match(Uri uri,
-      {onCollection(String type),
-      onResource(String type, String id),
-      onRelationship(String type, String id, String relationship),
-      onRelated(String type, String id, String relationship)}) {
-    if (!_matchesBase(uri)) return;
-    final seg = _getPathSegments(uri);
-
-    if (_isCollection(seg) && onCollection != null) {
-      onCollection(seg[0]);
-    } else if (_isResource(seg) && onResource != null) {
-      onResource(seg[0], seg[1]);
-    } else if (_isRelated(seg) && onRelated != null) {
-      onRelated(seg[0], seg[1], seg[2]);
-    } else if (_isRelationship(seg) && onRelationship != null) {
-      onRelationship(seg[0], seg[1], seg[3]);
+  @override
+  T matchAndMap<T>(Uri uri, TargetMapper<T> mapper) {
+    if (!_matchesBase(uri)) return mapper.unmatched();
+    final s = _getPathSegments(uri);
+    if (_isCollection(s)) {
+      return mapper.collection(CollectionTarget(s[0]));
     }
+    if (_isResource(s)) {
+      return mapper.resource(ResourceTarget(s[0], s[1]));
+    }
+    if (_isRelated(s)) {
+      return mapper.related(RelationshipTarget(s[0], s[1], s[2]));
+    }
+    if (_isRelationship(s)) {
+      return mapper.relationship(RelationshipTarget(s[0], s[1], s[3]));
+    }
+    return mapper.unmatched();
   }
 
   Uri _appendToBase(List<String> segments) =>

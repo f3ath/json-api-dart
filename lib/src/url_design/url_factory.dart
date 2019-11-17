@@ -1,5 +1,5 @@
-/// Builds URIs for specific targets
-abstract class UrlBuilder {
+/// Makes URIs for specific targets
+abstract class UrlFactory {
   /// Returns a URL for the primary resource collection of type [type]
   Uri collection(String type);
 

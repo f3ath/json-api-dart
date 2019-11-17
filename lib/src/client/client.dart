@@ -12,7 +12,7 @@ import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/resource_collection_data.dart';
 import 'package:json_api/src/document/resource_data.dart';
-import 'package:json_api/src/document_builder.dart';
+import 'package:json_api/src/document_factory.dart';
 
 /// JSON:API client
 class JsonApiClient {
@@ -22,7 +22,7 @@ class JsonApiClient {
   final ClientDocumentFactory _factory;
 
   const JsonApiClient(this.httpClient, {ClientDocumentFactory documentFactory})
-      : _factory = documentFactory ?? const DocumentBuilder();
+      : _factory = documentFactory ?? const DocumentFactory();
 
   /// Fetches a resource collection by sending a GET query to the [uri].
   /// Use [headers] to pass extra HTTP headers.
