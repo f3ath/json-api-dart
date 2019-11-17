@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:json_api/src/client/client_document_factory.dart';
 import 'package:json_api/src/client/response.dart';
-import 'package:json_api/src/client/simple_document_builder.dart';
 import 'package:json_api/src/client/status_code.dart';
 import 'package:json_api/src/document/document.dart';
 import 'package:json_api/src/document/identifier.dart';
@@ -19,40 +19,40 @@ class JsonApiClient {
   static const contentType = 'application/vnd.api+json';
 
   final http.Client httpClient;
-  final SimpleDocumentBuilder _build;
+  final ClientDocumentFactory _factory;
 
-  const JsonApiClient(this.httpClient, {SimpleDocumentBuilder builder})
-      : _build = builder ?? const DocumentBuilder();
+  const JsonApiClient(this.httpClient, {ClientDocumentFactory documentFactory})
+      : _factory = documentFactory ?? const DocumentBuilder();
 
   /// Fetches a resource collection by sending a GET query to the [uri].
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ResourceCollectionData>> fetchCollection(Uri uri,
           {Map<String, String> headers}) =>
-      _call(_get(uri, headers), ResourceCollectionData.decodeJson);
+      _call(_get(uri, headers), ResourceCollectionData.fromJson);
 
   /// Fetches a single resource
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ResourceData>> fetchResource(Uri uri,
           {Map<String, String> headers}) =>
-      _call(_get(uri, headers), ResourceData.decodeJson);
+      _call(_get(uri, headers), ResourceData.fromJson);
 
   /// Fetches a to-one relationship
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ToOne>> fetchToOne(Uri uri, {Map<String, String> headers}) =>
-      _call(_get(uri, headers), ToOne.decodeJson);
+      _call(_get(uri, headers), ToOne.fromJson);
 
   /// Fetches a to-many relationship
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<ToMany>> fetchToMany(Uri uri,
           {Map<String, String> headers}) =>
-      _call(_get(uri, headers), ToMany.decodeJson);
+      _call(_get(uri, headers), ToMany.fromJson);
 
   /// Fetches a to-one or to-many relationship.
   /// The actual type of the relationship can be determined afterwards.
   /// Use [headers] to pass extra HTTP headers.
   Future<Response<Relationship>> fetchRelationship(Uri uri,
           {Map<String, String> headers}) =>
-      _call(_get(uri, headers), Relationship.decodeJson);
+      _call(_get(uri, headers), Relationship.fromJson);
 
   /// Creates a new resource. The resource will be added to a collection
   /// according to its type.
@@ -60,8 +60,8 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-creating
   Future<Response<ResourceData>> createResource(Uri uri, Resource resource,
           {Map<String, String> headers}) =>
-      _call(_post(uri, headers, _build.resourceDocument(resource)),
-          ResourceData.decodeJson);
+      _call(_post(uri, headers, _factory.makeResourceDocument(resource)),
+          ResourceData.fromJson);
 
   /// Deletes the resource.
   ///
@@ -74,16 +74,16 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating
   Future<Response<ResourceData>> updateResource(Uri uri, Resource resource,
           {Map<String, String> headers}) =>
-      _call(_patch(uri, headers, _build.resourceDocument(resource)),
-          ResourceData.decodeJson);
+      _call(_patch(uri, headers, _factory.makeResourceDocument(resource)),
+          ResourceData.fromJson);
 
   /// Updates a to-one relationship via PATCH query
   ///
   /// https://jsonapi.org/format/#crud-updating-to-one-relationships
   Future<Response<ToOne>> replaceToOne(Uri uri, Identifier identifier,
           {Map<String, String> headers}) =>
-      _call(_patch(uri, headers, _build.toOneDocument(identifier)),
-          ToOne.decodeJson);
+      _call(_patch(uri, headers, _factory.makeToOneDocument(identifier)),
+          ToOne.fromJson);
 
   /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
   /// with id = null.
@@ -99,8 +99,8 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> identifiers,
           {Map<String, String> headers}) =>
-      _call(_patch(uri, headers, _build.toManyDocument(identifiers)),
-          ToMany.decodeJson);
+      _call(_patch(uri, headers, _factory.makeToManyDocument(identifiers)),
+          ToMany.fromJson);
 
   /// Adds the given set of [identifiers] to a to-many relationship.
   ///
@@ -122,8 +122,8 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> identifiers,
           {Map<String, String> headers}) =>
-      _call(_post(uri, headers, _build.toManyDocument(identifiers)),
-          ToMany.decodeJson);
+      _call(_post(uri, headers, _factory.makeToManyDocument(identifiers)),
+          ToMany.fromJson);
 
   http.Request _get(Uri uri, Map<String, String> headers) =>
       http.Request('GET', uri)
@@ -170,10 +170,10 @@ class JsonApiClient {
       return Response(response.statusCode, response.headers,
           asyncDocument: body == null
               ? null
-              : Document.decodeJson(body, ResourceData.decodeJson));
+              : Document.fromJson(body, ResourceData.fromJson));
     }
     return Response(response.statusCode, response.headers,
         document:
-            body == null ? null : Document.decodeJson(body, decodePrimaryData));
+            body == null ? null : Document.fromJson(body, decodePrimaryData));
   }
 }

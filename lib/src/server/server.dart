@@ -43,7 +43,7 @@ class Server {
   }
 
   void _writeBody(HttpRequest request, Response response) {
-    final doc = response.getDocument(documentBuilder, request.requestedUri);
+    final doc = response.buildDocument(documentBuilder, request.requestedUri);
     if (doc != null) request.response.write(json.encode(doc));
   }
 

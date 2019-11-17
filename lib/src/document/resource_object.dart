@@ -29,17 +29,17 @@ class ResourceObject {
         relationships = relationships == null ? null : Map.from(relationships);
 
   /// Decodes the `data` member of a JSON:API Document
-  static ResourceObject decodeJson(Object json) {
+  static ResourceObject fromJson(Object json) {
     final mapOrNull = (_) => _ == null || _ is Map;
     if (json is Map) {
       final relationships = json['relationships'];
       final attributes = json['attributes'];
-      final links = Link.decodeJsonMap(json['links']);
+      final links = Link.fromJsonMap(json['links']);
 
       if (mapOrNull(relationships) && mapOrNull(attributes)) {
         return ResourceObject(json['type'], json['id'],
             attributes: attributes,
-            relationships: Relationship.decodeJsonMap(relationships),
+            relationships: Relationship.fromJsonMap(relationships),
             self: links['self'],
             meta: json['meta']);
       }
@@ -47,8 +47,8 @@ class ResourceObject {
     throw DecodingException('Can not decode ResourceObject from $json');
   }
 
-  static List<ResourceObject> decodeJsonList(Object json) {
-    if (json is List) return json.map(decodeJson).toList();
+  static List<ResourceObject> fromJsonList(Object json) {
+    if (json is List) return json.map(fromJson).toList();
     throw DecodingException(
         'Can not decode Iterable<ResourceObject> from $json');
   }

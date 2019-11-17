@@ -100,6 +100,22 @@ Also in this case the [Response.contentLocation]
 will point to the job queue resource. You can fetch the job queue resource periodically and check
 the type of the returned resource. Once the operation is complete, the request will return the created resource.
 
+#### Adding JSON:API Object
+It is possible to add the [JSON:API Object] to all documents sent by the [JsonApiClient]. To do so, pass the
+pre-configured [DocumentBuilder] to the [JsonApiClient]:
+```dart
+import 'package:http/http.dart';
+import 'package:json_api/json_api.dart';
+
+void main() async {
+  final api = Api(version: "1.0");
+  final httpClient = Client();
+  final jsonApiClient = JsonApiClient(httpClient, builder: DocumentBuilder(api: api));
+}
+
+```
+
+
 # Server
 The server included in this package is still under development. It is not yet suitable for real production environment
 except maybe for really simple demo or testing cases.
@@ -112,7 +128,7 @@ possible request targets:
 - Related resources and collections (parameterized by the resource type, resource id and the relation name)
 - Relationships (parameterized by the resource type, resource id and the relation name)
 
-The [URLBuilder] builds those 4 kinds of URLs by the given parameters. The [TargetMatcher] does the opposite,
+The [UrlBuilder] builds those 4 kinds of URLs by the given parameters. The [TargetMatcher] does the opposite,
 it determines the target of the given URL (if possible). Together they form the [UrlDesign].
 
 This package provides one built-in implementation of [UrlDesign] which is called [PathBasedUrlDesign].
@@ -120,6 +136,11 @@ The [PathBasedUrlDesign] implements the [Recommended URL Design] allowing you to
 for all your JSON:API endpoints.
 
 
+[Document.errors]: https://pub.dev/documentation/json_api/latest/document/Document/errors.html
+[DocumentBuilder]: 
+[JsonApiClient]: https://pub.dev/documentation/json_api/latest/client/JsonApiClient-class.html
+[PathBasedUrlDesign]: https://pub.dev/documentation/json_api/latest/url_design/PathBasedUrlDesign-class.html
+[PrimaryData.included]: https://pub.dev/documentation/json_api/latest/document/PrimaryData/included.html
 [Response]: https://pub.dev/documentation/json_api/latest/client/Response-class.html
 [Response.data]: https://pub.dev/documentation/json_api/latest/client/Response/data.html
 [Response.document]: https://pub.dev/documentation/json_api/latest/client/Response/document.html
@@ -131,14 +152,11 @@ for all your JSON:API endpoints.
 [Response.status]: https://pub.dev/documentation/json_api/latest/client/Response/status.html
 [Response.asyncDocument]: https://pub.dev/documentation/json_api/latest/client/Response/asyncDocument.html
 [Response.asyncData]: https://pub.dev/documentation/json_api/latest/client/Response/asyncData.html
-
-[PrimaryData.included]: https://pub.dev/documentation/json_api/latest/document/PrimaryData/included.html
-[Document.errors]: https://pub.dev/documentation/json_api/latest/document/Document/errors.html
-[URLBuilder]: https://pub.dev/documentation/json_api/latest/url_design/UrlBuilder-class.html
 [TargetMatcher]: https://pub.dev/documentation/json_api/latest/url_design/TargetMatcher-class.html
+[UrlBuilder]: https://pub.dev/documentation/json_api/latest/url_design/UrlBuilder-class.html
 [UrlDesign]: https://pub.dev/documentation/json_api/latest/url_design/UrlDesign-class.html
-[PathBasedUrlDesign]: https://pub.dev/documentation/json_api/latest/url_design/PathBasedUrlDesign-class.html
 
 [Asynchronous Processing]: https://jsonapi.org/recommendations/#asynchronous-processing
 [Compound Documents]: https://jsonapi.org/format/#document-compound-documents
+[JSON:API Object]: https://jsonapi.org/format/#document-jsonapi-object
 [Recommended URL Design]: https://jsonapi.org/recommendations/#urls

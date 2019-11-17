@@ -12,7 +12,7 @@ abstract class Response {
 
   const Response(this.status);
 
-  Document getDocument(DocumentBuilder builder, Uri self);
+  Document buildDocument(DocumentBuilder builder, Uri self);
 
   Map<String, String> getHeaders(UrlBuilder route) =>
       {'Content-Type': 'application/vnd.api+json'};
@@ -23,7 +23,7 @@ class ErrorResponse extends Response {
 
   const ErrorResponse(int status, this.errors) : super(status);
 
-  Document getDocument(DocumentBuilder builder, Uri self) =>
+  Document buildDocument(DocumentBuilder builder, Uri self) =>
       builder.errorDocument(errors);
 
   const ErrorResponse.notImplemented(this.errors) : super(501);
@@ -47,7 +47,7 @@ class CollectionResponse extends Response {
       : super(200);
 
   @override
-  Document getDocument(DocumentBuilder builder, Uri self) =>
+  Document buildDocument(DocumentBuilder builder, Uri self) =>
       builder.collectionDocument(collection,
           self: self, included: included, total: total);
 }
@@ -60,8 +60,8 @@ class ResourceResponse extends Response {
       : super(200);
 
   @override
-  Document getDocument(DocumentBuilder builder, Uri self) =>
-      builder.resourceDocument(resource, self: self, included: included);
+  Document buildDocument(DocumentBuilder builder, Uri self) =>
+      builder.makeResourceDocument(resource, self: self, included: included);
 }
 
 class RelatedResourceResponse extends Response {
@@ -72,7 +72,7 @@ class RelatedResourceResponse extends Response {
       : super(200);
 
   @override
-  Document getDocument(DocumentBuilder builder, Uri self) =>
+  Document buildDocument(DocumentBuilder builder, Uri self) =>
       builder.relatedResourceDocument(resource, self: self);
 }
 
@@ -86,7 +86,7 @@ class RelatedCollectionResponse extends Response {
       : super(200);
 
   @override
-  Document getDocument(DocumentBuilder builder, Uri self) =>
+  Document buildDocument(DocumentBuilder builder, Uri self) =>
       builder.relatedCollectionDocument(collection, self: self, total: total);
 }
 
@@ -97,8 +97,8 @@ class ToOneResponse extends Response {
   const ToOneResponse(this.target, this.identifier) : super(200);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
-      builder.toOneDocument(identifier, target: target, self: self);
+  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) =>
+      builder.makeToOneDocument(identifier, target: target, self: self);
 }
 
 class ToManyResponse extends Response {
@@ -108,8 +108,8 @@ class ToManyResponse extends Response {
   const ToManyResponse(this.target, this.collection) : super(200);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
-      builder.toManyDocument(collection, target: target, self: self);
+  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) =>
+      builder.makeToManyDocument(collection, target: target, self: self);
 }
 
 class MetaResponse extends Response {
@@ -118,7 +118,7 @@ class MetaResponse extends Response {
   MetaResponse(this.meta) : super(200);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
+  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) =>
       builder.metaDocument(meta);
 }
 
@@ -126,7 +126,7 @@ class NoContentResponse extends Response {
   const NoContentResponse() : super(204);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) => null;
+  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) => null;
 }
 
 class SeeOtherResponse extends Response {
@@ -135,7 +135,7 @@ class SeeOtherResponse extends Response {
   SeeOtherResponse(this.resource) : super(303);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) => null;
+  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) => null;
 
   @override
   Map<String, String> getHeaders(UrlBuilder route) => {
@@ -150,8 +150,8 @@ class ResourceCreatedResponse extends Response {
   ResourceCreatedResponse(this.resource) : super(201);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
-      builder.resourceDocument(resource, self: self);
+  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) =>
+      builder.makeResourceDocument(resource, self: self);
 
   @override
   Map<String, String> getHeaders(UrlBuilder route) => {
@@ -166,8 +166,8 @@ class ResourceUpdatedResponse extends Response {
   ResourceUpdatedResponse(this.resource) : super(200);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
-      builder.resourceDocument(resource, self: self);
+  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) =>
+      builder.makeResourceDocument(resource, self: self);
 }
 
 class AcceptedResponse extends Response {
@@ -176,8 +176,8 @@ class AcceptedResponse extends Response {
   AcceptedResponse(this.resource) : super(202);
 
   @override
-  Document<PrimaryData> getDocument(DocumentBuilder builder, Uri self) =>
-      builder.resourceDocument(resource, self: self);
+  Document<PrimaryData> buildDocument(DocumentBuilder builder, Uri self) =>
+      builder.makeResourceDocument(resource, self: self);
 
   @override
   Map<String, String> getHeaders(UrlBuilder route) => {

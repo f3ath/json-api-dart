@@ -19,16 +19,16 @@ class ResourceCollectionData extends PrimaryData {
     this.collection.addAll(collection);
   }
 
-  static ResourceCollectionData decodeJson(Object json) {
+  static ResourceCollectionData fromJson(Object json) {
     if (json is Map) {
-      final links = Link.decodeJsonMap(json['links']);
+      final links = Link.fromJsonMap(json['links']);
       final data = json['data'];
       if (data is List) {
-        return ResourceCollectionData(data.map(ResourceObject.decodeJson),
+        return ResourceCollectionData(data.map(ResourceObject.fromJson),
             self: links['self'],
             navigation: Navigation.fromLinks(links),
             included:
-                nullable(ResourceObject.decodeJsonList)(json['included']));
+                nullable(ResourceObject.fromJsonList)(json['included']));
       }
     }
     throw DecodingException(

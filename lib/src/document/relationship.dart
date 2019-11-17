@@ -27,18 +27,18 @@ class Relationship extends PrimaryData {
       : super(self: self, included: included);
 
   /// Decodes a JSON:API Document or the `relationship` member of a Resource object.
-  static Relationship decodeJson(Object json) {
+  static Relationship fromJson(Object json) {
     if (json is Map) {
       if (json.containsKey('data')) {
         final data = json['data'];
         if (data == null || data is Map) {
-          return ToOne.decodeJson(json);
+          return ToOne.fromJson(json);
         }
         if (data is List) {
-          return ToMany.decodeJson(json);
+          return ToMany.fromJson(json);
         }
       } else {
-        final links = Link.decodeJsonMap(json['links']);
+        final links = Link.fromJsonMap(json['links']);
         return Relationship(self: links['self'], related: links['related']);
       }
     }
@@ -46,11 +46,11 @@ class Relationship extends PrimaryData {
   }
 
   /// Parses the `relationships` member of a Resource Object
-  static Map<String, Relationship> decodeJsonMap(Object json) {
+  static Map<String, Relationship> fromJsonMap(Object json) {
     if (json == null) return {};
     if (json is Map) {
       return json
-          .map((k, v) => MapEntry(k.toString(), Relationship.decodeJson(v)));
+          .map((k, v) => MapEntry(k.toString(), Relationship.fromJson(v)));
     }
     throw DecodingException('Can not decode Relationship map from $json');
   }
@@ -80,15 +80,15 @@ class ToOne extends Relationship {
       : linkage = null,
         super(self: self, related: related);
 
-  static ToOne decodeJson(Object json) {
+  static ToOne fromJson(Object json) {
     if (json is Map) {
-      final links = Link.decodeJsonMap(json['links']);
+      final links = Link.fromJsonMap(json['links']);
       final included = json['included'];
       if (json.containsKey('data')) {
-        return ToOne(nullable(IdentifierObject.decodeJson)(json['data']),
+        return ToOne(nullable(IdentifierObject.fromJson)(json['data']),
             self: links['self'],
             related: links['related'],
-            included: nullable(ResourceObject.decodeJsonList)(included));
+            included: nullable(ResourceObject.fromJsonList)(included));
       }
     }
     throw DecodingException('Can not decode ToOne from $json');
@@ -121,15 +121,15 @@ class ToMany extends Relationship {
     this.linkage.addAll(linkage);
   }
 
-  static ToMany decodeJson(Object json) {
+  static ToMany fromJson(Object json) {
     if (json is Map) {
-      final links = Link.decodeJsonMap(json['links']);
+      final links = Link.fromJsonMap(json['links']);
 
       if (json.containsKey('data')) {
         final data = json['data'];
         if (data is List) {
           return ToMany(
-            data.map(IdentifierObject.decodeJson),
+            data.map(IdentifierObject.fromJson),
             self: links['self'],
             related: links['related'],
             navigation: Navigation.fromLinks(links),

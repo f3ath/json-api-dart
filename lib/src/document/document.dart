@@ -26,17 +26,17 @@ class Document<Data extends PrimaryData> {
   }
 
   /// Decodes a document with the specified primary data
-  static Document<Data> decodeJson<Data extends PrimaryData>(
+  static Document<Data> fromJson<Data extends PrimaryData>(
       Object json, Data decodePrimaryData(Object json)) {
     if (json is Map) {
       Api api;
       if (json.containsKey('jsonapi')) {
-        api = Api.decodeJson(json['jsonapi']);
+        api = Api.fromJson(json['jsonapi']);
       }
       if (json.containsKey('errors')) {
         final errors = json['errors'];
         if (errors is List) {
-          return Document.error(errors.map(JsonApiError.decodeJson),
+          return Document.error(errors.map(JsonApiError.fromJson),
               meta: json['meta'], api: api);
         }
       } else if (json.containsKey('data')) {

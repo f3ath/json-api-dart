@@ -1,5 +1,5 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/src/client/simple_document_builder.dart';
+import 'package:json_api/src/client/client_document_factory.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/pagination/pagination.dart';
 import 'package:json_api/src/query/page.dart';
@@ -8,77 +8,83 @@ import 'package:json_api/url_design.dart';
 
 /// The Document builder is used by the Client and the Server. It abstracts the process
 /// of building response documents and is responsible for such aspects as
-///  adding `meta` and `jsonapi` attributes and generating links
-class DocumentBuilder implements SimpleDocumentBuilder {
+///  adding `meta` and `jsonapi` attributes, and generating links
+class DocumentBuilder implements ClientDocumentFactory {
   final UrlBuilder _urlBuilder;
   final Pagination _pagination;
+  final Api _api;
 
   const DocumentBuilder(
       {UrlBuilder urlBuilder = const _NullObjectUrlDesign(),
-      Pagination pagination = const _NoPagination()})
+      Pagination pagination = const _NoPagination(),
+      Api api})
       : _pagination = pagination,
-        _urlBuilder = urlBuilder;
+        _urlBuilder = urlBuilder,
+        _api = api;
 
   /// A document containing a list of errors
   Document errorDocument(Iterable<JsonApiError> errors) =>
-      Document.error(errors);
+      Document.error(errors, api: _api);
 
-  /// A collection of (primary) resources
+  /// A document containing a collection of (primary) resources
   Document<ResourceCollectionData> collectionDocument(
           Iterable<Resource> collection,
           {Uri self,
           int total,
           Iterable<Resource> included}) =>
-      Document(ResourceCollectionData(collection.map(_resourceObject),
-          self: _link(self),
-          navigation: _navigation(self, total),
-          included: included?.map(_resourceObject)));
+      Document(
+          ResourceCollectionData(collection.map(_resourceObject),
+              self: _link(self),
+              navigation: _navigation(self, total),
+              included: included?.map(_resourceObject)),
+          api: _api);
 
-  /// A collection of related resources
+  /// A document containing a collection of related resources
   Document<ResourceCollectionData> relatedCollectionDocument(
           Iterable<Resource> collection,
           {Uri self,
           int total,
           Iterable<Resource> included}) =>
-      Document(ResourceCollectionData(collection.map(_resourceObject),
-          self: _link(self), navigation: _navigation(self, total)));
+      Document(
+          ResourceCollectionData(collection.map(_resourceObject),
+              self: _link(self), navigation: _navigation(self, total)),
+          api: _api);
 
-  /// A single (primary) resource
-  Document<ResourceData> resourceDocument(Resource resource,
+  /// A document containing a single (primary) resource
+  Document<ResourceData> makeResourceDocument(Resource resource,
           {Uri self, Iterable<Resource> included}) =>
       Document(
-        ResourceData(_resourceObject(resource),
-            self: _link(self), included: included?.map(_resourceObject)),
-      );
+          ResourceData(_resourceObject(resource),
+              self: _link(self), included: included?.map(_resourceObject)),
+          api: _api);
 
-  /// A single related resource
+  /// A document containing a single related resource
   Document<ResourceData> relatedResourceDocument(Resource resource,
           {Uri self, Iterable<Resource> included}) =>
-      Document(ResourceData(_resourceObject(resource),
-          included: included?.map(_resourceObject), self: _link(self)));
+      Document(
+          ResourceData(_resourceObject(resource),
+              included: included?.map(_resourceObject), self: _link(self)),
+          api: _api);
 
-  /// A to-many relationship
-  Document<ToMany> toManyDocument(Iterable<Identifier> identifiers,
+  /// A document containing a to-many relationship
+  Document<ToMany> makeToManyDocument(Iterable<Identifier> identifiers,
           {RelationshipTarget target, Uri self}) =>
-      Document(ToMany(identifiers.map(_identifierObject),
-          self: _link(self),
-          related: target == null
-              ? null
-              : _link(_urlBuilder.related(
-                  target.type, target.id, target.relationship))));
+      Document(
+          ToMany(identifiers.map(_identifierObject),
+              self: _link(self), related: _relatedLinkOrNull(target)),
+          api: _api);
 
-  /// A to-one relationship
-  Document<ToOne> toOneDocument(Identifier identifier,
+  /// A document containing a to-one relationship
+  Document<ToOne> makeToOneDocument(Identifier identifier,
           {RelationshipTarget target, Uri self}) =>
-      Document(ToOne(nullable(_identifierObject)(identifier),
-          self: _link(self),
-          related: target == null
-              ? null
-              : _link(_urlBuilder.related(
-                  target.type, target.id, target.relationship))));
+      Document(
+          ToOne(nullable(_identifierObject)(identifier),
+              self: _link(self), related: _relatedLinkOrNull(target)),
+          api: _api);
 
   /// A document containing just a meta member
-  Document metaDocument(Map<String, Object> meta) => Document.empty(meta);
+  Document metaDocument(Map<String, Object> meta) =>
+      Document.empty(meta, api: _api);
 
   IdentifierObject _identifierObject(Identifier id) =>
       IdentifierObject(id.type, id.id);
@@ -116,6 +122,13 @@ class DocumentBuilder implements SimpleDocumentBuilder {
       prev: _link(_pagination.prev(page)?.addTo(uri)),
       next: _link(_pagination.next(page, total)?.addTo(uri)),
     );
+  }
+
+  Link _relatedLinkOrNull(RelationshipTarget target) {
+    return target == null
+        ? null
+        : _link(
+            _urlBuilder.related(target.type, target.id, target.relationship));
   }
 
   Link _link(Uri uri) => uri == null ? null : Link(uri);

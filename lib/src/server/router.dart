@@ -45,7 +45,7 @@ class CollectionRoute extends Route {
     }
     if (method.isPost()) {
       return controller.createResource(target,
-          Document.decodeJson(body, ResourceData.decodeJson).data.unwrap());
+          Document.fromJson(body, ResourceData.fromJson).data.unwrap());
     }
     return null;
   }
@@ -67,7 +67,7 @@ class ResourceRoute extends Route {
     }
     if (method.isPatch()) {
       return controller.updateResource(target,
-          Document.decodeJson(body, ResourceData.decodeJson).data.unwrap());
+          Document.fromJson(body, ResourceData.fromJson).data.unwrap());
     }
     return null;
   }
@@ -85,7 +85,7 @@ class RelationshipRoute extends Route {
       return controller.fetchRelationship(target, query);
     }
     if (method.isPatch()) {
-      final rel = Relationship.decodeJson(body);
+      final rel = Relationship.fromJson(body);
       if (rel is ToOne) {
         return controller.replaceToOne(target, rel.unwrap());
       }
@@ -94,7 +94,7 @@ class RelationshipRoute extends Route {
       }
     }
     if (method.isPost()) {
-      final rel = Relationship.decodeJson(body);
+      final rel = Relationship.fromJson(body);
       if (rel is ToMany) {
         return controller.addToMany(target, rel.identifiers);
       }
