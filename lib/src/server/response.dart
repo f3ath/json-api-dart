@@ -11,7 +11,7 @@ abstract class Response {
   Document buildDocument(ServerDocumentFactory factory, Uri self);
 
   Map<String, String> getHeaders(UrlFactory route) =>
-      {'Content-Type': 'application/vnd.api+json'};
+      {'Content-Type': Document.contentType};
 }
 
 class ErrorResponse extends Response {
@@ -87,7 +87,8 @@ class RelatedCollectionResponse extends Response {
   @override
   Document<ResourceCollectionData> buildDocument(
           ServerDocumentFactory builder, Uri self) =>
-      builder.makeRelatedCollectionDocument(collection, self: self, total: total);
+      builder.makeRelatedCollectionDocument(collection,
+          self: self, total: total);
 }
 
 class ToOneResponse extends Response {

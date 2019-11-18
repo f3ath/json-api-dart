@@ -16,13 +16,13 @@ import 'package:json_api/src/document_factory.dart';
 
 /// JSON:API client
 class JsonApiClient {
-  static const contentType = 'application/vnd.api+json';
 
   final http.Client httpClient;
   final ClientDocumentFactory _factory;
 
-  const JsonApiClient(this.httpClient, {ClientDocumentFactory documentFactory})
-      : _factory = documentFactory ?? const DocumentFactory();
+  const JsonApiClient(this.httpClient,
+      {ClientDocumentFactory documentFactory = const DocumentFactory()})
+      : _factory = documentFactory;
 
   /// Fetches a resource collection by sending a GET query to the [uri].
   /// Use [headers] to pass extra HTTP headers.
@@ -129,15 +129,15 @@ class JsonApiClient {
       http.Request('GET', uri)
         ..headers.addAll({
           ...headers ?? {},
-          'Accept': contentType,
+          'Accept': Document.contentType,
         });
 
   http.Request _post(Uri uri, Map<String, String> headers, Document doc) =>
       http.Request('POST', uri)
         ..headers.addAll({
           ...headers ?? {},
-          'Accept': contentType,
-          'Content-Type': contentType,
+          'Accept': Document.contentType,
+          'Content-Type': Document.contentType,
         })
         ..body = json.encode(doc);
 
@@ -145,15 +145,15 @@ class JsonApiClient {
       http.Request('DELETE', uri)
         ..headers.addAll({
           ...headers ?? {},
-          'Accept': contentType,
+          'Accept': Document.contentType,
         });
 
   http.Request _patch(uri, Map<String, String> headers, Document doc) =>
       http.Request('PATCH', uri)
         ..headers.addAll({
           ...headers ?? {},
-          'Accept': contentType,
-          'Content-Type': contentType,
+          'Accept': Document.contentType,
+          'Content-Type': Document.contentType,
         })
         ..body = json.encode(doc);
 

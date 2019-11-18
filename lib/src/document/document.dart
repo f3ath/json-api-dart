@@ -4,6 +4,8 @@ import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/primary_data.dart';
 
 class Document<Data extends PrimaryData> {
+  static const contentType = 'application/vnd.api+json';
+
   /// The Primary Data
   final Data data;
   final Api api;
