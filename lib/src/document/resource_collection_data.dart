@@ -27,8 +27,7 @@ class ResourceCollectionData extends PrimaryData {
         return ResourceCollectionData(data.map(ResourceObject.fromJson),
             self: links['self'],
             navigation: Navigation.fromLinks(links),
-            included:
-                nullable(ResourceObject.fromJsonList)(json['included']));
+            included: nullable(ResourceObject.fromJsonList)(json['included']));
       }
     }
     throw DecodingException(

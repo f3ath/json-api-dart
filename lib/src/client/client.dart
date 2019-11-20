@@ -16,7 +16,6 @@ import 'package:json_api/src/document_factory.dart';
 
 /// JSON:API client
 class JsonApiClient {
-
   final http.Client httpClient;
   final ClientDocumentFactory _factory;
 
