@@ -9,9 +9,9 @@ class Fields extends QueryParameters {
     _fields.addAll(fields);
   }
 
-  static Fields decode(Map<String, List<String>> parameters) =>
-      Fields(parameters.map((k, v) =>
-          MapEntry(_regex.firstMatch(k)?.group(1), v.first.split(',')))
+  static Fields fromUri(Uri uri) =>
+      Fields(uri.queryParameters.map((k, v) =>
+          MapEntry(_regex.firstMatch(k)?.group(1), v.split(',')))
         ..removeWhere((k, v) => k == null));
 
   List<String> operator [](String key) => _fields[key];

@@ -8,15 +8,12 @@ class Query {
   final Include include;
   final Fields fields;
   final Sort sort;
-  final Uri _uri;
 
-  Query(this._uri)
-      : page = Page.decode(_uri.queryParametersAll),
-        include = Include.decode(_uri.queryParametersAll),
-        sort = Sort.decode(_uri.queryParametersAll),
-        fields = Fields.decode(_uri.queryParametersAll);
+  Query({this.page, this.include, this.fields, this.sort});
 
-  Map<String, List<String>> get parametersAll => _uri.queryParametersAll;
-
-  Map<String, String> get parameters => _uri.queryParameters;
+  static Query fromUri(Uri uri) => Query(
+      page: Page.fromUri(uri),
+      include: Include.fromUri(uri),
+      sort: Sort.fromUri(uri),
+      fields: Fields.fromUri(uri));
 }

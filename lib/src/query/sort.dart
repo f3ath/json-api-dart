@@ -9,10 +9,8 @@ class Sort extends QueryParameters with IterableMixin<SortField> {
     _fields.addAll(fields);
   }
 
-  static Sort decode(Map<String, List<String>> queryParameters) =>
-      Sort((queryParameters['sort'] ?? [])
-          .expand((_) => _.split(','))
-          .map(SortField.parse));
+  static Sort fromUri(Uri uri) =>
+      Sort((uri.queryParameters['sort'] ?? '').split(',').map(SortField.parse));
 
   @override
   Iterator<SortField> get iterator => _fields.iterator;
@@ -26,19 +24,25 @@ class Sort extends QueryParameters with IterableMixin<SortField> {
 }
 
 class SortField {
+  static final _descPrefix = '-';
+
   final bool isAsc;
+  final bool isDesc;
   final String name;
 
-  SortField.asc(this.name) : isAsc = true;
+  SortField.asc(this.name)
+      : isAsc = true,
+        isDesc = false;
 
-  SortField.desc(this.name) : isAsc = false;
+  SortField.desc(this.name)
+      : isAsc = false,
+        isDesc = true;
 
-  static SortField parse(String str) => str.startsWith('-')
-      ? SortField.desc(str.substring(1))
-      : SortField.asc(str);
-
-  bool get isDesc => !isAsc;
+  static SortField parse(String queryParam) =>
+      queryParam.startsWith(_descPrefix)
+          ? SortField.desc(queryParam.substring(1))
+          : SortField.asc(queryParam);
 
   @override
-  String toString() => (isDesc ? '-' : '') + name;
+  String toString() => (isDesc ? _descPrefix : '') + name;
 }

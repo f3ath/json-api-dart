@@ -1,5 +1,4 @@
 import 'package:json_api/json_api.dart';
-import 'package:json_api/src/nullable.dart';
 
 import 'collection.dart';
 import 'job_queue.dart';
@@ -17,7 +16,7 @@ abstract class DAO<T> {
   T fetchById(String id) => _collection[id];
 
   Resource fetchByIdAsResource(String id) =>
-      nullable(toResource)(_collection[id]);
+      _collection.containsKey(id) ? toResource(_collection[id]) : null;
 
   void insert(T t); // => collection[t.id] = t;
 

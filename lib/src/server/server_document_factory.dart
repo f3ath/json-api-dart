@@ -1,6 +1,5 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/src/document/json_api_error.dart';
-import 'package:json_api/src/target.dart';
+import 'package:json_api/url_design.dart';
 
 abstract class ServerDocumentFactory {
   Document makeErrorDocument(Iterable<JsonApiError> errors);

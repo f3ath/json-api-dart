@@ -1,5 +1,7 @@
 import 'package:json_api/server.dart';
-import 'package:json_api/src/target.dart';
+import 'package:json_api/src/url_design/collection_target.dart';
+import 'package:json_api/src/url_design/relationship_target.dart';
+import 'package:json_api/src/url_design/resource_target.dart';
 import 'package:json_api/src/url_design/url_design.dart';
 
 /// URL Design where the target is determined by the URL path.

@@ -1,6 +1,9 @@
 language: dart
 dart:
   - stable
+  - dev
+  - "2.6.0"
+  - "2.6.1"
 dart_task:
   - test: --platform vm
   - test: --platform chrome

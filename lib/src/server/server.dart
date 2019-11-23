@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:json_api/query.dart';
 import 'package:json_api/src/document_factory.dart';
-import 'package:json_api/src/query/query.dart';
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/response.dart';
-import 'package:json_api/src/server/router.dart';
+import 'package:json_api/src/server/http_method.dart';
+import 'package:json_api/src/server/response/error_response.dart';
+import 'package:json_api/src/server/response/response.dart';
+import 'package:json_api/src/server/routing/route_mapper.dart';
 import 'package:json_api/url_design.dart';
 
 class Server {
@@ -31,8 +33,8 @@ class Server {
   }
 
   Future<Response> _call(Controller controller, HttpRequest request) async {
-    final query = Query(request.requestedUri);
-    final method = Method(request.method);
+    final query = Query.fromUri(request.requestedUri);
+    final method = HttpMethod(request.method);
     final body = await _getBody(request);
     try {
       return await urlDesign

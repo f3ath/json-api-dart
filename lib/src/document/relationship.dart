@@ -97,7 +97,7 @@ class ToOne extends Relationship {
   Map<String, Object> toJson() => super.toJson()..['data'] = linkage;
 
   /// Converts to [Identifier].
-  /// For empty relationships return null.
+  /// For empty relationships returns null.
   Identifier unwrap() => linkage?.unwrap();
 }
 

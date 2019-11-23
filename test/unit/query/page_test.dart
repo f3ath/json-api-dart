@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 void main() {
   test('Can decode url', () {
     final uri = Uri.parse('/articles?page[limit]=10&page[offset]=20');
-    final page = Page.decode(uri.queryParametersAll);
+    final page = Page.fromUri(uri);
     expect(page['limit'], '10');
     expect(page['offset'], '20');
   });

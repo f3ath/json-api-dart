@@ -7,10 +7,8 @@ class Include extends QueryParameters with IterableMixin<String> {
 
   Include(this._resources);
 
-  factory Include.decode(Map<String, List<String>> query) {
-    final resources = (query['include'] ?? []).expand((_) => _.split(','));
-    return Include(resources);
-  }
+  factory Include.fromUri(Uri uri) =>
+      Include((uri.queryParameters['include'] ?? '').split(','));
 
   @override
   Iterator<String> get iterator => _resources.iterator;

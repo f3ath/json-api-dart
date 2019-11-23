@@ -4,8 +4,8 @@ import 'package:json_api/document.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/query/query.dart';
-import 'package:json_api/src/server/response.dart';
-import 'package:json_api/src/target.dart';
+import 'package:json_api/src/server/response/response.dart';
+import 'package:json_api/url_design.dart';
 
 abstract class Controller {
   FutureOr<Response> fetchCollection(CollectionTarget target, Query query);

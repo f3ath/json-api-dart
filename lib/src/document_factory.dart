@@ -5,7 +5,6 @@ import 'package:json_api/src/pagination/no_pagination.dart';
 import 'package:json_api/src/pagination/pagination.dart';
 import 'package:json_api/src/query/page.dart';
 import 'package:json_api/src/server/server_document_factory.dart';
-import 'package:json_api/src/target.dart';
 import 'package:json_api/url_design.dart';
 
 /// The Document factory is used by the Client and the Server. It abstracts the process
@@ -113,7 +112,7 @@ class DocumentFactory implements ClientDocumentFactory, ServerDocumentFactory {
 
   Navigation _navigation(Uri uri, int total) {
     if (uri == null) return Navigation();
-    final page = Page.decode(uri.queryParametersAll);
+    final page = Page.fromUri(uri);
     return Navigation(
       first: _link(_pagination.first()?.addTo(uri)),
       last: _link(_pagination.last(total)?.addTo(uri)),

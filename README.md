@@ -128,7 +128,7 @@ possible request targets:
 - Related resources and collections (parameterized by the resource type, resource id and the relation name)
 - Relationships (parameterized by the resource type, resource id and the relation name)
 
-The [UrlBuilder] builds those 4 kinds of URLs by the given parameters. The [TargetMatcher] does the opposite,
+The [UrlFactory] makes those 4 kinds of URLs by the given parameters. The [TargetMatcher] does the opposite,
 it determines the target of the given URL (if possible). Together they form the [UrlDesign].
 
 This package provides one built-in implementation of [UrlDesign] which is called [PathBasedUrlDesign].
@@ -153,7 +153,7 @@ for all your JSON:API endpoints.
 [Response.asyncDocument]: https://pub.dev/documentation/json_api/latest/client/Response/asyncDocument.html
 [Response.asyncData]: https://pub.dev/documentation/json_api/latest/client/Response/asyncData.html
 [TargetMatcher]: https://pub.dev/documentation/json_api/latest/url_design/TargetMatcher-class.html
-[UrlBuilder]: https://pub.dev/documentation/json_api/latest/url_design/UrlBuilder-class.html
+[UrlFactory]: https://pub.dev/documentation/json_api/latest/url_design/UrlFactory-class.html
 [UrlDesign]: https://pub.dev/documentation/json_api/latest/url_design/UrlDesign-class.html
 
 [Asynchronous Processing]: https://jsonapi.org/recommendations/#asynchronous-processing
