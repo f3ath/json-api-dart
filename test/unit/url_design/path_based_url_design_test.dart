@@ -29,8 +29,6 @@ void main() {
   });
 
   group('URL matching', () {
-    final doNotCall = ([a, b, c]) => throw 'Invalid match ${[a, b, c]}';
-
     test('Matches collection URL', () {
       expect(
           routing.matchAndMap(

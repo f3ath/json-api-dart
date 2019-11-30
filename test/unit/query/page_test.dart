@@ -13,7 +13,7 @@ void main() {
     final fields = Page({'limit': '10', 'offset': '20'});
     final uri = Uri.parse('/articles');
 
-    expect(fields.addTo(uri).toString(),
+    expect(fields.addToUri(uri).toString(),
         '/articles?page%5Blimit%5D=10&page%5Boffset%5D=20');
   });
 }

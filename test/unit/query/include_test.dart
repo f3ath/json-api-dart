@@ -12,7 +12,7 @@ void main() {
   test('Can add to uri', () {
     final uri = Uri.parse('/articles/1');
     final include = Include(['author', 'comments.author']);
-    expect(include.addTo(uri).toString(),
+    expect(include.addToUri(uri).toString(),
         '/articles/1?include=author%2Ccomments.author');
   });
 }

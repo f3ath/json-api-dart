@@ -17,12 +17,12 @@ void main() {
 
 void _expectDocumentsApi(Api api, DocumentFactory builder) {
   final resource = Resource("apples", "1");
-  expect(api, builder.makeErrorDocument([]).api);
-  expect(api, builder.makeCollectionDocument([]).api);
-  expect(api, builder.makeRelatedCollectionDocument([]).api);
-  expect(api, builder.makeResourceDocument(resource).api);
-  expect(api, builder.makeRelatedResourceDocument(resource).api);
-  expect(api, builder.makeToManyDocument([]).api);
-  expect(api, builder.makeToOneDocument(null).api);
-  expect(api, builder.makeMetaDocument({}).api);
+  expect(builder.makeErrorDocument([]).api, api);
+  expect(builder.makeCollectionDocument([]).api, api);
+  expect(builder.makeRelatedCollectionDocument([]).api, api);
+  expect(builder.makeResourceDocument(resource).api, api);
+  expect(builder.makeRelatedResourceDocument(resource).api, api);
+  expect(builder.makeToManyDocument([]).api, api);
+  expect(builder.makeToOneDocument(null).api, api);
+  expect(builder.makeMetaDocument({}).api, api);
 }

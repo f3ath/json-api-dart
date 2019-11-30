@@ -114,10 +114,10 @@ class DocumentFactory implements ClientDocumentFactory, ServerDocumentFactory {
     if (uri == null) return Navigation();
     final page = Page.fromUri(uri);
     return Navigation(
-      first: _link(_pagination.first()?.addTo(uri)),
-      last: _link(_pagination.last(total)?.addTo(uri)),
-      prev: _link(_pagination.prev(page)?.addTo(uri)),
-      next: _link(_pagination.next(page, total)?.addTo(uri)),
+      first: _link(_pagination.first()?.addToUri(uri)),
+      last: _link(_pagination.last(total)?.addToUri(uri)),
+      prev: _link(_pagination.prev(page)?.addToUri(uri)),
+      next: _link(_pagination.next(page, total)?.addToUri(uri)),
     );
   }
 

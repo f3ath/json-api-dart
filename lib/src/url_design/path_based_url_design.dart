@@ -14,27 +14,29 @@ class PathBasedUrlDesign implements UrlDesign {
   PathBasedUrlDesign(this.base);
 
   /// Returns a URL for the primary resource collection of type [type]
-  Uri collection(String type) => _appendToBase([type]);
+  Uri collection(String type, {Query query}) => _appendToBase([type]);
 
   /// Returns a URL for the related resource/collection.
   /// The [type] and [id] identify the primary resource and the [relationship]
   /// is the relationship name.
-  Uri related(String type, String id, String relationship) =>
+  Uri related(String type, String id, String relationship, {Query query}) =>
       _appendToBase([type, id, relationship]);
 
   /// Returns a URL for the relationship itself.
   /// The [type] and [id] identify the primary resource and the [relationship]
   /// is the relationship name.
-  Uri relationship(String type, String id, String relationship) =>
+  Uri relationship(String type, String id, String relationship,
+          {Query query}) =>
       _appendToBase([type, id, _relationships, relationship]);
 
   /// Returns a URL for the primary resource of type [type] with id [id]
-  Uri resource(String type, String id) => _appendToBase([type, id]);
+  Uri resource(String type, String id, {Query query}) =>
+      _appendToBase([type, id]);
 
   @override
   T matchAndMap<T>(Uri uri, TargetMapper<T> mapper) {
     if (!_matchesBase(uri)) return mapper.unmatched();
-    final s = _getPathSegments(uri);
+    final s = uri.pathSegments.sublist(base.pathSegments.length);
     if (_isCollection(s)) {
       return mapper.collection(CollectionTarget(s[0]));
     }
@@ -50,20 +52,17 @@ class PathBasedUrlDesign implements UrlDesign {
     return mapper.unmatched();
   }
 
+  bool _isRelationship(List<String> s) =>
+      s.length == 4 && s[2] == PathBasedUrlDesign._relationships;
+
+  bool _isRelated(List<String> s) => s.length == 3;
+
+  bool _isResource(List<String> s) => s.length == 2;
+
+  bool _isCollection(List<String> s) => s.length == 1;
+
   Uri _appendToBase(List<String> segments) =>
       base.replace(pathSegments: base.pathSegments + segments);
-
-  List<String> _getPathSegments(Uri uri) =>
-      uri.pathSegments.sublist(base.pathSegments.length);
-
-  bool _isRelationship(List<String> seg) =>
-      seg.length == 4 && seg[2] == _relationships;
-
-  bool _isRelated(List<String> seg) => seg.length == 3;
-
-  bool _isResource(List<String> seg) => seg.length == 2;
-
-  bool _isCollection(List<String> seg) => seg.length == 1;
 
   bool _matchesBase(Uri uri) =>
       base.host == uri.host &&

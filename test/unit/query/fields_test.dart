@@ -17,7 +17,7 @@ void main() {
     });
     final uri = Uri.parse('/articles');
 
-    expect(fields.addTo(uri).toString(),
+    expect(fields.addToUri(uri).toString(),
         '/articles?fields%5Barticles%5D=title%2Cbody&fields%5Bpeople%5D=name');
   });
 }

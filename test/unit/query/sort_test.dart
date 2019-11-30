@@ -15,6 +15,6 @@ void main() {
   test('Can add to uri', () {
     final sort = Sort().desc('created').asc('title');
     final uri = Uri.parse('/articles');
-    expect(sort.addTo(uri).toString(), '/articles?sort=-created%2Ctitle');
+    expect(sort.addToUri(uri).toString(), '/articles?sort=-created%2Ctitle');
   });
 }
