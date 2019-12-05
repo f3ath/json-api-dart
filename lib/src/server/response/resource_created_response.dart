@@ -11,7 +11,7 @@ class ResourceCreatedResponse extends Response {
   @override
   Document<ResourceData> buildDocument(
           ServerDocumentFactory builder, Uri self) =>
-      builder.makeResourceDocument(resource, self: self);
+      builder.makeResourceDocument(self, resource);
 
   @override
   Map<String, String> getHeaders(UrlFactory route) => {

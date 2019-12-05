@@ -13,7 +13,7 @@ class Document<Data extends PrimaryData> {
   final Map<String, Object> meta;
 
   /// Create a document with primary data
-  Document(this.data, {this.meta, this.api}) : this.errors = null;
+  const Document(this.data, {this.meta, this.api}) : this.errors = null;
 
   /// Create a document with errors (no primary data)
   Document.error(Iterable<JsonApiError> errors, {this.meta, this.api})

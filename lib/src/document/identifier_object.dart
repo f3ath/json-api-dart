@@ -11,6 +11,13 @@ class IdentifierObject {
 
   IdentifierObject(this.type, this.id, {this.meta});
 
+  /// Returns null if [identifier] is null
+  static IdentifierObject fromIdentifier(Identifier identifier,
+          {Map<String, Object> meta}) =>
+      identifier == null
+          ? null
+          : IdentifierObject(identifier.type, identifier.id, meta: meta);
+
   static IdentifierObject fromJson(Object json) {
     if (json is Map) {
       return IdentifierObject(json['type'], json['id'], meta: json['meta']);

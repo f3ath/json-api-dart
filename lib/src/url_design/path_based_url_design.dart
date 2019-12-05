@@ -1,7 +1,4 @@
 import 'package:json_api/server.dart';
-import 'package:json_api/src/url_design/collection_target.dart';
-import 'package:json_api/src/url_design/relationship_target.dart';
-import 'package:json_api/src/url_design/resource_target.dart';
 import 'package:json_api/src/url_design/url_design.dart';
 
 /// URL Design where the target is determined by the URL path.
@@ -34,32 +31,24 @@ class PathBasedUrlDesign implements UrlDesign {
       _appendToBase([type, id]);
 
   @override
-  T matchAndMap<T>(Uri uri, TargetMapper<T> mapper) {
-    if (!_matchesBase(uri)) return mapper.unmatched();
-    final s = uri.pathSegments.sublist(base.pathSegments.length);
-    if (_isCollection(s)) {
-      return mapper.collection(CollectionTarget(s[0]));
+  T match<T>(final Uri uri, final MatchCase<T> matchCase) {
+    if (_matchesBase(uri)) {
+      final seg = uri.pathSegments.sublist(base.pathSegments.length);
+      if (seg.length == 1) {
+        return matchCase.collection(seg[0]);
+      }
+      if (seg.length == 2) {
+        return matchCase.resource(seg[0], seg[1]);
+      }
+      if (seg.length == 3) {
+        return matchCase.related(seg[0], seg[1], seg[2]);
+      }
+      if (seg.length == 4 && seg[2] == _relationships) {
+        return matchCase.relationship(seg[0], seg[1], seg[3]);
+      }
     }
-    if (_isResource(s)) {
-      return mapper.resource(ResourceTarget(s[0], s[1]));
-    }
-    if (_isRelated(s)) {
-      return mapper.related(RelationshipTarget(s[0], s[1], s[2]));
-    }
-    if (_isRelationship(s)) {
-      return mapper.relationship(RelationshipTarget(s[0], s[1], s[3]));
-    }
-    return mapper.unmatched();
+    return matchCase.unmatched();
   }
-
-  bool _isRelationship(List<String> s) =>
-      s.length == 4 && s[2] == PathBasedUrlDesign._relationships;
-
-  bool _isRelated(List<String> s) => s.length == 3;
-
-  bool _isResource(List<String> s) => s.length == 2;
-
-  bool _isCollection(List<String> s) => s.length == 1;
 
   Uri _appendToBase(List<String> segments) =>
       base.replace(pathSegments: base.pathSegments + segments);

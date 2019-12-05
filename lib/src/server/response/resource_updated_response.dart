@@ -10,5 +10,5 @@ class ResourceUpdatedResponse extends Response {
   @override
   Document<ResourceData> buildDocument(
           ServerDocumentFactory builder, Uri self) =>
-      builder.makeResourceDocument(resource, self: self);
+      builder.makeResourceDocument(self, resource);
 }

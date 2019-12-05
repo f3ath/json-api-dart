@@ -3,24 +3,24 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:json_api/query.dart';
-import 'package:json_api/src/document_factory.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/http_method.dart';
 import 'package:json_api/src/server/response/error_response.dart';
 import 'package:json_api/src/server/response/response.dart';
 import 'package:json_api/src/server/routing/route_mapper.dart';
+import 'package:json_api/src/server/server_document_factory.dart';
 import 'package:json_api/url_design.dart';
 
 class Server {
   final UrlDesign urlDesign;
   final Controller controller;
-  final DocumentFactory documentBuilder;
+  final ServerDocumentFactory documentFactory;
   final String allowOrigin;
-  final RouteMapper routeMapper;
+  final RouteFactory routeMapper;
 
-  Server(this.urlDesign, this.controller, this.documentBuilder,
+  Server(this.urlDesign, this.controller, this.documentFactory,
       {this.allowOrigin = '*'})
-      : routeMapper = RouteMapper();
+      : routeMapper = RouteFactory();
 
   Future serve(HttpRequest request) async {
     final response = await _call(controller, request);
@@ -38,7 +38,7 @@ class Server {
     final body = await _getBody(request);
     try {
       return await urlDesign
-          .matchAndMap(request.requestedUri, routeMapper)
+          .match(request.requestedUri, routeMapper)
           .call(controller, query, method, body);
     } on ErrorResponse catch (error) {
       return error;
@@ -46,7 +46,7 @@ class Server {
   }
 
   void _writeBody(HttpRequest request, Response response) {
-    final doc = response.buildDocument(documentBuilder, request.requestedUri);
+    final doc = response.buildDocument(documentFactory, request.requestedUri);
     if (doc != null) request.response.write(json.encode(doc));
   }
 

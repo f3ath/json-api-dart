@@ -12,15 +12,14 @@ import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/resource_collection_data.dart';
 import 'package:json_api/src/document/resource_data.dart';
-import 'package:json_api/src/document_factory.dart';
 
 /// JSON:API client
 class JsonApiClient {
-  final http.Client httpClient;
+  final http.Client _httpClient;
   final ClientDocumentFactory _factory;
 
-  const JsonApiClient(this.httpClient,
-      {ClientDocumentFactory documentFactory = const DocumentFactory()})
+  const JsonApiClient(http.Client this._httpClient,
+      {ClientDocumentFactory documentFactory = const ClientDocumentFactory()})
       : _factory = documentFactory;
 
   /// Fetches a resource collection by sending a GET query to the [uri].
@@ -159,7 +158,7 @@ class JsonApiClient {
   Future<Response<D>> _call<D extends PrimaryData>(
       http.Request request, D decodePrimaryData(Object _)) async {
     final response =
-        await http.Response.fromStream(await httpClient.send(request));
+        await http.Response.fromStream(await _httpClient.send(request));
 
     if (response.body.isEmpty) {
       return Response(response.statusCode, response.headers);

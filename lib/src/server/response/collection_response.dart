@@ -14,6 +14,6 @@ class CollectionResponse extends Response {
   @override
   Document<ResourceCollectionData> buildDocument(
           ServerDocumentFactory builder, Uri self) =>
-      builder.makeCollectionDocument(collection,
-          self: self, included: included, total: total);
+      builder.makeCollectionDocument(self, collection,
+          included: included, total: total);
 }

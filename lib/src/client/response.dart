@@ -20,7 +20,8 @@ class Response<Data extends PrimaryData> {
   /// Headers returned by the server.
   final Map<String, String> headers;
 
-  Response(this.status, this.headers, {this.document, this.asyncDocument});
+  const Response(this.status, this.headers,
+      {this.document, this.asyncDocument});
 
   /// Primary Data from the document (if any)
   Data get data => document.data;

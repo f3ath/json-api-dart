@@ -1,7 +1,7 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/server/response/response.dart';
 import 'package:json_api/src/server/server_document_factory.dart';
-import 'package:json_api/src/url_design/url_factory.dart';
+import 'package:json_api/url_design.dart';
 
 class AcceptedResponse extends Response {
   final Resource resource;
@@ -11,7 +11,7 @@ class AcceptedResponse extends Response {
   @override
   Document<ResourceData> buildDocument(
           ServerDocumentFactory factory, Uri self) =>
-      factory.makeResourceDocument(resource, self: self);
+      factory.makeResourceDocument(self, resource);
 
   @override
   Map<String, String> getHeaders(UrlFactory route) => {

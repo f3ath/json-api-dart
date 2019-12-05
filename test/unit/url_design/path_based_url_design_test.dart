@@ -30,71 +30,66 @@ void main() {
 
   group('URL matching', () {
     test('Matches collection URL', () {
-      expect(
-          routing.matchAndMap(
-              Uri.parse('http://example.com/api/books'), mapper),
-          CollectionTarget('books'));
+      expect(routing.match(Uri.parse('http://example.com/api/books'), mapper),
+          'collection:books');
     });
 
     test('Matches resource URL', () {
       expect(
-          routing.matchAndMap(
-              Uri.parse('http://example.com/api/books/42'), mapper),
-          ResourceTarget('books', '42'));
+          routing.match(Uri.parse('http://example.com/api/books/42'), mapper),
+          'resource:books:42');
     });
 
     test('Matches related URL', () {
       expect(
-          routing.matchAndMap(
+          routing.match(
               Uri.parse('http://example.com/api/books/42/authors'), mapper),
-          RelationshipTarget('books', '42', 'authors'));
+          'related:books:42:authors');
     });
 
     test('Matches relationship URL', () {
       expect(
-          routing.matchAndMap(
+          routing.match(
               Uri.parse(
                   'http://example.com/api/books/42/relationships/authors'),
               mapper),
-          RelationshipTarget('books', '42', 'authors'));
+          'relationship:books:42:authors');
     });
 
     test('Does not match collection URL with incorrect path', () {
-      expect(
-          routing.matchAndMap(
-              Uri.parse('http://example.com/foo/apples'), mapper),
-          null);
+      expect(routing.match(Uri.parse('http://example.com/foo/apples'), mapper),
+          'unmatched');
     });
 
     test('Does not match collection URL with incorrect host', () {
-      expect(
-          routing.matchAndMap(
-              Uri.parse('http://example.org/api/apples'), mapper),
-          null);
+      expect(routing.match(Uri.parse('http://example.org/api/apples'), mapper),
+          'unmatched');
     });
 
     test('Does not match collection URL with incorrect port', () {
       expect(
-          routing.matchAndMap(
+          routing.match(
               Uri.parse('http://example.com:8080/api/apples'), mapper),
-          null);
+          'unmatched');
     });
   });
 }
 
-class _Mapper implements TargetMapper {
+class _Mapper implements MatchCase<String> {
   @override
-  collection(CollectionTarget target) => target;
+  unmatched() => 'unmatched';
 
   @override
-  related(RelationshipTarget target) => target;
+  String collection(String type) => 'collection:$type';
 
   @override
-  relationship(RelationshipTarget target) => target;
+  String related(String type, String id, String relationship) =>
+      'related:$type:$id:$relationship';
 
   @override
-  resource(ResourceTarget target) => target;
+  String relationship(String type, String id, String relationship) =>
+      'relationship:$type:$id:$relationship';
 
   @override
-  unmatched() => null;
+  String resource(String type, String id) => 'resource:$type:$id';
 }

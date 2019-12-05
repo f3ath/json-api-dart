@@ -12,5 +12,5 @@ class RelatedResourceResponse extends Response {
   @override
   Document<ResourceData> buildDocument(
           ServerDocumentFactory builder, Uri self) =>
-      builder.makeRelatedResourceDocument(resource, self: self);
+      builder.makeRelatedResourceDocument(self, resource);
 }
