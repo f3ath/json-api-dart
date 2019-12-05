@@ -38,5 +38,5 @@ void main() async {
       expect(response, isNotNull);
       expect(response.body, isNotEmpty);
     });
-  });
+  }, testOn: 'vm');
 }
