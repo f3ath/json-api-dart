@@ -19,9 +19,14 @@ class JsonApiClient {
   static const contentType = 'application/vnd.api+json';
 
   final http.Client httpClient;
+
+  /// If passed, this hook gets called when an http response is received from
+  /// the HTTP Client.
+  final OnHttpCall onHttpCall;
   final SimpleDocumentBuilder _build;
 
-  const JsonApiClient(this.httpClient, {SimpleDocumentBuilder builder})
+  const JsonApiClient(this.httpClient,
+      {SimpleDocumentBuilder builder, this.onHttpCall})
       : _build = builder ?? const DocumentBuilder();
 
   /// Fetches a resource collection by sending a GET query to the [uri].
@@ -161,7 +166,7 @@ class JsonApiClient {
       http.Request request, D decodePrimaryData(Object _)) async {
     final response =
         await http.Response.fromStream(await httpClient.send(request));
-
+    if (onHttpCall != null) onHttpCall(request, response);
     if (response.body.isEmpty) {
       return Response(response.statusCode, response.headers);
     }
@@ -177,3 +182,7 @@ class JsonApiClient {
             body == null ? null : Document.decodeJson(body, decodePrimaryData));
   }
 }
+
+/// Defines the hook which gets called when the HTTP response is received from
+/// the HTTP Client.
+typedef void OnHttpCall(http.Request request, http.Response response);
