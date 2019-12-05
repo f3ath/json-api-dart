@@ -17,12 +17,20 @@ import 'package:json_api/src/document_builder.dart';
 /// JSON:API client
 class JsonApiClient {
   static const contentType = 'application/vnd.api+json';
-
   final http.Client httpClient;
+  final OnHttpCall _onHttpCall;
   final SimpleDocumentBuilder _build;
 
-  const JsonApiClient(this.httpClient, {SimpleDocumentBuilder builder})
-      : _build = builder ?? const DocumentBuilder();
+  /// Creates an instance of JSON:API client.
+  /// You have to create and pass an instance of the [httpClient] yourself.
+  /// Do not forget to call [httpClient.close()] when you're done using
+  /// the JSON:API client.
+  /// The [onHttpCall] hook, if passed,  gets called when an http response is
+  /// received from the HTTP Client.
+  const JsonApiClient(this.httpClient,
+      {SimpleDocumentBuilder builder, OnHttpCall onHttpCall})
+      : _build = builder ?? const DocumentBuilder(),
+        _onHttpCall = onHttpCall ?? _doNothing;
 
   /// Fetches a resource collection by sending a GET query to the [uri].
   /// Use [headers] to pass extra HTTP headers.
@@ -161,7 +169,7 @@ class JsonApiClient {
       http.Request request, D decodePrimaryData(Object _)) async {
     final response =
         await http.Response.fromStream(await httpClient.send(request));
-
+    _onHttpCall(request, response);
     if (response.body.isEmpty) {
       return Response(response.statusCode, response.headers);
     }
@@ -177,3 +185,9 @@ class JsonApiClient {
             body == null ? null : Document.decodeJson(body, decodePrimaryData));
   }
 }
+
+/// Defines the hook which gets called when the HTTP response is received from
+/// the HTTP Client.
+typedef void OnHttpCall(http.Request request, http.Response response);
+
+_doNothing(http.Request request, http.Response response) {}
