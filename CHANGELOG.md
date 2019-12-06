@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2019-12-04
+### Added
+- `onHttpCall` hook to enable raw http request/response logging ([#60](https://github.com/f3ath/json-api-dart/issues/60)).
+
 ## [2.0.3] - 2019-09-29
 ### Fixed
 - Documentation links got broken due to pub.dev update.

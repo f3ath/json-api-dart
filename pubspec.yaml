@@ -1,15 +1,15 @@
-author: "Alexey Karapetov <karapetov@gmail.com>"
-description: "JSON:API Client for Flutter, Web and VM. Supports JSON:API v1.0 (http://jsonapi.org)"
-homepage: "https://github.com/f3ath/json-api-dart"
-name: "json_api"
-version: "2.0.3"
-dependencies:
-  collection: "^1.14.11"
-  http: "^0.12.0"
-dev_dependencies:
-  json_matcher: "^0.2.3"
-  stream_channel: "^1.6.8"
-  test: "^1.6.1"
-  uuid: "^2.0.1"
+name: json_api
+author: Alexey Karapetov <karapetov@gmail.com>
+version: 2.1.0
+homepage: https://github.com/f3ath/json-api-dart
+description: JSON:API Client for Flutter, Web and VM. Supports JSON:API v1.0 (http://jsonapi.org)
 environment:
-  sdk: ">=2.5.0 <3.0.0"
+  sdk: '>=2.6.0 <3.0.0'
+dependencies:
+  http: ^0.12.0
+  collection: ^1.14.11
+dev_dependencies:
+  test: ^1.6.1
+  json_matcher: ^0.2.3
+  stream_channel: ^1.6.8
+  uuid: ^2.0.1

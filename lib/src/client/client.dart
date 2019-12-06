@@ -15,12 +15,20 @@ import 'package:json_api/src/document/resource_data.dart';
 
 /// JSON:API client
 class JsonApiClient {
-  final http.Client _httpClient;
+  final http.Client httpClient;
+  final OnHttpCall _onHttpCall;
   final ClientDocumentFactory _factory;
 
-  const JsonApiClient(http.Client this._httpClient,
-      {ClientDocumentFactory documentFactory = const ClientDocumentFactory()})
-      : _factory = documentFactory;
+  /// Creates an instance of JSON:API client.
+  /// You have to create and pass an instance of the [httpClient] yourself.
+  /// Do not forget to call [httpClient.close()] when you're done using
+  /// the JSON:API client.
+  /// The [onHttpCall] hook, if passed,  gets called when an http response is
+  /// received from the HTTP Client.
+  const JsonApiClient(this.httpClient,
+      {ClientDocumentFactory builder, OnHttpCall onHttpCall})
+      : _factory = builder ?? const ClientDocumentFactory(),
+        _onHttpCall = onHttpCall ?? _doNothing;
 
   /// Fetches a resource collection by sending a GET query to the [uri].
   /// Use [headers] to pass extra HTTP headers.
@@ -158,8 +166,8 @@ class JsonApiClient {
   Future<Response<D>> _call<D extends PrimaryData>(
       http.Request request, D decodePrimaryData(Object _)) async {
     final response =
-        await http.Response.fromStream(await _httpClient.send(request));
-
+        await http.Response.fromStream(await httpClient.send(request));
+    _onHttpCall(request, response);
     if (response.body.isEmpty) {
       return Response(response.statusCode, response.headers);
     }
@@ -175,3 +183,9 @@ class JsonApiClient {
             body == null ? null : Document.fromJson(body, decodePrimaryData));
   }
 }
+
+/// Defines the hook which gets called when the HTTP response is received from
+/// the HTTP Client.
+typedef void OnHttpCall(http.Request request, http.Response response);
+
+_doNothing(http.Request request, http.Response response) {}
