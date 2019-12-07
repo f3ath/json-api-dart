@@ -15,18 +15,29 @@ import 'package:json_api/src/document/resource.dart';
 class ResourceObject {
   final String type;
   final String id;
-  final Link self;
+
   final Map<String, Object> attributes;
   final Map<String, Relationship> relationships;
   final Map<String, Object> meta;
+  final Map<String, Link> _links;
 
   ResourceObject(this.type, this.id,
-      {this.self,
+      {Link self,
       Map<String, Object> attributes,
       Map<String, Relationship> relationships,
-      this.meta})
-      : attributes = attributes == null ? null : Map.from(attributes),
+      this.meta,
+      Map<String, Link> links = const {}})
+      : _links = {
+          ...links,
+          if (self != null) ...{'self': self}
+        },
+        attributes = attributes == null ? null : Map.from(attributes),
         relationships = relationships == null ? null : Map.from(relationships);
+
+  Link get self => _links['self'];
+
+  /// Read-only `links` object. May be empty.
+  Map<String, Link> get links => Map.unmodifiable(_links);
 
   /// Reconstructs the `data` member of a JSON:API Document.
   /// If [json] is null, returns null.
@@ -35,14 +46,12 @@ class ResourceObject {
     if (json is Map) {
       final relationships = json['relationships'];
       final attributes = json['attributes'];
-      final links = Link.mapFromJson(json['links']);
-
       if ((relationships == null || relationships is Map) &&
           (attributes == null || attributes is Map)) {
         return ResourceObject(json['type'], json['id'],
             attributes: attributes,
             relationships: Relationship.mapFromJson(relationships),
-            self: links['self'],
+            links: Link.mapFromJson(json['links']),
             meta: json['meta']);
       }
     }
@@ -66,9 +75,7 @@ class ResourceObject {
         if (relationships?.isNotEmpty == true) ...{
           'relationships': relationships
         },
-        if (self != null) ...{
-          'links': {'self': self}
-        },
+        if (_links.isNotEmpty) ...{'links': links},
       };
 
   /// Extracts the [Resource] if possible. The standard allows relationships
