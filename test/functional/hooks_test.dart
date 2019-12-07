@@ -13,6 +13,7 @@ void main() async {
   JsonApiClient client;
   http.Request request;
   http.Response response;
+  String responseBody;
   final port = 8083;
   final urlDesign = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
 
@@ -21,6 +22,7 @@ void main() async {
     client = JsonApiClient(httpClient, onHttpCall: (req, resp) {
       request = req;
       response = resp;
+      responseBody = response.body;
     });
     server = await createServer(InternetAddress.loopbackIPv4, port);
   });
@@ -32,7 +34,8 @@ void main() async {
 
   group('hooks', () {
     test('onHttpCall gets called', () async {
-      await client.fetchCollection(urlDesign.collection('companies'));
+      final r = await client.fetchCollection(urlDesign.collection('companies'));
+      expect(r.data.collection.first.attributes['name'], 'Tesla');
 
       expect(request, isNotNull);
       expect(response, isNotNull);
