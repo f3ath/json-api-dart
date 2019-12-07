@@ -9,7 +9,7 @@ class JsonApiError {
   final String id;
 
   /// A link that leads to further details about this particular occurrence of the problem.
-  final Link about;
+  Link get about => _links['about'];
 
   /// The HTTP status code applicable to this problem, expressed as a string value.
   final String status;
@@ -40,10 +40,9 @@ class JsonApiError {
   /// Creates an instance of a JSON:API Error.
   /// The [links] map may contain custom links. The about link
   /// passed through the [about] argument takes precedence and will overwrite
-  /// the "about" key in [links].
+  /// the `about` key in [links].
   JsonApiError({
     this.id,
-    this.about,
     this.status,
     this.code,
     this.title,
@@ -51,13 +50,14 @@ class JsonApiError {
     this.parameter,
     this.pointer,
     this.meta,
+    Link about,
     Map<String, Link> links = const {},
   }) : _links = {
           ...links,
           if (about != null) ...{'about': about}
         };
 
-  /// All members of the "links" object, including non-standard links.
+  /// All members of the `links` object, including non-standard links.
   /// This map is read-only.
   get links => Map.unmodifiable(_links);
 

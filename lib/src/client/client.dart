@@ -2,16 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:json_api/document.dart';
 import 'package:json_api/src/client/client_document_factory.dart';
 import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/client/status_code.dart';
-import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/primary_data.dart';
-import 'package:json_api/src/document/relationship.dart';
-import 'package:json_api/src/document/resource.dart';
-import 'package:json_api/src/document/resource_collection_data.dart';
-import 'package:json_api/src/document/resource_data.dart';
 
 /// JSON:API client
 class JsonApiClient {

@@ -28,7 +28,7 @@ class ResourceObject {
       : attributes = attributes == null ? null : Map.from(attributes),
         relationships = relationships == null ? null : Map.from(relationships);
 
-  /// Decodes the `data` member of a JSON:API Document
+  /// Reconstructs the `data` member of a JSON:API Document
   static ResourceObject fromJson(Object json) {
     final mapOrNull = (_) => _ == null || _ is Map;
     if (json is Map) {

@@ -1,7 +1,5 @@
+import 'package:json_api/document.dart';
 import 'package:json_api/src/client/status_code.dart';
-import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/document/primary_data.dart';
-import 'package:json_api/src/document/resource_data.dart';
 import 'package:json_api/src/nullable.dart';
 
 /// A response returned by JSON:API client

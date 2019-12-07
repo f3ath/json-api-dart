@@ -27,7 +27,7 @@ class Document<Data extends PrimaryData> {
     ArgumentError.checkNotNull(meta, 'meta');
   }
 
-  /// Decodes a document with the specified primary data
+  /// Reconstructs a document with the specified primary data
   static Document<Data> fromJson<Data extends PrimaryData>(
       Object json, Data decodePrimaryData(Object json)) {
     if (json is Map) {
