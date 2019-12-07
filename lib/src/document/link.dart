@@ -21,7 +21,7 @@ class Link {
   /// The retuning map will not have null values.
   ///
   /// Details on the `links` member: https://jsonapi.org/format/#document-links
-  static Map<String, Link> fromJsonMap(Object json) {
+  static Map<String, Link> mapFromJson(Object json) {
     if (json == null) return {};
     if (json is Map) {
       return ({...json}..removeWhere((_, v) => v == null))

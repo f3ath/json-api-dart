@@ -19,6 +19,8 @@ void main() {
       expect(r.links['my-link'].toString(), '/my-link');
       expect(r.links['self'].toString(), '/self');
       expect(r.links['related'].toString(), '/related');
+      expect(r.self.toString(), '/self');
+      expect(r.related.toString(), '/related');
     });
 
     test('"links" may contain the "related" and "self" keys', () {

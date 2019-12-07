@@ -33,9 +33,7 @@ void main() {
     test('"about" argument  takes precedence over "links"', () {
       final e = JsonApiError(
           about: Link(Uri.parse('/about')),
-          links: {
-            'about': Link(Uri.parse('/will-be-replaced'))
-          });
+          links: {'about': Link(Uri.parse('/will-be-replaced'))});
       expect(e.links['about'].toString(), '/about');
     });
 

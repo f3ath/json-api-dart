@@ -40,13 +40,13 @@ class Relationship extends PrimaryData {
           return ToMany.fromJson(json);
         }
       }
-      return Relationship(links: Link.fromJsonMap(json['links']));
+      return Relationship(links: Link.mapFromJson(json['links']));
     }
     throw DecodingException('Can not decode Relationship from $json');
   }
 
   /// Parses the `relationships` member of a Resource Object
-  static Map<String, Relationship> fromJsonMap(Object json) {
+  static Map<String, Relationship> mapFromJson(Object json) {
     if (json == null) return {};
     if (json is Map) {
       return json
@@ -86,8 +86,8 @@ class ToOne extends Relationship {
   static ToOne fromJson(Object json) {
     if (json is Map && json.containsKey('data')) {
       return ToOne(nullable(IdentifierObject.fromJson)(json['data']),
-          links: Link.fromJsonMap(json['links']),
-          included: nullable(ResourceObject.fromJsonList)(json['included']));
+          links: Link.mapFromJson(json['links']),
+          included: ResourceObject.fromJsonList(json['included']));
     }
     throw DecodingException('Can not decode ToOne from $json');
   }
@@ -122,7 +122,7 @@ class ToMany extends Relationship {
 
   static ToMany fromJson(Object json) {
     if (json is Map) {
-      final links = Link.fromJsonMap(json['links']);
+      final links = Link.mapFromJson(json['links']);
       if (json.containsKey('data')) {
         final data = json['data'];
         if (data is List) {

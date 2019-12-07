@@ -9,12 +9,13 @@ class ResourceData extends PrimaryData {
   final ResourceObject resourceObject;
 
   ResourceData(this.resourceObject,
-      {Link self, Iterable<ResourceObject> included})
-      : super(self: self, included: included);
+      {Link self,
+      Iterable<ResourceObject> included,
+      Map<String, Link> links = const {}})
+      : super(self: self, included: included, links: links);
 
   static ResourceData fromJson(Object json) {
     if (json is Map) {
-      final links = Link.fromJsonMap(json['links']);
       final included = json['included'];
       final resources = <ResourceObject>[];
       if (included is List) {
@@ -22,21 +23,17 @@ class ResourceData extends PrimaryData {
       }
       final data = ResourceObject.fromJson(json['data']);
       return ResourceData(data,
-          self: links['self'],
+          links: Link.mapFromJson(json['links']),
           included: resources.isNotEmpty ? resources : null);
     }
     throw DecodingException('Can not decode SingleResourceObject from $json');
   }
 
   @override
-  Map<String, Object> toJson() {
-    return {
-      ...super.toJson(),
-      'data': resourceObject,
-      if (included != null && included.isNotEmpty) ...{'included': included},
-      if (links.isNotEmpty) ...{'links': links},
-    };
-  }
+  Map<String, Object> toJson() => {
+        ...super.toJson(),
+        'data': resourceObject,
+      };
 
   Resource unwrap() => resourceObject.unwrap();
 }

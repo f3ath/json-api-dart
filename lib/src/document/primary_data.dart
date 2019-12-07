@@ -34,6 +34,8 @@ abstract class PrimaryData {
   bool get isCompound => included != null && included.isNotEmpty;
 
   /// Top-level JSON object
-  Map<String, Object> toJson() =>
-      (included != null) ? {'included': included} : {};
+  Map<String, Object> toJson() => {
+        if (links.isNotEmpty) ...{'links': links},
+        if (included != null) ...{'included': included}
+      };
 }
