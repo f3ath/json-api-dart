@@ -53,7 +53,7 @@ class ServerDocumentFactory {
           Uri self, Resource resource, {Iterable<Resource> included}) =>
       Document(
           ResourceData(_resourceObject(resource),
-              included: included?.map(_resourceObject), self: Link(self)),
+              self: Link(self), included: included?.map(_resourceObject)),
           api: _api);
 
   /// A document containing a to-many relationship

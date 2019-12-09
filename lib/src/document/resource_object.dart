@@ -6,7 +6,6 @@ import 'package:json_api/src/document/resource.dart';
 
 /// [ResourceObject] is a JSON representation of a [Resource].
 ///
-/// It carries all JSON-related logic and the Meta-data.
 /// In a JSON:API Document it can be the value of the `data` member (a `data`
 /// member element in case of a collection) or a member of the `included`
 /// resource collection.
