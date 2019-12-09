@@ -30,9 +30,10 @@ abstract class SortField {
 
   String get name;
 
-  static SortField parse(String queryParam) => queryParam.startsWith('-')
-      ? Descending(queryParam.substring(1))
-      : Ascending(queryParam);
+  static SortField parse(String queryParam) =>
+      queryParam.startsWith('-')
+          ? Descending(queryParam.substring(1))
+          : Ascending(queryParam);
 }
 
 class Ascending implements SortField {

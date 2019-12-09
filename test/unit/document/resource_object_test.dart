@@ -34,8 +34,8 @@ void main() {
 
   group('custom links', () {
     test('recognizes custom links', () {
-      final r =
-      ResourceObject('apples', '1', links: {'my-link': Link(Uri.parse('/my-link'))});
+      final r = ResourceObject('apples', '1',
+          links: {'my-link': Link(Uri.parse('/my-link'))});
       expect(r.links['my-link'].toString(), '/my-link');
     });
 
@@ -59,7 +59,8 @@ void main() {
     });
 
     test('"self" takes precedence over "links"', () {
-      final r = ResourceObject('apples', '1', self: Link(Uri.parse('/self')), links: {
+      final r =
+          ResourceObject('apples', '1', self: Link(Uri.parse('/self')), links: {
         'my-link': Link(Uri.parse('/my-link')),
         'self': Link(Uri.parse('/will-be-replaced'))
       });

@@ -17,8 +17,11 @@ class Identifier {
   }
 
   /// Returns true if the two identifiers have the same [type] and [id]
-  bool equals(Identifier identifier) =>
-      identifier != null && identifier.type == type && identifier.id == id;
+  bool equals(Identifier other) =>
+      other != null &&
+      other.runtimeType == Identifier &&
+      other.type == type &&
+      other.id == id;
 
   String toString() => "Identifier($type:$id)";
 }
