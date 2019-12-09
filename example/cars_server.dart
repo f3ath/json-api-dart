@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:json_api/server.dart';
-import 'package:json_api/src/document_builder.dart';
+import 'package:json_api/src/server/server_document_factory.dart';
 import 'package:json_api/url_design.dart';
 
 import 'cars_server/controller.dart';
@@ -59,9 +59,9 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
 
   final httpServer = await HttpServer.bind(addr, port);
   final urlDesign = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
-  final documentBuilder =
-      DocumentBuilder(urlBuilder: urlDesign, pagination: pagination);
-  final jsonApiServer = Server(urlDesign, controller, documentBuilder);
+  final documentFactory =
+      ServerDocumentFactory(urlDesign, pagination: pagination);
+  final jsonApiServer = Server(urlDesign, controller, documentFactory);
 
   httpServer.forEach(jsonApiServer.serve);
   return httpServer;

@@ -2,23 +2,25 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/src/document_builder.dart';
-import 'package:json_api/src/query/query.dart';
+import 'package:json_api/query.dart';
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/response.dart';
-import 'package:json_api/src/server/router.dart';
+import 'package:json_api/src/server/http_method.dart';
+import 'package:json_api/src/server/response/error_response.dart';
+import 'package:json_api/src/server/response/response.dart';
+import 'package:json_api/src/server/routing/route_factory.dart';
+import 'package:json_api/src/server/server_document_factory.dart';
 import 'package:json_api/url_design.dart';
 
 class Server {
   final UrlDesign urlDesign;
   final Controller controller;
-  final DocumentBuilder documentBuilder;
+  final ServerDocumentFactory documentFactory;
   final String allowOrigin;
-  final Router router;
+  final RouteFactory routeMapper;
 
-  Server(this.urlDesign, this.controller, this.documentBuilder,
+  Server(this.urlDesign, this.controller, this.documentFactory,
       {this.allowOrigin = '*'})
-      : router = Router(urlDesign);
+      : routeMapper = RouteFactory();
 
   Future serve(HttpRequest request) async {
     final response = await _call(controller, request);
@@ -31,19 +33,20 @@ class Server {
   }
 
   Future<Response> _call(Controller controller, HttpRequest request) async {
-    final route = router.getRoute(request.requestedUri);
-    final query = Query(request.requestedUri);
-    final method = Method(request.method);
+    final query = Query.fromUri(request.requestedUri);
+    final method = HttpMethod(request.method);
     final body = await _getBody(request);
     try {
-      return await route.call(controller, query, method, body);
+      return await urlDesign
+          .match(request.requestedUri, routeMapper)
+          .call(controller, query, method, body);
     } on ErrorResponse catch (error) {
       return error;
     }
   }
 
   void _writeBody(HttpRequest request, Response response) {
-    final doc = response.getDocument(documentBuilder, request.requestedUri);
+    final doc = response.buildDocument(documentFactory, request.requestedUri);
     if (doc != null) request.response.write(json.encode(doc));
   }
 

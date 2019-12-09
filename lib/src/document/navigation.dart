@@ -1,5 +1,6 @@
 import 'package:json_api/src/document/link.dart';
 
+/// Navigation links
 class Navigation {
   final Link prev;
   final Link next;

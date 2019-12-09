@@ -4,12 +4,12 @@ version: 2.1.0
 homepage: https://github.com/f3ath/json-api-dart
 description: JSON:API Client for Flutter, Web and VM. Supports JSON:API v1.0 (http://jsonapi.org)
 environment:
-  sdk: '>=2.3.0 <3.0.0'
+  sdk: '>=2.6.0 <3.0.0'
 dependencies:
   http: ^0.12.0
   collection: ^1.14.11
 dev_dependencies:
-  test: 1.9.2
+  test: ^1.9.2
   json_matcher: ^0.2.3
-  stream_channel: ^1.6.8
+  stream_channel: ^2.0.0
   uuid: ^2.0.1

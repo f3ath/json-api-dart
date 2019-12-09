@@ -5,7 +5,7 @@ void main() {
   test('Can decode url', () {
     final uri = Uri.parse(
         '/articles?include=author&fields%5Barticles%5D=title%2Cbody&fields%5Bpeople%5D=name');
-    final fields = Fields.decode(uri.queryParametersAll);
+    final fields = Fields.fromUri(uri);
     expect(fields['articles'], ['title', 'body']);
     expect(fields['people'], ['name']);
   });
@@ -17,7 +17,7 @@ void main() {
     });
     final uri = Uri.parse('/articles');
 
-    expect(fields.addTo(uri).toString(),
+    expect(fields.addToUri(uri).toString(),
         '/articles?fields%5Barticles%5D=title%2Cbody&fields%5Bpeople%5D=name');
   });
 }

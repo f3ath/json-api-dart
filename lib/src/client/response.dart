@@ -1,7 +1,5 @@
+import 'package:json_api/document.dart';
 import 'package:json_api/src/client/status_code.dart';
-import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/document/primary_data.dart';
-import 'package:json_api/src/document/resource_data.dart';
 import 'package:json_api/src/nullable.dart';
 
 /// A response returned by JSON:API client
@@ -20,7 +18,8 @@ class Response<Data extends PrimaryData> {
   /// Headers returned by the server.
   final Map<String, String> headers;
 
-  Response(this.status, this.headers, {this.document, this.asyncDocument});
+  const Response(this.status, this.headers,
+      {this.document, this.asyncDocument});
 
   /// Primary Data from the document (if any)
   Data get data => document.data;

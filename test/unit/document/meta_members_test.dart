@@ -85,7 +85,7 @@ void main() {
         ]
       };
 
-      final doc = Document.decodeJson(json, ResourceCollectionData.decodeJson);
+      final doc = Document.fromJson(json, ResourceCollectionData.fromJson);
       expect(doc.meta["bool"], true);
       expect(doc.data.collection.first.meta, meta);
       expect(

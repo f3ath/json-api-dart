@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 void main() {
   test('Can decode url', () {
     final uri = Uri.parse('/articles?sort=-created,title');
-    final sort = Sort.decode(uri.queryParametersAll);
+    final sort = Sort.fromUri(uri);
     expect(sort.length, 2);
     expect(sort.first.isDesc, true);
     expect(sort.first.name, 'created');
@@ -15,6 +15,6 @@ void main() {
   test('Can add to uri', () {
     final sort = Sort().desc('created').asc('title');
     final uri = Uri.parse('/articles');
-    expect(sort.addTo(uri).toString(), '/articles?sort=-created%2Ctitle');
+    expect(sort.addToUri(uri).toString(), '/articles?sort=-created%2Ctitle');
   });
 }

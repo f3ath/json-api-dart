@@ -4,6 +4,8 @@ import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/primary_data.dart';
 
 class Document<Data extends PrimaryData> {
+  static const contentType = 'application/vnd.api+json';
+
   /// The Primary Data
   final Data data;
   final Api api;
@@ -11,7 +13,7 @@ class Document<Data extends PrimaryData> {
   final Map<String, Object> meta;
 
   /// Create a document with primary data
-  Document(this.data, {this.meta, this.api}) : this.errors = null;
+  const Document(this.data, {this.meta, this.api}) : this.errors = null;
 
   /// Create a document with errors (no primary data)
   Document.error(Iterable<JsonApiError> errors, {this.meta, this.api})
@@ -25,18 +27,18 @@ class Document<Data extends PrimaryData> {
     ArgumentError.checkNotNull(meta, 'meta');
   }
 
-  /// Decodes a document with the specified primary data
-  static Document<Data> decodeJson<Data extends PrimaryData>(
+  /// Reconstructs a document with the specified primary data
+  static Document<Data> fromJson<Data extends PrimaryData>(
       Object json, Data decodePrimaryData(Object json)) {
     if (json is Map) {
       Api api;
       if (json.containsKey('jsonapi')) {
-        api = Api.decodeJson(json['jsonapi']);
+        api = Api.fromJson(json['jsonapi']);
       }
       if (json.containsKey('errors')) {
         final errors = json['errors'];
         if (errors is List) {
-          return Document.error(errors.map(JsonApiError.decodeJson),
+          return Document.error(errors.map(JsonApiError.fromJson),
               meta: json['meta'], api: api);
         }
       } else if (json.containsKey('data')) {

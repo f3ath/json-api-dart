@@ -3,7 +3,7 @@ class StatusCode {
   /// The code
   final int code;
 
-  StatusCode(this.code);
+  const StatusCode(this.code);
 
   /// True for the requests processed asynchronously.
   /// @see https://jsonapi.org/recommendations/#asynchronous-processing).
