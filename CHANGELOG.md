@@ -5,6 +5,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for custom non-standard links ([#61](https://github.com/f3ath/json-api-dart/issues/61))
+- Client supports `jsonapi` key in outgoing requests.
+- `Document.contentType` constant.
+- `IdentifierObject.fromIdentifier` factory method
+
+### Changed
+Most of this changes are **BC-BREAKING**.
+- `URLBuilder` was renamed to `UrlFactory`.
+- `DocumentBuilder` was split into `ServerDocumentFactory` and `ClientDocumentFactory`. Some methods were renamed.
+- Static `decodeJson` methods were renamed to `fromJson`.
+- `Identifier.equals` now requires the runtime type to be exactly the same.
+- `Link.decodeJsonMap` was renamed to `mapFromJson`
+- `TargetMatcher` changed its signature.
+ 
+### Removed
+- (Server) `ResourceTarget`, `CollectionTarget`, `RelationshipTarget`  classes.
+- `QueryParameters` interface.
+- `Router` class.
 
 ## [2.1.0] - 2019-12-04
 ### Added

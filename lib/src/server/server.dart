@@ -7,7 +7,7 @@ import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/http_method.dart';
 import 'package:json_api/src/server/response/error_response.dart';
 import 'package:json_api/src/server/response/response.dart';
-import 'package:json_api/src/server/routing/route_mapper.dart';
+import 'package:json_api/src/server/routing/route_factory.dart';
 import 'package:json_api/src/server/server_document_factory.dart';
 import 'package:json_api/url_design.dart';
 
