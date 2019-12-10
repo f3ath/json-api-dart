@@ -102,7 +102,7 @@ the type of the returned resource. Once the operation is complete, the request w
 
 #### Adding JSON:API Object
 It is possible to add the [JSON:API Object] to all documents sent by the [JsonApiClient]. To do so, pass the
-pre-configured [DocumentFactory] to the [JsonApiClient]:
+pre-configured [ClientDocumentFactory] to the [JsonApiClient]:
 ```dart
 import 'package:http/http.dart';
 import 'package:json_api/json_api.dart';
@@ -110,7 +110,7 @@ import 'package:json_api/json_api.dart';
 void main() async {
   final api = Api(version: "1.0");
   final httpClient = Client();
-  final jsonApiClient = JsonApiClient(httpClient, documentFactory: DocumentFactory(api: api));
+  final jsonApiClient = JsonApiClient(httpClient, documentFactory: ClientDocumentFactory(api: api));
 }
 
 ```
@@ -136,7 +136,7 @@ The [PathBasedUrlDesign] implements the [Recommended URL Design] allowing you to
 for all your JSON:API endpoints.
 
 
-[DocumentFactory]: https://pub.dev/documentation/json_api/latest/document_factory/DocumentFactory-class.html
+[ClientDocumentFactory]: https://pub.dev/documentation/json_api/latest/document_factory/ClientDocumentFactory-class.html
 [Document.errors]: https://pub.dev/documentation/json_api/latest/document/Document/errors.html
 [JsonApiClient]: https://pub.dev/documentation/json_api/latest/client/JsonApiClient-class.html
 [PathBasedUrlDesign]: https://pub.dev/documentation/json_api/latest/url_design/PathBasedUrlDesign-class.html
