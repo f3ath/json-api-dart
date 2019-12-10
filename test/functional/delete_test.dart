@@ -12,7 +12,7 @@ void main() async {
   Client httpClient;
   JsonApiClient client;
   final port = 8082;
-  final urlDesign = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
+  final url = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
 
   setUp(() async {
     httpClient = Client();
@@ -31,14 +31,14 @@ void main() async {
     ///
     /// https://jsonapi.org/format/#crud-deleting-responses-204
     test('204 No Content', () async {
-      final r0 = await client.deleteResource(urlDesign.resource('models', '1'));
+      final r0 = await client.deleteResource(url.resource('models', '1'));
 
       expect(r0.status, 204);
       expect(r0.isSuccessful, true);
       expect(r0.document, isNull);
 
       // Make sure the resource is not available anymore
-      final r1 = await client.fetchResource(urlDesign.resource('models', '1'));
+      final r1 = await client.fetchResource(url.resource('models', '1'));
       expect(r1.status, 404);
     });
 
@@ -48,7 +48,7 @@ void main() async {
     /// https://jsonapi.org/format/#crud-deleting-responses-200
     test('200 OK', () async {
       final r0 =
-          await client.deleteResource(urlDesign.resource('companies', '1'));
+          await client.deleteResource(url.resource('companies', '1'));
 
       expect(r0.status, 200);
       expect(r0.isSuccessful, true);
@@ -56,7 +56,7 @@ void main() async {
 
       // Make sure the resource is not available anymore
       final r1 =
-          await client.fetchResource(urlDesign.resource('companies', '1'));
+          await client.fetchResource(url.resource('companies', '1'));
       expect(r1.status, 404);
     });
 
@@ -66,7 +66,7 @@ void main() async {
     /// fails due to the resource not existing.
     test('404 Not Found', () async {
       final r0 =
-          await client.deleteResource(urlDesign.resource('models', '555'));
+          await client.deleteResource(url.resource('models', '555'));
       expect(r0.status, 404);
     });
   }, testOn: 'vm');

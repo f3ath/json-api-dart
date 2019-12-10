@@ -1,6 +1,6 @@
-import 'package:json_api/src/query/add_to_uri.dart';
+import 'package:json_api/src/query/query_parameters.dart';
 
-class Fields with AddToUri implements AddToUri {
+class Fields with QueryParameters implements QueryParameters {
   static Fields fromUri(Uri uri) => Fields(uri.queryParameters
       .map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1), v.split(',')))
         ..removeWhere((k, v) => k == null));

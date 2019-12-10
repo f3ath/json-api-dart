@@ -12,18 +12,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IdentifierObject.fromIdentifier` factory method
 
 ### Changed
-Most of this changes are **BC-BREAKING**.
+Most of the changes are **BC-BREAKING**.
 - `URLBuilder` was renamed to `UrlFactory`.
 - `DocumentBuilder` was split into `ServerDocumentFactory` and `ClientDocumentFactory`. Some methods were renamed.
 - Static `decodeJson` methods were renamed to `fromJson`.
 - `Identifier.equals` now requires the runtime type to be exactly the same.
-- `Link.decodeJsonMap` was renamed to `mapFromJson`
-- `TargetMatcher` changed its signature.
+- `Link.decodeJsonMap` was renamed to `mapFromJson`.
+- The signature of `TargetMatcher`.
+- The signature of `Controller`.
  
 ### Removed
 - (Server) `ResourceTarget`, `CollectionTarget`, `RelationshipTarget`  classes.
 - `QueryParameters` interface.
 - `Router` class.
+- `Query` class.
 
 ## [2.1.0] - 2019-12-04
 ### Added

@@ -15,30 +15,30 @@ class CarsController implements Controller {
   CarsController(this._dao, this._pagination);
 
   @override
-  Response fetchCollection(String type, Query query) {
+  Response fetchCollection(String type, Uri uri) {
+    final page = Page.fromUri(uri);
     final dao = _getDaoOrThrow(type);
     final collection = dao.fetchCollection(
-        _pagination.limit(query.page), _pagination.offset(query.page));
+        _pagination.limit(page), _pagination.offset(page));
     return CollectionResponse(collection.elements.map(dao.toResource),
         included: const [], total: collection.totalCount);
   }
 
   @override
   Response fetchRelated(
-      String type, String id, String relationship, Query query) {
+      String type, String id, String relationship, Uri uri) {
     final res = _fetchResourceOrThrow(type, id);
-
+    final page = Page.fromUri(uri);
     if (res.toOne.containsKey(relationship)) {
       final id = res.toOne[relationship];
       final resource = _dao[id.type].fetchByIdAsResource(id.id);
       return RelatedResourceResponse(resource);
     }
-
     if (res.toMany.containsKey(relationship)) {
       final relationships = res.toMany[relationship];
       final resources = relationships
-          .skip(_pagination.offset(query.page))
-          .take(_pagination.limit(query.page))
+          .skip(_pagination.offset(page))
+          .take(_pagination.limit(page))
           .map((id) => _dao[id.type].fetchByIdAsResource(id.id));
       return RelatedCollectionResponse(resources,
           total: relationships.length, included: const []);
@@ -48,7 +48,7 @@ class CarsController implements Controller {
   }
 
   @override
-  Response fetchResource(String type, String id, Query query) {
+  Response fetchResource(String type, String id, Uri uri) {
     final dao = _getDaoOrThrow(type);
 
     final obj = dao.fetchById(id);
@@ -73,7 +73,7 @@ class CarsController implements Controller {
 
   @override
   Response fetchRelationship(
-      String type, String id, String relationship, Query query) {
+      String type, String id, String relationship, Uri uri) {
     final res = _fetchResourceOrThrow(type, id);
 
     if (res.toOne.containsKey(relationship)) {

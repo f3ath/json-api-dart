@@ -1,8 +1,8 @@
 import 'dart:collection';
 
-import 'package:json_api/src/query/add_to_uri.dart';
+import 'package:json_api/src/query/query_parameters.dart';
 
-class Include with AddToUri, IterableMixin<String> implements AddToUri {
+class Include with QueryParameters, IterableMixin<String> implements QueryParameters {
   final Iterable<String> _resources;
 
   Include(this._resources);

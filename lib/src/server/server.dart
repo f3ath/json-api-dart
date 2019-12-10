@@ -33,13 +33,12 @@ class Server {
   }
 
   Future<Response> _call(Controller controller, HttpRequest request) async {
-    final query = Query.fromUri(request.requestedUri);
     final method = HttpMethod(request.method);
     final body = await _getBody(request);
     try {
       return await urlDesign
           .match(request.requestedUri, routeMapper)
-          .call(controller, query, method, body);
+          .call(controller, request.requestedUri, method, body);
     } on ErrorResponse catch (error) {
       return error;
     }

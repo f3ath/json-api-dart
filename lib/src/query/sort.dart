@@ -1,8 +1,8 @@
 import 'dart:collection';
 
-import 'package:json_api/src/query/add_to_uri.dart';
+import 'package:json_api/src/query/query_parameters.dart';
 
-class Sort with AddToUri, IterableMixin<SortField> implements AddToUri {
+class Sort with QueryParameters, IterableMixin<SortField> implements QueryParameters {
   static Sort fromUri(Uri uri) =>
       Sort((uri.queryParameters['sort'] ?? '').split(',').map(SortField.parse));
 

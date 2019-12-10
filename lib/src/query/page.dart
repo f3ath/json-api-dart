@@ -1,7 +1,7 @@
-import 'package:json_api/src/query/add_to_uri.dart';
+import 'package:json_api/src/query/query_parameters.dart';
 
 /// The "page" query parameters
-class Page with AddToUri implements AddToUri {
+class Page with QueryParameters implements QueryParameters {
   static final _regex = RegExp(r'^page\[(.+)\]$');
 
   final _params = <String, String>{};

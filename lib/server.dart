@@ -17,5 +17,4 @@ export 'package:json_api/src/server/response/see_other_response.dart';
 export 'package:json_api/src/server/response/to_many_response.dart';
 export 'package:json_api/src/server/response/to_one_response.dart';
 export 'package:json_api/src/server/server.dart';
-export 'package:json_api/src/target.dart';
 export 'package:json_api/url_design.dart';
