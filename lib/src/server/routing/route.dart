@@ -48,8 +48,9 @@ class RelatedRoute implements Route {
   @override
   FutureOr<Response> call(
       Controller controller, Uri uri, HttpMethod method, Object body) {
-    if (method.isGet())
+    if (method.isGet()) {
       return controller.fetchRelated(type, id, relationship, uri);
+    }
     return null;
   }
 }
