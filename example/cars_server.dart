@@ -61,7 +61,7 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
   final urlDesign = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
   final documentFactory =
       ServerDocumentFactory(urlDesign, pagination: pagination);
-  final jsonApiServer = Server(urlDesign, controller, documentFactory);
+  final jsonApiServer = JsonApiServer(urlDesign, controller, documentFactory);
 
   httpServer.forEach(jsonApiServer.serve);
   return httpServer;

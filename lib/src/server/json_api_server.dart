@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/query.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/http_method.dart';
 import 'package:json_api/src/server/response/error_response.dart';
@@ -11,14 +10,14 @@ import 'package:json_api/src/server/routing/route_factory.dart';
 import 'package:json_api/src/server/server_document_factory.dart';
 import 'package:json_api/url_design.dart';
 
-class Server {
+class JsonApiServer {
   final UrlDesign urlDesign;
   final Controller controller;
   final ServerDocumentFactory documentFactory;
   final String allowOrigin;
   final RouteFactory routeMapper;
 
-  Server(this.urlDesign, this.controller, this.documentFactory,
+  JsonApiServer(this.urlDesign, this.controller, this.documentFactory,
       {this.allowOrigin = '*'})
       : routeMapper = RouteFactory();
 

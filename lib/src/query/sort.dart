@@ -2,25 +2,22 @@ import 'dart:collection';
 
 import 'package:json_api/src/query/query_parameters.dart';
 
-class Sort with QueryParameters, IterableMixin<SortField> implements QueryParameters {
+class Sort extends QueryParameters with IterableMixin<SortField> {
   static Sort fromUri(Uri uri) =>
       Sort((uri.queryParameters['sort'] ?? '').split(',').map(SortField.parse));
 
-  final _fields = <SortField>[];
-
-  Sort([Iterable<SortField> fields = const []]) {
-    _fields.addAll(fields);
-  }
+  Sort([Iterable<SortField> fields = const []])
+      : _fields = [...fields],
+        super({'sort': fields.join(',')});
 
   @override
   Iterator<SortField> get iterator => _fields.iterator;
 
-  Sort desc(String name) => Sort([..._fields, Descending(name)]);
+  Sort desc(String name) => Sort([..._fields, Desc(name)]);
 
-  Sort asc(String name) => Sort([..._fields, Ascending(name)]);
+  Sort asc(String name) => Sort([..._fields, Asc(name)]);
 
-  @override
-  Map<String, String> get queryParameters => {'sort': join(',')};
+  final List<SortField> _fields;
 }
 
 abstract class SortField {
@@ -31,12 +28,12 @@ abstract class SortField {
   String get name;
 
   static SortField parse(String queryParam) => queryParam.startsWith('-')
-      ? Descending(queryParam.substring(1))
-      : Ascending(queryParam);
+      ? Desc(queryParam.substring(1))
+      : Asc(queryParam);
 }
 
-class Ascending implements SortField {
-  Ascending(this.name);
+class Asc implements SortField {
+  Asc(this.name);
 
   @override
   bool get isAsc => true;
@@ -51,8 +48,8 @@ class Ascending implements SortField {
   String toString() => name;
 }
 
-class Descending implements SortField {
-  Descending(this.name);
+class Desc implements SortField {
+  Desc(this.name);
 
   @override
   bool get isAsc => false;

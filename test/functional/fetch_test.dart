@@ -42,9 +42,8 @@ void main() async {
     });
 
     test('resource collection traversal', () async {
-      final uri = url
-          .collection('companies')
-          .replace(queryParameters: {'foo': 'bar'});
+      final uri =
+          url.collection('companies').replace(queryParameters: {'foo': 'bar'});
 
       final r0 = await client.fetchCollection(uri);
       final somePage = r0.data;
@@ -112,8 +111,6 @@ void main() async {
     });
   }, testOn: 'vm');
 
-
-
   group('single resource', () {
     test('single resource', () async {
       final uri = url.resource('models', '1');
@@ -148,22 +145,20 @@ void main() async {
     });
 
     test('404 on type', () async {
-      final r =
-          await client.fetchResource(url.related('unicorns', '1', 'hq'));
+      final r = await client.fetchResource(url.related('unicorns', '1', 'hq'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });
 
     test('404 on id', () async {
-      final r =
-          await client.fetchResource(url.related('models', '555', 'hq'));
+      final r = await client.fetchResource(url.related('models', '555', 'hq'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });
 
     test('404 on relationship', () async {
-      final r = await client
-          .fetchResource(url.related('companies', '1', 'unicorn'));
+      final r =
+          await client.fetchResource(url.related('companies', '1', 'unicorn'));
       expect(r.status, 404);
       expect(r.isSuccessful, false);
     });
@@ -237,18 +232,15 @@ void main() async {
   group('compound document', () {
     test('single resource compound document', () async {
       final uri = url.resource('companies', '1');
-      final r = await client.fetchResource(uri);
+      final r =
+          await client.fetchResource(uri, parameters: Include(['models']));
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data.unwrap().attributes['name'], 'Tesla');
-      expect(r.data.self.uri, uri);
-      expect(r.data.included.length, 5);
-      expect(r.data.included.first.type, 'cities');
-      expect(r.data.included.first.attributes['name'], 'Palo Alto');
+      expect(r.data.self.uri.query.toString(), 'include=models');
+      expect(r.data.included.length, 4);
       expect(r.data.included.last.type, 'models');
       expect(r.data.included.last.attributes['name'], 'Model 3');
     });
-
   }, testOn: 'vm');
-
 }

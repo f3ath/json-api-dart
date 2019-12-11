@@ -67,8 +67,7 @@ void main() async {
     ///
     /// https://jsonapi.org/format/#crud-updating-responses-200
     test('200 OK', () async {
-      final r0 =
-          await client.fetchResource(url.resource('companies', '1'));
+      final r0 = await client.fetchResource(url.resource('companies', '1'));
       final original = r0.document.data.unwrap();
 
       expect(original.attributes['name'], 'Tesla');
@@ -80,8 +79,8 @@ void main() async {
       original.toMany['models'].removeLast();
       original.toOne['headquarters'] = null; // should be removed
 
-      final r1 = await client.updateResource(
-          url.resource('companies', '1'), original);
+      final r1 =
+          await client.updateResource(url.resource('companies', '1'), original);
       final updated = r1.document.data.unwrap();
 
       expect(r1.status, 200);
@@ -108,8 +107,8 @@ void main() async {
 
       original.attributes['name'] = 'Model XXX';
 
-      final r1 = await client.updateResource(
-          url.resource('models', '3'), original);
+      final r1 =
+          await client.updateResource(url.resource('models', '3'), original);
       expect(r1.status, 204);
       expect(r1.document, isNull);
 
@@ -131,8 +130,8 @@ void main() async {
       final r0 = await client.fetchResource(url.resource('models', '3'));
       final original = r0.document.data.unwrap();
 
-      final r1 = await client.updateResource(
-          url.resource('companies', '1'), original);
+      final r1 =
+          await client.updateResource(url.resource('companies', '1'), original);
       expect(r1.status, 409);
       expect(r1.document.errors.first.detail, 'Incompatible type');
     });
@@ -219,8 +218,7 @@ void main() async {
       /// is not allowed by the server.
       group('replace', () {
         test('204 No Content', () async {
-          final relationship =
-              url.relationship('companies', '1', 'models');
+          final relationship = url.relationship('companies', '1', 'models');
           final r0 = await client.fetchToMany(relationship);
           final original = r0.data.identifiers.map((_) => _.id);
           expect(original, ['1', '2', '3', '4']);
