@@ -1,8 +1,6 @@
 /// This class and its descendants describe the query parameters recognized
 /// by JSON:API.
 class QueryParameters {
-  final Map<String, String> _parameters;
-
   QueryParameters(Map<String, String> parameters)
       : _parameters = {...parameters};
 
@@ -20,4 +18,6 @@ class QueryParameters {
   /// A shortcut for [merge]
   QueryParameters operator &(QueryParameters moreParameters) =>
       merge(moreParameters);
+
+  final Map<String, String> _parameters;
 }
