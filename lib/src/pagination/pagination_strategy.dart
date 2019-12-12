@@ -1,8 +1,8 @@
 import 'package:json_api/src/query/page.dart';
 
 /// Pagination strategy determines how pagination information is encoded in the
-/// URL query parameter
-abstract class Pagination {
+/// URL query parameters
+abstract class PaginationStrategy {
   /// Number of elements per page. Null for unlimited.
   int limit(Page page);
 
@@ -12,12 +12,12 @@ abstract class Pagination {
   /// Link to the first page. Null if not supported.
   Page first();
 
-  /// Link to the last page. Null if not supported.
+  /// Reference to the last page. Null if not supported.
   Page last(int total);
 
-  /// Link to the next page. Null if not supported or if current page is the last.
+  /// Reference to the next page. Null if not supported or if current page is the last.
   Page next(Page page, [int total]);
 
-  /// Link to the first page. Null if not supported or if current page is the first.
+  /// Reference to the first page. Null if not supported or if current page is the first.
   Page prev(Page page);
 }

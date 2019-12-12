@@ -10,7 +10,7 @@ import 'job_queue.dart';
 class CarsController implements Controller {
   final Map<String, DAO> _dao;
 
-  final Pagination _pagination;
+  final PaginationStrategy _pagination;
 
   CarsController(this._dao, this._pagination);
 

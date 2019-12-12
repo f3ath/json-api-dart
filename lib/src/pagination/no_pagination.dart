@@ -1,7 +1,7 @@
-import 'package:json_api/src/pagination/pagination.dart';
+import 'package:json_api/src/pagination/pagination_strategy.dart';
 import 'package:json_api/src/query/page.dart';
 
-class NoPagination implements Pagination {
+class NoPagination implements PaginationStrategy {
   const NoPagination();
 
   @override

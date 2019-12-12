@@ -21,6 +21,7 @@ Most of the changes are **BC-BREAKING**.
 - The signature of `TargetMatcher`.
 - The signature of `Controller`.
 - `Server` was renamed to `JsonApiServer`.
+- `Pagination` was renamed to `PaginationStrategy`.
  
 ### Removed
 - (Server) `ResourceTarget`, `CollectionTarget`, `RelationshipTarget`  classes.

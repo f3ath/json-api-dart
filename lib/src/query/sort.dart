@@ -2,20 +2,29 @@ import 'dart:collection';
 
 import 'package:json_api/src/query/query_parameters.dart';
 
+/// Query parameters defining the sorting.
+/// @see https://jsonapi.org/format/#fetching-sorting
 class Sort extends QueryParameters with IterableMixin<SortField> {
-  static Sort fromUri(Uri uri) =>
-      Sort((uri.queryParameters['sort'] ?? '').split(',').map(SortField.parse));
-
-  Sort([Iterable<SortField> fields = const []])
+  /// The [fields] arguments is the list of sorting criteria.
+  /// Use [Asc] and [Desc] to define sort direction.
+  ///
+  /// Example:
+  /// ```dart
+  /// Sort([Asc('created'), Desc('title')]).addTo(url);
+  /// ```
+  /// encodes into
+  /// ```
+  /// ?sort=-created,title
+  /// ```
+  Sort(Iterable<SortField> fields)
       : _fields = [...fields],
         super({'sort': fields.join(',')});
 
+  static Sort fromUri(Uri uri) =>
+      Sort((uri.queryParameters['sort'] ?? '').split(',').map(SortField.parse));
+
   @override
   Iterator<SortField> get iterator => _fields.iterator;
-
-  Sort desc(String name) => Sort([..._fields, Desc(name)]);
-
-  Sort asc(String name) => Sort([..._fields, Asc(name)]);
 
   final List<SortField> _fields;
 }

@@ -1,18 +1,18 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/pagination/no_pagination.dart';
-import 'package:json_api/src/pagination/pagination.dart';
+import 'package:json_api/src/pagination/pagination_strategy.dart';
 import 'package:json_api/src/query/page.dart';
 import 'package:json_api/url_design.dart';
 
 class ServerDocumentFactory {
   final UrlFactory _url;
-  final Pagination _pagination;
+  final PaginationStrategy _pagination;
   final Api _api;
 
   const ServerDocumentFactory(this._url,
       {Api api = const Api(version: '1.0'),
-      Pagination pagination = const NoPagination()})
+      PaginationStrategy pagination = const NoPagination()})
       : _api = api,
         _pagination = pagination;
 

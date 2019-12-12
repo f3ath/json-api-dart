@@ -1,6 +1,6 @@
 export 'package:json_api/query.dart';
 export 'package:json_api/src/pagination/fixed_size_page.dart';
-export 'package:json_api/src/pagination/pagination.dart';
+export 'package:json_api/src/pagination/pagination_strategy.dart';
 export 'package:json_api/src/server/controller.dart';
 export 'package:json_api/src/server/json_api_server.dart';
 export 'package:json_api/src/server/response/accepted_response.dart';
