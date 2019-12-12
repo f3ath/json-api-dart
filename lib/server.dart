@@ -1,3 +1,9 @@
+/// The JSON:API Server.
+/// **WARNING!**
+/// **The server is still under development! Not for production!**
+/// **The API is not stable!**
+library server;
+
 export 'package:json_api/query.dart';
 export 'package:json_api/src/pagination/fixed_size_page.dart';
 export 'package:json_api/src/pagination/pagination_strategy.dart';

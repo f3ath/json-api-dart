@@ -1,3 +1,5 @@
+library document;
+
 export 'package:json_api/src/document/api.dart';
 export 'package:json_api/src/document/document.dart';
 export 'package:json_api/src/document/identifier.dart';

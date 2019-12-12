@@ -59,7 +59,7 @@ class JsonApiServer {
   }
 
   Future<Object> _getBody(HttpRequest request) async {
-    // @see https://github.com/dart-lang/sdk/issues/36900
+    // https://github.com/dart-lang/sdk/issues/36900
     final body = await request.cast<List<int>>().transform(utf8.decoder).join();
     return (body.isNotEmpty) ? json.decode(body) : null;
   }

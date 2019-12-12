@@ -1,4 +1,3 @@
-/// The JSON:API Client.
 library client;
 
 export 'package:json_api/src/client/client_document_factory.dart';

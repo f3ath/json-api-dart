@@ -8,7 +8,25 @@ import 'package:json_api/src/client/client_document_factory.dart';
 import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/client/status_code.dart';
 
-/// JSON:API client
+/// The JSON:API Client.
+///
+/// [JsonApiClient] works on top of Dart's built-in HTTP client.
+/// ```dart
+/// import 'package:http/http.dart';
+/// import 'package:json_api/client.dart';
+///
+/// void main() async {
+///   final httpClient = Client();
+///   final jsonApiClient = JsonApiClient(httpClient);
+///   final url = Uri.parse('http://localhost:8080/companies/2');
+///   final response = await jsonApiClient.fetchCollection(url);
+///   httpClient.close(); // Don't forget to close the http client
+///   print('The collection page size is ${response.data.collection.length}');
+///   final resource = response.data.unwrap().first;
+///   print('The last element is ${resource}');
+///   resource.attributes.forEach((k, v) => print('Attribute $k is $v'));
+/// }
+/// ```
 class JsonApiClient {
   final http.Client httpClient;
   final OnHttpCall _onHttpCall;
