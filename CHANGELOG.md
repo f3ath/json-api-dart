@@ -20,6 +20,7 @@ Most of the changes are **BC-BREAKING**.
 - `Link.decodeJsonMap` was renamed to `mapFromJson`.
 - The signature of `TargetMatcher`.
 - The signature of `Controller`.
+- `Server` was renamed to `JsonApiServer`.
  
 ### Removed
 - (Server) `ResourceTarget`, `CollectionTarget`, `RelationshipTarget`  classes.
