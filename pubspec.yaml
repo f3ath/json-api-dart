@@ -1,6 +1,6 @@
 name: json_api
 author: Alexey Karapetov <karapetov@gmail.com>
-version: 3.0.0-dev.1
+version: 3.0.0-dev.2
 homepage: https://github.com/f3ath/json-api-dart
 description: JSON:API Client for Flutter, Web and VM. Supports JSON:API v1.0 (http://jsonapi.org)
 environment:

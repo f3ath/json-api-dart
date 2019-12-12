@@ -1,8 +1,8 @@
-import 'package:json_api/json_api.dart';
 import 'package:json_api/src/document/decoding_exception.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/navigation.dart';
 import 'package:json_api/src/document/primary_data.dart';
+import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/resource_object.dart';
 
 /// Represents a resource collection or a collection of related resources of a to-many relationship
