@@ -9,9 +9,8 @@ class Link {
     ArgumentError.checkNotNull(uri, 'uri');
   }
 
-  /// Reconstructs the link from the [json] object. If [json] is null, returns null;
+  /// Reconstructs the link from the [json] object
   static Link fromJson(Object json) {
-    if (json == null) return null;
     if (json is String) return Link(Uri.parse(json));
     if (json is Map) return LinkObject.fromJson(json);
     throw DecodingException('Can not decode Link from $json');
