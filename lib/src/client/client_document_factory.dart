@@ -1,4 +1,5 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/src/nullable.dart';
 
 /// This is a document factory used by [JsonApiClient]. It is responsible
 /// for building the JSON representation of the outgoing resources.
@@ -17,14 +18,14 @@ class ClientDocumentFactory {
 
   /// Makes a document containing a to-one relationship.
   Document<ToOne> makeToOneDocument(Identifier id) =>
-      Document(ToOne(IdentifierObject.fromIdentifier(id)), api: _api);
+      Document(ToOne(nullable(IdentifierObject.fromIdentifier)(id)), api: _api);
 
   ResourceObject _resourceObject(Resource resource) =>
       ResourceObject(resource.type, resource.id,
           attributes: resource.attributes,
           relationships: {
             ...resource.toOne.map((k, v) =>
-                MapEntry(k, ToOne(IdentifierObject.fromIdentifier(v)))),
+                MapEntry(k, ToOne(nullable(IdentifierObject.fromIdentifier)(v)))),
             ...resource.toMany.map((k, v) =>
                 MapEntry(k, ToMany(v.map(IdentifierObject.fromIdentifier))))
           });

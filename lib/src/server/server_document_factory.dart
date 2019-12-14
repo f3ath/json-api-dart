@@ -92,7 +92,7 @@ class ServerDocumentFactory {
         ...r.toOne.map((k, v) => MapEntry(
             k,
             ToOne(
-              IdentifierObject.fromIdentifier(v),
+              nullable(IdentifierObject.fromIdentifier)(v),
               self: Link(_url.relationship(r.type, r.id, k)),
               related: Link(_url.related(r.type, r.id, k)),
             ))),
