@@ -3,6 +3,7 @@ import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/src/nullable.dart';
 
 /// [ResourceObject] is a JSON representation of a [Resource].
 ///
@@ -49,7 +50,7 @@ class ResourceObject {
           (attributes == null || attributes is Map)) {
         return ResourceObject(json['type'], json['id'],
             attributes: attributes,
-            relationships: Relationship.mapFromJson(relationships),
+            relationships: nullable(Relationship.mapFromJson)(relationships),
             links: Link.mapFromJson(json['links'] ?? {}),
             meta: json['meta']);
       }

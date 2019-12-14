@@ -47,7 +47,6 @@ class Relationship extends PrimaryData {
 
   /// Parses the `relationships` member of a Resource Object
   static Map<String, Relationship> mapFromJson(Object json) {
-    if (json == null) return {};
     if (json is Map) {
       return json
           .map((k, v) => MapEntry(k.toString(), Relationship.fromJson(v)));

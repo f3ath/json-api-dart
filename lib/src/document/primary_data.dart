@@ -7,8 +7,9 @@ import 'package:json_api/src/document/resource_object.dart';
 /// - it always has the `data` key (could be `null` for an empty to-one relationship)
 /// - it can not have `meta` and `jsonapi` keys
 abstract class PrimaryData {
-  /// In a Compound document this member contains the included resources
-  final List<ResourceObject> included;
+  /// In a Compound document this member contains the included resources.
+  /// May be an empty iterable, a non-empty iterable, or null.
+  final Iterable<ResourceObject> included;
 
   final Map<String, Link> _links;
 
@@ -16,7 +17,7 @@ abstract class PrimaryData {
       {Link self,
       Iterable<ResourceObject> included,
       Map<String, Link> links = const {}})
-      : this.included = (included == null) ? null : List.from(included),
+      : this.included = (included == null) ? null : [...included],
         _links = {
           ...links,
           if (self != null) ...{'self': self}
