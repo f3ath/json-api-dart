@@ -17,11 +17,8 @@ class Link {
   }
 
   /// Reconstructs the document's `links` member into a map.
-  /// The retuning map will not have null values.
-  ///
   /// Details on the `links` member: https://jsonapi.org/format/#document-links
   static Map<String, Link> mapFromJson(Object json) {
-    if (json == null) return {};
     if (json is Map) {
       return ({...json}..removeWhere((_, v) => v == null))
           .map((k, v) => MapEntry(k.toString(), Link.fromJson(v)));

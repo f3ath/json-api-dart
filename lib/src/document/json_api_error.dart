@@ -78,7 +78,7 @@ class JsonApiError {
           pointer: pointer,
           parameter: parameter,
           meta: json['meta'],
-          links: Link.mapFromJson(json['links']));
+          links: Link.mapFromJson(json['links'] ?? {}));
     }
     throw DecodingException('Can not decode ErrorObject from $json');
   }

@@ -26,7 +26,7 @@ class ResourceData extends PrimaryData {
       }
       final data = ResourceObject.fromJson(json['data']);
       return ResourceData(data,
-          links: Link.mapFromJson(json['links']),
+          links: Link.mapFromJson(json['links'] ?? {}),
           included: resources.isNotEmpty ? resources : null);
     }
     throw DecodingException('Can not decode SingleResourceObject from $json');

@@ -50,7 +50,7 @@ class ResourceObject {
         return ResourceObject(json['type'], json['id'],
             attributes: attributes,
             relationships: Relationship.mapFromJson(relationships),
-            links: Link.mapFromJson(json['links']),
+            links: Link.mapFromJson(json['links'] ?? {}),
             meta: json['meta']);
       }
     }
