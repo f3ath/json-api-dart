@@ -25,9 +25,12 @@ class ResourceCollectionData extends PrimaryData {
     if (json is Map) {
       final data = json['data'];
       if (data is List) {
+        final included = json['included'];
         return ResourceCollectionData(data.map(ResourceObject.fromJson),
             links: Link.mapFromJson(json['links'] ?? {}),
-            included: ResourceObject.fromJsonList(json['included']));
+            included: included is List
+                ? ResourceObject.fromJsonList(included)
+                : null);
       }
     }
     throw DecodingException(

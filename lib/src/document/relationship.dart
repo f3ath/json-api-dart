@@ -84,9 +84,11 @@ class ToOne extends Relationship {
 
   static ToOne fromJson(Object json) {
     if (json is Map && json.containsKey('data')) {
+      final included = json['included'];
       return ToOne(nullable(IdentifierObject.fromJson)(json['data']),
           links: Link.mapFromJson(json['links'] ?? {}),
-          included: ResourceObject.fromJsonList(json['included']));
+          included:
+              included is List ? ResourceObject.fromJsonList(included) : null);
     }
     throw DecodingException('Can not decode ToOne from $json');
   }

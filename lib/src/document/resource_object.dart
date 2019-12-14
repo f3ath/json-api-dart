@@ -31,8 +31,8 @@ class ResourceObject {
           ...links,
           if (self != null) ...{'self': self}
         },
-        attributes = attributes == null ? null : Map.from(attributes),
-        relationships = relationships == null ? null : Map.from(relationships);
+        attributes = attributes == null ? null : {...attributes},
+        relationships = relationships == null ? null : {...relationships};
 
   Link get self => _links['self'];
 
@@ -58,12 +58,8 @@ class ResourceObject {
     throw DecodingException('Can not decode ResourceObject from $json');
   }
 
-  static List<ResourceObject> fromJsonList(Object json) {
-    if (json == null) return null;
-    if (json is List) return json.map(fromJson).toList();
-    throw DecodingException(
-        'Can not decode Iterable<ResourceObject> from $json');
-  }
+  static List<ResourceObject> fromJsonList(Iterable<Object> json) =>
+      json.map(fromJson).toList();
 
   /// Returns the JSON object to be used in the `data` or `included` members
   /// of a JSON:API Document
