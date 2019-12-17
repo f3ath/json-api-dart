@@ -2,7 +2,6 @@ import 'package:json_api/src/document/decoding_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/identifier_object.dart';
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/navigation.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/nullable.dart';
@@ -19,14 +18,8 @@ class Relationship extends PrimaryData {
   Link get related => links['related'];
 
   Relationship(
-      {Link related,
-      Link self,
-      Iterable<ResourceObject> included,
-      Map<String, Link> links = const {}})
-      : super(self: self, included: included, links: {
-          ...links,
-          if (related != null) ...{'related': related}
-        });
+      {Iterable<ResourceObject> included, Map<String, Link> links = const {}})
+      : super(included: included, links: links);
 
   /// Reconstructs a JSON:API Document or the `relationship` member of a Resource object.
   static Relationship fromJson(Object json) {
@@ -72,15 +65,12 @@ class ToOne extends Relationship {
   final IdentifierObject linkage;
 
   ToOne(this.linkage,
-      {Link self,
-      Link related,
-      Iterable<ResourceObject> included,
-      Map<String, Link> links = const {}})
-      : super(self: self, related: related, included: included, links: links);
+      {Iterable<ResourceObject> included, Map<String, Link> links = const {}})
+      : super(included: included, links: links);
 
-  ToOne.empty({Link self, Link related})
+  ToOne.empty({Link self, Map<String, Link> links = const {}})
       : linkage = null,
-        super(self: self, related: related);
+        super(links: links);
 
   static ToOne fromJson(Object json) {
     if (json is Map && json.containsKey('data')) {
@@ -109,15 +99,9 @@ class ToMany extends Relationship {
   /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
   final linkage = <IdentifierObject>[];
 
-  final Navigation navigation;
-
   ToMany(Iterable<IdentifierObject> linkage,
-      {Link self,
-      Link related,
-      Iterable<ResourceObject> included,
-      this.navigation = const Navigation(),
-      Map<String, Link> links = const {}})
-      : super(self: self, related: related, included: included, links: links) {
+      {Iterable<ResourceObject> included, Map<String, Link> links = const {}})
+      : super(included: included, links: links) {
     this.linkage.addAll(linkage);
   }
 
@@ -130,7 +114,6 @@ class ToMany extends Relationship {
           return ToMany(
             data.map(IdentifierObject.fromJson),
             links: links,
-            navigation: Navigation.fromLinks(links),
           );
         }
       }
@@ -143,7 +126,7 @@ class ToMany extends Relationship {
         'data': linkage,
       };
 
-  /// Converts to List<[Identifier]>.
+  /// Converts to List<Identifier>.
   /// For empty relationships returns an empty List.
   List<Identifier> get identifiers => linkage.map((_) => _.unwrap()).toList();
 }

@@ -1,6 +1,5 @@
 import 'package:json_api/src/document/decoding_exception.dart';
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/navigation.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/resource_object.dart';
@@ -10,14 +9,8 @@ class ResourceCollectionData extends PrimaryData {
   final collection = <ResourceObject>[];
 
   ResourceCollectionData(Iterable<ResourceObject> collection,
-      {Link self,
-      Iterable<ResourceObject> included,
-      Navigation navigation = const Navigation(),
-      Map<String, Link> links = const {}})
-      : super(
-            self: self,
-            included: included,
-            links: {...links, ...navigation.links}) {
+      {Iterable<ResourceObject> included, Map<String, Link> links = const {}})
+      : super(included: included, links: links) {
     this.collection.addAll(collection);
   }
 
@@ -37,7 +30,17 @@ class ResourceCollectionData extends PrimaryData {
         'Can not decode ResourceObjectCollection from $json');
   }
 
-  Navigation get navigation => Navigation.fromLinks(links);
+  /// The link to the last page. May be null.
+  Link get last => links['last'];
+
+  /// The link to the first page. May be null.
+  Link get first => links['first'];
+
+  /// The link to the next page. May be null.
+  Link get next => links['next'];
+
+  /// The link to the prev page. May be null.
+  Link get prev => links['prev'];
 
   List<Resource> unwrap() => collection.map((_) => _.unwrap()).toList();
 

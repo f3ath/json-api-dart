@@ -24,8 +24,8 @@ class ClientDocumentFactory {
       ResourceObject(resource.type, resource.id,
           attributes: resource.attributes,
           relationships: {
-            ...resource.toOne.map((k, v) =>
-                MapEntry(k, ToOne(nullable(IdentifierObject.fromIdentifier)(v)))),
+            ...resource.toOne.map((k, v) => MapEntry(
+                k, ToOne(nullable(IdentifierObject.fromIdentifier)(v)))),
             ...resource.toMany.map((k, v) =>
                 MapEntry(k, ToMany(v.map(IdentifierObject.fromIdentifier))))
           });

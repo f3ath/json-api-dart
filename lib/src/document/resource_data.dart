@@ -9,13 +9,10 @@ class ResourceData extends PrimaryData {
   final ResourceObject resourceObject;
 
   ResourceData(this.resourceObject,
-      {Link self,
-      Iterable<ResourceObject> included,
-      Map<String, Link> links = const {}})
+      {Iterable<ResourceObject> included, Map<String, Link> links = const {}})
       : super(
-            self: self,
             included: included,
-            links: {...resourceObject.links, ...links});
+            links: {...resourceObject.links.toMap(), ...links});
 
   static ResourceData fromJson(Object json) {
     if (json is Map) {

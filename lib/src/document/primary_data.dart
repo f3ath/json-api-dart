@@ -1,4 +1,5 @@
 import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/map_view.dart';
 import 'package:json_api/src/document/resource_object.dart';
 
 /// The top-level Primary Data. This is the essentials of the JSON:API Document.
@@ -11,26 +12,20 @@ abstract class PrimaryData {
   /// May be an empty iterable, a non-empty iterable, or null.
   final Iterable<ResourceObject> included;
 
-  final Map<String, Link> _links;
+  /// The top-level `links` object. May be empty.
+  final MapView<String, Link> links;
 
   PrimaryData(
-      {Link self,
+      {
       Iterable<ResourceObject> included,
       Map<String, Link> links = const {}})
       : this.included = (included == null) ? null : [...included],
-        _links = {
-          ...links,
-          if (self != null) ...{'self': self}
-        };
+        this.links = MapView(links);
 
   /// The `self` link. May be null.
-  Link get self => _links['self'];
-
-  /// The top-level `links` object. May be empty.
-  Map<String, Link> get links => Map.unmodifiable(_links);
+  Link get self => links['self'];
 
   /// Documents with included resources are called compound
-  ///
   /// Details: http://jsonapi.org/format/#document-compound-documents
   bool get isCompound => included != null && included.isNotEmpty;
 

@@ -26,8 +26,7 @@ class ServerDocumentFactory {
           {int total, Iterable<Resource> included}) =>
       Document(
           ResourceCollectionData(collection.map(_resourceObject),
-              self: Link(self),
-              navigation: _navigation(self, total),
+              links: {'self': Link(self), ..._navigation(self, total)},
               included: included?.map(_resourceObject)),
           api: _api);
 
@@ -37,7 +36,7 @@ class ServerDocumentFactory {
           {int total, Iterable<Resource> included}) =>
       Document(
           ResourceCollectionData(collection.map(_resourceObject),
-              self: Link(self), navigation: _navigation(self, total)),
+              links: {'self': Link(self), ..._navigation(self, total)}),
           api: _api);
 
   /// A document containing a single (primary) resource
@@ -45,7 +44,8 @@ class ServerDocumentFactory {
           {Iterable<Resource> included}) =>
       Document(
           ResourceData(_resourceObject(resource),
-              self: Link(self), included: included?.map(_resourceObject)),
+              links: {'self': Link(self)},
+              included: included?.map(_resourceObject)),
           api: _api);
 
   /// A document containing a single related resource
@@ -53,7 +53,8 @@ class ServerDocumentFactory {
           Uri self, Resource resource, {Iterable<Resource> included}) =>
       Document(
           ResourceData(_resourceObject(resource),
-              self: Link(self), included: included?.map(_resourceObject)),
+              links: {'self': Link(self)},
+              included: included?.map(_resourceObject)),
           api: _api);
 
   /// A document containing a to-many relationship
@@ -66,8 +67,10 @@ class ServerDocumentFactory {
       Document(
           ToMany(
             identifiers.map(IdentifierObject.fromIdentifier),
-            self: Link(self),
-            related: Link(_url.related(type, id, relationship)),
+            links: {
+              "self": Link(self),
+              "related": Link(_url.related(type, id, relationship))
+            },
           ),
           api: _api);
 
@@ -77,8 +80,10 @@ class ServerDocumentFactory {
       Document(
           ToOne(
             nullable(IdentifierObject.fromIdentifier)(identifier),
-            self: Link(self),
-            related: Link(_url.related(type, id, relationship)),
+            links: {
+              'self': Link(self),
+              'related': Link(_url.related(type, id, relationship))
+            },
           ),
           api: _api);
 
@@ -86,35 +91,39 @@ class ServerDocumentFactory {
   Document makeMetaDocument(Map<String, Object> meta) =>
       Document.empty(meta, api: _api);
 
-  ResourceObject _resourceObject(Resource r) => ResourceObject(r.type, r.id,
-      attributes: r.attributes,
-      relationships: {
+  ResourceObject _resourceObject(Resource r) =>
+      ResourceObject(r.type, r.id, attributes: r.attributes, relationships: {
         ...r.toOne.map((k, v) => MapEntry(
             k,
             ToOne(
               nullable(IdentifierObject.fromIdentifier)(v),
-              self: Link(_url.relationship(r.type, r.id, k)),
-              related: Link(_url.related(r.type, r.id, k)),
+              links: {
+                'self': Link(_url.relationship(r.type, r.id, k)),
+                'related': Link(_url.related(r.type, r.id, k))
+              },
             ))),
         ...r.toMany.map((k, v) => MapEntry(
             k,
             ToMany(
               v.map(IdentifierObject.fromIdentifier),
-              self: Link(_url.relationship(r.type, r.id, k)),
-              related: Link(_url.related(r.type, r.id, k)),
+              links: {
+                'self': Link(_url.relationship(r.type, r.id, k)),
+                'related': Link(_url.related(r.type, r.id, k))
+              },
             )))
-      },
-      self: Link(_url.resource(r.type, r.id)));
+      }, links: {
+        'self': Link(_url.resource(r.type, r.id))
+      });
 
-  Navigation _navigation(Uri uri, int total) {
+  Map<String, Link> _navigation(Uri uri, int total) {
     final page = Page.fromUri(uri);
-    return Navigation(
-      first: nullable(_link)(_pagination.first()?.addToUri(uri)),
-      last: nullable(_link)(_pagination.last(total)?.addToUri(uri)),
-      prev: nullable(_link)(_pagination.prev(page)?.addToUri(uri)),
-      next: nullable(_link)(_pagination.next(page, total)?.addToUri(uri)),
-    );
-  }
 
-  Link _link(Uri uri) => Link(uri);
+    return ({
+      'first': _pagination.first(),
+      'last': _pagination.last(total),
+      'prev': _pagination.prev(page),
+      'next': _pagination.next(page, total)
+    }..removeWhere((k, v) => v == null))
+        .map((k, v) => MapEntry(k, Link(v.addToUri(uri))));
+  }
 }

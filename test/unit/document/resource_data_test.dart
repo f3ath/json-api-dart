@@ -22,10 +22,10 @@ void main() {
 
   test('Inherits links from ResourceObject', () {
     final res = ResourceObject('apples', '1',
-        self: Link(Uri.parse('/self')),
         links: {
           'foo': Link(Uri.parse('/foo')),
-          'bar': Link(Uri.parse('/bar'))
+          'bar': Link(Uri.parse('/bar')),
+          'self': Link(Uri.parse('/self')),
         });
     final data = ResourceData(res, links: {
       'bar': Link(Uri.parse('/bar-new')),
@@ -43,29 +43,10 @@ void main() {
       expect(data.links['my-link'].toString(), '/my-link');
     });
 
-    test('if passed, "self" argument is merged into "links"', () {
-      final data = ResourceData(res,
-          self: Link(Uri.parse('/self')),
-          links: {'my-link': Link(Uri.parse('/my-link'))});
-      expect(data.links['my-link'].toString(), '/my-link');
-      expect(data.links['self'].toString(), '/self');
-      expect(data.self.toString(), '/self');
-    });
-
     test('"links" may contain the "self" key', () {
       final data = ResourceData(res, links: {
         'my-link': Link(Uri.parse('/my-link')),
         'self': Link(Uri.parse('/self'))
-      });
-      expect(data.links['my-link'].toString(), '/my-link');
-      expect(data.links['self'].toString(), '/self');
-      expect(data.self.toString(), '/self');
-    });
-
-    test('"self" takes precedence over "links"', () {
-      final data = ResourceData(res, self: Link(Uri.parse('/self')), links: {
-        'my-link': Link(Uri.parse('/my-link')),
-        'self': Link(Uri.parse('/will-be-replaced'))
       });
       expect(data.links['my-link'].toString(), '/my-link');
       expect(data.links['self'].toString(), '/self');

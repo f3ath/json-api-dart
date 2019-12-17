@@ -29,7 +29,7 @@ class Document<Data extends PrimaryData> {
 
   /// Reconstructs a document with the specified primary data
   static Document<Data> fromJson<Data extends PrimaryData>(
-      Object json, Data decodePrimaryData(Object json)) {
+      Object json, Data primaryData(Object json)) {
     if (json is Map) {
       Api api;
       if (json.containsKey('jsonapi')) {
@@ -42,7 +42,7 @@ class Document<Data extends PrimaryData> {
               meta: json['meta'], api: api);
         }
       } else if (json.containsKey('data')) {
-        return Document(decodePrimaryData(json), meta: json['meta'], api: api);
+        return Document(primaryData(json), meta: json['meta'], api: api);
       } else {
         return Document.empty(json['meta'], api: api);
       }

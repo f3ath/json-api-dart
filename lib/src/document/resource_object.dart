@@ -1,3 +1,4 @@
+import 'package:json_api/document.dart';
 import 'package:json_api/src/document/decoding_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
@@ -19,25 +20,20 @@ class ResourceObject {
   final Map<String, Object> attributes;
   final Map<String, Relationship> relationships;
   final Map<String, Object> meta;
-  final Map<String, Link> _links;
+
+  /// Read-only `links` object. May be empty.
+  final MapView<String, Link>   links;
 
   ResourceObject(this.type, this.id,
-      {Link self,
-      Map<String, Object> attributes,
+      {Map<String, Object> attributes,
       Map<String, Relationship> relationships,
       this.meta,
       Map<String, Link> links = const {}})
-      : _links = {
-          ...links,
-          if (self != null) ...{'self': self}
-        },
+      : links = MapView(links),
         attributes = attributes == null ? null : {...attributes},
         relationships = relationships == null ? null : {...relationships};
 
-  Link get self => _links['self'];
-
-  /// Read-only `links` object. May be empty.
-  Map<String, Link> get links => Map.unmodifiable(_links);
+  Link get self => links['self'];
 
   /// Reconstructs the `data` member of a JSON:API Document.
   /// If [json] is null, returns null.
@@ -71,7 +67,7 @@ class ResourceObject {
         if (relationships?.isNotEmpty == true) ...{
           'relationships': relationships
         },
-        if (_links.isNotEmpty) ...{'links': links},
+        if (links.isNotEmpty) ...{'links': links},
       };
 
   /// Extracts the [Resource] if possible. The standard allows relationships

@@ -49,39 +49,38 @@ void main() async {
       final r0 = await client.fetchCollection(uri);
       final somePage = r0.data;
 
-      expect(somePage.navigation.next.uri.queryParameters['foo'], 'bar',
+      expect(somePage.next.uri.queryParameters['foo'], 'bar',
           reason: 'query parameters must be preserved');
 
-      final r1 = await client.fetchCollection(somePage.navigation.next.uri);
+      final r1 = await client.fetchCollection(somePage.next.uri);
       final secondPage = r1.data;
       expect(secondPage.collection.first.attributes['name'], 'BMW');
-      expect(secondPage.self.uri, somePage.navigation.next.uri);
+      expect(secondPage.self.uri, somePage.next.uri);
 
-      expect(secondPage.navigation.last.uri.queryParameters['foo'], 'bar',
+      expect(secondPage.last.uri.queryParameters['foo'], 'bar',
           reason: 'query parameters must be preserved');
 
-      final r2 = await client.fetchCollection(secondPage.navigation.last.uri);
+      final r2 = await client.fetchCollection(secondPage.last.uri);
       final lastPage = r2.data;
       expect(lastPage.collection.first.attributes['name'], 'Toyota');
-      expect(lastPage.self.uri, secondPage.navigation.last.uri);
+      expect(lastPage.self.uri, secondPage.last.uri);
 
-      expect(lastPage.navigation.prev.uri.queryParameters['foo'], 'bar',
+      expect(lastPage.prev.uri.queryParameters['foo'], 'bar',
           reason: 'query parameters must be preserved');
 
-      final r3 = await client.fetchCollection(lastPage.navigation.prev.uri);
+      final r3 = await client.fetchCollection(lastPage.prev.uri);
       final secondToLastPage = r3.data;
       expect(secondToLastPage.collection.first.attributes['name'], 'Audi');
-      expect(secondToLastPage.self.uri, lastPage.navigation.prev.uri);
+      expect(secondToLastPage.self.uri, lastPage.prev.uri);
 
-      expect(
-          secondToLastPage.navigation.first.uri.queryParameters['foo'], 'bar',
+      expect(secondToLastPage.first.uri.queryParameters['foo'], 'bar',
           reason: 'query parameters must be preserved');
 
       final r4 =
-          await client.fetchCollection(secondToLastPage.navigation.first.uri);
+          await client.fetchCollection(secondToLastPage.first.uri);
       final firstPage = r4.data;
       expect(firstPage.collection.first.attributes['name'], 'Tesla');
-      expect(firstPage.self.uri, secondToLastPage.navigation.first.uri);
+      expect(firstPage.self.uri, secondToLastPage.first.uri);
     });
 
     test('related collection', () async {
@@ -99,7 +98,7 @@ void main() async {
       final firstPage = r0.data;
       expect(firstPage.collection.length, 1);
 
-      final r1 = await client.fetchCollection(firstPage.navigation.last.uri);
+      final r1 = await client.fetchCollection(firstPage.last.uri);
       final lastPage = r1.data;
       expect(lastPage.collection.length, 1);
     });
