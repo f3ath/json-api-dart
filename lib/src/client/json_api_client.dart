@@ -38,9 +38,9 @@ class JsonApiClient {
   /// the JSON:API client.
   /// The [onHttpCall] hook, if passed,  gets called when an http response is
   /// received from the HTTP Client.
-  const JsonApiClient(this.httpClient,
+  JsonApiClient(this.httpClient,
       {ClientDocumentFactory builder, OnHttpCall onHttpCall})
-      : _factory = builder ?? const ClientDocumentFactory(),
+      : _factory = builder ?? ClientDocumentFactory(),
         _onHttpCall = onHttpCall ?? _doNothing;
 
   /// Fetches a resource collection by sending a GET query to the [uri].

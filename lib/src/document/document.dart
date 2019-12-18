@@ -8,21 +8,32 @@ class Document<Data extends PrimaryData> {
 
   /// The Primary Data
   final Data data;
+
+  /// The jsonapi object. May be null.
   final Api api;
+
+  /// List of errors. May be null.
   final List<JsonApiError> errors;
+
+  /// Meta data. May be empty or null.
   final Map<String, Object> meta;
 
   /// Create a document with primary data
-  const Document(this.data, {this.meta, this.api}) : this.errors = null;
+  Document(this.data, {Map<String, Object> meta, this.api})
+      : this.errors = null,
+        this.meta = (meta == null) ? null : Map.unmodifiable(meta);
 
   /// Create a document with errors (no primary data)
-  Document.error(Iterable<JsonApiError> errors, {this.meta, this.api})
+  Document.error(Iterable<JsonApiError> errors,
+      {Map<String, Object> meta, this.api})
       : this.data = null,
-        this.errors = List.from(errors);
+        this.meta = (meta == null) ? null : Map.unmodifiable(meta),
+        this.errors = List.unmodifiable(errors);
 
   /// Create an empty document (no primary data and no errors)
-  Document.empty(this.meta, {this.api})
+  Document.empty(Map<String, Object> meta, {this.api})
       : this.data = null,
+        this.meta = (meta == null) ? null : Map.unmodifiable(meta),
         this.errors = null {
     ArgumentError.checkNotNull(meta, 'meta');
   }

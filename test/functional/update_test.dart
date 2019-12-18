@@ -75,13 +75,15 @@ void main() async {
       expect(original.attributes['nasdaq'], isNull);
       expect(original.toMany['models'].length, 4);
 
-      original.attributes['nasdaq'] = 'TSLA';
-      original.attributes.remove('name'); // Not changing this
-      original.toMany['models'].removeLast();
-      original.toOne['headquarters'] = null; // should be removed
+      final modified = Resource(original.type, original.id,
+          attributes: {...original.attributes}
+            ..['nasdaq'] = 'TSLA'
+            ..remove('name'),
+          toMany: {...original.toMany}..['models'].removeLast(),
+          toOne: {...original.toOne}..['headquarters'] = null);
 
       final r1 =
-          await client.updateResource(url.resource('companies', '1'), original);
+          await client.updateResource(url.resource('companies', '1'), modified);
       final updated = r1.document.data.unwrap();
 
       expect(r1.status, 200);
@@ -106,10 +108,13 @@ void main() async {
 
       expect(original.attributes['name'], 'Model X');
 
-      original.attributes['name'] = 'Model XXX';
+      final modified = Resource(original.type, original.id,
+          attributes: {...original.attributes}..['name'] = 'Model XXX',
+          toOne: original.toOne,
+          toMany: original.toMany);
 
       final r1 =
-          await client.updateResource(url.resource('models', '3'), original);
+          await client.updateResource(url.resource('models', '3'), modified);
       expect(r1.status, 204);
       expect(r1.document, isNull);
 

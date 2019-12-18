@@ -22,23 +22,24 @@ class ResourceObject {
   final Map<String, Object> meta;
 
   /// Read-only `links` object. May be empty.
-  final MapView<String, Link>   links;
+  final Map<String, Link> links;
 
   ResourceObject(this.type, this.id,
       {Map<String, Object> attributes,
       Map<String, Relationship> relationships,
-      this.meta,
-      Map<String, Link> links = const {}})
-      : links = MapView(links),
-        attributes = attributes == null ? null : {...attributes},
-        relationships = relationships == null ? null : {...relationships};
+      Map<String, Object> meta,
+      Map<String, Link> links})
+      : links = (links == null) ? null : Map.unmodifiable(links),
+        attributes = (attributes == null) ? null : Map.unmodifiable(attributes),
+        meta = (meta == null) ? null : Map.unmodifiable(meta),
+        relationships =
+            (relationships == null) ? null : Map.unmodifiable(relationships);
 
-  Link get self => links['self'];
+  Link get self => (links ?? {})['self'];
 
   /// Reconstructs the `data` member of a JSON:API Document.
   /// If [json] is null, returns null.
   static ResourceObject fromJson(Object json) {
-    if (json == null) return null;
     if (json is Map) {
       final relationships = json['relationships'];
       final attributes = json['attributes'];
@@ -63,11 +64,9 @@ class ResourceObject {
         'type': type,
         if (id != null) ...{'id': id},
         if (meta != null) ...{'meta': meta},
-        if (attributes?.isNotEmpty == true) ...{'attributes': attributes},
-        if (relationships?.isNotEmpty == true) ...{
-          'relationships': relationships
-        },
-        if (links.isNotEmpty) ...{'links': links},
+        if (attributes != null) ...{'attributes': attributes},
+        if (relationships != null) ...{'relationships': relationships},
+        if (links != null) ...{'links': links},
       };
 
   /// Extracts the [Resource] if possible. The standard allows relationships

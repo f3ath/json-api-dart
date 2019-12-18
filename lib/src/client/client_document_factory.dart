@@ -5,8 +5,7 @@ import 'package:json_api/src/nullable.dart';
 /// for building the JSON representation of the outgoing resources.
 class ClientDocumentFactory {
   /// Creates an instance of the factory.
-  const ClientDocumentFactory({Api api = const Api(version: '1.0')})
-      : _api = api;
+  ClientDocumentFactory({Api api}) : _api = api ?? Api();
 
   /// Makes a document containing a single resource.
   Document<ResourceData> makeResourceDocument(Resource resource) =>
@@ -20,6 +19,8 @@ class ClientDocumentFactory {
   Document<ToOne> makeToOneDocument(Identifier id) =>
       Document(ToOne(nullable(IdentifierObject.fromIdentifier)(id)), api: _api);
 
+  final Api _api;
+
   ResourceObject _resourceObject(Resource resource) =>
       ResourceObject(resource.type, resource.id,
           attributes: resource.attributes,
@@ -29,5 +30,4 @@ class ClientDocumentFactory {
             ...resource.toMany.map((k, v) =>
                 MapEntry(k, ToMany(v.map(IdentifierObject.fromIdentifier))))
           });
-  final Api _api;
 }

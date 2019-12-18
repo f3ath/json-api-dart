@@ -15,10 +15,10 @@ import 'package:json_api/src/nullable.dart';
 ///
 /// More on this: https://jsonapi.org/format/#document-resource-object-relationships
 class Relationship extends PrimaryData {
-  Link get related => links['related'];
+  /// The "related" link. May be null.
+  Link get related => (links ?? {})['related'];
 
-  Relationship(
-      {Iterable<ResourceObject> included, Map<String, Link> links = const {}})
+  Relationship({Iterable<ResourceObject> included, Map<String, Link> links})
       : super(included: included, links: links);
 
   /// Reconstructs a JSON:API Document or the `relationship` member of a Resource object.
@@ -33,7 +33,9 @@ class Relationship extends PrimaryData {
           return ToMany.fromJson(json);
         }
       }
-      return Relationship(links: Link.mapFromJson(json['links'] ?? {}));
+      final links = json['links'];
+      return Relationship(
+          links: (links == null) ? null : Link.mapFromJson(links));
     }
     throw DecodingException('Can not decode Relationship from $json');
   }
@@ -48,11 +50,10 @@ class Relationship extends PrimaryData {
   }
 
   /// Top-level JSON object
-  Map<String, Object> toJson() {
-    final json = super.toJson();
-    if (links.isNotEmpty) json['links'] = links;
-    return json;
-  }
+  Map<String, Object> toJson() => {
+        ...super.toJson(),
+        if (links != null) ...{'links': links}
+      };
 }
 
 /// Relationship to-one
@@ -65,25 +66,29 @@ class ToOne extends Relationship {
   final IdentifierObject linkage;
 
   ToOne(this.linkage,
-      {Iterable<ResourceObject> included, Map<String, Link> links = const {}})
+      {Iterable<ResourceObject> included, Map<String, Link> links})
       : super(included: included, links: links);
 
-  ToOne.empty({Link self, Map<String, Link> links = const {}})
+  ToOne.empty({Link self, Map<String, Link> links})
       : linkage = null,
         super(links: links);
 
   static ToOne fromJson(Object json) {
     if (json is Map && json.containsKey('data')) {
       final included = json['included'];
+      final links = json['links'];
       return ToOne(nullable(IdentifierObject.fromJson)(json['data']),
-          links: Link.mapFromJson(json['links'] ?? {}),
+          links: (links == null) ? null : Link.mapFromJson(links),
           included:
               included is List ? ResourceObject.fromJsonList(included) : null);
     }
     throw DecodingException('Can not decode ToOne from $json');
   }
 
-  Map<String, Object> toJson() => super.toJson()..['data'] = linkage;
+  Map<String, Object> toJson() => {
+        ...super.toJson(),
+        ...{'data': linkage}
+      };
 
   /// Converts to [Identifier].
   /// For empty relationships returns null.
@@ -100,22 +105,20 @@ class ToMany extends Relationship {
   final linkage = <IdentifierObject>[];
 
   ToMany(Iterable<IdentifierObject> linkage,
-      {Iterable<ResourceObject> included, Map<String, Link> links = const {}})
+      {Iterable<ResourceObject> included, Map<String, Link> links})
       : super(included: included, links: links) {
     this.linkage.addAll(linkage);
   }
 
   static ToMany fromJson(Object json) {
-    if (json is Map) {
-      final links = Link.mapFromJson(json['links'] ?? {});
-      if (json.containsKey('data')) {
-        final data = json['data'];
-        if (data is List) {
-          return ToMany(
-            data.map(IdentifierObject.fromJson),
-            links: links,
-          );
-        }
+    if (json is Map && json.containsKey('data')) {
+      final data = json['data'];
+      if (data is List) {
+        final links = json['links'];
+        return ToMany(
+          data.map(IdentifierObject.fromJson),
+          links: (links == null) ? null : Link.mapFromJson(links),
+        );
       }
     }
     throw DecodingException('Can not decode ToMany from $json');

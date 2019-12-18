@@ -10,7 +10,6 @@ void main() {
       expect(r.links['my-link'].toString(), '/my-link');
     });
 
-
     test('"links" may contain the "related" and "self" keys', () {
       final r = ToOne(null, links: {
         'my-link': Link(Uri.parse('/my-link')),
@@ -33,6 +32,15 @@ void main() {
               .links['my-link']
               .toString(),
           '/my-link');
+    });
+  });
+
+  group('fromJson()', () {
+    test('if no links is present, the "links" property is null', () {
+      final r = Relationship.fromJson(
+          json.decode(json.encode((ToOne(IdentifierObject('apples', '1'))))));
+      expect(r.links, null);
+      expect(r.self, null);
     });
   });
 }

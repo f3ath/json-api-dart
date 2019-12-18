@@ -6,31 +6,34 @@ import 'package:json_api/src/document/identifier.dart';
 /// Resources are passed between the server and the client in the form
 /// of [ResourceObject]s.
 class Resource {
-  /// Resource type
+  /// Resource type.
   final String type;
 
-  /// Resource id
+  /// Resource id.
   ///
   /// May be null for resources to be created on the server
   final String id;
 
-  /// Resource attributes
-  final attributes = <String, Object>{};
+  /// Unmodifiable map of attributes
+  final Map<String, Object> attributes;
 
-  /// to-one relationships
-  final toOne = <String, Identifier>{};
+  /// Unmodifiable map of to-one relationships
+  final Map<String, Identifier> toOne;
 
-  /// to-many relationships
-  final toMany = <String, List<Identifier>>{};
+  /// Unmodifiable map of to-many relationships
+  final Map<String, List<Identifier>> toMany;
 
+  /// Creates an instance of [Resource].
+  /// The [type] can not be null.
+  /// The [id] may be null for the resources to be created on the server.
   Resource(this.type, this.id,
       {Map<String, Object> attributes,
       Map<String, Identifier> toOne,
-      Map<String, List<Identifier>> toMany}) {
+      Map<String, List<Identifier>> toMany})
+      : attributes = Map.unmodifiable(attributes ?? {}),
+        toOne = Map.unmodifiable(toOne ?? {}),
+        toMany = Map.unmodifiable(toMany ?? {}) {
     ArgumentError.checkNotNull(type, 'type');
-    this.attributes.addAll(attributes ?? {});
-    this.toOne.addAll(toOne ?? {});
-    this.toMany.addAll(toMany ?? {});
   }
 
   @override

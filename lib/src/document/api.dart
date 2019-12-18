@@ -2,11 +2,14 @@ import 'package:json_api/src/document/decoding_exception.dart';
 
 /// Details: https://jsonapi.org/format/#document-jsonapi-object
 class Api {
-  /// The JSON:API version.
+  /// The JSON:API version. May be null.
   final String version;
+
+  /// Meta data. May be empty or null.
   final Map<String, Object> meta;
 
-  const Api({this.version, this.meta});
+  Api({this.version, Map<String, Object> meta})
+      : this.meta = meta == null ? null : Map.unmodifiable(meta);
 
   static Api fromJson(Object json) {
     if (json is Map) {
@@ -16,7 +19,7 @@ class Api {
   }
 
   Map<String, Object> toJson() => {
-        if (null != version) ...{'version': version},
-        if (null != meta) ...{'meta': meta},
+        if (version != null) ...{'version': version},
+        if (meta != null) ...{'meta': meta},
       };
 }

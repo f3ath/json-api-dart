@@ -10,10 +10,9 @@ class ServerDocumentFactory {
   final PaginationStrategy _pagination;
   final Api _api;
 
-  const ServerDocumentFactory(this._url,
-      {Api api = const Api(version: '1.0'),
-      PaginationStrategy pagination = const NoPagination()})
-      : _api = api,
+  ServerDocumentFactory(this._url,
+      {Api api, PaginationStrategy pagination = const NoPagination()})
+      : _api = api ?? Api(),
         _pagination = pagination;
 
   /// A document containing a list of errors

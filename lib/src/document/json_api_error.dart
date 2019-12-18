@@ -12,7 +12,7 @@ class JsonApiError {
 
   /// A link that leads to further details about this particular occurrence of the problem.
   /// May be null.
-  Link get about => links['about'];
+  Link get about => (links ?? {})['about'];
 
   /// The HTTP status code applicable to this problem, expressed as a string value.
   /// May be null.
@@ -42,11 +42,13 @@ class JsonApiError {
   final String parameter;
 
   /// A meta object containing non-standard meta-information about the error.
+  /// May be empty or null.
   final Map<String, Object> meta;
 
   /// The `links` object.
+  /// May be empty or null.
   /// https://jsonapi.org/format/#document-links
-  final MapView<String, Link> links;
+  final Map<String, Link> links;
 
   /// Creates an instance of a JSON:API Error.
   /// The [links] map may contain custom links. The about link
@@ -60,18 +62,21 @@ class JsonApiError {
     this.detail,
     this.parameter,
     this.pointer,
-    this.meta,
-    Map<String, Link> links = const {},
-  }) : links = MapView(links);
+    Map<String, Object> meta,
+    Map<String, Link> links,
+  })  : links = (links == null) ? null : Map.unmodifiable(links),
+        meta = (meta == null) ? null : Map.unmodifiable(meta);
 
   static JsonApiError fromJson(Object json) {
     if (json is Map) {
       String pointer;
       String parameter;
-      if (json['source'] is Map) {
-        parameter = json['source']['parameter'];
-        pointer = json['source']['pointer'];
+      final source = json['source'];
+      if (source is Map) {
+        parameter = source['parameter'];
+        pointer = source['pointer'];
       }
+      final links = json['links'];
       return JsonApiError(
           id: json['id'],
           status: json['status'],
@@ -81,7 +86,7 @@ class JsonApiError {
           pointer: pointer,
           parameter: parameter,
           meta: json['meta'],
-          links: Link.mapFromJson(json['links'] ?? {}));
+          links: (links == null) ? null : Link.mapFromJson(links));
     }
     throw DecodingException('Can not decode ErrorObject from $json');
   }
@@ -98,7 +103,7 @@ class JsonApiError {
       if (title != null) ...{'title': title},
       if (detail != null) ...{'detail': detail},
       if (meta != null) ...{'meta': meta},
-      if (links.isNotEmpty) ...{'links': links},
+      if (links != null) ...{'links': links},
       if (source.isNotEmpty) ...{'source': source},
     };
   }

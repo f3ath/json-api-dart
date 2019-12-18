@@ -6,13 +6,12 @@ import 'package:json_api/src/document/resource_object.dart';
 
 /// Represents a resource collection or a collection of related resources of a to-many relationship
 class ResourceCollectionData extends PrimaryData {
-  final collection = <ResourceObject>[];
+  final List<ResourceObject> collection;
 
   ResourceCollectionData(Iterable<ResourceObject> collection,
       {Iterable<ResourceObject> included, Map<String, Link> links = const {}})
-      : super(included: included, links: links) {
-    this.collection.addAll(collection);
-  }
+      : collection = List.unmodifiable(collection),
+        super(included: included, links: links);
 
   static ResourceCollectionData fromJson(Object json) {
     if (json is Map) {
@@ -31,16 +30,16 @@ class ResourceCollectionData extends PrimaryData {
   }
 
   /// The link to the last page. May be null.
-  Link get last => links['last'];
+  Link get last => (links ?? {})['last'];
 
   /// The link to the first page. May be null.
-  Link get first => links['first'];
+  Link get first => (links ?? {})['first'];
 
   /// The link to the next page. May be null.
-  Link get next => links['next'];
+  Link get next => (links ?? {})['next'];
 
   /// The link to the prev page. May be null.
-  Link get prev => links['prev'];
+  Link get prev => (links ?? {})['prev'];
 
   List<Resource> unwrap() => collection.map((_) => _.unwrap()).toList();
 

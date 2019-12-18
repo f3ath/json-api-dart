@@ -51,6 +51,6 @@ class LinkObject extends Link {
 
   toJson() => {
         'href': uri.toString(),
-        if (meta != null && meta.isNotEmpty) ...{'meta': meta}
+        if (meta != null) ...{'meta': meta}
       };
 }
