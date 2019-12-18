@@ -1,8 +1,10 @@
+import 'package:json_api/document.dart';
 import 'package:json_api/src/document/decoding_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/src/nullable.dart';
 
 /// [ResourceObject] is a JSON representation of a [Resource].
 ///
@@ -18,30 +20,26 @@ class ResourceObject {
   final Map<String, Object> attributes;
   final Map<String, Relationship> relationships;
   final Map<String, Object> meta;
-  final Map<String, Link> _links;
-
-  ResourceObject(this.type, this.id,
-      {Link self,
-      Map<String, Object> attributes,
-      Map<String, Relationship> relationships,
-      this.meta,
-      Map<String, Link> links = const {}})
-      : _links = {
-          ...links,
-          if (self != null) ...{'self': self}
-        },
-        attributes = attributes == null ? null : Map.from(attributes),
-        relationships = relationships == null ? null : Map.from(relationships);
-
-  Link get self => _links['self'];
 
   /// Read-only `links` object. May be empty.
-  Map<String, Link> get links => Map.unmodifiable(_links);
+  final Map<String, Link> links;
+
+  ResourceObject(this.type, this.id,
+      {Map<String, Object> attributes,
+      Map<String, Relationship> relationships,
+      Map<String, Object> meta,
+      Map<String, Link> links})
+      : links = (links == null) ? null : Map.unmodifiable(links),
+        attributes = (attributes == null) ? null : Map.unmodifiable(attributes),
+        meta = (meta == null) ? null : Map.unmodifiable(meta),
+        relationships =
+            (relationships == null) ? null : Map.unmodifiable(relationships);
+
+  Link get self => (links ?? {})['self'];
 
   /// Reconstructs the `data` member of a JSON:API Document.
   /// If [json] is null, returns null.
   static ResourceObject fromJson(Object json) {
-    if (json == null) return null;
     if (json is Map) {
       final relationships = json['relationships'];
       final attributes = json['attributes'];
@@ -49,20 +47,16 @@ class ResourceObject {
           (attributes == null || attributes is Map)) {
         return ResourceObject(json['type'], json['id'],
             attributes: attributes,
-            relationships: Relationship.mapFromJson(relationships),
-            links: Link.mapFromJson(json['links']),
+            relationships: nullable(Relationship.mapFromJson)(relationships),
+            links: Link.mapFromJson(json['links'] ?? {}),
             meta: json['meta']);
       }
     }
     throw DecodingException('Can not decode ResourceObject from $json');
   }
 
-  static List<ResourceObject> fromJsonList(Object json) {
-    if (json == null) return null;
-    if (json is List) return json.map(fromJson).toList();
-    throw DecodingException(
-        'Can not decode Iterable<ResourceObject> from $json');
-  }
+  static List<ResourceObject> fromJsonList(Iterable<Object> json) =>
+      json.map(fromJson).toList();
 
   /// Returns the JSON object to be used in the `data` or `included` members
   /// of a JSON:API Document
@@ -70,11 +64,9 @@ class ResourceObject {
         'type': type,
         if (id != null) ...{'id': id},
         if (meta != null) ...{'meta': meta},
-        if (attributes?.isNotEmpty == true) ...{'attributes': attributes},
-        if (relationships?.isNotEmpty == true) ...{
-          'relationships': relationships
-        },
-        if (_links.isNotEmpty) ...{'links': links},
+        if (attributes != null) ...{'attributes': attributes},
+        if (relationships != null) ...{'relationships': relationships},
+        if (links != null) ...{'links': links},
       };
 
   /// Extracts the [Resource] if possible. The standard allows relationships

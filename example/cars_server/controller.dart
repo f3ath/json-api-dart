@@ -10,48 +10,46 @@ import 'job_queue.dart';
 class CarsController implements Controller {
   final Map<String, DAO> _dao;
 
-  final Pagination _pagination;
+  final PaginationStrategy _pagination;
 
   CarsController(this._dao, this._pagination);
 
   @override
-  Response fetchCollection(String type, Query query) {
+  Response fetchCollection(String type, Uri uri) {
+    final page = Page.fromUri(uri);
     final dao = _getDaoOrThrow(type);
-    final collection = dao.fetchCollection(
-        _pagination.limit(query.page), _pagination.offset(query.page));
+    final collection =
+        dao.fetchCollection(_pagination.limit(page), _pagination.offset(page));
     return CollectionResponse(collection.elements.map(dao.toResource),
-        included: const [], total: collection.totalCount);
+        total: collection.totalCount);
   }
 
   @override
-  Response fetchRelated(
-      String type, String id, String relationship, Query query) {
+  Response fetchRelated(String type, String id, String relationship, Uri uri) {
     final res = _fetchResourceOrThrow(type, id);
-
+    final page = Page.fromUri(uri);
     if (res.toOne.containsKey(relationship)) {
       final id = res.toOne[relationship];
       final resource = _dao[id.type].fetchByIdAsResource(id.id);
       return RelatedResourceResponse(resource);
     }
-
     if (res.toMany.containsKey(relationship)) {
       final relationships = res.toMany[relationship];
       final resources = relationships
-          .skip(_pagination.offset(query.page))
-          .take(_pagination.limit(query.page))
+          .skip(_pagination.offset(page))
+          .take(_pagination.limit(page))
           .map((id) => _dao[id.type].fetchByIdAsResource(id.id));
-      return RelatedCollectionResponse(resources,
-          total: relationships.length, included: const []);
+      return RelatedCollectionResponse(resources, total: relationships.length);
     }
     return ErrorResponse.notFound(
         [JsonApiError(detail: 'Relationship not found')]);
   }
 
   @override
-  Response fetchResource(String type, String id, Query query) {
+  Response fetchResource(String type, String id, Uri uri) {
     final dao = _getDaoOrThrow(type);
-
     final obj = dao.fetchById(id);
+    final include = Include.fromUri(uri);
 
     if (obj == null) {
       return ErrorResponse.notFound(
@@ -64,16 +62,18 @@ class CarsController implements Controller {
     final fetchById = (Identifier _) => _dao[_.type].fetchByIdAsResource(_.id);
 
     final res = dao.toResource(obj);
-    final children = res.toOne.values
-        .map(fetchById)
-        .followedBy(res.toMany.values.expand((_) => _.map(fetchById)));
 
-    return ResourceResponse(res, included: children);
+    var filter = _filter(res.toMany, include.contains);
+    var followedBy = _filter(res.toOne, include.contains)
+        .values
+        .map(fetchById)
+        .followedBy(filter.values.expand((_) => _.map(fetchById)));
+    return ResourceResponse(res, included: followedBy);
   }
 
   @override
   Response fetchRelationship(
-      String type, String id, String relationship, Query query) {
+      String type, String id, String relationship, Uri uri) {
     final res = _fetchResourceOrThrow(type, id);
 
     if (res.toOne.containsKey(relationship)) {
@@ -203,4 +203,7 @@ class CarsController implements Controller {
     }
     return resource;
   }
+
+  Map<T, R> _filter<T, R>(Map<T, R> map, bool f(T t)) =>
+      {...map}..removeWhere((k, _) => !f(k));
 }

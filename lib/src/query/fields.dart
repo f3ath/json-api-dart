@@ -1,20 +1,30 @@
-import 'package:json_api/src/query/add_to_uri.dart';
+import 'package:json_api/src/query/query_parameters.dart';
 
-class Fields with AddToUri implements AddToUri {
+/// Query parameters defining Sparse Fieldsets
+/// @see https://jsonapi.org/format/#fetching-sparse-fieldsets
+class Fields extends QueryParameters {
+  /// The [fields] argument maps the resource type to a list of fields.
+  ///
+  /// Example:
+  /// ```dart
+  /// Fields({'articles': ['title', 'body'], 'people': ['name']}).addTo(url);
+  /// ```
+  /// encodes to
+  /// ```
+  /// ?fields[articles]=title,body&fields[people]=name
+  /// ```
+  Fields(Map<String, List<String>> fields)
+      : _fields = {...fields},
+        super(fields.map((k, v) => MapEntry('fields[$k]', v.join(','))));
+
+  /// Extracts the requested fields from the [uri].
   static Fields fromUri(Uri uri) => Fields(uri.queryParameters
       .map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1), v.split(',')))
         ..removeWhere((k, v) => k == null));
 
-  Fields(Map<String, List<String>> fields) {
-    _fields.addAll(fields);
-  }
+  List<String> operator [](String key) => _fields[key];
 
   static final _regex = RegExp(r'^fields\[(.+)\]$');
 
-  final _fields = <String, List<String>>{};
-
-  List<String> operator [](String key) => _fields[key];
-
-  Map<String, String> get queryParameters =>
-      _fields.map((k, v) => MapEntry('fields[$k]', v.join(',')));
+  final Map<String, List<String>> _fields;
 }

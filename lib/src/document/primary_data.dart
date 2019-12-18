@@ -7,35 +7,27 @@ import 'package:json_api/src/document/resource_object.dart';
 /// - it always has the `data` key (could be `null` for an empty to-one relationship)
 /// - it can not have `meta` and `jsonapi` keys
 abstract class PrimaryData {
-  /// In a Compound document this member contains the included resources
+  /// In a Compound document this member contains the included resources.
+  /// May be empty or null.
   final List<ResourceObject> included;
 
-  final Map<String, Link> _links;
+  /// The top-level `links` object. May be empty or null.
+  final Map<String, Link> links;
 
-  PrimaryData(
-      {Link self,
-      Iterable<ResourceObject> included,
-      Map<String, Link> links = const {}})
-      : this.included = (included == null) ? null : List.from(included),
-        _links = {
-          ...links,
-          if (self != null) ...{'self': self}
-        };
+  PrimaryData({Iterable<ResourceObject> included, Map<String, Link> links})
+      : this.included = (included == null) ? null : List.unmodifiable(included),
+        this.links = (links == null) ? null : Map.unmodifiable(links);
 
   /// The `self` link. May be null.
-  Link get self => _links['self'];
-
-  /// The top-level `links` object. May be empty.
-  Map<String, Link> get links => Map.unmodifiable(_links);
+  Link get self => (links ?? {})['self'];
 
   /// Documents with included resources are called compound
-  ///
   /// Details: http://jsonapi.org/format/#document-compound-documents
   bool get isCompound => included != null && included.isNotEmpty;
 
   /// Top-level JSON object
   Map<String, Object> toJson() => {
-        if (links.isNotEmpty) ...{'links': links},
+        if (links != null) ...{'links': links},
         if (included != null) ...{'included': included}
       };
 }

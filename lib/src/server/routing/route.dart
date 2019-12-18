@@ -1,14 +1,13 @@
 import 'dart:async';
 
 import 'package:json_api/document.dart';
-import 'package:json_api/query.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/http_method.dart';
 import 'package:json_api/src/server/response/response.dart';
 
 abstract class Route {
   FutureOr<Response> call(
-      Controller controller, Query query, HttpMethod method, Object body);
+      Controller controller, Uri uri, HttpMethod method, Object body);
 }
 
 class InvalidRoute implements Route {
@@ -16,7 +15,7 @@ class InvalidRoute implements Route {
 
   @override
   Future<Response> call(
-          Controller controller, Query query, HttpMethod method, Object body) =>
+          Controller controller, Uri uri, HttpMethod method, Object body) =>
       null;
 }
 
@@ -27,9 +26,9 @@ class CollectionRoute implements Route {
 
   @override
   FutureOr<Response> call(
-      Controller controller, Query query, HttpMethod method, Object body) {
+      Controller controller, Uri uri, HttpMethod method, Object body) {
     if (method.isGet()) {
-      return controller.fetchCollection(type, query);
+      return controller.fetchCollection(type, uri);
     }
     if (method.isPost()) {
       return controller.createResource(
@@ -48,9 +47,10 @@ class RelatedRoute implements Route {
 
   @override
   FutureOr<Response> call(
-      Controller controller, Query query, HttpMethod method, Object body) {
-    if (method.isGet())
-      return controller.fetchRelated(type, id, relationship, query);
+      Controller controller, Uri uri, HttpMethod method, Object body) {
+    if (method.isGet()) {
+      return controller.fetchRelated(type, id, relationship, uri);
+    }
     return null;
   }
 }
@@ -64,9 +64,9 @@ class RelationshipRoute implements Route {
 
   @override
   FutureOr<Response> call(
-      Controller controller, Query query, HttpMethod method, Object body) {
+      Controller controller, Uri uri, HttpMethod method, Object body) {
     if (method.isGet()) {
-      return controller.fetchRelationship(type, id, relationship, query);
+      return controller.fetchRelationship(type, id, relationship, uri);
     }
     if (method.isPatch()) {
       final rel = Relationship.fromJson(body);

@@ -1,18 +1,26 @@
 import 'dart:collection';
 
-import 'package:json_api/src/query/add_to_uri.dart';
+import 'package:json_api/src/query/query_parameters.dart';
 
-class Include with AddToUri, IterableMixin<String> implements AddToUri {
-  final Iterable<String> _resources;
+/// Query parameter defining inclusion of related resources.
+/// @see https://jsonapi.org/format/#fetching-includes
+class Include extends QueryParameters with IterableMixin<String> {
+  /// Example:
+  /// ```dart
+  /// Include(['comments', 'comments.author']).addTo(url);
+  /// ```
+  /// encodes into
+  /// ```
+  /// ?include=comments,comments.author
+  /// ```
+  Include(Iterable<String> resources)
+      : _resources = [...resources],
+        super({'include': resources.join(',')});
 
-  Include(this._resources);
-
-  factory Include.fromUri(Uri uri) =>
+  static Include fromUri(Uri uri) =>
       Include((uri.queryParameters['include'] ?? '').split(','));
 
-  @override
   Iterator<String> get iterator => _resources.iterator;
 
-  @override
-  Map<String, String> get queryParameters => {'include': join(',')};
+  final List<String> _resources;
 }

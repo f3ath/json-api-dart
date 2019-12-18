@@ -1,9 +1,13 @@
+import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/src/client/status_code.dart';
 import 'package:json_api/src/nullable.dart';
 
 /// A response returned by JSON:API client
 class Response<Data extends PrimaryData> {
+  const Response(this.status, this.headers,
+      {this.document, this.asyncDocument});
+
   /// HTTP status code
   final int status;
 
@@ -18,10 +22,8 @@ class Response<Data extends PrimaryData> {
   /// Headers returned by the server.
   final Map<String, String> headers;
 
-  const Response(this.status, this.headers,
-      {this.document, this.asyncDocument});
-
-  /// Primary Data from the document (if any)
+  /// Primary Data from the document (if any). For unsuccessful operations
+  /// this property will be null, the error details may be found in [Document.errors].
   Data get data => document.data;
 
   /// Primary Data from the async document (if any)
@@ -35,8 +37,13 @@ class Response<Data extends PrimaryData> {
 
   /// This property is an equivalent of `202 Accepted` HTTP status.
   /// It indicates that the query is accepted but not finished yet (e.g. queued).
-  /// The [contentLocation] should have a link to the job queue resource and
-  /// [asyncData] may contain a queued job resource object.
+  /// If the response is async, the [data] and [document] properties will be null
+  /// and the returned primary data (usually representing a job queue) will be
+  /// in [asyncData] and [asyncDocument].
+  /// The [contentLocation] will point to the job queue resource.
+  /// You can fetch the job queue resource periodically and check the type of
+  /// the returned resource. Once the operation is complete, the request will
+  /// return the created resource.
   ///
   /// See: https://jsonapi.org/recommendations/#asynchronous-processing
   bool get isAsync => StatusCode(status).isPending;

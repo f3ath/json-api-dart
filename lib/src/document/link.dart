@@ -9,20 +9,16 @@ class Link {
     ArgumentError.checkNotNull(uri, 'uri');
   }
 
-  /// Reconstructs the link from the [json] object. If [json] is null, returns null;
+  /// Reconstructs the link from the [json] object
   static Link fromJson(Object json) {
-    if (json == null) return null;
     if (json is String) return Link(Uri.parse(json));
     if (json is Map) return LinkObject.fromJson(json);
     throw DecodingException('Can not decode Link from $json');
   }
 
   /// Reconstructs the document's `links` member into a map.
-  /// The retuning map will not have null values.
-  ///
   /// Details on the `links` member: https://jsonapi.org/format/#document-links
   static Map<String, Link> mapFromJson(Object json) {
-    if (json == null) return {};
     if (json is Map) {
       return ({...json}..removeWhere((_, v) => v == null))
           .map((k, v) => MapEntry(k.toString(), Link.fromJson(v)));
@@ -55,6 +51,6 @@ class LinkObject extends Link {
 
   toJson() => {
         'href': uri.toString(),
-        if (meta != null && meta.isNotEmpty) ...{'meta': meta}
+        if (meta != null) ...{'meta': meta}
       };
 }

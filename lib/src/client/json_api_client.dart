@@ -3,11 +3,30 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:json_api/document.dart';
+import 'package:json_api/query.dart';
 import 'package:json_api/src/client/client_document_factory.dart';
 import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/client/status_code.dart';
 
-/// JSON:API client
+/// The JSON:API Client.
+///
+/// [JsonApiClient] works on top of Dart's built-in HTTP client.
+/// ```dart
+/// import 'package:http/http.dart';
+/// import 'package:json_api/client.dart';
+///
+/// void main() async {
+///   final httpClient = Client();
+///   final jsonApiClient = JsonApiClient(httpClient);
+///   final url = Uri.parse('http://localhost:8080/companies/2');
+///   final response = await jsonApiClient.fetchCollection(url);
+///   httpClient.close(); // Don't forget to close the http client
+///   print('The collection page size is ${response.data.collection.length}');
+///   final resource = response.data.unwrap().first;
+///   print('The last element is ${resource}');
+///   resource.attributes.forEach((k, v) => print('Attribute $k is $v'));
+/// }
+/// ```
 class JsonApiClient {
   final http.Client httpClient;
   final OnHttpCall _onHttpCall;
@@ -19,40 +38,56 @@ class JsonApiClient {
   /// the JSON:API client.
   /// The [onHttpCall] hook, if passed,  gets called when an http response is
   /// received from the HTTP Client.
-  const JsonApiClient(this.httpClient,
+  JsonApiClient(this.httpClient,
       {ClientDocumentFactory builder, OnHttpCall onHttpCall})
-      : _factory = builder ?? const ClientDocumentFactory(),
+      : _factory = builder ?? ClientDocumentFactory(),
         _onHttpCall = onHttpCall ?? _doNothing;
 
   /// Fetches a resource collection by sending a GET query to the [uri].
   /// Use [headers] to pass extra HTTP headers.
+  /// Use [parameters] to specify extra query parameters, such as:
+  /// - [Include] to request inclusion of related resources (@see https://jsonapi.org/format/#fetching-includes)
+  /// - [Fields] to specify a sparse fieldset (@see https://jsonapi.org/format/#fetching-sparse-fieldsets)
   Future<Response<ResourceCollectionData>> fetchCollection(Uri uri,
-          {Map<String, String> headers}) =>
-      _call(_get(uri, headers), ResourceCollectionData.fromJson);
+          {Map<String, String> headers, QueryParameters parameters}) =>
+      _call(_get(uri, headers, parameters), ResourceCollectionData.fromJson);
 
   /// Fetches a single resource
   /// Use [headers] to pass extra HTTP headers.
+  /// Use [parameters] to specify extra query parameters, such as:
+  /// - [Include] to request inclusion of related resources (@see https://jsonapi.org/format/#fetching-includes)
+  /// - [Fields] to specify a sparse fieldset (@see https://jsonapi.org/format/#fetching-sparse-fieldsets)
   Future<Response<ResourceData>> fetchResource(Uri uri,
-          {Map<String, String> headers}) =>
-      _call(_get(uri, headers), ResourceData.fromJson);
+          {Map<String, String> headers, QueryParameters parameters}) =>
+      _call(_get(uri, headers, parameters), ResourceData.fromJson);
 
   /// Fetches a to-one relationship
   /// Use [headers] to pass extra HTTP headers.
-  Future<Response<ToOne>> fetchToOne(Uri uri, {Map<String, String> headers}) =>
-      _call(_get(uri, headers), ToOne.fromJson);
+  /// Use [queryParameters] to specify extra request parameters, such as:
+  /// - [Include] to request inclusion of related resources (@see https://jsonapi.org/format/#fetching-includes)
+  /// - [Fields] to specify a sparse fieldset (@see https://jsonapi.org/format/#fetching-sparse-fieldsets)
+  Future<Response<ToOne>> fetchToOne(Uri uri,
+          {Map<String, String> headers, QueryParameters parameters}) =>
+      _call(_get(uri, headers, parameters), ToOne.fromJson);
 
   /// Fetches a to-many relationship
   /// Use [headers] to pass extra HTTP headers.
+  /// Use [queryParameters] to specify extra request parameters, such as:
+  /// - [Include] to request inclusion of related resources (@see https://jsonapi.org/format/#fetching-includes)
+  /// - [Fields] to specify a sparse fieldset (@see https://jsonapi.org/format/#fetching-sparse-fieldsets)
   Future<Response<ToMany>> fetchToMany(Uri uri,
-          {Map<String, String> headers}) =>
-      _call(_get(uri, headers), ToMany.fromJson);
+          {Map<String, String> headers, QueryParameters parameters}) =>
+      _call(_get(uri, headers, parameters), ToMany.fromJson);
 
   /// Fetches a to-one or to-many relationship.
   /// The actual type of the relationship can be determined afterwards.
   /// Use [headers] to pass extra HTTP headers.
+  /// Use [parameters] to specify extra query parameters, such as:
+  /// - [Include] to request inclusion of related resources (@see https://jsonapi.org/format/#fetching-includes)
+  /// - [Fields] to specify a sparse fieldset (@see https://jsonapi.org/format/#fetching-sparse-fieldsets)
   Future<Response<Relationship>> fetchRelationship(Uri uri,
-          {Map<String, String> headers}) =>
-      _call(_get(uri, headers), Relationship.fromJson);
+          {Map<String, String> headers, QueryParameters parameters}) =>
+      _call(_get(uri, headers, parameters), Relationship.fromJson);
 
   /// Creates a new resource. The resource will be added to a collection
   /// according to its type.
@@ -125,8 +160,10 @@ class JsonApiClient {
       _call(_post(uri, headers, _factory.makeToManyDocument(identifiers)),
           ToMany.fromJson);
 
-  http.Request _get(Uri uri, Map<String, String> headers) =>
-      http.Request('GET', uri)
+  http.Request _get(Uri uri, Map<String, String> headers,
+          QueryParameters queryParameters) =>
+      http.Request(
+          'GET', (queryParameters ?? QueryParameters({})).addToUri(uri))
         ..headers.addAll({
           ...headers ?? {},
           'Accept': Document.contentType,

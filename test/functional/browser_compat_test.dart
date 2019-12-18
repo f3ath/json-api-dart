@@ -1,5 +1,5 @@
 import 'package:http/http.dart' as http;
-import 'package:json_api/json_api.dart';
+import 'package:json_api/client.dart';
 import 'package:test/test.dart';
 
 void main() async {

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/query.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/http_method.dart';
 import 'package:json_api/src/server/response/error_response.dart';
@@ -11,14 +10,14 @@ import 'package:json_api/src/server/routing/route_factory.dart';
 import 'package:json_api/src/server/server_document_factory.dart';
 import 'package:json_api/url_design.dart';
 
-class Server {
+class JsonApiServer {
   final UrlDesign urlDesign;
   final Controller controller;
   final ServerDocumentFactory documentFactory;
   final String allowOrigin;
   final RouteFactory routeMapper;
 
-  Server(this.urlDesign, this.controller, this.documentFactory,
+  JsonApiServer(this.urlDesign, this.controller, this.documentFactory,
       {this.allowOrigin = '*'})
       : routeMapper = RouteFactory();
 
@@ -33,13 +32,12 @@ class Server {
   }
 
   Future<Response> _call(Controller controller, HttpRequest request) async {
-    final query = Query.fromUri(request.requestedUri);
     final method = HttpMethod(request.method);
     final body = await _getBody(request);
     try {
       return await urlDesign
           .match(request.requestedUri, routeMapper)
-          .call(controller, query, method, body);
+          .call(controller, request.requestedUri, method, body);
     } on ErrorResponse catch (error) {
       return error;
     }
@@ -61,7 +59,7 @@ class Server {
   }
 
   Future<Object> _getBody(HttpRequest request) async {
-    // @see https://github.com/dart-lang/sdk/issues/36900
+    // https://github.com/dart-lang/sdk/issues/36900
     final body = await request.cast<List<int>>().transform(utf8.decoder).join();
     return (body.isNotEmpty) ? json.decode(body) : null;
   }

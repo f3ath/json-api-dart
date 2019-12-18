@@ -1,26 +1,32 @@
 import 'dart:collection';
 
-import 'package:json_api/src/query/add_to_uri.dart';
+import 'package:json_api/src/query/query_parameters.dart';
 
-class Sort with AddToUri, IterableMixin<SortField> implements AddToUri {
+/// Query parameters defining the sorting.
+/// @see https://jsonapi.org/format/#fetching-sorting
+class Sort extends QueryParameters with IterableMixin<SortField> {
+  /// The [fields] arguments is the list of sorting criteria.
+  /// Use [Asc] and [Desc] to define sort direction.
+  ///
+  /// Example:
+  /// ```dart
+  /// Sort([Asc('created'), Desc('title')]).addTo(url);
+  /// ```
+  /// encodes into
+  /// ```
+  /// ?sort=-created,title
+  /// ```
+  Sort(Iterable<SortField> fields)
+      : _fields = [...fields],
+        super({'sort': fields.join(',')});
+
   static Sort fromUri(Uri uri) =>
       Sort((uri.queryParameters['sort'] ?? '').split(',').map(SortField.parse));
-
-  final _fields = <SortField>[];
-
-  Sort([Iterable<SortField> fields = const []]) {
-    _fields.addAll(fields);
-  }
 
   @override
   Iterator<SortField> get iterator => _fields.iterator;
 
-  Sort desc(String name) => Sort([..._fields, Descending(name)]);
-
-  Sort asc(String name) => Sort([..._fields, Ascending(name)]);
-
-  @override
-  Map<String, String> get queryParameters => {'sort': join(',')};
+  final List<SortField> _fields;
 }
 
 abstract class SortField {
@@ -31,12 +37,12 @@ abstract class SortField {
   String get name;
 
   static SortField parse(String queryParam) => queryParam.startsWith('-')
-      ? Descending(queryParam.substring(1))
-      : Ascending(queryParam);
+      ? Desc(queryParam.substring(1))
+      : Asc(queryParam);
 }
 
-class Ascending implements SortField {
-  Ascending(this.name);
+class Asc implements SortField {
+  Asc(this.name);
 
   @override
   bool get isAsc => true;
@@ -51,8 +57,8 @@ class Ascending implements SortField {
   String toString() => name;
 }
 
-class Descending implements SortField {
-  Descending(this.name);
+class Desc implements SortField {
+  Desc(this.name);
 
   @override
   bool get isAsc => false;
