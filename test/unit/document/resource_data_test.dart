@@ -21,12 +21,11 @@ void main() {
   });
 
   test('Inherits links from ResourceObject', () {
-    final res = ResourceObject('apples', '1',
-        links: {
-          'foo': Link(Uri.parse('/foo')),
-          'bar': Link(Uri.parse('/bar')),
-          'self': Link(Uri.parse('/self')),
-        });
+    final res = ResourceObject('apples', '1', links: {
+      'foo': Link(Uri.parse('/foo')),
+      'bar': Link(Uri.parse('/bar')),
+      'self': Link(Uri.parse('/self')),
+    });
     final data = ResourceData(res, links: {
       'bar': Link(Uri.parse('/bar-new')),
     });

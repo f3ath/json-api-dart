@@ -10,9 +10,7 @@ class ResourceData extends PrimaryData {
 
   ResourceData(this.resourceObject,
       {Iterable<ResourceObject> included, Map<String, Link> links})
-      : super(
-            included: included,
-            links: {...?resourceObject.links, ...?links});
+      : super(included: included, links: {...?resourceObject.links, ...?links});
 
   static ResourceData fromJson(Object json) {
     if (json is Map) {

@@ -76,8 +76,7 @@ void main() async {
       expect(secondToLastPage.first.uri.queryParameters['foo'], 'bar',
           reason: 'query parameters must be preserved');
 
-      final r4 =
-          await client.fetchCollection(secondToLastPage.first.uri);
+      final r4 = await client.fetchCollection(secondToLastPage.first.uri);
       final firstPage = r4.data;
       expect(firstPage.collection.first.attributes['name'], 'Tesla');
       expect(firstPage.self.uri, secondToLastPage.first.uri);
