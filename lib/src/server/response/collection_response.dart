@@ -7,8 +7,7 @@ class CollectionResponse extends JsonApiResponse {
   final Iterable<Resource> included;
   final int total;
 
-  const CollectionResponse(this.collection,
-      {this.included, this.total})
+  const CollectionResponse(this.collection, {this.included, this.total})
       : super(200);
 
   @override

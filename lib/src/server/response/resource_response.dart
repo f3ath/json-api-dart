@@ -6,8 +6,7 @@ class ResourceResponse extends JsonApiResponse {
   final Resource resource;
   final Iterable<Resource> included;
 
-  const ResourceResponse(this.resource, {this.included})
-      : super(200);
+  const ResourceResponse(this.resource, {this.included}) : super(200);
 
   @override
   Document<ResourceData> buildDocument(
