@@ -5,7 +5,7 @@ import 'package:json_api/src/nullable.dart';
 /// for building the JSON representation of the outgoing resources.
 class ClientDocumentFactory {
   /// Creates an instance of the factory.
-  ClientDocumentFactory({Api api}) : _api = api ?? Api();
+  ClientDocumentFactory({Api api}) : _api = api;
 
   /// Makes a document containing a single resource.
   Document<ResourceData> makeResourceDocument(Resource resource) =>

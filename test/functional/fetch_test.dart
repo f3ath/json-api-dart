@@ -236,10 +236,18 @@ void main() async {
       expect(r.status, 200);
       expect(r.isSuccessful, true);
       expect(r.data.unwrap().attributes['name'], 'Tesla');
-      expect(r.data.self.uri.query.toString(), 'include=models');
       expect(r.data.included.length, 4);
       expect(r.data.included.last.type, 'models');
       expect(r.data.included.last.attributes['name'], 'Model 3');
+    });
+
+    test('"included" member should not present if not requested', () async {
+      final uri = url.resource('companies', '1');
+      final r = await client.fetchResource(uri);
+      expect(r.status, 200);
+      expect(r.isSuccessful, true);
+      expect(r.data.unwrap().attributes['name'], 'Tesla');
+      expect(r.data.included, null);
     });
   }, testOn: 'vm');
 }

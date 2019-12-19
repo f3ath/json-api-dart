@@ -1,5 +1,5 @@
-import 'package:json_api/src/pagination/pagination_strategy.dart';
 import 'package:json_api/src/query/page.dart';
+import 'package:json_api/src/server/pagination/pagination_strategy.dart';
 
 class FixedSizePage implements PaginationStrategy {
   final int size;

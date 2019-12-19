@@ -1,4 +1,3 @@
-import 'package:json_api/src/server/routing/resource_route.dart';
 import 'package:json_api/src/server/routing/route.dart';
 import 'package:json_api/url_design.dart';
 

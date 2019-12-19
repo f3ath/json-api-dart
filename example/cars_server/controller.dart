@@ -7,7 +7,7 @@ import 'package:uuid/uuid.dart';
 import 'dao.dart';
 import 'job_queue.dart';
 
-class CarsController implements Controller {
+class CarsController implements JsonApiController {
   final Map<String, DAO> _dao;
 
   final PaginationStrategy _pagination;
@@ -15,7 +15,7 @@ class CarsController implements Controller {
   CarsController(this._dao, this._pagination);
 
   @override
-  Response fetchCollection(String type, Uri uri) {
+  JsonApiResponse fetchCollection(String type, Uri uri) {
     final page = Page.fromUri(uri);
     final dao = _getDaoOrThrow(type);
     final collection =
@@ -25,7 +25,8 @@ class CarsController implements Controller {
   }
 
   @override
-  Response fetchRelated(String type, String id, String relationship, Uri uri) {
+  JsonApiResponse fetchRelated(
+      String type, String id, String relationship, Uri uri) {
     final res = _fetchResourceOrThrow(type, id);
     final page = Page.fromUri(uri);
     if (res.toOne.containsKey(relationship)) {
@@ -46,7 +47,7 @@ class CarsController implements Controller {
   }
 
   @override
-  Response fetchResource(String type, String id, Uri uri) {
+  JsonApiResponse fetchResource(String type, String id, Uri uri) {
     final dao = _getDaoOrThrow(type);
     final obj = dao.fetchById(id);
     final include = Include.fromUri(uri);
@@ -72,7 +73,7 @@ class CarsController implements Controller {
   }
 
   @override
-  Response fetchRelationship(
+  JsonApiResponse fetchRelationship(
       String type, String id, String relationship, Uri uri) {
     final res = _fetchResourceOrThrow(type, id);
 
@@ -88,7 +89,7 @@ class CarsController implements Controller {
   }
 
   @override
-  Response deleteResource(String type, String id) {
+  JsonApiResponse deleteResource(String type, String id) {
     final dao = _getDaoOrThrow(type);
 
     final res = dao.fetchByIdAsResource(id);
@@ -104,7 +105,7 @@ class CarsController implements Controller {
   }
 
   @override
-  Response createResource(String type, Resource resource) {
+  JsonApiResponse createResource(String type, Resource resource) {
     final dao = _getDaoOrThrow(type);
 
     _throwIfIncompatibleTypes(type, resource);
@@ -139,7 +140,7 @@ class CarsController implements Controller {
   }
 
   @override
-  Response updateResource(String type, String id, Resource resource) {
+  JsonApiResponse updateResource(String type, String id, Resource resource) {
     final dao = _getDaoOrThrow(type);
 
     _throwIfIncompatibleTypes(type, resource);
@@ -155,7 +156,7 @@ class CarsController implements Controller {
   }
 
   @override
-  Response replaceToOne(
+  JsonApiResponse replaceToOne(
       String type, String id, String relationship, Identifier identifier) {
     final dao = _getDaoOrThrow(type);
 
@@ -164,7 +165,7 @@ class CarsController implements Controller {
   }
 
   @override
-  Response replaceToMany(String type, String id, String relationship,
+  JsonApiResponse replaceToMany(String type, String id, String relationship,
       List<Identifier> identifiers) {
     final dao = _getDaoOrThrow(type);
 
@@ -173,7 +174,7 @@ class CarsController implements Controller {
   }
 
   @override
-  Response addToMany(String type, String id, String relationship,
+  JsonApiResponse addToMany(String type, String id, String relationship,
       List<Identifier> identifiers) {
     final dao = _getDaoOrThrow(type);
 
