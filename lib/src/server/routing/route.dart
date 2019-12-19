@@ -1,22 +1,45 @@
 import 'dart:async';
 
 import 'package:json_api/document.dart';
-import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/http_method.dart';
-import 'package:json_api/src/server/response/response.dart';
+import 'package:json_api/src/server/json_api_controller.dart';
+import 'package:json_api/src/server/response/json_api_response.dart';
 
 abstract class Route {
-  FutureOr<Response> call(
-      Controller controller, Uri uri, HttpMethod method, Object body);
+  FutureOr<JsonApiResponse> call(
+      JsonApiController controller, Uri uri, HttpMethod method, Object body);
 }
 
 class InvalidRoute implements Route {
   InvalidRoute();
 
   @override
-  Future<Response> call(
-          Controller controller, Uri uri, HttpMethod method, Object body) =>
+  Future<JsonApiResponse> call(JsonApiController controller, Uri uri,
+          HttpMethod method, Object body) =>
       null;
+}
+
+class ResourceRoute implements Route {
+  final String type;
+  final String id;
+
+  ResourceRoute(this.type, this.id);
+
+  @override
+  FutureOr<JsonApiResponse> call(
+      JsonApiController controller, Uri uri, HttpMethod method, Object body) {
+    if (method.isGet()) {
+      return controller.fetchResource(type, id, uri);
+    }
+    if (method.isDelete()) {
+      return controller.deleteResource(type, id);
+    }
+    if (method.isPatch()) {
+      return controller.updateResource(type, id,
+          Document.fromJson(body, ResourceData.fromJson).data.unwrap());
+    }
+    return null;
+  }
 }
 
 class CollectionRoute implements Route {
@@ -25,8 +48,8 @@ class CollectionRoute implements Route {
   CollectionRoute(this.type);
 
   @override
-  FutureOr<Response> call(
-      Controller controller, Uri uri, HttpMethod method, Object body) {
+  FutureOr<JsonApiResponse> call(
+      JsonApiController controller, Uri uri, HttpMethod method, Object body) {
     if (method.isGet()) {
       return controller.fetchCollection(type, uri);
     }
@@ -46,8 +69,8 @@ class RelatedRoute implements Route {
   const RelatedRoute(this.type, this.id, this.relationship);
 
   @override
-  FutureOr<Response> call(
-      Controller controller, Uri uri, HttpMethod method, Object body) {
+  FutureOr<JsonApiResponse> call(
+      JsonApiController controller, Uri uri, HttpMethod method, Object body) {
     if (method.isGet()) {
       return controller.fetchRelated(type, id, relationship, uri);
     }
@@ -63,8 +86,8 @@ class RelationshipRoute implements Route {
   RelationshipRoute(this.type, this.id, this.relationship);
 
   @override
-  FutureOr<Response> call(
-      Controller controller, Uri uri, HttpMethod method, Object body) {
+  FutureOr<JsonApiResponse> call(
+      JsonApiController controller, Uri uri, HttpMethod method, Object body) {
     if (method.isGet()) {
       return controller.fetchRelationship(type, id, relationship, uri);
     }

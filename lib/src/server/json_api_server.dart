@@ -2,17 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/http_method.dart';
+import 'package:json_api/src/server/json_api_controller.dart';
 import 'package:json_api/src/server/response/error_response.dart';
-import 'package:json_api/src/server/response/response.dart';
+import 'package:json_api/src/server/response/json_api_response.dart';
 import 'package:json_api/src/server/routing/route_factory.dart';
 import 'package:json_api/src/server/server_document_factory.dart';
 import 'package:json_api/url_design.dart';
 
 class JsonApiServer {
   final UrlDesign urlDesign;
-  final Controller controller;
+  final JsonApiController controller;
   final ServerDocumentFactory documentFactory;
   final String allowOrigin;
   final RouteFactory routeMapper;
@@ -31,7 +31,8 @@ class JsonApiServer {
     return request.response.close();
   }
 
-  Future<Response> _call(Controller controller, HttpRequest request) async {
+  Future<JsonApiResponse> _call(
+      JsonApiController controller, HttpRequest request) async {
     final method = HttpMethod(request.method);
     final body = await _getBody(request);
     try {
@@ -43,16 +44,16 @@ class JsonApiServer {
     }
   }
 
-  void _writeBody(HttpRequest request, Response response) {
+  void _writeBody(HttpRequest request, JsonApiResponse response) {
     final doc = response.buildDocument(documentFactory, request.requestedUri);
     if (doc != null) request.response.write(json.encode(doc));
   }
 
-  void _setStatus(HttpRequest request, Response response) {
+  void _setStatus(HttpRequest request, JsonApiResponse response) {
     request.response.statusCode = response.status;
   }
 
-  void _setHeaders(HttpRequest request, Response response) {
+  void _setHeaders(HttpRequest request, JsonApiResponse response) {
     final add = request.response.headers.add;
     response.getHeaders(urlDesign).forEach(add);
     if (allowOrigin != null) add('Access-Control-Allow-Origin', allowOrigin);
