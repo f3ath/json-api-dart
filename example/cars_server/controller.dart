@@ -205,6 +205,6 @@ class CarsController implements JsonApiController {
     return resource;
   }
 
-  Map<T, R> _filter<T, R>(Map<T, R> map, bool f(T t)) =>
+  Map<T, R> _filter<T, R>(Map<T, R> map, bool Function(T t) f) =>
       {...map}..removeWhere((k, _) => !f(k));
 }

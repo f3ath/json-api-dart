@@ -10,6 +10,6 @@ class Job {
   Resource resource;
 
   Job(Future<Resource> create) : id = Uuid().v4() {
-    create.then((_) => this.resource = _);
+    create.then((_) => resource = _);
   }
 }

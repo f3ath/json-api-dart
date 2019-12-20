@@ -15,8 +15,8 @@ abstract class PrimaryData {
   final Map<String, Link> links;
 
   PrimaryData({Iterable<ResourceObject> included, Map<String, Link> links})
-      : this.included = (included == null) ? null : List.unmodifiable(included),
-        this.links = (links == null) ? null : Map.unmodifiable(links);
+      : included = (included == null) ? null : List.unmodifiable(included),
+        links = (links == null) ? null : Map.unmodifiable(links);
 
   /// The `self` link. May be null.
   Link get self => (links ?? {})['self'];

@@ -20,27 +20,27 @@ class Document<Data extends PrimaryData> {
 
   /// Create a document with primary data
   Document(this.data, {Map<String, Object> meta, this.api})
-      : this.errors = null,
-        this.meta = (meta == null) ? null : Map.unmodifiable(meta);
+      : errors = null,
+        meta = (meta == null) ? null : Map.unmodifiable(meta);
 
   /// Create a document with errors (no primary data)
   Document.error(Iterable<JsonApiError> errors,
       {Map<String, Object> meta, this.api})
-      : this.data = null,
-        this.meta = (meta == null) ? null : Map.unmodifiable(meta),
-        this.errors = List.unmodifiable(errors);
+      : data = null,
+        meta = (meta == null) ? null : Map.unmodifiable(meta),
+        errors = List.unmodifiable(errors);
 
   /// Create an empty document (no primary data and no errors)
   Document.empty(Map<String, Object> meta, {this.api})
-      : this.data = null,
-        this.meta = (meta == null) ? null : Map.unmodifiable(meta),
-        this.errors = null {
+      : data = null,
+        meta = (meta == null) ? null : Map.unmodifiable(meta),
+        errors = null {
     ArgumentError.checkNotNull(meta, 'meta');
   }
 
   /// Reconstructs a document with the specified primary data
   static Document<Data> fromJson<Data extends PrimaryData>(
-      Object json, Data primaryData(Object json)) {
+      Object json, Data Function(Object json) primaryData) {
     if (json is Map) {
       Api api;
       if (json.containsKey('jsonapi')) {

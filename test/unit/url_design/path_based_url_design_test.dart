@@ -77,7 +77,7 @@ void main() {
 
 class _Mapper implements MatchCase<String> {
   @override
-  unmatched() => 'unmatched';
+  String unmatched() => 'unmatched';
 
   @override
   String collection(String type) => 'collection:$type';

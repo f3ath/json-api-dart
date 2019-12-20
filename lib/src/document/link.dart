@@ -26,7 +26,7 @@ class Link {
     throw DecodingException('Can not decode links map from $json');
   }
 
-  toJson() => uri.toString();
+  Object toJson() => uri.toString();
 
   @override
   String toString() => uri.toString();
@@ -49,7 +49,8 @@ class LinkObject extends Link {
     throw DecodingException('Can not decode LinkObject from $json');
   }
 
-  toJson() => {
+  @override
+  Object toJson() => {
         'href': uri.toString(),
         if (meta != null) ...{'meta': meta}
       };

@@ -9,7 +9,7 @@ class Api {
   final Map<String, Object> meta;
 
   Api({this.version, Map<String, Object> meta})
-      : this.meta = meta == null ? null : Map.unmodifiable(meta);
+      : meta = meta == null ? null : Map.unmodifiable(meta);
 
   static Api fromJson(Object json) {
     if (json is Map) {

@@ -50,6 +50,7 @@ class Relationship extends PrimaryData {
   }
 
   /// Top-level JSON object
+  @override
   Map<String, Object> toJson() => {
         ...super.toJson(),
         if (links != null) ...{'links': links}
@@ -85,6 +86,7 @@ class ToOne extends Relationship {
     throw DecodingException('Can not decode ToOne from $json');
   }
 
+  @override
   Map<String, Object> toJson() => {
         ...super.toJson(),
         ...{'data': linkage}
@@ -124,6 +126,7 @@ class ToMany extends Relationship {
     throw DecodingException('Can not decode ToMany from $json');
   }
 
+  @override
   Map<String, Object> toJson() => {
         ...super.toJson(),
         'data': linkage,
