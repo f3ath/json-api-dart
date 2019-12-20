@@ -19,14 +19,14 @@ void main() {
       expect(
           res,
           encodesToJson({
-            "type": "photos",
-            "attributes": {
-              "title": "Ember Hamster",
-              "src": "http://example.com/images/productivity.png"
+            'type': 'photos',
+            'attributes': {
+              'title': 'Ember Hamster',
+              'src': 'http://example.com/images/productivity.png'
             },
-            "relationships": {
-              "photographer": {
-                "data": {"type": "people", "id": "9"}
+            'relationships': {
+              'photographer': {
+                'data': {'type': 'people', 'id': '9'}
               }
             }
           }));

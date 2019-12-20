@@ -67,8 +67,8 @@ class ServerDocumentFactory {
           ToMany(
             identifiers.map(IdentifierObject.fromIdentifier),
             links: {
-              "self": Link(self),
-              "related": Link(_url.related(type, id, relationship))
+              'self': Link(self),
+              'related': Link(_url.related(type, id, relationship))
             },
           ),
           api: _api);

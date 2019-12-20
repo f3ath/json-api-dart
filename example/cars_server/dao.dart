@@ -49,11 +49,14 @@ abstract class DAO<T> {
 }
 
 class ModelDAO extends DAO<Model> {
+  @override
   Resource toResource(Model _) =>
       Resource('models', _.id, attributes: {'name': _.name});
 
+  @override
   void insert(Model model) => _collection[model.id] = model;
 
+  @override
   Model create(Resource r) {
     return Model(r.id)..name = r.attributes['name'];
   }
@@ -66,17 +69,21 @@ class ModelDAO extends DAO<Model> {
 }
 
 class CityDAO extends DAO<City> {
+  @override
   Resource toResource(City _) =>
       Resource('cities', _.id, attributes: {'name': _.name});
 
+  @override
   void insert(City city) => _collection[city.id] = city;
 
+  @override
   City create(Resource r) {
     return City(r.id)..name = r.attributes['name'];
   }
 }
 
 class CompanyDAO extends DAO<Company> {
+  @override
   Resource toResource(Company company) =>
       Resource('companies', company.id, attributes: {
         'name': company.name,
@@ -90,11 +97,13 @@ class CompanyDAO extends DAO<Company> {
         'models': company.models.map((_) => Identifier('models', _)).toList()
       });
 
+  @override
   void insert(Company company) {
     company.updatedAt = DateTime.now();
     _collection[company.id] = company;
   }
 
+  @override
   Company create(Resource r) {
     return Company(r.id)
       ..name = r.attributes['name']
@@ -104,7 +113,7 @@ class CompanyDAO extends DAO<Company> {
   @override
   int deleteById(String id) {
     final company = fetchById(id);
-    int deps = company.headquarters == null ? 0 : 1;
+    var deps = company.headquarters == null ? 0 : 1;
     deps += company.models.length;
     _collection.remove(id);
     return deps;

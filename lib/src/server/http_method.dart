@@ -1,7 +1,7 @@
 class HttpMethod {
   final String _name;
 
-  HttpMethod(String name) : this._name = name.toUpperCase();
+  HttpMethod(String name) : _name = name.toUpperCase();
 
   bool isPost() => _name == 'POST';
 

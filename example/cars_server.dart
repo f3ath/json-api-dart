@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:json_api/server.dart';
 import 'package:json_api/src/server/server_document_factory.dart';
 import 'package:json_api/url_design.dart';
+import 'package:pedantic/pedantic.dart';
 
 import 'cars_server/controller.dart';
 import 'cars_server/dao.dart';
@@ -63,6 +64,6 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
       ServerDocumentFactory(urlDesign, pagination: pagination);
   final jsonApiServer = JsonApiServer(urlDesign, controller, documentFactory);
 
-  httpServer.forEach(jsonApiServer.serve);
+  unawaited(httpServer.forEach(jsonApiServer.serve));
   return httpServer;
 }

@@ -195,7 +195,7 @@ class JsonApiClient {
         ..body = json.encode(doc);
 
   Future<Response<D>> _call<D extends PrimaryData>(
-      http.Request request, D decodePrimaryData(Object _)) async {
+      http.Request request, D Function(Object _) decodePrimaryData) async {
     final response =
         await http.Response.fromStream(await httpClient.send(request));
     _onHttpCall(request, response);
@@ -217,6 +217,7 @@ class JsonApiClient {
 
 /// Defines the hook which gets called when the HTTP response is received from
 /// the HTTP Client.
-typedef void OnHttpCall(http.Request request, http.Response response);
+typedef OnHttpCall = void Function(
+    http.Request request, http.Response response);
 
-_doNothing(http.Request request, http.Response response) {}
+void _doNothing(http.Request request, http.Response response) {}

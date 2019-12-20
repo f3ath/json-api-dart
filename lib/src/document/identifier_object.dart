@@ -16,7 +16,7 @@ class IdentifierObject {
   /// Creates an instance of [IdentifierObject].
   /// [type] and [id] can not be null.
   IdentifierObject(this.type, this.id, {Map<String, Object> meta})
-      : this.meta = (meta == null) ? null : Map.unmodifiable(meta) {
+      : meta = (meta == null) ? null : Map.unmodifiable(meta) {
     ArgumentError.checkNotNull(type);
     ArgumentError.checkNotNull(id);
   }

@@ -23,5 +23,6 @@ class Identifier {
       other.type == type &&
       other.id == id;
 
-  String toString() => "Identifier($type:$id)";
+  @override
+  String toString() => 'Identifier($type:$id)';
 }

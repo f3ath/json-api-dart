@@ -5,7 +5,7 @@ class RouteFactory implements MatchCase<Route> {
   const RouteFactory();
 
   @override
-  unmatched() => InvalidRoute();
+  Route unmatched() => InvalidRoute();
 
   @override
   Route collection(String type) => CollectionRoute(type);

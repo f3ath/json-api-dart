@@ -7,6 +7,7 @@ class ErrorResponse extends JsonApiResponse {
 
   const ErrorResponse(int status, this.errors) : super(status);
 
+  @override
   Document buildDocument(ServerDocumentFactory builder, Uri self) =>
       builder.makeErrorDocument(errors);
 
