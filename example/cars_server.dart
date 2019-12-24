@@ -60,9 +60,9 @@ Future<HttpServer> createServer(InternetAddress addr, int port) async {
 
   final httpServer = await HttpServer.bind(addr, port);
   final urlDesign = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
-  final documentFactory =
-      ServerDocumentFactory(urlDesign, pagination: pagination);
-  final jsonApiServer = JsonApiServer(urlDesign, controller, documentFactory);
+  final jsonApiServer = JsonApiServer(urlDesign, controller,
+      documentFactory:
+          ServerDocumentFactory(urlDesign, pagination: pagination));
 
   unawaited(httpServer.forEach(jsonApiServer.serve));
   return httpServer;

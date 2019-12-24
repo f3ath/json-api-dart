@@ -17,9 +17,10 @@ class JsonApiServer {
   final String allowOrigin;
   final RouteFactory routeMapper;
 
-  JsonApiServer(this.urlDesign, this.controller, this.documentFactory,
-      {this.allowOrigin = '*'})
-      : routeMapper = RouteFactory();
+  JsonApiServer(this.urlDesign, this.controller,
+      {this.allowOrigin = '*', ServerDocumentFactory documentFactory})
+      : routeMapper = RouteFactory(),
+        documentFactory = documentFactory ?? ServerDocumentFactory(urlDesign);
 
   Future serve(HttpRequest request) async {
     final response = await _call(controller, request);

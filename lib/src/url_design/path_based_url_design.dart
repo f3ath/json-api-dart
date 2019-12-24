@@ -6,16 +6,18 @@ import 'package:json_api/src/url_design/url_design.dart';
 /// @see https://jsonapi.org/recommendations/#urls
 class PathBasedUrlDesign implements UrlDesign {
   static const _relationships = 'relationships';
+
+  /// The base to be added the the generated URIs
   final Uri base;
 
-  PathBasedUrlDesign(this.base);
+  /// Check incoming URIs match the [base]
+  final bool matchBase;
+
+  PathBasedUrlDesign(this.base, {this.matchBase = false});
 
   /// Returns a URL for the primary resource collection of type [type]
   @override
-  Uri collection(
-    String type,
-  ) =>
-      _appendToBase([type]);
+  Uri collection(String type) => _appendToBase([type]);
 
   /// Returns a URL for the related resource/collection.
   /// The [type] and [id] identify the primary resource and the [relationship]
@@ -37,7 +39,7 @@ class PathBasedUrlDesign implements UrlDesign {
 
   @override
   T match<T>(final Uri uri, final MatchCase<T> matchCase) {
-    if (_matchesBase(uri)) {
+    if (!matchBase || _matchesBase(uri)) {
       final seg = uri.pathSegments.sublist(base.pathSegments.length);
       if (seg.length == 1) {
         return matchCase.collection(seg[0]);
