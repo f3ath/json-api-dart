@@ -6,11 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.2.0] - 2019-12-30
 ### Added
-- `matchBase` option to `PathBasedUrlDesign`
-- `Resource.toIdentifier()`method
+- `matchBase` option to `PathBasedUrlDesign`.
+- `Resource.toIdentifier()`method.
 
 ### Changed
-- (Server, BC-breaking) `JsonApiController` made generic
+- (Server, BC-breaking) `JsonApiController` made generic.
+
+### Removed
+- The package does not depend on `collection` anymore.
 
 ## [3.1.0] - 2019-12-19
 ### Added
