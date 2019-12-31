@@ -1,13 +1,15 @@
 import 'dart:async';
 
 import 'package:json_api/document.dart';
+import 'package:json_api/query.dart';
 import 'package:json_api/server.dart';
 import 'package:uuid/uuid.dart';
 
 import 'dao.dart';
 import 'job_queue.dart';
 
-class CarsController implements JsonApiController {
+class CarsController
+    implements JsonApiController<JsonApiRequest, JsonApiResponse> {
   final Map<String, DAO> _dao;
 
   final PaginationStrategy _pagination;
@@ -15,8 +17,8 @@ class CarsController implements JsonApiController {
   CarsController(this._dao, this._pagination);
 
   @override
-  JsonApiResponse fetchCollection(String type, Uri uri) {
-    final page = Page.fromUri(uri);
+  JsonApiResponse fetchCollection(String type, JsonApiRequest request) {
+    final page = Page.fromUri(request.requestedUri);
     final dao = _getDaoOrThrow(type);
     final collection =
         dao.fetchCollection(_pagination.limit(page), _pagination.offset(page));
@@ -26,9 +28,9 @@ class CarsController implements JsonApiController {
 
   @override
   JsonApiResponse fetchRelated(
-      String type, String id, String relationship, Uri uri) {
+      String type, String id, String relationship, JsonApiRequest request) {
     final res = _fetchResourceOrThrow(type, id);
-    final page = Page.fromUri(uri);
+    final page = Page.fromUri(request.requestedUri);
     if (res.toOne.containsKey(relationship)) {
       final id = res.toOne[relationship];
       final resource = _dao[id.type].fetchByIdAsResource(id.id);
@@ -47,10 +49,11 @@ class CarsController implements JsonApiController {
   }
 
   @override
-  JsonApiResponse fetchResource(String type, String id, Uri uri) {
+  JsonApiResponse fetchResource(
+      String type, String id, JsonApiRequest request) {
     final dao = _getDaoOrThrow(type);
     final obj = dao.fetchById(id);
-    final include = Include.fromUri(uri);
+    final include = Include.fromUri(request.requestedUri);
 
     if (obj == null) {
       return ErrorResponse.notFound(
@@ -74,7 +77,7 @@ class CarsController implements JsonApiController {
 
   @override
   JsonApiResponse fetchRelationship(
-      String type, String id, String relationship, Uri uri) {
+      String type, String id, String relationship, JsonApiRequest request) {
     final res = _fetchResourceOrThrow(type, id);
 
     if (res.toOne.containsKey(relationship)) {
@@ -89,7 +92,8 @@ class CarsController implements JsonApiController {
   }
 
   @override
-  JsonApiResponse deleteResource(String type, String id) {
+  JsonApiResponse deleteResource(
+      String type, String id, JsonApiRequest request) {
     final dao = _getDaoOrThrow(type);
 
     final res = dao.fetchByIdAsResource(id);
@@ -105,7 +109,8 @@ class CarsController implements JsonApiController {
   }
 
   @override
-  JsonApiResponse createResource(String type, Resource resource) {
+  JsonApiResponse createResource(
+      String type, Resource resource, JsonApiRequest request) {
     final dao = _getDaoOrThrow(type);
 
     _throwIfIncompatibleTypes(type, resource);
@@ -140,7 +145,8 @@ class CarsController implements JsonApiController {
   }
 
   @override
-  JsonApiResponse updateResource(String type, String id, Resource resource) {
+  JsonApiResponse updateResource(
+      String type, String id, Resource resource, JsonApiRequest request) {
     final dao = _getDaoOrThrow(type);
 
     _throwIfIncompatibleTypes(type, resource);
@@ -156,8 +162,8 @@ class CarsController implements JsonApiController {
   }
 
   @override
-  JsonApiResponse replaceToOne(
-      String type, String id, String relationship, Identifier identifier) {
+  JsonApiResponse replaceToOne(String type, String id, String relationship,
+      Identifier identifier, JsonApiRequest request) {
     final dao = _getDaoOrThrow(type);
 
     dao.replaceToOne(id, relationship, identifier);
@@ -166,7 +172,7 @@ class CarsController implements JsonApiController {
 
   @override
   JsonApiResponse replaceToMany(String type, String id, String relationship,
-      List<Identifier> identifiers) {
+      List<Identifier> identifiers, JsonApiRequest request) {
     final dao = _getDaoOrThrow(type);
 
     dao.replaceToMany(id, relationship, identifiers);
@@ -175,7 +181,7 @@ class CarsController implements JsonApiController {
 
   @override
   JsonApiResponse addToMany(String type, String id, String relationship,
-      List<Identifier> identifiers) {
+      List<Identifier> identifiers, JsonApiRequest request) {
     final dao = _getDaoOrThrow(type);
 
     return ToManyResponse(

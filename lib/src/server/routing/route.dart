@@ -1,21 +1,18 @@
-import 'dart:async';
-
 import 'package:json_api/document.dart';
-import 'package:json_api/src/server/http_method.dart';
 import 'package:json_api/src/server/json_api_controller.dart';
-import 'package:json_api/src/server/response/json_api_response.dart';
+import 'package:json_api/src/server/json_api_request.dart';
 
 abstract class Route {
-  FutureOr<JsonApiResponse> call(
-      JsonApiController controller, Uri uri, HttpMethod method, Object body);
+  Response call<Request extends JsonApiRequest, Response>(
+      JsonApiController<Request, Response> controller, Request request);
 }
 
 class InvalidRoute implements Route {
   InvalidRoute();
 
   @override
-  Future<JsonApiResponse> call(JsonApiController controller, Uri uri,
-          HttpMethod method, Object body) =>
+  Response call<Request extends JsonApiRequest, Response>(
+          JsonApiController<Request, Response> controller, Request request) =>
       null;
 }
 
@@ -26,17 +23,18 @@ class ResourceRoute implements Route {
   ResourceRoute(this.type, this.id);
 
   @override
-  FutureOr<JsonApiResponse> call(
-      JsonApiController controller, Uri uri, HttpMethod method, Object body) {
-    if (method.isGet()) {
-      return controller.fetchResource(type, id, uri);
+  Response call<Request extends JsonApiRequest, Response>(
+      JsonApiController<Request, Response> controller, Request request) {
+    final method = HttpMethod(request.method);
+    if (method.isGet) {
+      return controller.fetchResource(type, id, request);
     }
-    if (method.isDelete()) {
-      return controller.deleteResource(type, id);
+    if (method.isDelete) {
+      return controller.deleteResource(type, id, request);
     }
-    if (method.isPatch()) {
-      return controller.updateResource(type, id,
-          Document.fromJson(body, ResourceData.fromJson).data.unwrap());
+    if (method.isPatch) {
+      return controller.updateResource(
+          type, id, ResourceData.fromJson(request.body).unwrap(), request);
     }
     return null;
   }
@@ -48,14 +46,15 @@ class CollectionRoute implements Route {
   CollectionRoute(this.type);
 
   @override
-  FutureOr<JsonApiResponse> call(
-      JsonApiController controller, Uri uri, HttpMethod method, Object body) {
-    if (method.isGet()) {
-      return controller.fetchCollection(type, uri);
+  Response call<Request extends JsonApiRequest, Response>(
+      JsonApiController<Request, Response> controller, Request request) {
+    final method = HttpMethod(request.method);
+    if (method.isGet) {
+      return controller.fetchCollection(type, request);
     }
-    if (method.isPost()) {
+    if (method.isPost) {
       return controller.createResource(
-          type, Document.fromJson(body, ResourceData.fromJson).data.unwrap());
+          type, ResourceData.fromJson(request.body).unwrap(), request);
     }
     return null;
   }
@@ -69,10 +68,12 @@ class RelatedRoute implements Route {
   const RelatedRoute(this.type, this.id, this.relationship);
 
   @override
-  FutureOr<JsonApiResponse> call(
-      JsonApiController controller, Uri uri, HttpMethod method, Object body) {
-    if (method.isGet()) {
-      return controller.fetchRelated(type, id, relationship, uri);
+  Response call<Request extends JsonApiRequest, Response>(
+      JsonApiController<Request, Response> controller, Request request) {
+    final method = HttpMethod(request.method);
+
+    if (method.isGet) {
+      return controller.fetchRelated(type, id, relationship, request);
     }
     return null;
   }
@@ -86,27 +87,42 @@ class RelationshipRoute implements Route {
   RelationshipRoute(this.type, this.id, this.relationship);
 
   @override
-  FutureOr<JsonApiResponse> call(
-      JsonApiController controller, Uri uri, HttpMethod method, Object body) {
-    if (method.isGet()) {
-      return controller.fetchRelationship(type, id, relationship, uri);
+  Response call<Request extends JsonApiRequest, Response>(
+      JsonApiController<Request, Response> controller, Request request) {
+    final method = HttpMethod(request.method);
+
+    if (method.isGet) {
+      return controller.fetchRelationship(type, id, relationship, request);
     }
-    if (method.isPatch()) {
-      final rel = Relationship.fromJson(body);
+    if (method.isPatch) {
+      final rel = Relationship.fromJson(request.body);
       if (rel is ToOne) {
-        return controller.replaceToOne(type, id, relationship, rel.unwrap());
+        return controller.replaceToOne(
+            type, id, relationship, rel.unwrap(), request);
       }
       if (rel is ToMany) {
         return controller.replaceToMany(
-            type, id, relationship, rel.identifiers);
+            type, id, relationship, rel.unwrap(), request);
       }
     }
-    if (method.isPost()) {
-      final rel = Relationship.fromJson(body);
-      if (rel is ToMany) {
-        return controller.addToMany(type, id, relationship, rel.identifiers);
-      }
+    if (method.isPost) {
+      return controller.addToMany(type, id, relationship,
+          ToMany.fromJson(request.body).unwrap(), request);
     }
     return null;
   }
+}
+
+class HttpMethod {
+  final String _method;
+
+  HttpMethod(String method) : _method = method.toUpperCase();
+
+  bool get isGet => _method == 'GET';
+
+  bool get isPost => _method == 'POST';
+
+  bool get isPatch => _method == 'PATCH';
+
+  bool get isDelete => _method == 'DELETE';
 }

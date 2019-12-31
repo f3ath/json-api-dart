@@ -4,14 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.2.0] - 2019-12-30
+### Added
+- `matchBase` option to `PathBasedUrlDesign`.
+- `Resource.toIdentifier()`method.
+
+### Changed
+- (Server, BC-breaking) `JsonApiController` made generic.
+
+### Removed
+- The package does not depend on `collection` anymore.
+
 ## [3.1.0] - 2019-12-19
 ### Added
 - (Server) Routing is exposed via `server` library.
 
 ### Changed
-- (Server) `Controller` renamed to `JsonApiController`.
-- (Server) `Response` renamed to `JsonApiResponse`.
+- (Server, BC-breaking) `Controller` renamed to `JsonApiController`.
+- (Server, BC-breaking) `Response` renamed to `JsonApiResponse`.
 
 ### Fixed
 - (Server) Response classes had `included` member initialized to `[]` by default. Now the default is `null`.
@@ -128,7 +138,8 @@ Most of the changes are **BC-BREAKING**.
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
-[Unreleased]: https://github.com/f3ath/json-api-dart/compare/3.1.0...HEAD
+[Unreleased]: https://github.com/f3ath/json-api-dart/compare/3.2.0...HEAD
+[3.2.0]: https://github.com/f3ath/json-api-dart/compare/3.1.0...3.2.0
 [3.1.0]: https://github.com/f3ath/json-api-dart/compare/3.0.0...3.1.0
 [3.0.0]: https://github.com/f3ath/json-api-dart/compare/2.1.0...3.0.0
 [2.1.0]: https://github.com/f3ath/json-api-dart/compare/2.0.3...2.1.0

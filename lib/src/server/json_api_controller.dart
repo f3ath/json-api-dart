@@ -1,34 +1,32 @@
-import 'dart:async';
-
 import 'package:json_api/document.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/resource.dart';
-import 'package:json_api/src/server/response/json_api_response.dart';
+import 'package:json_api/src/server/json_api_request.dart';
 
-abstract class JsonApiController {
-  FutureOr<JsonApiResponse> fetchCollection(String type, Uri uri);
+abstract class JsonApiController<Request extends JsonApiRequest, Response> {
+  Response fetchCollection(String type, Request request);
 
-  FutureOr<JsonApiResponse> fetchResource(String type, String id, Uri uri);
+  Response fetchResource(String type, String id, Request request);
 
-  FutureOr<JsonApiResponse> fetchRelated(
-      String type, String id, String relationship, Uri uri);
+  Response fetchRelated(
+      String type, String id, String relationship, Request request);
 
-  FutureOr<JsonApiResponse> fetchRelationship(
-      String type, String id, String relationship, Uri uri);
+  Response fetchRelationship(
+      String type, String id, String relationship, Request request);
 
-  FutureOr<JsonApiResponse> deleteResource(String type, String id);
+  Response deleteResource(String type, String id, Request request);
 
-  FutureOr<JsonApiResponse> createResource(String type, Resource resource);
+  Response createResource(String type, Resource resource, Request request);
 
-  FutureOr<JsonApiResponse> updateResource(
-      String type, String id, Resource resource);
+  Response updateResource(
+      String type, String id, Resource resource, Request request);
 
-  FutureOr<JsonApiResponse> replaceToOne(
-      String type, String id, String relationship, Identifier identifier);
+  Response replaceToOne(String type, String id, String relationship,
+      Identifier identifier, Request request);
 
-  FutureOr<JsonApiResponse> replaceToMany(String type, String id,
-      String relationship, List<Identifier> identifiers);
+  Response replaceToMany(String type, String id, String relationship,
+      List<Identifier> identifiers, Request request);
 
-  FutureOr<JsonApiResponse> addToMany(String type, String id,
-      String relationship, List<Identifier> identifiers);
+  Response addToMany(String type, String id, String relationship,
+      List<Identifier> identifiers, Request request);
 }

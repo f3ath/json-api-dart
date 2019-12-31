@@ -7,9 +7,8 @@
 /// **The API is not stable!**
 library server;
 
-export 'package:json_api/query.dart';
-export 'package:json_api/src/server/http_method.dart';
 export 'package:json_api/src/server/json_api_controller.dart';
+export 'package:json_api/src/server/json_api_request.dart';
 export 'package:json_api/src/server/json_api_server.dart';
 export 'package:json_api/src/server/pagination/fixed_size_page.dart';
 export 'package:json_api/src/server/pagination/pagination_strategy.dart';
@@ -30,4 +29,3 @@ export 'package:json_api/src/server/response/to_one_response.dart';
 export 'package:json_api/src/server/routing/route.dart';
 export 'package:json_api/src/server/routing/route_factory.dart';
 export 'package:json_api/src/server/server_document_factory.dart';
-export 'package:json_api/url_design.dart';

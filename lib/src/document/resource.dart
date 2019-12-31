@@ -36,6 +36,13 @@ class Resource {
     ArgumentError.checkNotNull(type, 'type');
   }
 
+  Identifier toIdentifier() {
+    if (id == null) {
+      throw StateError('Can not create an Identifier with id==null');
+    }
+    return Identifier(type, id);
+  }
+
   @override
   String toString() => 'Resource(${type}:${id})';
 }

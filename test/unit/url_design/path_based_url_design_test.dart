@@ -1,9 +1,9 @@
-import 'package:json_api/server.dart';
 import 'package:json_api/url_design.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final routing = PathBasedUrlDesign(Uri.parse('http://example.com/api'));
+  final routing =
+      PathBasedUrlDesign(Uri.parse('http://example.com/api'), matchBase: true);
   final mapper = _Mapper();
 
   group('URL construction', () {
