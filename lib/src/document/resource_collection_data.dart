@@ -41,7 +41,12 @@ class ResourceCollectionData extends PrimaryData {
   /// The link to the prev page. May be null.
   Link get prev => (links ?? {})['prev'];
 
+  /// Returns a list of resources contained in the collection
   List<Resource> unwrap() => collection.map((_) => _.unwrap()).toList();
+
+  /// Returns a map of resources indexed by ids
+  Map<String, Resource> unwrapToMap() =>
+      Map.fromIterable(unwrap(), key: (r) => r.id);
 
   @override
   Map<String, Object> toJson() => {

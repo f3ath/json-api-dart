@@ -4,6 +4,11 @@ import 'package:json_api/document.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('unwrapToMap() returns a may by id', () {
+    final apples = ResourceCollectionData(
+            [ResourceObject('apples', '1'), ResourceObject('apples', '2')])
+        .unwrapToMap();
+  });
   group('custom links', () {
     test('recognizes custom links', () {
       final r = ResourceCollectionData([],

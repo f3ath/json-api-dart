@@ -1,4 +1,3 @@
-import 'package:json_api/server.dart';
 import 'package:json_api/src/url_design/url_design.dart';
 
 /// URL Design where the target is determined by the URL path.

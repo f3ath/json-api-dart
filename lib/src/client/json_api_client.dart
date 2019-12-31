@@ -36,7 +36,7 @@ class JsonApiClient {
   /// You have to create and pass an instance of the [httpClient] yourself.
   /// Do not forget to call [httpClient.close()] when you're done using
   /// the JSON:API client.
-  /// The [onHttpCall] hook, if passed,  gets called when an http response is
+  /// The [onHttpCall] hook, if passed, gets called when an http response is
   /// received from the HTTP Client.
   JsonApiClient(this.httpClient,
       {ClientDocumentFactory builder, OnHttpCall onHttpCall})

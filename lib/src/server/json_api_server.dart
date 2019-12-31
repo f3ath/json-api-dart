@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/src/server/http_method.dart';
 import 'package:json_api/src/server/json_api_controller.dart';
+import 'package:json_api/src/server/json_api_request.dart';
 import 'package:json_api/src/server/response/error_response.dart';
 import 'package:json_api/src/server/response/json_api_response.dart';
 import 'package:json_api/src/server/routing/route_factory.dart';
@@ -34,12 +34,13 @@ class JsonApiServer {
 
   Future<JsonApiResponse> _call(
       JsonApiController controller, HttpRequest request) async {
-    final method = HttpMethod(request.method);
     final body = await _getBody(request);
+    final jsonApiRequest =
+        JsonApiRequest(request.method, request.requestedUri, body);
     try {
       return await urlDesign
           .match(request.requestedUri, routeMapper)
-          .call(controller, request.requestedUri, method, body);
+          .call(controller, jsonApiRequest);
     } on ErrorResponse catch (error) {
       return error;
     }

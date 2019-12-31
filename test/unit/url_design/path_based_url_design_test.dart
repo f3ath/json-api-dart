@@ -1,4 +1,3 @@
-import 'package:json_api/server.dart';
 import 'package:json_api/url_design.dart';
 import 'package:test/test.dart';
 

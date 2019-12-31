@@ -95,6 +95,9 @@ class ToOne extends Relationship {
   /// Converts to [Identifier].
   /// For empty relationships returns null.
   Identifier unwrap() => linkage?.unwrap();
+
+  /// Same as [unwrap()]
+  Identifier get identifier => unwrap();
 }
 
 /// Relationship to-many
@@ -134,5 +137,8 @@ class ToMany extends Relationship {
 
   /// Converts to List<Identifier>.
   /// For empty relationships returns an empty List.
-  List<Identifier> get identifiers => linkage.map((_) => _.unwrap()).toList();
+  List<Identifier> unwrap() => linkage.map((_) => _.unwrap()).toList();
+
+  /// Same as [unwrap()]
+  List<Identifier> get identifiers => unwrap();
 }
