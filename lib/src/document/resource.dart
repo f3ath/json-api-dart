@@ -45,4 +45,7 @@ class Resource {
 
   @override
   String toString() => 'Resource(${type}:${id})';
+
+  Resource withId(String id) =>
+      Resource(type, id, attributes: attributes, toOne: toOne, toMany: toMany);
 }

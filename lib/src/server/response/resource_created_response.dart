@@ -3,10 +3,12 @@ import 'package:json_api/src/server/response/json_api_response.dart';
 import 'package:json_api/src/server/server_document_factory.dart';
 import 'package:json_api/url_design.dart';
 
-class ResourceCreatedResponse extends JsonApiResponse {
+class ResourceCreatedResponse extends ControllerResponse {
   final Resource resource;
 
-  ResourceCreatedResponse(this.resource) : super(201);
+  ResourceCreatedResponse(this.resource) : super(201) {
+    ArgumentError.checkNotNull(resource.id, 'resource.id');
+  }
 
   @override
   Document<ResourceData> buildDocument(
@@ -14,8 +16,8 @@ class ResourceCreatedResponse extends JsonApiResponse {
       builder.makeResourceDocument(self, resource);
 
   @override
-  Map<String, String> getHeaders(UrlFactory urlFactory) => {
-        ...super.getHeaders(urlFactory),
+  Map<String, String> buildHeaders(UrlFactory urlFactory) => {
+        ...super.buildHeaders(urlFactory),
         'Location': urlFactory.resource(resource.type, resource.id).toString()
       };
 }

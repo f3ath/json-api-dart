@@ -15,7 +15,7 @@ import 'package:json_api/src/client/status_code.dart';
 /// import 'package:http/http.dart';
 /// import 'package:json_api/client.dart';
 ///
-/// /// Start `dart example/cars_server.dart` first!
+/// /// Start `dart example/server.dart` first!
 /// void main() async {
 ///   final httpClient = Client();
 ///   final jsonApiClient = JsonApiClient(httpClient);

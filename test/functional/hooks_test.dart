@@ -2,27 +2,35 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:json_api/client.dart';
+import 'package:json_api/document.dart';
+import 'package:json_api/server.dart';
 import 'package:json_api/url_design.dart';
+import 'package:shelf/shelf_io.dart';
 import 'package:test/test.dart';
 
-import '../../example/cars_server.dart';
+import '../../example/server.dart';
 
 void main() async {
+  http.Request request;
+  http.Response response;
   HttpServer server;
   http.Client httpClient;
   JsonApiClient client;
-  http.Request request;
-  http.Response response;
-  final port = 8083;
-  final urlDesign = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
+  final host = 'localhost';
+  final port = 8081;
+  final urlDesign =
+      PathBasedUrlDesign(Uri(scheme: 'http', host: host, port: port));
 
   setUp(() async {
     httpClient = http.Client();
-    client = JsonApiClient(httpClient, onHttpCall: (req, resp) {
-      request = req;
-      response = resp;
+    client = JsonApiClient(httpClient, onHttpCall: (rq, rs) {
+      request = rq;
+      response = rs;
     });
-    server = await createServer(InternetAddress.loopbackIPv4, port);
+    final handler = createHttpHandler(
+        ShelfRequestResponseConverter(), CRUDController(), urlDesign);
+
+    server = await serve(handler, host, port);
   });
 
   tearDown(() async {
@@ -32,11 +40,12 @@ void main() async {
 
   group('hooks', () {
     test('onHttpCall gets called', () async {
-      await client.fetchCollection(urlDesign.collection('companies'));
+      await client.createResource(
+          urlDesign.collection('apples'), Resource('apples', '1'));
 
       expect(request, isNotNull);
       expect(response, isNotNull);
-      expect(response.body, isNotEmpty);
+      expect(response.statusCode, 204);
     });
   }, testOn: 'vm');
 }

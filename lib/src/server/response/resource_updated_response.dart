@@ -2,7 +2,7 @@ import 'package:json_api/document.dart';
 import 'package:json_api/src/server/response/json_api_response.dart';
 import 'package:json_api/src/server/server_document_factory.dart';
 
-class ResourceUpdatedResponse extends JsonApiResponse {
+class ResourceUpdatedResponse extends ControllerResponse {
   final Resource resource;
 
   ResourceUpdatedResponse(this.resource) : super(200);

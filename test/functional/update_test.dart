@@ -6,7 +6,7 @@ import 'package:json_api/document.dart';
 import 'package:json_api/url_design.dart';
 import 'package:test/test.dart';
 
-import '../../example/cars_server.dart';
+import '../../example/server.dart';
 
 void main() async {
   HttpServer server;

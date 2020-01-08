@@ -14,6 +14,9 @@ class PathBasedUrlDesign implements UrlDesign {
 
   PathBasedUrlDesign(this.base, {this.matchBase = false});
 
+  /// Creates an instance with "/" as the base URI.
+  static UrlDesign relative() => PathBasedUrlDesign(Uri());
+
   /// Returns a URL for the primary resource collection of type [type]
   @override
   Uri collection(String type) => _appendToBase([type]);

@@ -1,15 +1,10 @@
-/// The JSON:API Server.
+/// # The JSON:API Server
 ///
-/// **WARNING!**
-///
-/// **The server is still under development! Not for production!**
-///
-/// **The API is not stable!**
+/// The server API is not stable. Expect breaking changes.
 library server;
 
+export 'package:json_api/src/server/http_handler.dart';
 export 'package:json_api/src/server/json_api_controller.dart';
-export 'package:json_api/src/server/json_api_request.dart';
-export 'package:json_api/src/server/json_api_server.dart';
 export 'package:json_api/src/server/pagination/fixed_size_page.dart';
 export 'package:json_api/src/server/pagination/pagination_strategy.dart';
 export 'package:json_api/src/server/response/accepted_response.dart';
@@ -26,6 +21,5 @@ export 'package:json_api/src/server/response/resource_updated_response.dart';
 export 'package:json_api/src/server/response/see_other_response.dart';
 export 'package:json_api/src/server/response/to_many_response.dart';
 export 'package:json_api/src/server/response/to_one_response.dart';
-export 'package:json_api/src/server/routing/route.dart';
-export 'package:json_api/src/server/routing/route_factory.dart';
 export 'package:json_api/src/server/server_document_factory.dart';
+export 'package:json_api/src/server/target.dart';

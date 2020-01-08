@@ -1,3 +1,5 @@
+import 'package:json_api/document.dart';
+
 /// Resource identifier
 ///
 /// Together with [Resource] forms the core of the Document model.
@@ -15,6 +17,9 @@ class Identifier {
     ArgumentError.checkNotNull(id, 'id');
     ArgumentError.checkNotNull(type, 'type');
   }
+
+  static Identifier of(Resource resource) =>
+      Identifier(resource.type, resource.id);
 
   /// Returns true if the two identifiers have the same [type] and [id]
   bool equals(Identifier other) =>

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:stream_channel/stream_channel.dart';
 
-import '../../example/cars_server.dart';
+import '../../example/server.dart';
 
 void hybridMain(StreamChannel channel, Object message) async {
   final port = 8080;

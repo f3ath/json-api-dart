@@ -6,11 +6,11 @@ import 'package:json_api/src/server/pagination/pagination_strategy.dart';
 import 'package:json_api/url_design.dart';
 
 class ServerDocumentFactory {
-  final UrlFactory _url;
+  final UrlFactory _urlFactory;
   final PaginationStrategy _pagination;
   final Api _api;
 
-  ServerDocumentFactory(this._url,
+  ServerDocumentFactory(this._urlFactory,
       {Api api, PaginationStrategy pagination = const NoPagination()})
       : _api = api,
         _pagination = pagination;
@@ -51,7 +51,7 @@ class ServerDocumentFactory {
   Document<ResourceData> makeRelatedResourceDocument(
           Uri self, Resource resource, {Iterable<Resource> included}) =>
       Document(
-          ResourceData(_resourceObject(resource),
+          ResourceData(nullable(_resourceObject)(resource),
               links: {'self': Link(self)},
               included: included?.map(_resourceObject)),
           api: _api);
@@ -68,7 +68,7 @@ class ServerDocumentFactory {
             identifiers.map(IdentifierObject.fromIdentifier),
             links: {
               'self': Link(self),
-              'related': Link(_url.related(type, id, relationship))
+              'related': Link(_urlFactory.related(type, id, relationship))
             },
           ),
           api: _api);
@@ -81,7 +81,7 @@ class ServerDocumentFactory {
             nullable(IdentifierObject.fromIdentifier)(identifier),
             links: {
               'self': Link(self),
-              'related': Link(_url.related(type, id, relationship))
+              'related': Link(_urlFactory.related(type, id, relationship))
             },
           ),
           api: _api);
@@ -97,8 +97,8 @@ class ServerDocumentFactory {
             ToOne(
               nullable(IdentifierObject.fromIdentifier)(v),
               links: {
-                'self': Link(_url.relationship(r.type, r.id, k)),
-                'related': Link(_url.related(r.type, r.id, k))
+                'self': Link(_urlFactory.relationship(r.type, r.id, k)),
+                'related': Link(_urlFactory.related(r.type, r.id, k))
               },
             ))),
         ...r.toMany.map((k, v) => MapEntry(
@@ -106,12 +106,12 @@ class ServerDocumentFactory {
             ToMany(
               v.map(IdentifierObject.fromIdentifier),
               links: {
-                'self': Link(_url.relationship(r.type, r.id, k)),
-                'related': Link(_url.related(r.type, r.id, k))
+                'self': Link(_urlFactory.relationship(r.type, r.id, k)),
+                'related': Link(_urlFactory.related(r.type, r.id, k))
               },
             )))
       }, links: {
-        'self': Link(_url.resource(r.type, r.id))
+        'self': Link(_urlFactory.resource(r.type, r.id))
       });
 
   Map<String, Link> _navigation(Uri uri, int total) {

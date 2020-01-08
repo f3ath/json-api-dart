@@ -2,22 +2,30 @@ import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:json_api/client.dart';
+import 'package:json_api/document.dart';
+import 'package:json_api/server.dart';
 import 'package:json_api/url_design.dart';
+import 'package:shelf/shelf_io.dart';
 import 'package:test/test.dart';
 
-import '../../example/cars_server.dart';
+import '../../example/server.dart';
 
 void main() async {
   HttpServer server;
   Client httpClient;
   JsonApiClient client;
-  final port = 8082;
-  final url = PathBasedUrlDesign(Uri.parse('http://localhost:$port'));
+  final host = 'localhost';
+  final port = 8081;
+  final urlDesign =
+      PathBasedUrlDesign(Uri(scheme: 'http', host: host, port: port));
 
   setUp(() async {
     httpClient = Client();
     client = JsonApiClient(httpClient);
-    server = await createServer(InternetAddress.loopbackIPv4, port);
+    final handler = createHttpHandler(
+        ShelfRequestResponseConverter(), CRUDController(), urlDesign);
+
+    server = await serve(handler, host, port);
   });
 
   tearDown(() async {
@@ -31,15 +39,21 @@ void main() async {
     ///
     /// https://jsonapi.org/format/#crud-deleting-responses-204
     test('204 No Content', () async {
-      final r0 = await client.deleteResource(url.resource('models', '1'));
+      final apple = Resource('apples', '1');
+      final r0 =
+          await client.createResource(urlDesign.collection('apples'), apple);
 
-      expect(r0.status, 204);
       expect(r0.isSuccessful, true);
-      expect(r0.document, isNull);
+
+      final r1 = await client.deleteResource(urlDesign.resource('apples', '1'));
+
+      expect(r1.status, 204);
+      expect(r1.isSuccessful, true);
+      expect(r1.document, isNull);
 
       // Make sure the resource is not available anymore
-      final r1 = await client.fetchResource(url.resource('models', '1'));
-      expect(r1.status, 404);
+      final r2 = await client.fetchResource(urlDesign.resource('apples', '1'));
+      expect(r2.status, 404);
     });
 
     /// A server MUST return a 200 OK status code if a deletion query
@@ -47,15 +61,22 @@ void main() async {
     ///
     /// https://jsonapi.org/format/#crud-deleting-responses-200
     test('200 OK', () async {
-      final r0 = await client.deleteResource(url.resource('companies', '1'));
+      final apple = Resource('apples', '1',
+          toOne: {'origin': Identifier('countries', '2')});
+      final r0 =
+          await client.createResource(urlDesign.collection('apples'), apple);
 
-      expect(r0.status, 200);
       expect(r0.isSuccessful, true);
-      expect(r0.document.meta['dependenciesCount'], 5);
+
+      final r1 = await client.deleteResource(urlDesign.resource('apples', '1'));
+
+      expect(r1.status, 200);
+      expect(r1.isSuccessful, true);
+      expect(r1.document.meta['relationships'], 1);
 
       // Make sure the resource is not available anymore
-      final r1 = await client.fetchResource(url.resource('companies', '1'));
-      expect(r1.status, 404);
+      final r2 = await client.fetchResource(urlDesign.resource('apples', '1'));
+      expect(r2.status, 404);
     });
 
     /// https://jsonapi.org/format/#crud-deleting-responses-404
@@ -63,7 +84,8 @@ void main() async {
     /// A server SHOULD return a 404 Not Found status code if a deletion query
     /// fails due to the resource not existing.
     test('404 Not Found', () async {
-      final r0 = await client.deleteResource(url.resource('models', '555'));
+      final r0 =
+          await client.deleteResource(urlDesign.resource('models', '555'));
       expect(r0.status, 404);
     });
   }, testOn: 'vm');

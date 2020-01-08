@@ -2,7 +2,7 @@ import 'package:json_api/document.dart';
 import 'package:json_api/src/server/response/json_api_response.dart';
 import 'package:json_api/src/server/server_document_factory.dart';
 
-class RelatedResourceResponse extends JsonApiResponse {
+class RelatedResourceResponse extends ControllerResponse {
   final Resource resource;
   final Iterable<Resource> included;
 

@@ -3,17 +3,18 @@ import 'package:json_api/src/server/response/json_api_response.dart';
 import 'package:json_api/src/server/server_document_factory.dart';
 import 'package:json_api/url_design.dart';
 
-class SeeOtherResponse extends JsonApiResponse {
-  final Resource resource;
+class SeeOtherResponse extends ControllerResponse {
+  final String type;
+  final String id;
 
-  SeeOtherResponse(this.resource) : super(303);
+  SeeOtherResponse(this.type, this.id) : super(303);
 
   @override
   Document buildDocument(ServerDocumentFactory builder, Uri self) => null;
 
   @override
-  Map<String, String> getHeaders(UrlFactory urlFactory) => {
-        ...super.getHeaders(urlFactory),
-        'Location': urlFactory.resource(resource.type, resource.id).toString()
+  Map<String, String> buildHeaders(UrlFactory urlFactory) => {
+        ...super.buildHeaders(urlFactory),
+        'Location': urlFactory.resource(type, id).toString()
       };
 }

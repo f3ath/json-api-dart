@@ -2,7 +2,7 @@ import 'package:json_api/document.dart';
 import 'package:json_api/src/server/response/json_api_response.dart';
 import 'package:json_api/src/server/server_document_factory.dart';
 
-class ErrorResponse extends JsonApiResponse {
+class ErrorResponse extends ControllerResponse {
   final Iterable<JsonApiError> errors;
 
   const ErrorResponse(int status, this.errors) : super(status);
