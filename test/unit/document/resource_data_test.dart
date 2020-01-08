@@ -21,9 +21,8 @@ void main() {
   });
 
   test('Can decode a related resource which is null', () {
-    final data = ResourceData.fromJson(json.decode(json.encode({
-      'data': null
-    })));
+    final data =
+        ResourceData.fromJson(json.decode(json.encode({'data': null})));
     expect(data.unwrap(), null);
   });
 

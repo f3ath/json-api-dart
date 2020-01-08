@@ -3,6 +3,7 @@ import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/document/resource_object.dart';
+import 'package:json_api/src/nullable.dart';
 
 /// Represents a single resource or a single related resource of a to-one relationship
 class ResourceData extends PrimaryData {
@@ -10,7 +11,8 @@ class ResourceData extends PrimaryData {
 
   ResourceData(this.resourceObject,
       {Iterable<ResourceObject> included, Map<String, Link> links})
-      : super(included: included, links: {...?resourceObject?.links, ...?links});
+      : super(
+            included: included, links: {...?resourceObject?.links, ...?links});
 
   static ResourceData fromJson(Object json) {
     print(json);
@@ -20,7 +22,7 @@ class ResourceData extends PrimaryData {
       if (included is List) {
         resources.addAll(included.map(ResourceObject.fromJson));
       }
-      final data = ResourceObject.fromJson(json['data']);
+      final data = nullable(ResourceObject.fromJson)(json['data']);
       return ResourceData(data,
           links: Link.mapFromJson(json['links'] ?? {}),
           included: resources.isNotEmpty ? resources : null);
@@ -34,5 +36,5 @@ class ResourceData extends PrimaryData {
         'data': resourceObject,
       };
 
-  Resource unwrap() => resourceObject.unwrap();
+  Resource unwrap() => resourceObject?.unwrap();
 }
