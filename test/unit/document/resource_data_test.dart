@@ -20,6 +20,12 @@ void main() {
     expect(data.unwrap().id, isNull);
   });
 
+  test('Can decode a related resource which is null', () {
+    final data =
+        ResourceData.fromJson(json.decode(json.encode({'data': null})));
+    expect(data.unwrap(), null);
+  });
+
   test('Inherits links from ResourceObject', () {
     final res = ResourceObject('apples', '1', links: {
       'foo': Link(Uri.parse('/foo')),
