@@ -2,43 +2,14 @@ import 'dart:async';
 
 import 'package:json_api/document.dart';
 import 'package:json_api/server.dart';
-import 'package:json_api/src/server/http_handler.dart';
-import 'package:json_api/url_design.dart';
 import 'package:shelf/shelf.dart';
-import 'package:shelf/shelf_io.dart';
-import 'package:uuid/uuid.dart';
-
-/// This example shows how to build a simple CRUD server on top of Dart Shelf
-void main() async {
-  final host = 'localhost';
-  final port = 8080;
-  final baseUri = Uri(scheme: 'http', host: host, port: port);
-  final jsonApiHandler = createHttpHandler(ShelfRequestResponseConverter(),
-      CRUDController(), PathBasedUrlDesign(baseUri));
-
-  await serve(jsonApiHandler, host, port);
-  print('Serving at $baseUri');
-}
-
-class ShelfRequestResponseConverter
-    implements HttpMessageConverter<Request, Response> {
-  @override
-  FutureOr<Response> createResponse(
-          int statusCode, String body, Map<String, String> headers) =>
-      Response(statusCode, body: body, headers: headers);
-
-  @override
-  FutureOr<String> getBody(Request request) => request.readAsString();
-
-  @override
-  FutureOr<String> getMethod(Request request) => request.method;
-
-  @override
-  FutureOr<Uri> getUri(Request request) => request.requestedUri;
-}
 
 class CRUDController implements JsonApiController<Request> {
+  final String Function() generateId;
+
   final store = <String, Map<String, Resource>>{};
+
+  CRUDController(this.generateId);
 
   @override
   FutureOr<ControllerResponse> createResource(
@@ -56,8 +27,8 @@ class CRUDController implements JsonApiController<Request> {
       repo[resource.id] = resource;
       return NoContentResponse();
     }
-    final id = Uuid().v4();
-    repo[id] = resource.withId(id);
+    final id = generateId();
+    repo[id] = resource.replace(id: id);
     return ResourceCreatedResponse(repo[id]);
   }
 
@@ -73,17 +44,30 @@ class CRUDController implements JsonApiController<Request> {
   }
 
   @override
-  FutureOr<ControllerResponse> addToRelationship(
-      Request request, String type, String id, String relationship) {
-    // TODO: implement addToRelationship
-    return null;
+  FutureOr<ControllerResponse> addToRelationship(Request request, String type,
+      String id, String relationship, Iterable<Identifier> identifiers) {
+    final resource = _repo(type)[id];
+    final ids = [...resource.toMany[relationship], ...identifiers];
+    _repo(type)[id] =
+        resource.replace(toMany: {...resource.toMany, relationship: ids});
+    return ToManyResponse(type, id, relationship, ids);
   }
 
   @override
   FutureOr<ControllerResponse> deleteFromRelationship(
-      Request request, String type, String id, String relationship) {
-    // TODO: implement deleteFromRelationship
-    return null;
+      Request request,
+      String type,
+      String id,
+      String relationship,
+      Iterable<Identifier> identifiers) {
+    final resource = _repo(type)[id];
+    final rel = [...resource.toMany[relationship]];
+    rel.removeWhere(identifiers.contains);
+    final toMany = {...resource.toMany};
+    toMany[relationship] = rel;
+    _repo(type)[id] = resource.replace(toMany: toMany);
+
+    return ToManyResponse(type, id, relationship, rel);
   }
 
   @override
@@ -125,8 +109,8 @@ class CRUDController implements JsonApiController<Request> {
       return RelatedResourceResponse(_repo(related.type)[related.id]);
     }
     if (resource.toMany.containsKey(relationship)) {
-      final related = resource.toMany[relationship];
-      return RelatedCollectionResponse(related.map((r) => _repo(r.type)[r.id]));
+      return RelatedCollectionResponse(
+          resource.toMany[relationship].map((r) => _repo(r.type)[r.id]));
     }
     return ErrorResponse.notFound(
         [JsonApiError(detail: 'Relatioship not found')]);
@@ -135,29 +119,44 @@ class CRUDController implements JsonApiController<Request> {
   @override
   FutureOr<ControllerResponse> fetchRelationship(
       Request request, String type, String id, String relationship) {
-    // TODO: implement fetchRelationship
-    return null;
+    final r = _repo(type)[id];
+    if (r.toOne.containsKey(relationship)) {
+      return ToOneResponse(type, id, relationship, r.toOne[relationship]);
+    }
+    if (r.toMany.containsKey(relationship)) {
+      return ToManyResponse(type, id, relationship, r.toMany[relationship]);
+    }
+    return ErrorResponse.notFound(
+        [JsonApiError(detail: 'Relationship not found')]);
   }
 
   @override
   FutureOr<ControllerResponse> updateResource(
-      Request request, String type, String id) {
-    // TODO: implement updateResource
-    return null;
+      Request request, String type, String id, Resource resource) {
+    final current = _repo(type)[id];
+    if (resource.hasAllMembersOf(current)) {
+      _repo(type)[id] = resource;
+      return NoContentResponse();
+    }
+    _repo(type)[id] = resource.withExtraMembersFrom(current);
+    return ResourceUpdatedResponse(_repo(type)[id]);
   }
 
   @override
-  FutureOr<ControllerResponse> updateToMany(
-      Request request, String type, String id, String relationship) {
-    // TODO: implement updateToMany
-    return null;
+  FutureOr<ControllerResponse> replaceToMany(Request request, String type,
+      String id, String relationship, Iterable<Identifier> identifiers) {
+    final resource = _repo(type)[id];
+    final toMany = {...resource.toMany, relationship: identifiers.toList()};
+    _repo(type)[id] = resource.replace(toMany: toMany);
+    return ToManyResponse(type, id, relationship, identifiers);
   }
 
   @override
-  FutureOr<ControllerResponse> updateToOne(
-      Request request, String type, String id, String relationship) {
-    // TODO: implement updateToOne
-    return null;
+  FutureOr<ControllerResponse> replaceToOne(Request request, String type,
+      String id, String relationship, Identifier identifier) {
+    _repo(type)[id] =
+        _repo(type)[id].replace(toOne: {relationship: identifier});
+    return NoContentResponse();
   }
 
   Map<String, Resource> _repo(String type) {

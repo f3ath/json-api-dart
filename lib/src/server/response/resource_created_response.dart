@@ -13,7 +13,7 @@ class ResourceCreatedResponse extends ControllerResponse {
   @override
   Document<ResourceData> buildDocument(
           ServerDocumentFactory builder, Uri self) =>
-      builder.makeResourceDocument(self, resource);
+      builder.makeCreatedResourceDocument(resource);
 
   @override
   Map<String, String> buildHeaders(UrlFactory urlFactory) => {

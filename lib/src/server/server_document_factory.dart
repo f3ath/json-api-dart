@@ -47,6 +47,20 @@ class ServerDocumentFactory {
               included: included?.map(_resourceObject)),
           api: _api);
 
+  /// A document containing a single (primary) resource which has been created
+  /// on the server. The difference with [makeResourceDocument] is that this
+  /// method generates the `self` link to match the `location` header.
+  ///
+  /// This is the quote from the documentation:
+  /// > If the resource object returned by the response contains a self key
+  /// > in its links member and a Location header is provided, the value of
+  /// > the self member MUST match the value of the Location header.
+  ///
+  /// See https://jsonapi.org/format/#crud-creating-responses-201
+  Document<ResourceData> makeCreatedResourceDocument(Resource resource) =>
+      makeResourceDocument(
+          _urlFactory.resource(resource.type, resource.id), resource);
+
   /// A document containing a single related resource
   Document<ResourceData> makeRelatedResourceDocument(
           Uri self, Resource resource, {Iterable<Resource> included}) =>

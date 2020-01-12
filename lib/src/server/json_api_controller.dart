@@ -22,19 +22,19 @@ abstract class JsonApiController<R> {
       R request, String type, Resource resource);
 
   FutureOr<ControllerResponse> updateResource(
-      R request, String type, String id);
+      R request, String type, String id, Resource resource);
 
-  FutureOr<ControllerResponse> updateToOne(
-      R request, String type, String id, String relationship);
+  FutureOr<ControllerResponse> replaceToOne(R request, String type, String id,
+      String relationship, Identifier identifier);
 
-  FutureOr<ControllerResponse> updateToMany(
-      R request, String type, String id, String relationship);
+  FutureOr<ControllerResponse> replaceToMany(R request, String type, String id,
+      String relationship, Iterable<Identifier> identifiers);
 
-  FutureOr<ControllerResponse> deleteFromRelationship(
-      R request, String type, String id, String relationship);
+  FutureOr<ControllerResponse> deleteFromRelationship(R request, String type,
+      String id, String relationship, Iterable<Identifier> identifiers);
 
-  FutureOr<ControllerResponse> addToRelationship(
-      R request, String type, String id, String relationship);
+  FutureOr<ControllerResponse> addToRelationship(R request, String type,
+      String id, String relationship, Iterable<Identifier> identifiers);
 }
 
 abstract class ControllerRequest {
@@ -52,7 +52,7 @@ class ControllerRequestFactory implements RequestFactory<ControllerRequest> {
 
   @override
   ControllerRequest createResource(CollectionTarget target) =>
-      CreateResource(target);
+      _CreateResource(target);
 
   @override
   ControllerRequest deleteFromRelationship(RelationshipTarget target) =>
@@ -97,21 +97,21 @@ class _AddToRelationship implements ControllerRequest {
 
   @override
   FutureOr<ControllerResponse> call<R>(
-      JsonApiController<R> controller, Object jsonPayload, R request) {
-    // TODO: implement call
-    return null;
-  }
+          JsonApiController<R> controller, Object jsonPayload, R request) =>
+      controller.addToRelationship(request, target.type, target.id,
+          target.relationship, ToMany.fromJson(jsonPayload).unwrap());
 }
 
 class _DeleteFromRelationship implements ControllerRequest {
-  _DeleteFromRelationship(RelationshipTarget target);
+  final RelationshipTarget target;
+
+  _DeleteFromRelationship(this.target);
 
   @override
   FutureOr<ControllerResponse> call<R>(
-      JsonApiController<R> controller, Object jsonPayload, R request) {
-    // TODO: implement call
-    return null;
-  }
+          JsonApiController<R> controller, Object jsonPayload, R request) =>
+      controller.deleteFromRelationship(request, target.type, target.id,
+          target.relationship, ToMany.fromJson(jsonPayload).unwrap());
 }
 
 class _UpdateResource implements ControllerRequest {
@@ -121,16 +121,15 @@ class _UpdateResource implements ControllerRequest {
 
   @override
   FutureOr<ControllerResponse> call<R>(
-      JsonApiController<R> controller, Object jsonPayload, R request) {
-    // TODO: implement call
-    return null;
-  }
+          JsonApiController<R> controller, Object jsonPayload, R request) =>
+      controller.updateResource(request, target.type, target.id,
+          ResourceData.fromJson(jsonPayload).unwrap());
 }
 
-class CreateResource implements ControllerRequest {
+class _CreateResource implements ControllerRequest {
   final CollectionTarget target;
 
-  CreateResource(this.target);
+  _CreateResource(this.target);
 
   @override
   FutureOr<ControllerResponse> call<R>(
@@ -157,10 +156,9 @@ class _FetchRelationship implements ControllerRequest {
 
   @override
   FutureOr<ControllerResponse> call<R>(
-      JsonApiController<R> controller, Object jsonPayload, R request) {
-    // TODO: implement call
-    return null;
-  }
+          JsonApiController<R> controller, Object jsonPayload, R request) =>
+      controller.fetchRelationship(
+          request, target.type, target.id, target.relationship);
 }
 
 class _FetchRelated implements ControllerRequest {
@@ -205,7 +203,15 @@ class _UpdateRelationship implements ControllerRequest {
   @override
   FutureOr<ControllerResponse> call<R>(
       JsonApiController<R> controller, Object jsonPayload, R request) {
-    return null;
+    final relationship = Relationship.fromJson(jsonPayload);
+    if (relationship is ToOne) {
+      return controller.replaceToOne(request, target.type, target.id,
+          target.relationship, relationship.unwrap());
+    }
+    if (relationship is ToMany) {
+      return controller.replaceToMany(request, target.type, target.id,
+          target.relationship, relationship.unwrap());
+    }
   }
 }
 

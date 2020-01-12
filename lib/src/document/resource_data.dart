@@ -15,7 +15,6 @@ class ResourceData extends PrimaryData {
             included: included, links: {...?resourceObject?.links, ...?links});
 
   static ResourceData fromJson(Object json) {
-    print(json);
     if (json is Map) {
       final included = json['included'];
       final resources = <ResourceObject>[];

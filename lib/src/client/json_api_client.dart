@@ -35,7 +35,7 @@ class JsonApiClient {
 
   /// Creates an instance of JSON:API client.
   /// You have to create and pass an instance of the [httpClient] yourself.
-  /// Do not forget to call [httpClient.close()] when you're done using
+  /// Do not forget to call [httpClient.close] when you're done using
   /// the JSON:API client.
   /// The [onHttpCall] hook, if passed, gets called when an http response is
   /// received from the HTTP Client.
@@ -126,6 +126,17 @@ class JsonApiClient {
   Future<Response<ToOne>> deleteToOne(Uri uri, {Map<String, String> headers}) =>
       replaceToOne(uri, null, headers: headers);
 
+  /// Removes the [identifiers] from the to-many relationship.
+  ///
+  /// https://jsonapi.org/format/#crud-updating-to-many-relationships
+  Future<Response<ToMany>> deleteFromToMany(
+          Uri uri, Iterable<Identifier> identifiers,
+          {Map<String, String> headers}) =>
+      _call(
+          _deleteWithBody(
+              uri, headers, _factory.makeToManyDocument(identifiers)),
+          ToMany.fromJson);
+
   /// Replaces a to-many relationship with the given set of [identifiers].
   ///
   /// The server MUST either completely replace every member of the relationship,
@@ -133,33 +144,34 @@ class JsonApiClient {
   /// or return a 403 Forbidden response if complete replacement is not allowed by the server.
   ///
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
-  Future<Response<ToMany>> replaceToMany(Uri uri, List<Identifier> identifiers,
+  Future<Response<ToMany>> replaceToMany(
+          Uri uri, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       _call(_patch(uri, headers, _factory.makeToManyDocument(identifiers)),
           ToMany.fromJson);
 
   /// Adds the given set of [identifiers] to a to-many relationship.
   ///
-  /// The server MUST add the specified members to the relationship
-  /// unless they are already present.
-  /// If a given type and id is already in the relationship, the server MUST NOT add it again.
-  ///
-  /// Note: This matches the semantics of databases that use foreign keys
-  /// for has-many relationships. Document-based storage should check
-  /// the has-many relationship before appending to avoid duplicates.
-  ///
-  /// If all of the specified resources can be added to, or are already present in,
-  /// the relationship then the server MUST return a successful response.
-  ///
-  /// Note: This approach ensures that a query is successful if the server’s state
-  /// matches the requested state, and helps avoid pointless race conditions
-  /// caused by multiple clients making the same changes to a relationship.
+  /// https://jsonapi.org/format/#crud-updating-to-many-relationships
+  @Deprecated('Use addToRelationship()')
+  Future<Response<ToMany>> addToMany(Uri uri, Iterable<Identifier> identifiers,
+          {Map<String, String> headers}) =>
+      addToRelationship(uri, identifiers, headers: headers);
+
+  /// Adds the given set of [identifiers] to a to-many relationship.
   ///
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
-  Future<Response<ToMany>> addToMany(Uri uri, List<Identifier> identifiers,
+  Future<Response<ToMany>> addToRelationship(
+          Uri uri, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       _call(_post(uri, headers, _factory.makeToManyDocument(identifiers)),
           ToMany.fromJson);
+
+  /// Closes the internal HTTP client. You have to either call this method or
+  /// close the client yourself.
+  ///
+  /// See [httpClient.close]
+  void close() => httpClient.close();
 
   http.Request _get(Uri uri, Map<String, String> headers,
           QueryParameters queryParameters) =>
@@ -185,6 +197,16 @@ class JsonApiClient {
           ...headers ?? {},
           'Accept': Document.contentType,
         });
+
+  http.Request _deleteWithBody(
+          Uri uri, Map<String, String> headers, Document doc) =>
+      http.Request('DELETE', uri)
+        ..headers.addAll({
+          ...headers ?? {},
+          'Accept': Document.contentType,
+          'Content-Type': Document.contentType,
+        })
+        ..body = json.encode(doc);
 
   http.Request _patch(uri, Map<String, String> headers, Document doc) =>
       http.Request('PATCH', uri)

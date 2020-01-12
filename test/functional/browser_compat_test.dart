@@ -1,29 +1,22 @@
-import 'package:http/http.dart' as http;
+import 'dart:io';
+
 import 'package:json_api/client.dart';
+import 'package:json_api/document.dart';
+import 'package:json_api/src/url_design/path_based_url_design.dart';
 import 'package:test/test.dart';
 
+/// Make sure [JsonApiClient] can be used in a browser
 void main() async {
-  http.Request request;
-  http.Response response;
-  final httpClient = http.Client();
-  final client = JsonApiClient(httpClient, onHttpCall: (req, resp) {
-    request = req;
-    response = resp;
-  });
-
-  test('can fetch collection', () async {
-    final channel = spawnHybridUri('test_server.dart');
-    final port = await channel.stream.first;
-    final r = await client
-        .fetchCollection(Uri.parse('http://localhost:$port/companies'));
-
-    httpClient.close();
-    expect(r.status, 200);
-    expect(r.isSuccessful, true);
-    expect(r.data.unwrap().first.attributes['name'], 'Tesla');
-
-    expect(request, isNotNull);
-    expect(response, isNotNull);
-    expect(response.body, isNotEmpty);
+  test('can create and fetch a resource', () async {
+    final uri = Uri.parse('http://localhost:8080');
+    final channel = spawnHybridUri('server.dart', message: uri);
+    final HttpServer server = await channel.stream.first;
+    final client = UrlAwareClient(PathBasedUrlDesign(uri));
+    await client.createResource(
+        Resource('messages', '1', attributes: {'text': 'Hello World'}));
+    final r = await client.fetchResource('messages', '1');
+    expect(r.data.unwrap().attributes['text'], 'Hello World');
+    client.close();
+    await server.close();
   }, testOn: 'browser');
 }
