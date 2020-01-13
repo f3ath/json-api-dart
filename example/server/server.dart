@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:json_api/server.dart';
 import 'package:json_api/src/server/http_handler.dart';
 import 'package:json_api/url_design.dart';
@@ -15,6 +17,6 @@ void main() async {
   final jsonApiHandler = createHttpHandler(ShelfRequestResponseConverter(),
       CRUDController(Uuid().v4), PathBasedUrlDesign(baseUri));
 
-  await serve(jsonApiHandler, host, port);
+  await serve(jsonApiHandler, InternetAddress.loopbackIPv4, port);
   print('Serving at $baseUri');
 }

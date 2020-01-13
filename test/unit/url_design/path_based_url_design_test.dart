@@ -58,26 +58,26 @@ void main() {
 
     test('Does not match collection URL with incorrect path', () {
       expect(routing.match(Uri.parse('http://example.com/foo/apples'), mapper),
-          'unmatched');
+          'unmatched:http://example.com/foo/apples');
     });
 
     test('Does not match collection URL with incorrect host', () {
       expect(routing.match(Uri.parse('http://example.org/api/apples'), mapper),
-          'unmatched');
+          'unmatched:http://example.org/api/apples');
     });
 
     test('Does not match collection URL with incorrect port', () {
       expect(
           routing.match(
               Uri.parse('http://example.com:8080/api/apples'), mapper),
-          'unmatched');
+          'unmatched:http://example.com:8080/api/apples');
     });
   });
 }
 
 class _Mapper implements MatchCase<String> {
   @override
-  String unmatched() => 'unmatched';
+  String unmatched(Uri uri) => 'unmatched:$uri';
 
   @override
   String collection(String type) => 'collection:$type';

@@ -9,6 +9,6 @@ abstract class ControllerResponse {
 
   Document buildDocument(ServerDocumentFactory factory, Uri self);
 
-  Map<String, String> buildHeaders(UrlFactory urlFactory) =>
-      {'Content-Type': Document.contentType};
+  Map<String, String> buildHeaders(UrlFactory urlFactory);
+
 }

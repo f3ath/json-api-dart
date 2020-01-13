@@ -12,3 +12,4 @@ dev_dependencies:
   json_matcher: ^0.2.3
   stream_channel: ^2.0.0
   uuid: ^2.0.1
+  test_coverage: ^0.4.0

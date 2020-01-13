@@ -15,7 +15,7 @@ class AcceptedResponse extends ControllerResponse {
 
   @override
   Map<String, String> buildHeaders(UrlFactory urlFactory) => {
-        ...super.buildHeaders(urlFactory),
+        'Content-Type': Document.contentType,
         'Content-Location':
             urlFactory.resource(resource.type, resource.id).toString(),
       };

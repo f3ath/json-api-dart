@@ -36,18 +36,27 @@ abstract class RequestFactory<R> {
   /// allowed by the [target]. Most likely, this should lead to either
   /// `405 Method Not Allowed` or `400 Bad Request`.
   R invalid(Target target, String method);
+
+  /// Returns and object representing an OPTIONS request to the target
+  R options(Target target);
 }
 
 /// The target of a JSON:API request URI. The URI target and the request method
 /// uniquely identify the meaning of the JSON:API request.
 abstract class Target {
+  List<String> get allowedMethods;
+
   /// Returns the request corresponding to the request [method].
   R getRequest<R>(String method, RequestFactory<R> factory);
 }
 
 /// Request URI target which is not recognized by the URL Design.
 class UnmatchedTarget implements Target {
-  UnmatchedTarget();
+  final Uri uri;
+  @override
+  final allowedMethods = const ['OPTONS'];
+
+  const UnmatchedTarget(this.uri);
 
   @override
   R getRequest<R>(String method, RequestFactory<R> factory) =>
@@ -62,7 +71,10 @@ class ResourceTarget implements Target {
   /// Resource id
   final String id;
 
-  ResourceTarget(this.type, this.id);
+  @override
+  final allowedMethods = const ['GET', 'DELETE', 'PATCH', 'OPTONS'];
+
+  const ResourceTarget(this.type, this.id);
 
   @override
   R getRequest<R>(String method, RequestFactory<R> factory) {
@@ -73,6 +85,8 @@ class ResourceTarget implements Target {
         return factory.deleteResource(this);
       case 'PATCH':
         return factory.updateResource(this);
+      case 'OPTIONS':
+        return factory.options(this);
       default:
         return factory.invalid(this, method);
     }
@@ -84,7 +98,10 @@ class CollectionTarget implements Target {
   /// Resource type
   final String type;
 
-  CollectionTarget(this.type);
+  @override
+  final allowedMethods = const ['GET', 'POST', 'OPTONS'];
+
+  const CollectionTarget(this.type);
 
   @override
   R getRequest<R>(String method, RequestFactory<R> factory) {
@@ -93,6 +110,8 @@ class CollectionTarget implements Target {
         return factory.fetchCollection(this);
       case 'POST':
         return factory.createResource(this);
+      case 'OPTIONS':
+        return factory.options(this);
       default:
         return factory.invalid(this, method);
     }
@@ -110,6 +129,9 @@ class RelatedTarget implements Target {
   /// Relationship name
   final String relationship;
 
+  @override
+  final allowedMethods = const ['GET', 'OPTONS'];
+
   const RelatedTarget(this.type, this.id, this.relationship);
 
   @override
@@ -117,6 +139,8 @@ class RelatedTarget implements Target {
     switch (method.toUpperCase()) {
       case 'GET':
         return factory.fetchRelated(this);
+      case 'OPTIONS':
+        return factory.options(this);
       default:
         return factory.invalid(this, method);
     }
@@ -133,8 +157,10 @@ class RelationshipTarget implements Target {
 
   /// Relationship name
   final String relationship;
+  @override
+  final allowedMethods = const ['GET', 'PATCH', 'POST', 'DELETE', 'OPTONS'];
 
-  RelationshipTarget(this.type, this.id, this.relationship);
+  const RelationshipTarget(this.type, this.id, this.relationship);
 
   @override
   R getRequest<R>(String method, RequestFactory<R> factory) {
@@ -147,6 +173,8 @@ class RelationshipTarget implements Target {
         return factory.addToRelationship(this);
       case 'DELETE':
         return factory.deleteFromRelationship(this);
+      case 'OPTIONS':
+        return factory.options(this);
       default:
         return factory.invalid(this, method);
     }
@@ -157,7 +185,7 @@ class TargetFactory implements MatchCase<Target> {
   const TargetFactory();
 
   @override
-  Target unmatched() => UnmatchedTarget();
+  Target unmatched(Uri uri) => UnmatchedTarget(uri);
 
   @override
   Target collection(String type) => CollectionTarget(type);

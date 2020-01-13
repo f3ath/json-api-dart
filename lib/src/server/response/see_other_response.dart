@@ -14,7 +14,7 @@ class SeeOtherResponse extends ControllerResponse {
 
   @override
   Map<String, String> buildHeaders(UrlFactory urlFactory) => {
-        ...super.buildHeaders(urlFactory),
+
         'Location': urlFactory.resource(type, id).toString()
       };
 }

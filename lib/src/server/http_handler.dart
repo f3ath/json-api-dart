@@ -29,10 +29,12 @@ HttpHandler<Request, Response> createHttpHandler<Request, Response>(
     final response = await target
         .getRequest(method, requestFactory)
         .call(controller, requestDocument, request);
-    return converter.createResponse(
-        response.statusCode,
-        json.encode(response.buildDocument(docFactory, uri)),
-        response.buildHeaders(urlDesign));
+    return converter.createResponse(response.statusCode,
+        json.encode(response.buildDocument(docFactory, uri)), {
+      ...response.buildHeaders(urlDesign),
+      'Access-Control-Allow-Origin': '*',
+          'Access-Control-Request-Headers': 'X-PINGOTHER, Content-Type'
+    });
   };
 }
 

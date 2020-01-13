@@ -8,8 +8,8 @@ import 'package:shelf/shelf_io.dart';
 import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../example/server/crud_controller.dart';
-import '../../../example/server/shelf_request_response_converter.dart';
+import '../../example/server/crud_controller.dart';
+import '../../example/server/shelf_request_response_converter.dart';
 
 /// Basic CRUD operations
 void main() async {

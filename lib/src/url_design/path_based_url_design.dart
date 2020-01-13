@@ -56,7 +56,7 @@ class PathBasedUrlDesign implements UrlDesign {
         return matchCase.relationship(seg[0], seg[1], seg[3]);
       }
     }
-    return matchCase.unmatched();
+    return matchCase.unmatched(uri);
   }
 
   Uri _appendToBase(List<String> segments) =>

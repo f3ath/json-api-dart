@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:json_api/document.dart';
+import 'package:json_api/server.dart';
 import 'package:json_api/src/server/response/json_api_response.dart';
 import 'package:json_api/src/server/target.dart';
 
@@ -88,6 +89,25 @@ class ControllerRequestFactory implements RequestFactory<ControllerRequest> {
   @override
   ControllerRequest updateResource(ResourceTarget target) =>
       _UpdateResource(target);
+
+  @override
+  ControllerRequest options(Target target) {
+    return _Options(target);
+  }
+}
+
+class _Options implements ControllerRequest {
+  final Target target;
+
+  _Options(this.target);
+
+  @override
+  FutureOr<ControllerResponse> call<R>(
+          JsonApiController<R> controller, Object jsonPayload, R request) =>
+      NoContentResponse(headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': target.allowedMethods.join(', ')
+      });
 }
 
 class _AddToRelationship implements ControllerRequest {

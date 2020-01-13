@@ -38,5 +38,5 @@ abstract class MatchCase<T> {
 
   T related(String type, String id, String relationship);
 
-  T unmatched();
+  T unmatched(Uri uri);
 }
