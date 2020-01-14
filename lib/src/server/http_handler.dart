@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:json_api/src/server/json_api_controller.dart';
+import 'package:json_api/src/server/controller/controller.dart';
+import 'package:json_api/src/server/controller/controller_request_factory.dart';
 import 'package:json_api/src/server/pagination/no_pagination.dart';
 import 'package:json_api/src/server/pagination/pagination_strategy.dart';
 import 'package:json_api/src/server/server_document_factory.dart';
@@ -13,7 +14,7 @@ typedef HttpHandler<Request, Response> = Future<Response> Function(
 
 HttpHandler<Request, Response> createHttpHandler<Request, Response>(
     HttpMessageConverter<Request, Response> converter,
-    JsonApiController<Request> controller,
+    Controller<Request> controller,
     UrlDesign urlDesign,
     {PaginationStrategy pagination = const NoPagination()}) {
   const targetFactory = TargetFactory();
@@ -33,7 +34,7 @@ HttpHandler<Request, Response> createHttpHandler<Request, Response>(
         json.encode(response.buildDocument(docFactory, uri)), {
       ...response.buildHeaders(urlDesign),
       'Access-Control-Allow-Origin': '*',
-          'Access-Control-Request-Headers': 'X-PINGOTHER, Content-Type'
+      'Access-Control-Request-Headers': 'X-PINGOTHER, Content-Type'
     });
   };
 }

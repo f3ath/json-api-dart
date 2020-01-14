@@ -4,7 +4,7 @@ import 'package:json_api/document.dart';
 import 'package:json_api/server.dart';
 import 'package:shelf/shelf.dart';
 
-class CRUDController implements JsonApiController<Request> {
+class CRUDController implements Controller<Request> {
   final String Function() generateId;
 
   final store = <String, Map<String, Resource>>{};
@@ -12,54 +12,50 @@ class CRUDController implements JsonApiController<Request> {
   CRUDController(this.generateId);
 
   @override
-  FutureOr<ControllerResponse> createResource(
+  FutureOr<JsonApiResponse> createResource(
       Request request, String type, Resource resource) {
     if (resource.type != type) {
-      return ErrorResponse.conflict(
+      return JsonApiResponse.conflict(
           [JsonApiError(detail: 'Incompatible type')]);
     }
     final repo = _repo(type);
     if (resource.id != null) {
       if (repo.containsKey(resource.id)) {
-        return ErrorResponse.conflict(
+        return JsonApiResponse.conflict(
             [JsonApiError(detail: 'Resource already exists')]);
       }
       repo[resource.id] = resource;
-      return NoContentResponse();
+      return JsonApiResponse.noContent();
     }
     final id = generateId();
     repo[id] = resource.replace(id: id);
-    return ResourceCreatedResponse(repo[id]);
+    return JsonApiResponse.resourceCreated(repo[id]);
   }
 
   @override
-  FutureOr<ControllerResponse> fetchResource(
+  FutureOr<JsonApiResponse> fetchResource(
       Request request, String type, String id) {
     final repo = _repo(type);
     if (repo.containsKey(id)) {
-      return ResourceResponse(repo[id]);
+      return JsonApiResponse.resource(repo[id]);
     }
-    return ErrorResponse.notFound(
+    return JsonApiResponse.notFound(
         [JsonApiError(detail: 'Resource not found', status: '404')]);
   }
 
   @override
-  FutureOr<ControllerResponse> addToRelationship(Request request, String type,
+  FutureOr<JsonApiResponse> addToRelationship(Request request, String type,
       String id, String relationship, Iterable<Identifier> identifiers) {
     final resource = _repo(type)[id];
     final ids = [...resource.toMany[relationship], ...identifiers];
     _repo(type)[id] =
         resource.replace(toMany: {...resource.toMany, relationship: ids});
-    return ToManyResponse(type, id, relationship, ids);
+    return JsonApiResponse.toMany(type, id, relationship, ids);
   }
 
   @override
-  FutureOr<ControllerResponse> deleteFromRelationship(
-      Request request,
-      String type,
-      String id,
-      String relationship,
-      Iterable<Identifier> identifiers) {
+  FutureOr<JsonApiResponse> deleteFromRelationship(Request request, String type,
+      String id, String relationship, Iterable<Identifier> identifiers) {
     final resource = _repo(type)[id];
     final rel = [...resource.toMany[relationship]];
     rel.removeWhere(identifiers.contains);
@@ -67,96 +63,98 @@ class CRUDController implements JsonApiController<Request> {
     toMany[relationship] = rel;
     _repo(type)[id] = resource.replace(toMany: toMany);
 
-    return ToManyResponse(type, id, relationship, rel);
+    return JsonApiResponse.toMany(type, id, relationship, rel);
   }
 
   @override
-  FutureOr<ControllerResponse> deleteResource(
+  FutureOr<JsonApiResponse> deleteResource(
       Request request, String type, String id) {
     final repo = _repo(type);
     if (!repo.containsKey(id)) {
-      return ErrorResponse.notFound(
+      return JsonApiResponse.notFound(
           [JsonApiError(detail: 'Resource not found')]);
     }
     final resource = repo[id];
     repo.remove(id);
     final relationships = {...resource.toOne, ...resource.toMany};
     if (relationships.isNotEmpty) {
-      return MetaResponse({'relationships': relationships.length});
+      return JsonApiResponse.meta({'relationships': relationships.length});
     }
-    return NoContentResponse();
+    return JsonApiResponse.noContent();
   }
 
   @override
-  FutureOr<ControllerResponse> fetchCollection(Request request, String type) {
+  FutureOr<JsonApiResponse> fetchCollection(Request request, String type) {
     final repo = _repo(type);
-    return CollectionResponse(repo.values);
+    return JsonApiResponse.collection(repo.values);
   }
 
   @override
-  FutureOr<ControllerResponse> fetchRelated(
+  FutureOr<JsonApiResponse> fetchRelated(
       Request request, String type, String id, String relationship) {
     final resource = _repo(type)[id];
     if (resource == null) {
-      return ErrorResponse.notFound(
+      return JsonApiResponse.notFound(
           [JsonApiError(detail: 'Resource not found')]);
     }
     if (resource.toOne.containsKey(relationship)) {
       final related = resource.toOne[relationship];
       if (related == null) {
-        return RelatedResourceResponse(null);
+        return JsonApiResponse.relatedResource(null);
       }
-      return RelatedResourceResponse(_repo(related.type)[related.id]);
+      return JsonApiResponse.relatedResource(_repo(related.type)[related.id]);
     }
     if (resource.toMany.containsKey(relationship)) {
-      return RelatedCollectionResponse(
+      return JsonApiResponse.relatedCollection(
           resource.toMany[relationship].map((r) => _repo(r.type)[r.id]));
     }
-    return ErrorResponse.notFound(
+    return JsonApiResponse.notFound(
         [JsonApiError(detail: 'Relatioship not found')]);
   }
 
   @override
-  FutureOr<ControllerResponse> fetchRelationship(
+  FutureOr<JsonApiResponse> fetchRelationship(
       Request request, String type, String id, String relationship) {
     final r = _repo(type)[id];
     if (r.toOne.containsKey(relationship)) {
-      return ToOneResponse(type, id, relationship, r.toOne[relationship]);
+      return JsonApiResponse.toOne(
+          type, id, relationship, r.toOne[relationship]);
     }
     if (r.toMany.containsKey(relationship)) {
-      return ToManyResponse(type, id, relationship, r.toMany[relationship]);
+      return JsonApiResponse.toMany(
+          type, id, relationship, r.toMany[relationship]);
     }
-    return ErrorResponse.notFound(
+    return JsonApiResponse.notFound(
         [JsonApiError(detail: 'Relationship not found')]);
   }
 
   @override
-  FutureOr<ControllerResponse> updateResource(
+  FutureOr<JsonApiResponse> updateResource(
       Request request, String type, String id, Resource resource) {
     final current = _repo(type)[id];
     if (resource.hasAllMembersOf(current)) {
       _repo(type)[id] = resource;
-      return NoContentResponse();
+      return JsonApiResponse.noContent();
     }
     _repo(type)[id] = resource.withExtraMembersFrom(current);
-    return ResourceUpdatedResponse(_repo(type)[id]);
+    return JsonApiResponse.resourceUpdated(_repo(type)[id]);
   }
 
   @override
-  FutureOr<ControllerResponse> replaceToMany(Request request, String type,
+  FutureOr<JsonApiResponse> replaceToMany(Request request, String type,
       String id, String relationship, Iterable<Identifier> identifiers) {
     final resource = _repo(type)[id];
     final toMany = {...resource.toMany, relationship: identifiers.toList()};
     _repo(type)[id] = resource.replace(toMany: toMany);
-    return ToManyResponse(type, id, relationship, identifiers);
+    return JsonApiResponse.toMany(type, id, relationship, identifiers);
   }
 
   @override
-  FutureOr<ControllerResponse> replaceToOne(Request request, String type,
+  FutureOr<JsonApiResponse> replaceToOne(Request request, String type,
       String id, String relationship, Identifier identifier) {
     _repo(type)[id] =
         _repo(type)[id].replace(toOne: {relationship: identifier});
-    return NoContentResponse();
+    return JsonApiResponse.noContent();
   }
 
   Map<String, Resource> _repo(String type) {
