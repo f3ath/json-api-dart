@@ -1,16 +1,16 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/routing.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/query/page.dart';
 import 'package:json_api/src/server/pagination/no_pagination.dart';
 import 'package:json_api/src/server/pagination/pagination_strategy.dart';
-import 'package:json_api/url_design.dart';
 
-class ServerDocumentFactory {
-  final UrlFactory _urlFactory;
+class ResponseDocumentFactory {
+  final Routing _routing;
   final PaginationStrategy _pagination;
   final Api _api;
 
-  ServerDocumentFactory(this._urlFactory,
+  ResponseDocumentFactory(this._routing,
       {Api api, PaginationStrategy pagination = const NoPagination()})
       : _api = api,
         _pagination = pagination;
@@ -59,7 +59,7 @@ class ServerDocumentFactory {
   /// See https://jsonapi.org/format/#crud-creating-responses-201
   Document<ResourceData> makeCreatedResourceDocument(Resource resource) =>
       makeResourceDocument(
-          _urlFactory.resource(resource.type, resource.id), resource);
+          _routing.resource.uri(resource.type, resource.id), resource);
 
   /// A document containing a single related resource
   Document<ResourceData> makeRelatedResourceDocument(
@@ -82,7 +82,7 @@ class ServerDocumentFactory {
             identifiers.map(IdentifierObject.fromIdentifier),
             links: {
               'self': Link(self),
-              'related': Link(_urlFactory.related(type, id, relationship))
+              'related': Link(_routing.related.uri(type, id, relationship))
             },
           ),
           api: _api);
@@ -95,7 +95,7 @@ class ServerDocumentFactory {
             nullable(IdentifierObject.fromIdentifier)(identifier),
             links: {
               'self': Link(self),
-              'related': Link(_urlFactory.related(type, id, relationship))
+              'related': Link(_routing.related.uri(type, id, relationship))
             },
           ),
           api: _api);
@@ -111,8 +111,8 @@ class ServerDocumentFactory {
             ToOne(
               nullable(IdentifierObject.fromIdentifier)(v),
               links: {
-                'self': Link(_urlFactory.relationship(r.type, r.id, k)),
-                'related': Link(_urlFactory.related(r.type, r.id, k))
+                'self': Link(_routing.relationship.uri(r.type, r.id, k)),
+                'related': Link(_routing.related.uri(r.type, r.id, k))
               },
             ))),
         ...r.toMany.map((k, v) => MapEntry(
@@ -120,12 +120,12 @@ class ServerDocumentFactory {
             ToMany(
               v.map(IdentifierObject.fromIdentifier),
               links: {
-                'self': Link(_urlFactory.relationship(r.type, r.id, k)),
-                'related': Link(_urlFactory.related(r.type, r.id, k))
+                'self': Link(_routing.relationship.uri(r.type, r.id, k)),
+                'related': Link(_routing.related.uri(r.type, r.id, k))
               },
             )))
       }, links: {
-        'self': Link(_urlFactory.resource(r.type, r.id))
+        'self': Link(_routing.resource.uri(r.type, r.id))
       });
 
   Map<String, Link> _navigation(Uri uri, int total) {

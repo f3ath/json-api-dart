@@ -1,21 +1,21 @@
 import 'dart:async';
 
 import 'package:json_api/server.dart';
-import 'package:shelf/shelf.dart';
+import 'package:shelf/shelf.dart' as shelf;
 
 class ShelfRequestResponseConverter
-    implements HttpMessageConverter<Request, Response> {
+    implements HttpMessageConverter<shelf.Request, shelf.Response> {
   @override
-  FutureOr<Response> createResponse(
+  FutureOr<shelf.Response> createResponse(
           int statusCode, String body, Map<String, String> headers) =>
-      Response(statusCode, body: body, headers: headers);
+      shelf.Response(statusCode, body: body, headers: headers);
 
   @override
-  FutureOr<String> getBody(Request request) => request.readAsString();
+  FutureOr<String> getBody(shelf.Request request) => request.readAsString();
 
   @override
-  FutureOr<String> getMethod(Request request) => request.method;
+  FutureOr<String> getMethod(shelf.Request request) => request.method;
 
   @override
-  FutureOr<Uri> getUri(Request request) => request.requestedUri;
+  FutureOr<Uri> getUri(shelf.Request request) => request.requestedUri;
 }

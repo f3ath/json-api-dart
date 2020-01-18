@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:json_api/document.dart';
 import 'package:json_api/server.dart';
-import 'package:shelf/shelf.dart';
+import 'package:shelf/shelf.dart' as shelf;
 
-class CRUDController implements Controller<Request> {
+class CRUDController implements JsonApiController<shelf.Request> {
   final String Function() generateId;
 
   final store = <String, Map<String, Resource>>{};
@@ -13,7 +13,7 @@ class CRUDController implements Controller<Request> {
 
   @override
   FutureOr<JsonApiResponse> createResource(
-      Request request, String type, Resource resource) {
+      shelf.Request request, String type, Resource resource) {
     if (resource.type != type) {
       return JsonApiResponse.conflict(
           [JsonApiError(detail: 'Incompatible type')]);
@@ -34,7 +34,7 @@ class CRUDController implements Controller<Request> {
 
   @override
   FutureOr<JsonApiResponse> fetchResource(
-      Request request, String type, String id) {
+      shelf.Request request, String type, String id) {
     final repo = _repo(type);
     if (repo.containsKey(id)) {
       return JsonApiResponse.resource(repo[id]);
@@ -44,8 +44,12 @@ class CRUDController implements Controller<Request> {
   }
 
   @override
-  FutureOr<JsonApiResponse> addToRelationship(Request request, String type,
-      String id, String relationship, Iterable<Identifier> identifiers) {
+  FutureOr<JsonApiResponse> addToRelationship(
+      shelf.Request request,
+      String type,
+      String id,
+      String relationship,
+      Iterable<Identifier> identifiers) {
     final resource = _repo(type)[id];
     final ids = [...resource.toMany[relationship], ...identifiers];
     _repo(type)[id] =
@@ -54,8 +58,12 @@ class CRUDController implements Controller<Request> {
   }
 
   @override
-  FutureOr<JsonApiResponse> deleteFromRelationship(Request request, String type,
-      String id, String relationship, Iterable<Identifier> identifiers) {
+  FutureOr<JsonApiResponse> deleteFromRelationship(
+      shelf.Request request,
+      String type,
+      String id,
+      String relationship,
+      Iterable<Identifier> identifiers) {
     final resource = _repo(type)[id];
     final rel = [...resource.toMany[relationship]];
     rel.removeWhere(identifiers.contains);
@@ -68,7 +76,7 @@ class CRUDController implements Controller<Request> {
 
   @override
   FutureOr<JsonApiResponse> deleteResource(
-      Request request, String type, String id) {
+      shelf.Request request, String type, String id) {
     final repo = _repo(type);
     if (!repo.containsKey(id)) {
       return JsonApiResponse.notFound(
@@ -84,14 +92,15 @@ class CRUDController implements Controller<Request> {
   }
 
   @override
-  FutureOr<JsonApiResponse> fetchCollection(Request request, String type) {
+  FutureOr<JsonApiResponse> fetchCollection(
+      shelf.Request request, String type) {
     final repo = _repo(type);
     return JsonApiResponse.collection(repo.values);
   }
 
   @override
   FutureOr<JsonApiResponse> fetchRelated(
-      Request request, String type, String id, String relationship) {
+      shelf.Request request, String type, String id, String relationship) {
     final resource = _repo(type)[id];
     if (resource == null) {
       return JsonApiResponse.notFound(
@@ -114,7 +123,7 @@ class CRUDController implements Controller<Request> {
 
   @override
   FutureOr<JsonApiResponse> fetchRelationship(
-      Request request, String type, String id, String relationship) {
+      shelf.Request request, String type, String id, String relationship) {
     final r = _repo(type)[id];
     if (r.toOne.containsKey(relationship)) {
       return JsonApiResponse.toOne(
@@ -130,7 +139,7 @@ class CRUDController implements Controller<Request> {
 
   @override
   FutureOr<JsonApiResponse> updateResource(
-      Request request, String type, String id, Resource resource) {
+      shelf.Request request, String type, String id, Resource resource) {
     final current = _repo(type)[id];
     if (resource.hasAllMembersOf(current)) {
       _repo(type)[id] = resource;
@@ -141,7 +150,7 @@ class CRUDController implements Controller<Request> {
   }
 
   @override
-  FutureOr<JsonApiResponse> replaceToMany(Request request, String type,
+  FutureOr<JsonApiResponse> replaceToMany(shelf.Request request, String type,
       String id, String relationship, Iterable<Identifier> identifiers) {
     final resource = _repo(type)[id];
     final toMany = {...resource.toMany, relationship: identifiers.toList()};
@@ -150,7 +159,7 @@ class CRUDController implements Controller<Request> {
   }
 
   @override
-  FutureOr<JsonApiResponse> replaceToOne(Request request, String type,
+  FutureOr<JsonApiResponse> replaceToOne(shelf.Request request, String type,
       String id, String relationship, Identifier identifier) {
     _repo(type)[id] =
         _repo(type)[id].replace(toOne: {relationship: identifier});

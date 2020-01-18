@@ -40,7 +40,7 @@ void main() async {
 
   setUp(() async {
     client = UrlAwareClient(design);
-    final handler = createHttpHandler(
+    final handler = Handler(
         ShelfRequestResponseConverter(), CRUDController(Uuid().v4), design);
 
     server = await serve(handler, host, port);
@@ -67,6 +67,13 @@ void main() async {
       expect(r.data.unwrap().toMany['authors'].length, 4);
       expect(r.data.unwrap().toMany['authors'].first.type, 'people');
       expect(r.data.unwrap().toMany['authors'].last.type, 'people');
+    });
+
+    test('a non-existing primary resource', () async {
+      final r = await client.fetchResource('unicorns', '1');
+      expect(r.status, 404);
+      expect(r.isSuccessful, isFalse);
+      expect(r.document.errors.first.detail, 'Resource not found');
     });
 
     test('a primary collection', () async {

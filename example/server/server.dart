@@ -14,7 +14,7 @@ void main() async {
   final host = 'localhost';
   final port = 8080;
   final baseUri = Uri(scheme: 'http', host: host, port: port);
-  final jsonApiHandler = createHttpHandler(ShelfRequestResponseConverter(),
+  final jsonApiHandler = Handler(ShelfRequestResponseConverter(),
       CRUDController(Uuid().v4), PathBasedUrlDesign(baseUri));
 
   await serve(jsonApiHandler, InternetAddress.loopbackIPv4, port);

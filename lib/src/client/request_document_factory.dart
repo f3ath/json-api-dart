@@ -1,23 +1,23 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/nullable.dart';
 
-/// This is a document factory used by [JsonApiClient]. It is responsible
+/// This is a document factory used by the client. It is responsible
 /// for building the JSON representation of the outgoing resources.
-class ClientDocumentFactory {
-  /// Creates an instance of the factory.
-  ClientDocumentFactory({Api api}) : _api = api;
-
+class RequestDocumentFactory {
   /// Makes a document containing a single resource.
-  Document<ResourceData> makeResourceDocument(Resource resource) =>
+  Document<ResourceData> resourceDocument(Resource resource) =>
       Document(ResourceData(_resourceObject(resource)), api: _api);
 
   /// Makes a document containing a to-many relationship.
-  Document<ToMany> makeToManyDocument(Iterable<Identifier> ids) =>
+  Document<ToMany> toManyDocument(Iterable<Identifier> ids) =>
       Document(ToMany(ids.map(IdentifierObject.fromIdentifier)), api: _api);
 
   /// Makes a document containing a to-one relationship.
-  Document<ToOne> makeToOneDocument(Identifier id) =>
+  Document<ToOne> toOneDocument(Identifier id) =>
       Document(ToOne(nullable(IdentifierObject.fromIdentifier)(id)), api: _api);
+
+  /// Creates an instance of the factory.
+  RequestDocumentFactory({Api api}) : _api = api;
 
   final Api _api;
 
