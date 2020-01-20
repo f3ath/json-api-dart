@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:json_api/server.dart';
 import 'package:json_api/src/server/http_handler.dart';
-import 'package:json_api/url_design.dart';
+import 'package:json_api/uri_design.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:uuid/uuid.dart';
 
@@ -15,7 +15,7 @@ void main() async {
   final port = 8080;
   final baseUri = Uri(scheme: 'http', host: host, port: port);
   final jsonApiHandler = Handler(ShelfRequestResponseConverter(),
-      CRUDController(Uuid().v4), PathBasedUrlDesign(baseUri));
+      CRUDController(Uuid().v4, (_) => true), UriDesign.standard(baseUri));
 
   await serve(jsonApiHandler, InternetAddress.loopbackIPv4, port);
   print('Serving at $baseUri');

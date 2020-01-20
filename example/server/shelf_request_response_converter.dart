@@ -4,7 +4,7 @@ import 'package:json_api/server.dart';
 import 'package:shelf/shelf.dart' as shelf;
 
 class ShelfRequestResponseConverter
-    implements HttpMessageConverter<shelf.Request, shelf.Response> {
+    implements HttpAdapter<shelf.Request, shelf.Response> {
   @override
   FutureOr<shelf.Response> createResponse(
           int statusCode, String body, Map<String, String> headers) =>

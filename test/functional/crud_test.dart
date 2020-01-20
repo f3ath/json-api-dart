@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/server.dart';
-import 'package:json_api/url_design.dart';
+import 'package:json_api/uri_design.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
@@ -14,11 +14,11 @@ import '../../example/server/shelf_request_response_converter.dart';
 /// Basic CRUD operations
 void main() async {
   HttpServer server;
-  UrlAwareClient client;
+  UriAwareClient client;
   final host = 'localhost';
   final port = 8081;
   final design =
-      PathBasedUrlDesign(Uri(scheme: 'http', host: host, port: port));
+      UriDesign.standard(Uri(scheme: 'http', host: host, port: port));
   final people = [
     'Erich Gamma',
     'Richard Helm',
@@ -39,9 +39,12 @@ void main() async {
       toMany: {'authors': people.map(Identifier.of).toList()});
 
   setUp(() async {
-    client = UrlAwareClient(design);
+    client = UriAwareClient(design);
     final handler = Handler(
-        ShelfRequestResponseConverter(), CRUDController(Uuid().v4), design);
+        ShelfRequestResponseConverter(),
+        CRUDController(
+            Uuid().v4, const ['people', 'books', 'companies'].contains),
+        design);
 
     server = await serve(handler, host, port);
 

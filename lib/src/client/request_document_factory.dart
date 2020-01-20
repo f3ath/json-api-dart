@@ -1,7 +1,7 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/nullable.dart';
 
-/// This is a document factory used by the client. It is responsible
+/// The document factory used by the client. It is responsible
 /// for building the JSON representation of the outgoing resources.
 class RequestDocumentFactory {
   /// Makes a document containing a single resource.

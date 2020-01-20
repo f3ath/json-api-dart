@@ -4,12 +4,18 @@ import 'package:json_api/document.dart';
 import 'package:json_api/server.dart';
 import 'package:shelf/shelf.dart' as shelf;
 
+typedef Criteria = bool Function(String type);
+
+/// This is an example controller allowing simple CRUD operations on resources.
 class CRUDController implements JsonApiController<shelf.Request> {
+  /// Generates a new GUID
   final String Function() generateId;
 
-  final store = <String, Map<String, Resource>>{};
+  /// Returns true is the [type] is supported by the server
+  final bool Function(String type) isTypeSupported;
+  final _store = <String, Map<String, Resource>>{};
 
-  CRUDController(this.generateId);
+  CRUDController(this.generateId, this.isTypeSupported);
 
   @override
   FutureOr<JsonApiResponse> createResource(
@@ -167,7 +173,7 @@ class CRUDController implements JsonApiController<shelf.Request> {
   }
 
   Map<String, Resource> _repo(String type) {
-    store.putIfAbsent(type, () => {});
-    return store[type];
+    _store.putIfAbsent(type, () => {});
+    return _store[type];
   }
 }

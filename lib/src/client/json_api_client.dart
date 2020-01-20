@@ -8,11 +8,6 @@ import 'package:json_api/src/client/request_document_factory.dart';
 import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/client/status_code.dart';
 
-/// Defines the hook which gets called when the HTTP response is received from
-/// the HTTP Client.
-typedef OnHttpCall = void Function(
-    http.Request request, http.Response response);
-
 /// The JSON:API Client.
 ///
 /// [JsonApiClient] works on top of Dart's built-in HTTP client.
@@ -164,7 +159,7 @@ class JsonApiClient {
       {RequestDocumentFactory builder,
       OnHttpCall onHttpCall,
       http.Client httpClient})
-      : _factory = builder ?? RequestDocumentFactory(),
+      : _factory = builder ?? RequestDocumentFactory(api: Api(version: '1.0')),
         _http = httpClient ?? http.Client(),
         _onHttpCall = onHttpCall ?? _doNothing;
 
@@ -235,5 +230,10 @@ class JsonApiClient {
             body == null ? null : Document.fromJson(body, decodePrimaryData));
   }
 }
+
+/// Defines the hook which gets called when the HTTP response is received from
+/// the HTTP Client.
+typedef OnHttpCall = void Function(
+    http.Request request, http.Response response);
 
 void _doNothing(http.Request request, http.Response response) {}

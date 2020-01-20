@@ -1,19 +1,19 @@
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
-import 'package:json_api/routing.dart';
+import 'package:json_api/uri_design.dart';
 
 /// A wrapper over [JsonApiClient] making use of the given UrlFactory.
 /// This wrapper reduces the boilerplate code but is not as flexible
 /// as [JsonApiClient].
-class UrlAwareClient {
+class UriAwareClient {
   /// Creates a new resource. The resource will be added to a collection
   /// according to its type.
   ///
   /// https://jsonapi.org/format/#crud-creating
   Future<JsonApiResponse<ResourceData>> createResource(Resource resource,
           {Map<String, String> headers}) =>
-      _client.createResource(_routing.collection.uri(resource.type), resource,
+      _client.createResource(_uriFactory.collectionUri(resource.type), resource,
           headers: headers);
 
   /// Fetches a single resource
@@ -23,7 +23,7 @@ class UrlAwareClient {
   /// - [Fields] to specify a sparse fieldset (@see https://jsonapi.org/format/#fetching-sparse-fieldsets)
   Future<JsonApiResponse<ResourceData>> fetchResource(String type, String id,
           {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchResource(_routing.resource.uri(type, id),
+      _client.fetchResource(_uriFactory.resourceUri(type, id),
           headers: headers, parameters: parameters);
 
   /// Fetches a resource collection .
@@ -33,7 +33,7 @@ class UrlAwareClient {
   /// - [Fields] to specify a sparse fieldset (@see https://jsonapi.org/format/#fetching-sparse-fieldsets)
   Future<JsonApiResponse<ResourceCollectionData>> fetchCollection(String type,
           {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchCollection(_routing.collection.uri(type),
+      _client.fetchCollection(_uriFactory.collectionUri(type),
           headers: headers, parameters: parameters);
 
   /// Fetches a related resource.
@@ -44,7 +44,7 @@ class UrlAwareClient {
   Future<JsonApiResponse<ResourceData>> fetchRelatedResource(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchResource(_routing.related.uri(type, id, relationship),
+      _client.fetchResource(_uriFactory.relatedUri(type, id, relationship),
           headers: headers, parameters: parameters);
 
   /// Fetches a related resource collection.
@@ -55,7 +55,7 @@ class UrlAwareClient {
   Future<JsonApiResponse<ResourceCollectionData>> fetchRelatedCollection(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchCollection(_routing.related.uri(type, id, relationship),
+      _client.fetchCollection(_uriFactory.relatedUri(type, id, relationship),
           headers: headers, parameters: parameters);
 
   /// Fetches a to-one relationship
@@ -66,7 +66,7 @@ class UrlAwareClient {
   Future<JsonApiResponse<ToOne>> fetchToOne(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchToOne(_routing.relationship.uri(type, id, relationship),
+      _client.fetchToOne(_uriFactory.relationshipUri(type, id, relationship),
           headers: headers, parameters: parameters);
 
   /// Fetches a to-one or to-many relationship.
@@ -79,7 +79,7 @@ class UrlAwareClient {
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
       _client.fetchRelationship(
-          _routing.relationship.uri(type, id, relationship),
+          _uriFactory.relationshipUri(type, id, relationship),
           headers: headers,
           parameters: parameters);
 
@@ -91,7 +91,7 @@ class UrlAwareClient {
   Future<JsonApiResponse<ToMany>> fetchToMany(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchToMany(_routing.relationship.uri(type, id, relationship),
+      _client.fetchToMany(_uriFactory.relationshipUri(type, id, relationship),
           headers: headers, parameters: parameters);
 
   /// Deletes the resource referenced by [type] and [id].
@@ -99,14 +99,15 @@ class UrlAwareClient {
   /// https://jsonapi.org/format/#crud-deleting
   Future<JsonApiResponse> deleteResource(String type, String id,
           {Map<String, String> headers}) =>
-      _client.deleteResource(_routing.resource.uri(type, id), headers: headers);
+      _client.deleteResource(_uriFactory.resourceUri(type, id),
+          headers: headers);
 
   /// Removes a to-one relationship. This is equivalent to calling [replaceToOne]
   /// with id = null.
   Future<JsonApiResponse<ToOne>> deleteToOne(
           String type, String id, String relationship,
           {Map<String, String> headers}) =>
-      _client.deleteToOne(_routing.relationship.uri(type, id, relationship),
+      _client.deleteToOne(_uriFactory.relationshipUri(type, id, relationship),
           headers: headers);
 
   /// Removes the [identifiers] from the to-many relationship.
@@ -116,7 +117,7 @@ class UrlAwareClient {
           String relationship, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       _client.deleteFromToMany(
-          _routing.relationship.uri(type, id, relationship), identifiers,
+          _uriFactory.relationshipUri(type, id, relationship), identifiers,
           headers: headers);
 
   /// Updates the [resource].
@@ -125,7 +126,7 @@ class UrlAwareClient {
   Future<JsonApiResponse<ResourceData>> updateResource(Resource resource,
           {Map<String, String> headers}) =>
       _client.updateResource(
-          _routing.resource.uri(resource.type, resource.id), resource,
+          _uriFactory.resourceUri(resource.type, resource.id), resource,
           headers: headers);
 
   /// Adds the given set of [identifiers] to a to-many relationship.
@@ -135,7 +136,7 @@ class UrlAwareClient {
           String relationship, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       _client.addToRelationship(
-          _routing.relationship.uri(type, id, relationship), identifiers,
+          _uriFactory.relationshipUri(type, id, relationship), identifiers,
           headers: headers);
 
   /// Replaces a to-many relationship with the given set of [identifiers].
@@ -145,7 +146,7 @@ class UrlAwareClient {
           String relationship, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       _client.replaceToMany(
-          _routing.relationship.uri(type, id, relationship), identifiers,
+          _uriFactory.relationshipUri(type, id, relationship), identifiers,
           headers: headers);
 
   /// Updates a to-one relationship via PATCH query
@@ -155,15 +156,15 @@ class UrlAwareClient {
           String type, String id, String relationship, Identifier identifier,
           {Map<String, String> headers}) =>
       _client.replaceToOne(
-          _routing.relationship.uri(type, id, relationship), identifier,
+          _uriFactory.relationshipUri(type, id, relationship), identifier,
           headers: headers);
 
   /// Closes the internal client. You have to either call this method or
   /// close the client yourself.
   void close() => _client.close();
 
-  UrlAwareClient(this._routing, {JsonApiClient jsonApiClient})
+  UriAwareClient(this._uriFactory, {JsonApiClient jsonApiClient})
       : _client = jsonApiClient ?? JsonApiClient();
   final JsonApiClient _client;
-  final Routing _routing;
+  final UriFactory _uriFactory;
 }

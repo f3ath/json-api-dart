@@ -1,14 +1,43 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:json_api/routing.dart';
+import 'package:json_api/server.dart';
 import 'package:json_api/src/server/json_api_controller.dart';
-import 'package:json_api/src/server/pagination/no_pagination.dart';
-import 'package:json_api/src/server/pagination/pagination_strategy.dart';
+import 'package:json_api/src/server/pagination.dart';
 import 'package:json_api/src/server/response_document_factory.dart';
-import 'package:json_api/src/server/target/target_factory.dart';
+import 'package:json_api/uri_design.dart';
 
-abstract class HttpMessageConverter<Request, Response> {
+/// HTTP handler
+class Handler<Request, Response> {
+  /// Processes the incoming HTTP [request] and returns a response
+  Future<Response> call(Request request) async {
+    final uri = await _http.getUri(request);
+    final method = await _http.getMethod(request);
+    final requestBody = await _http.getBody(request);
+    final requestDoc = requestBody.isEmpty ? null : json.decode(requestBody);
+    final requestTarget = Target.of(uri, _design);
+    final jsonApiRequest = requestTarget.getRequest(method);
+    final jsonApiResponse =
+        await jsonApiRequest.call(_controller, requestDoc, request);
+    final statusCode = jsonApiResponse.statusCode;
+    final headers = jsonApiResponse.buildHeaders(_design);
+    final responseDocument = jsonApiResponse.buildDocument(_docFactory, uri);
+    return _http.createResponse(
+        statusCode, json.encode(responseDocument), headers);
+  }
+
+  /// Creates an instance of the handler.
+  Handler(this._http, this._controller, this._design, {Pagination pagination})
+      : _docFactory = ResponseDocumentFactory(_design,
+            pagination: pagination ?? Pagination.none());
+  final HttpAdapter<Request, Response> _http;
+  final JsonApiController<Request> _controller;
+  final UriDesign _design;
+  final ResponseDocumentFactory _docFactory;
+}
+
+/// The adapter is responsible
+abstract class HttpAdapter<Request, Response> {
   FutureOr<String> getMethod(Request request);
 
   FutureOr<Uri> getUri(Request request);
@@ -17,36 +46,4 @@ abstract class HttpMessageConverter<Request, Response> {
 
   FutureOr<Response> createResponse(
       int statusCode, String body, Map<String, String> headers);
-}
-
-/// HTTP handler
-class Handler<Request, Response> {
-  /// Processes the incoming HTTP [request] and returns a response
-  Future<Response> call(Request request) async {
-    final uri = await _converter.getUri(request);
-    final method = await _converter.getMethod(request);
-    final body = await _converter.getBody(request);
-    final document = body.isEmpty ? null : json.decode(body);
-
-    final response = await _routing
-        .match(uri, _toTarget)
-        .getRequest(method)
-        .call(_controller, document, request);
-
-    return _converter.createResponse(
-        response.statusCode,
-        json.encode(response.buildDocument(_docFactory, uri)),
-        response.buildHeaders(_routing));
-  }
-
-  /// Creates an instance of the handler.
-  Handler(this._converter, this._controller, this._routing,
-      {PaginationStrategy pagination = const NoPagination()})
-      : _docFactory =
-            ResponseDocumentFactory(_routing, pagination: pagination);
-  final HttpMessageConverter<Request, Response> _converter;
-  final JsonApiController<Request> _controller;
-  final Routing _routing;
-  final ResponseDocumentFactory _docFactory;
-  final TargetFactory _toTarget = const TargetFactory();
 }
