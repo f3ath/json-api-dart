@@ -26,7 +26,7 @@ class ResourceData extends PrimaryData {
           links: Link.mapFromJson(json['links'] ?? {}),
           included: resources.isNotEmpty ? resources : null);
     }
-    throw DecodingException('Can not decode SingleResourceObject from $json');
+    throw DecodingException<ResourceData>(json);
   }
 
   @override

@@ -13,7 +13,7 @@ class Link {
   static Link fromJson(Object json) {
     if (json is String) return Link(Uri.parse(json));
     if (json is Map) return LinkObject.fromJson(json);
-    throw DecodingException('Can not decode Link from $json');
+    throw DecodingException<Link>(json);
   }
 
   /// Reconstructs the document's `links` member into a map.
@@ -23,7 +23,7 @@ class Link {
       return ({...json}..removeWhere((_, v) => v == null))
           .map((k, v) => MapEntry(k.toString(), Link.fromJson(v)));
     }
-    throw DecodingException('Can not decode links map from $json');
+    throw DecodingException<Map<String, Link>>(json);
   }
 
   Object toJson() => uri.toString();
@@ -46,7 +46,7 @@ class LinkObject extends Link {
         return LinkObject(Uri.parse(href), meta: json['meta']);
       }
     }
-    throw DecodingException('Can not decode LinkObject from $json');
+    throw DecodingException<LinkObject>(json);
   }
 
   @override

@@ -52,7 +52,7 @@ class ResourceObject {
             meta: json['meta']);
       }
     }
-    throw DecodingException('Can not decode ResourceObject from $json');
+    throw DecodingException<ResourceObject>(json);
   }
 
   static List<ResourceObject> fromJsonList(Iterable<Object> json) =>

@@ -58,7 +58,7 @@ class Document<Data extends PrimaryData> {
         return Document.empty(json['meta'], api: api);
       }
     }
-    throw DecodingException('Can not decode Document from $json');
+    throw DecodingException<Document>(json);
   }
 
   Map<String, Object> toJson() => {

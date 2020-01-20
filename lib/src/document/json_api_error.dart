@@ -88,7 +88,7 @@ class JsonApiError {
           meta: json['meta'],
           links: (links == null) ? null : Link.mapFromJson(links));
     }
-    throw DecodingException('Can not decode ErrorObject from $json');
+    throw DecodingException<JsonApiError>(json);
   }
 
   Map<String, Object> toJson() {

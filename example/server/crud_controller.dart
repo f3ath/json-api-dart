@@ -4,8 +4,6 @@ import 'package:json_api/document.dart';
 import 'package:json_api/server.dart';
 import 'package:shelf/shelf.dart' as shelf;
 
-typedef Criteria = bool Function(String type);
-
 /// This is an example controller allowing simple CRUD operations on resources.
 class CRUDController implements JsonApiController<shelf.Request> {
   /// Generates a new GUID
@@ -173,6 +171,11 @@ class CRUDController implements JsonApiController<shelf.Request> {
   }
 
   Map<String, Resource> _repo(String type) {
+    if (!isTypeSupported(type)) {
+      throw JsonApiResponse.notFound(
+          [JsonApiError(detail: 'Collection not found')]);
+    }
+
     _store.putIfAbsent(type, () => {});
     return _store[type];
   }

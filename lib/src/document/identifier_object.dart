@@ -29,7 +29,7 @@ class IdentifierObject {
     if (json is Map) {
       return IdentifierObject(json['type'], json['id'], meta: json['meta']);
     }
-    throw DecodingException('Can not decode IdentifierObject from $json');
+    throw DecodingException<IdentifierObject>(json);
   }
 
   Identifier unwrap() => Identifier(type, id);

@@ -73,7 +73,7 @@ void main() async {
     });
 
     test('a non-existing primary resource', () async {
-      final r = await client.fetchResource('unicorns', '1');
+      final r = await client.fetchResource('books', '1');
       expect(r.status, 404);
       expect(r.isSuccessful, isFalse);
       expect(r.document.errors.first.detail, 'Resource not found');
@@ -86,6 +86,13 @@ void main() async {
       expect(r.data.unwrap().length, 4);
       expect(r.data.unwrap().first.attributes['firstName'], 'Erich');
       expect(r.data.unwrap().first.attributes['lastName'], 'Gamma');
+    });
+
+    test('a non-existing primary collection', () async {
+      final r = await client.fetchCollection('unicorns');
+      expect(r.status, 404);
+      expect(r.isSuccessful, isFalse);
+      expect(r.document.errors.first.detail, 'Collection not found');
     });
 
     test('a related resource', () async {

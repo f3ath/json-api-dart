@@ -37,7 +37,7 @@ class Relationship extends PrimaryData {
       return Relationship(
           links: (links == null) ? null : Link.mapFromJson(links));
     }
-    throw DecodingException('Can not decode Relationship from $json');
+    throw DecodingException<Relationship>(json);
   }
 
   /// Parses the `relationships` member of a Resource Object
@@ -46,7 +46,7 @@ class Relationship extends PrimaryData {
       return json
           .map((k, v) => MapEntry(k.toString(), Relationship.fromJson(v)));
     }
-    throw DecodingException('Can not decode Relationship map from $json');
+    throw DecodingException<Map<String, Relationship>>(json);
   }
 
   /// Top-level JSON object
@@ -83,7 +83,7 @@ class ToOne extends Relationship {
           included:
               included is List ? ResourceObject.fromJsonList(included) : null);
     }
-    throw DecodingException('Can not decode ToOne from $json');
+    throw DecodingException<ToOne>(json);
   }
 
   @override
@@ -126,7 +126,7 @@ class ToMany extends Relationship {
         );
       }
     }
-    throw DecodingException('Can not decode ToMany from $json');
+    throw DecodingException<ToMany>(json);
   }
 
   @override

@@ -15,7 +15,7 @@ class Api {
     if (json is Map) {
       return Api(version: json['version'], meta: json['meta']);
     }
-    throw DecodingException('Can not decode JsonApi from $json');
+    throw DecodingException<Api>(json);
   }
 
   Map<String, Object> toJson() => {

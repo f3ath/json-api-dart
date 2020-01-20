@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:json_api/document.dart';
 import 'package:json_api/server.dart';
 import 'package:json_api/src/server/json_api_controller.dart';
 import 'package:json_api/src/server/pagination.dart';
@@ -17,8 +18,13 @@ class Handler<Request, Response> {
     final requestDoc = requestBody.isEmpty ? null : json.decode(requestBody);
     final requestTarget = Target.of(uri, _design);
     final jsonApiRequest = requestTarget.getRequest(method);
-    final jsonApiResponse =
-        await jsonApiRequest.call(_controller, requestDoc, request);
+    JsonApiResponse jsonApiResponse;
+    try {
+      jsonApiResponse =
+          await jsonApiRequest.call(_controller, requestDoc, request);
+    } on JsonApiResponse catch (error) {
+      jsonApiResponse = error;
+    }
     final statusCode = jsonApiResponse.statusCode;
     final headers = jsonApiResponse.buildHeaders(_design);
     final responseDocument = jsonApiResponse.buildDocument(_docFactory, uri);
@@ -29,7 +35,8 @@ class Handler<Request, Response> {
   /// Creates an instance of the handler.
   Handler(this._http, this._controller, this._design, {Pagination pagination})
       : _docFactory = ResponseDocumentFactory(_design,
-            pagination: pagination ?? Pagination.none());
+            pagination: pagination ?? Pagination.none(),
+            api: Api(version: '1.0'));
   final HttpAdapter<Request, Response> _http;
   final JsonApiController<Request> _controller;
   final UriDesign _design;
