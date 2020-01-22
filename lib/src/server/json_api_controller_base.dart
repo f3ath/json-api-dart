@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:json_api/document.dart';
 import 'package:json_api/server.dart';
 
-class JsonApiControllerBase<R> implements JsonApiController<R> {
+abstract class JsonApiControllerBase<R> implements JsonApiController<R> {
   @override
   FutureOr<JsonApiResponse> addToRelationship(R request, String type, String id,
       String relationship, Iterable<Identifier> identifiers) {

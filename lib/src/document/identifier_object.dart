@@ -1,4 +1,4 @@
-import 'package:json_api/src/document/decoding_exception.dart';
+import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 
 /// [IdentifierObject] is a JSON representation of the [Identifier].
@@ -29,7 +29,7 @@ class IdentifierObject {
     if (json is Map) {
       return IdentifierObject(json['type'], json['id'], meta: json['meta']);
     }
-    throw DecodingException<IdentifierObject>(json);
+    throw DocumentException('A JSON:API identifier must be a JSON object');
   }
 
   Identifier unwrap() => Identifier(type, id);

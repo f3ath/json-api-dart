@@ -1,4 +1,4 @@
-import 'package:json_api/src/document/decoding_exception.dart';
+import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource.dart';
@@ -26,7 +26,8 @@ class ResourceData extends PrimaryData {
           links: Link.mapFromJson(json['links'] ?? {}),
           included: resources.isNotEmpty ? resources : null);
     }
-    throw DecodingException<ResourceData>(json);
+    throw DocumentException(
+        'A JSON:API resource document must be a JSON object and contain the `data` member');
   }
 
   @override

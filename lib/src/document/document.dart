@@ -1,5 +1,5 @@
 import 'package:json_api/src/document/api.dart';
-import 'package:json_api/src/document/decoding_exception.dart';
+import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/json_api_error.dart';
 import 'package:json_api/src/document/primary_data.dart';
 
@@ -35,7 +35,7 @@ class Document<Data extends PrimaryData> {
       : data = null,
         meta = (meta == null) ? null : Map.unmodifiable(meta),
         errors = null {
-    ArgumentError.checkNotNull(meta, 'meta');
+    DocumentException.throwIfNull(meta, 'The `meta` member must not be null');
   }
 
   /// Reconstructs a document with the specified primary data
@@ -43,8 +43,8 @@ class Document<Data extends PrimaryData> {
       Object json, Data Function(Object json) primaryData) {
     if (json is Map) {
       Api api;
-      if (json.containsKey('jsonapi')) {
-        api = Api.fromJson(json['jsonapi']);
+      if (json.containsKey(Api.memberName)) {
+        api = Api.fromJson(json[Api.memberName]);
       }
       if (json.containsKey('errors')) {
         final errors = json['errors'];
@@ -58,7 +58,7 @@ class Document<Data extends PrimaryData> {
         return Document.empty(json['meta'], api: api);
       }
     }
-    throw DecodingException<Document>(json);
+    throw DocumentException('A JSON:API document must be a JSON object');
   }
 
   Map<String, Object> toJson() => {

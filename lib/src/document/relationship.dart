@@ -1,4 +1,4 @@
-import 'package:json_api/src/document/decoding_exception.dart';
+import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/identifier_object.dart';
 import 'package:json_api/src/document/link.dart';
@@ -37,7 +37,8 @@ class Relationship extends PrimaryData {
       return Relationship(
           links: (links == null) ? null : Link.mapFromJson(links));
     }
-    throw DecodingException<Relationship>(json);
+    throw DocumentException(
+        'A JSON:API relationship object must be a JSON object');
   }
 
   /// Parses the `relationships` member of a Resource Object
@@ -46,7 +47,7 @@ class Relationship extends PrimaryData {
       return json
           .map((k, v) => MapEntry(k.toString(), Relationship.fromJson(v)));
     }
-    throw DecodingException<Map<String, Relationship>>(json);
+    throw DocumentException('The `relationships` member must be a JSON object');
   }
 
   /// Top-level JSON object
@@ -83,7 +84,8 @@ class ToOne extends Relationship {
           included:
               included is List ? ResourceObject.fromJsonList(included) : null);
     }
-    throw DecodingException<ToOne>(json);
+    throw DocumentException(
+        'A to-one relationship must be a JSON object and contain the `data` member');
   }
 
   @override
@@ -126,7 +128,8 @@ class ToMany extends Relationship {
         );
       }
     }
-    throw DecodingException<ToMany>(json);
+    throw DocumentException(
+        'A to-many relationship must be a JSON object and contain the `data` member');
   }
 
   @override

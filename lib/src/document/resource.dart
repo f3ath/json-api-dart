@@ -1,3 +1,4 @@
+import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 
 /// Resource
@@ -33,7 +34,7 @@ class Resource {
       : attributes = Map.unmodifiable(attributes ?? {}),
         toOne = Map.unmodifiable(toOne ?? {}),
         toMany = Map.unmodifiable(toMany ?? {}) {
-    ArgumentError.checkNotNull(type, 'type');
+    DocumentException.throwIfNull(type, 'Resource `type` must not be null');
   }
 
   /// Resource type and id combined

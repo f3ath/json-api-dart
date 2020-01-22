@@ -1,7 +1,9 @@
-import 'package:json_api/src/document/decoding_exception.dart';
+import 'package:json_api/src/document/document_exception.dart';
 
 /// Details: https://jsonapi.org/format/#document-jsonapi-object
 class Api {
+  static const memberName = 'jsonapi';
+
   /// The JSON:API version. May be null.
   final String version;
 
@@ -15,7 +17,7 @@ class Api {
     if (json is Map) {
       return Api(version: json['version'], meta: json['meta']);
     }
-    throw DecodingException<Api>(json);
+    throw DocumentException('The `$memberName` member must be a JSON object');
   }
 
   Map<String, Object> toJson() => {

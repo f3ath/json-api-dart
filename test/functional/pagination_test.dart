@@ -7,7 +7,7 @@ import 'package:json_api/uri_design.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:test/test.dart';
 
-import '../../example/server/paginating_controller.dart';
+import '../../example/server/controller/paginating_controller.dart';
 import '../../example/server/shelf_request_response_converter.dart';
 
 /// Pagination
@@ -22,7 +22,7 @@ void main() async {
   setUp(() async {
     client = JsonApiClient();
     final pagination = Pagination.fixedSize(5);
-    final handler = Handler(ShelfRequestResponseConverter(),
+    final handler = RequestHandler(ShelfRequestResponseConverter(),
         PaginatingController(pagination), design,
         pagination: pagination);
 

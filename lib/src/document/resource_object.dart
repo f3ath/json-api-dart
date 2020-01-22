@@ -1,5 +1,5 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/src/document/decoding_exception.dart';
+import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/relationship.dart';
@@ -52,7 +52,7 @@ class ResourceObject {
             meta: json['meta']);
       }
     }
-    throw DecodingException<ResourceObject>(json);
+    throw DocumentException('A JSON:API resource must be a JSON object');
   }
 
   static List<ResourceObject> fromJsonList(Iterable<Object> json) =>

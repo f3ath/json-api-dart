@@ -1,4 +1,4 @@
-import 'package:json_api/src/document/decoding_exception.dart';
+import 'package:json_api/src/document/document_exception.dart';
 
 /// A JSON:API link
 /// https://jsonapi.org/format/#document-links
@@ -13,7 +13,8 @@ class Link {
   static Link fromJson(Object json) {
     if (json is String) return Link(Uri.parse(json));
     if (json is Map) return LinkObject.fromJson(json);
-    throw DecodingException<Link>(json);
+    throw DocumentException(
+        'A JSON:API link must be a JSON string or a JSON object');
   }
 
   /// Reconstructs the document's `links` member into a map.
@@ -23,7 +24,7 @@ class Link {
       return ({...json}..removeWhere((_, v) => v == null))
           .map((k, v) => MapEntry(k.toString(), Link.fromJson(v)));
     }
-    throw DecodingException<Map<String, Link>>(json);
+    throw DocumentException('A JSON:API links object must be a JSON object');
   }
 
   Object toJson() => uri.toString();
@@ -46,7 +47,7 @@ class LinkObject extends Link {
         return LinkObject(Uri.parse(href), meta: json['meta']);
       }
     }
-    throw DecodingException<LinkObject>(json);
+    throw DocumentException('A JSON:API link object must be a JSON object');
   }
 
   @override

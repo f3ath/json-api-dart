@@ -1,5 +1,5 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/src/document/decoding_exception.dart';
+import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/link.dart';
 
 /// [JsonApiError] represents an error occurred on the server.
@@ -88,7 +88,7 @@ class JsonApiError {
           meta: json['meta'],
           links: (links == null) ? null : Link.mapFromJson(links));
     }
-    throw DecodingException<JsonApiError>(json);
+    throw DocumentException('A JSON:API error must be a JSON object');
   }
 
   Map<String, Object> toJson() {

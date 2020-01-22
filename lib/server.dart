@@ -3,7 +3,7 @@
 /// The server API is not stable. Expect breaking changes.
 library server;
 
-export 'package:json_api/src/server/http_handler.dart';
+export 'package:json_api/src/server/request_handler.dart';
 export 'package:json_api/src/server/json_api_controller.dart';
 export 'package:json_api/src/server/json_api_controller_base.dart';
 export 'package:json_api/src/server/json_api_response.dart';

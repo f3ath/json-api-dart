@@ -29,46 +29,36 @@ class Sort extends QueryParameters with IterableMixin<SortField> {
   final List<SortField> _fields;
 }
 
-abstract class SortField {
-  bool get isAsc;
+class SortField {
+  final bool isAsc;
 
-  bool get isDesc;
+  final bool isDesc;
 
-  String get name;
+  final String name;
+
+  /// Returns 1 for Ascending fields, -1 for Descending
+  int get comparisonFactor => isAsc ? 1 : -1;
+
+  @override
+  String toString() => isAsc ? name : '-$name';
+
+  SortField.Asc(this.name)
+      : isAsc = true,
+        isDesc = false;
+
+  SortField.Desc(this.name)
+      : isAsc = false,
+        isDesc = true;
 
   static SortField parse(String queryParam) => queryParam.startsWith('-')
       ? Desc(queryParam.substring(1))
       : Asc(queryParam);
 }
 
-class Asc implements SortField {
-  Asc(this.name);
-
-  @override
-  bool get isAsc => true;
-
-  @override
-  bool get isDesc => false;
-
-  @override
-  final String name;
-
-  @override
-  String toString() => name;
+class Asc extends SortField {
+  Asc(String name) : super.Asc(name);
 }
 
-class Desc implements SortField {
-  Desc(this.name);
-
-  @override
-  bool get isAsc => false;
-
-  @override
-  bool get isDesc => true;
-
-  @override
-  final String name;
-
-  @override
-  String toString() => '-${name}';
+class Desc extends SortField {
+  Desc(String name) : super.Desc(name);
 }

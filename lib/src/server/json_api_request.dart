@@ -46,30 +46,34 @@ abstract class JsonApiRequest {
       _DeleteFromRelationship(type, id, relationship);
 }
 
+/// Exception thrown by [JsonApiRequest] when an `updateRelationship` request
+/// receives an incomplete relationship object.
+class IncompleteRelationshipException implements Exception {}
+
 class _AddToRelationship implements JsonApiRequest {
   final String type;
   final String id;
   final String relationship;
-
-  _AddToRelationship(this.type, this.id, this.relationship);
 
   @override
   FutureOr<JsonApiResponse> call<R>(
           JsonApiController<R> controller, Object jsonPayload, R request) =>
       controller.addToRelationship(request, type, id, relationship,
           ToMany.fromJson(jsonPayload).unwrap());
+
+  _AddToRelationship(this.type, this.id, this.relationship);
 }
 
 class _CreateResource implements JsonApiRequest {
   final String type;
-
-  _CreateResource(this.type);
 
   @override
   FutureOr<JsonApiResponse> call<R>(
           JsonApiController<R> controller, Object jsonPayload, R request) =>
       controller.createResource(
           request, type, ResourceData.fromJson(jsonPayload).unwrap());
+
+  _CreateResource(this.type);
 }
 
 class _DeleteFromRelationship implements JsonApiRequest {
@@ -77,36 +81,36 @@ class _DeleteFromRelationship implements JsonApiRequest {
   final String id;
   final String relationship;
 
-  _DeleteFromRelationship(this.type, this.id, this.relationship);
-
   @override
   FutureOr<JsonApiResponse> call<R>(
           JsonApiController<R> controller, Object jsonPayload, R request) =>
       controller.deleteFromRelationship(request, type, id, relationship,
           ToMany.fromJson(jsonPayload).unwrap());
+
+  _DeleteFromRelationship(this.type, this.id, this.relationship);
 }
 
 class _DeleteResource implements JsonApiRequest {
   final String type;
   final String id;
 
-  _DeleteResource(this.type, this.id);
-
   @override
   FutureOr<JsonApiResponse> call<R>(
           JsonApiController<R> controller, Object jsonPayload, R request) =>
       controller.deleteResource(request, type, id);
+
+  _DeleteResource(this.type, this.id);
 }
 
 class _FetchCollection implements JsonApiRequest {
   final String type;
 
-  _FetchCollection(this.type);
-
   @override
   FutureOr<JsonApiResponse> call<R>(
           JsonApiController<R> controller, Object jsonPayload, R request) =>
       controller.fetchCollection(request, type);
+
+  _FetchCollection(this.type);
 }
 
 class _FetchRelated implements JsonApiRequest {
@@ -114,12 +118,12 @@ class _FetchRelated implements JsonApiRequest {
   final String id;
   final String relationship;
 
-  _FetchRelated(this.type, this.id, this.relationship);
-
   @override
   FutureOr<JsonApiResponse> call<R>(
           JsonApiController<R> controller, Object jsonPayload, R request) =>
       controller.fetchRelated(request, type, id, relationship);
+
+  _FetchRelated(this.type, this.id, this.relationship);
 }
 
 class _FetchRelationship implements JsonApiRequest {
@@ -127,30 +131,28 @@ class _FetchRelationship implements JsonApiRequest {
   final String id;
   final String relationship;
 
-  _FetchRelationship(this.type, this.id, this.relationship);
-
   @override
   FutureOr<JsonApiResponse> call<R>(
           JsonApiController<R> controller, Object jsonPayload, R request) =>
       controller.fetchRelationship(request, type, id, relationship);
+
+  _FetchRelationship(this.type, this.id, this.relationship);
 }
 
 class _FetchResource implements JsonApiRequest {
   final String type;
   final String id;
 
-  _FetchResource(this.type, this.id);
-
   @override
   FutureOr<JsonApiResponse> call<R>(
           JsonApiController<R> controller, Object jsonPayload, R request) =>
       controller.fetchResource(request, type, id);
+
+  _FetchResource(this.type, this.id);
 }
 
 class _InvalidRequest implements JsonApiRequest {
   final String method;
-
-  _InvalidRequest(this.method);
 
   @override
   FutureOr<JsonApiResponse> call<R>(
@@ -158,14 +160,14 @@ class _InvalidRequest implements JsonApiRequest {
     // TODO: implement call
     return null;
   }
+
+  _InvalidRequest(this.method);
 }
 
 class _UpdateRelationship implements JsonApiRequest {
   final String type;
   final String id;
   final String relationship;
-
-  _UpdateRelationship(this.type, this.id, this.relationship);
 
   @override
   FutureOr<JsonApiResponse> call<R>(
@@ -179,7 +181,10 @@ class _UpdateRelationship implements JsonApiRequest {
       return controller.replaceToMany(
           request, type, id, relationship, r.unwrap());
     }
+    throw IncompleteRelationshipException();
   }
+
+  _UpdateRelationship(this.type, this.id, this.relationship);
 }
 
 class _UpdateResource implements JsonApiRequest {

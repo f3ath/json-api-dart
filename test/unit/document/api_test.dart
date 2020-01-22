@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:json_api/document.dart';
-import 'package:json_api/src/document/decoding_exception.dart';
+import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_matcher/json_matcher.dart';
 import 'package:test/test.dart';
 
@@ -14,8 +14,7 @@ void main() {
   });
 
   test('Throws exception when can not be decoded', () {
-    expect(
-        () => Api.fromJson([]), throwsA(TypeMatcher<DecodingException<Api>>()));
+    expect(() => Api.fromJson([]), throwsA(TypeMatcher<DocumentException>()));
   });
 
   test('Empty/null properties are not encoded', () {

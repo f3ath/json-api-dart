@@ -1,4 +1,4 @@
-import 'package:json_api/src/document/decoding_exception.dart';
+import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource.dart';
@@ -25,8 +25,8 @@ class ResourceCollectionData extends PrimaryData {
                 : null);
       }
     }
-    throw DecodingException(
-        'Can not decode ResourceObjectCollection from $json');
+    throw DocumentException(
+        'A JSON:API resource collection document must be a JSON object with a JSON array in the `data` member');
   }
 
   /// The link to the last page. May be null.

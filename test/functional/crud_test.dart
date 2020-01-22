@@ -8,7 +8,7 @@ import 'package:shelf/shelf_io.dart';
 import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../example/server/crud_controller.dart';
+import '../../example/server/controller/crud_controller.dart';
 import '../../example/server/shelf_request_response_converter.dart';
 
 /// Basic CRUD operations
@@ -17,8 +17,8 @@ void main() async {
   UriAwareClient client;
   final host = 'localhost';
   final port = 8081;
-  final design =
-      UriDesign.standard(Uri(scheme: 'http', host: host, port: port));
+  final base = Uri(scheme: 'http', host: host, port: port);
+  final design = UriDesign.standard(base);
   final people = [
     'Erich Gamma',
     'Richard Helm',
@@ -40,7 +40,7 @@ void main() async {
 
   setUp(() async {
     client = UriAwareClient(design);
-    final handler = Handler(
+    final handler = RequestHandler(
         ShelfRequestResponseConverter(),
         CRUDController(
             Uuid().v4, const ['people', 'books', 'companies'].contains),
@@ -185,6 +185,18 @@ void main() async {
       expect(r.isSuccessful, isTrue);
       expect(r.data.unwrap().length, 2);
       expect(r.data.unwrap().last.id, people.last.id);
+    });
+  }, testOn: 'vm');
+
+  group('Create', () {
+    test('a primary resource, id assigned on the server', () async {
+      final book = Resource('books', null,
+          attributes: {'title': 'The Lord of the Rings'});
+      final r0 = await client.createResource(book);
+      expect(r0.status, 201);
+      final r1 = await JsonApiClient().fetchResource(r0.location);
+      expect(r1.data.unwrap().attributes, equals(book.attributes));
+      expect(r1.data.unwrap().type, equals(book.type));
     });
   }, testOn: 'vm');
 

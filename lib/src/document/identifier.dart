@@ -1,4 +1,5 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/src/document/document_exception.dart';
 
 /// Resource identifier
 ///
@@ -14,8 +15,8 @@ class Identifier {
 
   /// Neither [type] nor [id] can be null or empty.
   Identifier(this.type, this.id) {
-    ArgumentError.checkNotNull(id, 'id');
-    ArgumentError.checkNotNull(type, 'type');
+    DocumentException.throwIfNull(id, 'Identifier `id` must not be null');
+    DocumentException.throwIfNull(type, 'Identifier `type` must not be null');
   }
 
   static Identifier of(Resource resource) =>
