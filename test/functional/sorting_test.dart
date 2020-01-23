@@ -21,8 +21,8 @@ void main() async {
 
   setUp(() async {
     client = UriAwareClient(design);
-    final handler =
-        RequestHandler(ShelfRequestResponseConverter(), SortingController(), design);
+    final handler = RequestHandler(
+        ShelfRequestResponseConverter(), SortingController(), design);
 
     server = await serve(handler, host, port);
   });

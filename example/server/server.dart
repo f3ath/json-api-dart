@@ -14,6 +14,7 @@ void main() async {
   final host = 'localhost';
   final port = 8080;
   final baseUri = Uri(scheme: 'http', host: host, port: port);
+
   /// You may also try PaginatingController
   final controller = CRUDController(Uuid().v4, (_) => true);
   final jsonApiHandler = RequestHandler(
