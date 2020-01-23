@@ -44,7 +44,7 @@ void main() {
       expect(error.status, '400');
       expect(error.title, 'Bad request');
       expect(error.detail,
-          'A JSON:API resource document must be a JSON object and contain the `data` member');
+          "A JSON:API resource document must be a JSON object and contain the 'data' member");
     });
 
     test('returns `bad request` when payload violates JSON:API', () async {
@@ -55,7 +55,7 @@ void main() {
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
       expect(error.status, '400');
       expect(error.title, 'Bad request');
-      expect(error.detail, 'Resource `type` must not be null');
+      expect(error.detail, "Resource 'type' must not be null");
     });
   });
 }
