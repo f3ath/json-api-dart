@@ -38,7 +38,7 @@ class RequestHandler<Request, Response> {
         JsonApiError(
             status: '400',
             title: 'Bad request',
-            detail: 'Invalid JSON. ${e.message} at offset ${e.offset}')
+            detail: 'Invalid JSON. ${e.message}')
       ]);
     } on DocumentException catch (e) {
       jsonApiResponse = JsonApiResponse.badRequest([

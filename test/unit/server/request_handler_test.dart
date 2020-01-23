@@ -31,7 +31,7 @@ void main() {
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
       expect(error.status, '400');
       expect(error.title, 'Bad request');
-      expect(error.detail, 'Invalid JSON. Unexpected character at offset 7');
+      expect(error.detail, startsWith('Invalid JSON. '));
     });
 
     test('returns `bad request` when payload is not a valid JSON:API object',
