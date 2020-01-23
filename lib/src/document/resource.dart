@@ -34,7 +34,7 @@ class Resource {
       : attributes = Map.unmodifiable(attributes ?? {}),
         toOne = Map.unmodifiable(toOne ?? {}),
         toMany = Map.unmodifiable(toMany ?? {}) {
-    DocumentException.throwIfNull(type, 'Resource `type` must not be null');
+    DocumentException.throwIfNull(type, "Resource 'type' must not be null");
   }
 
   /// Resource type and id combined

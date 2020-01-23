@@ -27,7 +27,7 @@ class ResourceData extends PrimaryData {
           included: resources.isNotEmpty ? resources : null);
     }
     throw DocumentException(
-        'A JSON:API resource document must be a JSON object and contain the `data` member');
+        "A JSON:API resource document must be a JSON object and contain the 'data' member");
   }
 
   @override

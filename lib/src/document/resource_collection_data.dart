@@ -26,7 +26,7 @@ class ResourceCollectionData extends PrimaryData {
       }
     }
     throw DocumentException(
-        'A JSON:API resource collection document must be a JSON object with a JSON array in the `data` member');
+        "A JSON:API resource collection document must be a JSON object with a JSON array in the 'data' member");
   }
 
   /// The link to the last page. May be null.

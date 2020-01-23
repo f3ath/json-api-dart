@@ -17,7 +17,7 @@ class Api {
     if (json is Map) {
       return Api(version: json['version'], meta: json['meta']);
     }
-    throw DocumentException('The `$memberName` member must be a JSON object');
+    throw DocumentException("The '$memberName' member must be a JSON object");
   }
 
   Map<String, Object> toJson() => {

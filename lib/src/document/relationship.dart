@@ -47,7 +47,7 @@ class Relationship extends PrimaryData {
       return json
           .map((k, v) => MapEntry(k.toString(), Relationship.fromJson(v)));
     }
-    throw DocumentException('The `relationships` member must be a JSON object');
+    throw DocumentException("The 'relationships' member must be a JSON object");
   }
 
   /// Top-level JSON object
@@ -85,7 +85,7 @@ class ToOne extends Relationship {
               included is List ? ResourceObject.fromJsonList(included) : null);
     }
     throw DocumentException(
-        'A to-one relationship must be a JSON object and contain the `data` member');
+        "A to-one relationship must be a JSON object and contain the 'data' member");
   }
 
   @override
@@ -129,7 +129,7 @@ class ToMany extends Relationship {
       }
     }
     throw DocumentException(
-        'A to-many relationship must be a JSON object and contain the `data` member');
+        "A to-many relationship must be a JSON object and contain the 'data' member");
   }
 
   @override

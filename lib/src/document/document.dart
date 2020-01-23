@@ -35,7 +35,7 @@ class Document<Data extends PrimaryData> {
       : data = null,
         meta = (meta == null) ? null : Map.unmodifiable(meta),
         errors = null {
-    DocumentException.throwIfNull(meta, 'The `meta` member must not be null');
+    DocumentException.throwIfNull(meta, "The 'meta' member must not be null");
   }
 
   /// Reconstructs a document with the specified primary data

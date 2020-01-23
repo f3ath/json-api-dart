@@ -15,8 +15,8 @@ class Identifier {
 
   /// Neither [type] nor [id] can be null or empty.
   Identifier(this.type, this.id) {
-    DocumentException.throwIfNull(id, 'Identifier `id` must not be null');
-    DocumentException.throwIfNull(type, 'Identifier `type` must not be null');
+    DocumentException.throwIfNull(id, "Identifier 'id' must not be null");
+    DocumentException.throwIfNull(type, "Identifier 'type' must not be null");
   }
 
   static Identifier of(Resource resource) =>
