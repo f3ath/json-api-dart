@@ -99,7 +99,30 @@ class CRUDController implements JsonApiController<shelf.Request> {
   FutureOr<JsonApiResponse> fetchCollection(
       shelf.Request request, String type) {
     final repo = _repo(type);
+//    final include = Include.fromUri(request.requestedUri);
+//    final includedResources = <Resource>[];
+
     return JsonApiResponse.collection(repo.values);
+  }
+
+  Iterable<Resource> _getRelated(Resource resource, String relationship) {
+    if (resource.toOne.containsKey(relationship)) {
+      final related = _getResource(resource.toOne[relationship]);
+      if (related != null) {
+        return [related];
+      }
+    }
+    if (resource.toMany.containsKey(relationship)) {
+      return resource.toMany[relationship]
+          .map(_getResource)
+          .skipWhile((_) => _ == null);
+    }
+    return [];
+  }
+
+  Resource _getResource(Identifier id) {
+    if (id == null) return null;
+    return _repo(id.type)[id];
   }
 
   @override
@@ -145,11 +168,11 @@ class CRUDController implements JsonApiController<shelf.Request> {
   FutureOr<JsonApiResponse> updateResource(
       shelf.Request request, String type, String id, Resource resource) {
     final current = _repo(type)[id];
-    if (resource.hasAllMembersOf(current)) {
-      _repo(type)[id] = resource;
-      return JsonApiResponse.noContent();
-    }
-    _repo(type)[id] = resource.withExtraMembersFrom(current);
+//    if (resource.hasAllMembersOf(current)) {
+//      _repo(type)[id] = resource;
+//      return JsonApiResponse.noContent();
+//    }
+//    _repo(type)[id] = resource.withExtraMembersFrom(current);
     return JsonApiResponse.resourceUpdated(_repo(type)[id]);
   }
 

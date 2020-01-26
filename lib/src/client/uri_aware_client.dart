@@ -7,13 +7,16 @@ import 'package:json_api/uri_design.dart';
 /// This wrapper reduces the boilerplate code but is not as flexible
 /// as [JsonApiClient].
 class UriAwareClient {
-  /// Creates a new resource. The resource will be added to a collection
-  /// according to its type.
+  /// Creates a new resource.
+  ///
+  /// If [collection] is specified, the resource will be added to that collection,
+  /// otherwise its type will be used to reference the target collection.
   ///
   /// https://jsonapi.org/format/#crud-creating
   Future<JsonApiResponse<ResourceData>> createResource(Resource resource,
-          {Map<String, String> headers}) =>
-      _client.createResource(_uriFactory.collectionUri(resource.type), resource,
+          {String collection, Map<String, String> headers}) =>
+      _client.createResource(
+          _uriFactory.collectionUri(collection ?? resource.type), resource,
           headers: headers);
 
   /// Fetches a single resource
@@ -120,13 +123,16 @@ class UriAwareClient {
           _uriFactory.relationshipUri(type, id, relationship), identifiers,
           headers: headers);
 
-  /// Updates the [resource].
+  /// Updates the [resource]. If [collection] and/or [id] is specified, they
+  /// will be used to refer the existing resource to be replaced.
   ///
   /// https://jsonapi.org/format/#crud-updating
   Future<JsonApiResponse<ResourceData>> updateResource(Resource resource,
-          {Map<String, String> headers}) =>
+          {Map<String, String> headers, String collection, String id}) =>
       _client.updateResource(
-          _uriFactory.resourceUri(resource.type, resource.id), resource,
+          _uriFactory.resourceUri(
+              collection ?? resource.type, id ?? resource.id),
+          resource,
           headers: headers);
 
   /// Adds the given set of [identifiers] to a to-many relationship.

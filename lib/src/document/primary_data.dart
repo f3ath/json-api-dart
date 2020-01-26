@@ -9,7 +9,7 @@ import 'package:json_api/src/document/resource_object.dart';
 abstract class PrimaryData {
   /// In a Compound document this member contains the included resources.
   /// May be empty or null.
-  final List<ResourceObject> included;
+  final Iterable<ResourceObject> included;
 
   /// The top-level `links` object. May be empty or null.
   final Map<String, Link> links;

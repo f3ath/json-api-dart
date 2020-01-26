@@ -7,8 +7,8 @@ import 'package:json_api/uri_design.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:test/test.dart';
 
-import '../../example/server/controller/paginating_controller.dart';
-import '../../example/server/shelf_request_response_converter.dart';
+import '../../../example/server/controller/paginating_controller.dart';
+import '../../../example/server/shelf_request_response_converter.dart';
 
 /// Pagination
 void main() async {

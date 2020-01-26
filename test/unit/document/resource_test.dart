@@ -12,11 +12,6 @@ void main() {
     expect(id.id, '123');
   });
 
-  test('Has key', () {
-    expect(Resource('apples', '123').key, 'apples:123');
-    expect(Resource('apples', null).key, 'apples:null');
-  });
-
   test('toString', () {
     expect(Resource('appless', '42', attributes: {'color': 'red'}).toString(),
         'Resource(appless:42 {color: red})');

@@ -13,7 +13,7 @@ class Document<Data extends PrimaryData> {
   final Api api;
 
   /// List of errors. May be null.
-  final List<JsonApiError> errors;
+  final Iterable<JsonApiError> errors;
 
   /// Meta data. May be empty or null.
   final Map<String, Object> meta;

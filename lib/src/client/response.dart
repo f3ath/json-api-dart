@@ -5,11 +5,11 @@ import 'package:json_api/src/nullable.dart';
 
 /// A response returned by JSON:API client
 class JsonApiResponse<Data extends PrimaryData> {
-  const JsonApiResponse(this.status, this.headers,
+  const JsonApiResponse(this.statusCode, this.headers,
       {this.document, this.asyncDocument});
 
   /// HTTP status code
-  final int status;
+  final int statusCode;
 
   /// Document parsed from the response body.
   /// May be null.
@@ -24,16 +24,20 @@ class JsonApiResponse<Data extends PrimaryData> {
 
   /// Primary Data from the document (if any). For unsuccessful operations
   /// this property will be null, the error details may be found in [Document.errors].
-  Data get data => document.data;
+  Data get data => document?.data;
+
+  /// List of errors (if any) returned by the server in case of an unsuccessful
+  /// operation. May be empty. Will be null if the operation was successful.
+  List<JsonApiError> get errors => document?.errors;
 
   /// Primary Data from the async document (if any)
-  ResourceData get asyncData => asyncDocument.data;
+  ResourceData get asyncData => asyncDocument?.data;
 
   /// Was the query successful?
   ///
   /// For pending (202 Accepted) requests both [isSuccessful] and [isFailed]
   /// are always false.
-  bool get isSuccessful => StatusCode(status).isSuccessful;
+  bool get isSuccessful => StatusCode(statusCode).isSuccessful;
 
   /// This property is an equivalent of `202 Accepted` HTTP status.
   /// It indicates that the query is accepted but not finished yet (e.g. queued).
@@ -46,11 +50,11 @@ class JsonApiResponse<Data extends PrimaryData> {
   /// return the created resource.
   ///
   /// See: https://jsonapi.org/recommendations/#asynchronous-processing
-  bool get isAsync => StatusCode(status).isPending;
+  bool get isAsync => StatusCode(statusCode).isPending;
 
   /// Any non 2** status code is considered a failed operation.
   /// For failed requests, [document] is expected to contain [ErrorDocument]
-  bool get isFailed => StatusCode(status).isFailed;
+  bool get isFailed => StatusCode(statusCode).isFailed;
 
   /// The `Location` HTTP header value. For `201 Created` responses this property
   /// contains the location of a newly created resource.

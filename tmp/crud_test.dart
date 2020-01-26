@@ -8,8 +8,8 @@ import 'package:shelf/shelf_io.dart';
 import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../example/server/controller/crud_controller.dart';
-import '../../example/server/shelf_request_response_converter.dart';
+import '../../../example/server/controller/crud_controller.dart';
+import '../../../example/server/shelf_request_response_converter.dart';
 
 /// Basic CRUD operations
 void main() async {
@@ -62,7 +62,7 @@ void main() async {
   group('Fetch', () {
     test('a primary resource', () async {
       final r = await client.fetchResource(book.type, book.id);
-      expect(r.status, 200);
+      expect(r.statusCode, 200);
       expect(r.isSuccessful, isTrue);
       expect(r.data.unwrap().attributes['title'], 'Design Patterns');
       expect(r.data.unwrap().toOne['publisher'].type, publisher.type);
@@ -74,14 +74,14 @@ void main() async {
 
     test('a non-existing primary resource', () async {
       final r = await client.fetchResource('books', '1');
-      expect(r.status, 404);
+      expect(r.statusCode, 404);
       expect(r.isSuccessful, isFalse);
       expect(r.document.errors.first.detail, 'Resource not found');
     });
 
     test('a primary collection', () async {
       final r = await client.fetchCollection('people');
-      expect(r.status, 200);
+      expect(r.statusCode, 200);
       expect(r.isSuccessful, isTrue);
       expect(r.data.unwrap().length, 4);
       expect(r.data.unwrap().first.attributes['firstName'], 'Erich');
@@ -90,7 +90,7 @@ void main() async {
 
     test('a non-existing primary collection', () async {
       final r = await client.fetchCollection('unicorns');
-      expect(r.status, 404);
+      expect(r.statusCode, 404);
       expect(r.isSuccessful, isFalse);
       expect(r.document.errors.first.detail, 'Collection not found');
     });
@@ -98,7 +98,7 @@ void main() async {
     test('a related resource', () async {
       final r =
           await client.fetchRelatedResource(book.type, book.id, 'publisher');
-      expect(r.status, 200);
+      expect(r.statusCode, 200);
       expect(r.isSuccessful, isTrue);
       expect(r.data.unwrap().attributes['name'], 'Addison-Wesley');
     });
@@ -106,7 +106,7 @@ void main() async {
     test('a related collection', () async {
       final r =
           await client.fetchRelatedCollection(book.type, book.id, 'authors');
-      expect(r.status, 200);
+      expect(r.statusCode, 200);
       expect(r.isSuccessful, isTrue);
       expect(r.data.unwrap().length, 4);
       expect(r.data.unwrap().first.attributes['firstName'], 'Erich');
@@ -115,7 +115,7 @@ void main() async {
 
     test('a to-one relationship', () async {
       final r = await client.fetchToOne(book.type, book.id, 'publisher');
-      expect(r.status, 200);
+      expect(r.statusCode, 200);
       expect(r.isSuccessful, isTrue);
       expect(r.data.unwrap().type, publisher.type);
       expect(r.data.unwrap().id, publisher.id);
@@ -123,7 +123,7 @@ void main() async {
 
     test('a generic to-one relationship', () async {
       final r = await client.fetchRelationship(book.type, book.id, 'publisher');
-      expect(r.status, 200);
+      expect(r.statusCode, 200);
       expect(r.isSuccessful, isTrue);
 
       final data = r.data;
@@ -137,7 +137,7 @@ void main() async {
 
     test('a to-many relationship', () async {
       final r = await client.fetchToMany(book.type, book.id, 'authors');
-      expect(r.status, 200);
+      expect(r.statusCode, 200);
       expect(r.isSuccessful, isTrue);
       expect(r.data.unwrap().length, 4);
       expect(r.data.unwrap().first.type, people.first.type);
@@ -146,7 +146,7 @@ void main() async {
 
     test('a generic to-many relationship', () async {
       final r = await client.fetchRelationship(book.type, book.id, 'authors');
-      expect(r.status, 200);
+      expect(r.statusCode, 200);
       expect(r.isSuccessful, isTrue);
       final data = r.data;
       if (data is ToMany) {
@@ -164,7 +164,7 @@ void main() async {
       await client.deleteResource(book.type, book.id);
 
       final r = await client.fetchResource(book.type, book.id);
-      expect(r.status, 404);
+      expect(r.statusCode, 404);
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);
     });
@@ -193,7 +193,7 @@ void main() async {
       final book = Resource('books', null,
           attributes: {'title': 'The Lord of the Rings'});
       final r0 = await client.createResource(book);
-      expect(r0.status, 201);
+      expect(r0.statusCode, 201);
       final r1 = await JsonApiClient().fetchResource(r0.location);
       expect(r1.data.unwrap().attributes, equals(book.attributes));
       expect(r1.data.unwrap().type, equals(book.type));
@@ -205,7 +205,7 @@ void main() async {
       await client.updateResource(book.replace(attributes: {'pageCount': 416}));
 
       final r = await client.fetchResource(book.type, book.id);
-      expect(r.status, 200);
+      expect(r.statusCode, 200);
       expect(r.isSuccessful, isTrue);
       expect(r.data.unwrap().attributes['pageCount'], 416);
     });

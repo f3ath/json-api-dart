@@ -7,8 +7,8 @@ import 'package:json_api/uri_design.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:test/test.dart';
 
-import '../../example/server/controller/sorting_controller.dart';
-import '../../example/server/shelf_request_response_converter.dart';
+import '../../../example/server/controller/sorting_controller.dart';
+import '../../../example/server/shelf_request_response_converter.dart';
 
 /// Sorting
 void main() async {

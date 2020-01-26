@@ -21,4 +21,4 @@ final Map<String, Resource> colors = Map.fromIterable(
       ['aqua', '00ffff'],
     ].map((c) => Resource('colors', Uuid().v4(),
         attributes: {'name': c[0], 'rgb': c[1]})),
-    key: (r) => r.id);
+    key: (r) => r.generateId);

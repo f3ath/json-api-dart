@@ -55,8 +55,8 @@ class ResourceObject {
     throw DocumentException('A JSON:API resource must be a JSON object');
   }
 
-  static List<ResourceObject> fromJsonList(Iterable<Object> json) =>
-      json.map(fromJson).toList();
+  static Iterable<ResourceObject> fromJsonList(Iterable<Object> json) =>
+      json.map(fromJson);
 
   /// Returns the JSON object to be used in the `data` or `included` members
   /// of a JSON:API Document
@@ -74,7 +74,7 @@ class ResourceObject {
   /// recovered and this method will throw a [StateError].
   Resource unwrap() {
     final toOne = <String, Identifier>{};
-    final toMany = <String, List<Identifier>>{};
+    final toMany = <String, Iterable<Identifier>>{};
     final incomplete = <String, Relationship>{};
     (relationships ?? {}).forEach((name, rel) {
       if (rel is ToOne) {
