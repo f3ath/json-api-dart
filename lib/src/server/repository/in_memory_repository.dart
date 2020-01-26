@@ -72,6 +72,22 @@ class InMemoryRepository implements Repository {
     return updated;
   }
 
+  @override
+  FutureOr<void> delete(String type, String id) async {
+    await get(type, id);
+    _collections[type].remove(id);
+    return null;
+  }
+
+  @override
+  FutureOr<Collection<Resource>> getCollection(String collection) {
+    if (_collections.containsKey(collection)) {
+      return Collection(
+          _collections[collection].values, _collections[collection].length);
+    }
+    throw CollectionNotFound("Collection '$collection' does not exist");
+  }
+
   InvalidType _invalidType(Resource resource, String collection) {
     return InvalidType(
         "Type '${resource.type}' does not belong in '$collection'");

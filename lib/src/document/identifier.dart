@@ -34,4 +34,7 @@ class Identifier {
 
   @override
   bool operator ==(other) => equals(other);
+
+  @override
+  int get hashCode => 0;
 }

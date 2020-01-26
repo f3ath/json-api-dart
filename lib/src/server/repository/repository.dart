@@ -29,6 +29,22 @@ abstract class Repository {
   /// If the resource was modified during update, returns the modified resource.
   /// Otherwise returns null.
   FutureOr<Resource> update(String collection, String id, Resource resource);
+
+  /// Deletes the resource identified by [type] and [id]
+  FutureOr<void> delete(String type, String id);
+
+  /// Returns a collection of resources
+  FutureOr<Collection<Resource>> getCollection(String collection);
+}
+
+/// A collection of elements (e.g. resources) returned by the server.
+class Collection<T> {
+  final Iterable<T> elements;
+
+  /// Total count of the elements on the server. May be null.
+  final int total;
+
+  Collection(this.elements, [this.total]);
 }
 
 class CollectionNotFound implements Exception {

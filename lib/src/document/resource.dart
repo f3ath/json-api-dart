@@ -33,7 +33,8 @@ class Resource {
       Map<String, Iterable<Identifier>> toMany})
       : attributes = Map.unmodifiable(attributes ?? {}),
         toOne = Map.unmodifiable(toOne ?? {}),
-        toMany = Map.unmodifiable(toMany ?? {}) {
+        toMany = Map.unmodifiable(
+            (toMany ?? {}).map((k, v) => MapEntry(k, Set.of(v)))) {
     DocumentException.throwIfNull(type, "Resource 'type' must not be null");
   }
 
