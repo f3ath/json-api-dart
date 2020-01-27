@@ -1,15 +1,19 @@
 import 'dart:async';
 
 import 'package:json_api/document.dart';
+import 'package:json_api/query.dart';
 import 'package:json_api/src/server/json_api_controller.dart';
 import 'package:json_api/src/server/json_api_response.dart';
-import 'package:json_api/src/server/repository/repository.dart';
+import 'package:json_api/src/server/repository.dart';
+
+typedef UriReader<R> = FutureOr<Uri> Function(R request);
 
 /// An opinionated implementation of [JsonApiController]
 class RepositoryController<R> implements JsonApiController<R> {
   final Repository _repo;
+  final UriReader<R> _getUri;
 
-  RepositoryController(this._repo);
+  RepositoryController(this._repo, this._getUri);
 
   @override
   FutureOr<JsonApiResponse> addToRelationship(R request, String type, String id,
@@ -62,7 +66,18 @@ class RepositoryController<R> implements JsonApiController<R> {
   FutureOr<JsonApiResponse> fetchCollection(R request, String collection) =>
       _do(() async {
         final c = await _repo.getCollection(collection);
-        return JsonApiResponse.collection(c.elements, total: c.total);
+        final uri = _getUri(request);
+        final include = Include.fromUri(uri);
+
+        final resources = <Resource>[];
+        for (final resource in c.elements) {
+          for (final path in include) {
+            resources.addAll(await _getRelated(resource, path.split('.')));
+          }
+        }
+
+        return JsonApiResponse.collection(c.elements,
+            total: c.total, included: include.isEmpty ? null : resources);
       });
 
   @override
@@ -72,13 +87,12 @@ class RepositoryController<R> implements JsonApiController<R> {
         final resource = await _repo.get(type, id);
         if (resource.toOne.containsKey(relationship)) {
           final identifier = resource.toOne[relationship];
-          return JsonApiResponse.resource(
-              await _repo.get(identifier.type, identifier.id));
+          return JsonApiResponse.resource(await _getByIdentifier(identifier));
         }
         if (resource.toMany.containsKey(relationship)) {
           final related = <Resource>[];
           for (final identifier in resource.toMany[relationship]) {
-            related.add(await _repo.get(identifier.type, identifier.id));
+            related.add(await _getByIdentifier(identifier));
           }
           return JsonApiResponse.collection(related);
         }
@@ -104,8 +118,43 @@ class RepositoryController<R> implements JsonApiController<R> {
   @override
   FutureOr<JsonApiResponse> fetchResource(R request, String type, String id) =>
       _do(() async {
-        return JsonApiResponse.resource(await _repo.get(type, id));
+        final uri = _getUri(request);
+        final include = Include.fromUri(uri);
+        final resource = await _repo.get(type, id);
+        final resources = <Resource>[];
+        for (final path in include) {
+          resources.addAll(await _getRelated(resource, path.split('.')));
+        }
+        return JsonApiResponse.resource(resource,
+            included: include.isEmpty ? null : resources);
       });
+
+  FutureOr<Resource> _getByIdentifier(Identifier identifier) =>
+      _repo.get(identifier.type, identifier.id);
+
+  Future<Iterable<Resource>> _getRelated(
+    Resource resource,
+    Iterable<String> path,
+  ) async {
+    if (path.isEmpty) return [];
+    final resources = <Resource>[];
+    final ids = <Identifier>[];
+
+    if (resource.toOne.containsKey(path.first)) {
+      ids.add(resource.toOne[path.first]);
+    } else if (resource.toMany.containsKey(path.first)) {
+      ids.addAll(resource.toMany[path.first]);
+    }
+    for (final id in ids) {
+      final r = await _getByIdentifier(id);
+      if (path.length > 1) {
+        resources.addAll(await _getRelated(r, path.skip(1)));
+      } else {
+        resources.add(r);
+      }
+    }
+    return resources;
+  }
 
   @override
   FutureOr<JsonApiResponse> replaceToMany(R request, String type, String id,

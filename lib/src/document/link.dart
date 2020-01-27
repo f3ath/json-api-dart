@@ -12,7 +12,12 @@ class Link {
   /// Reconstructs the link from the [json] object
   static Link fromJson(Object json) {
     if (json is String) return Link(Uri.parse(json));
-    if (json is Map) return LinkObject.fromJson(json);
+    if (json is Map) {
+      final href = json['href'];
+      if (href is String) {
+        return LinkObject(Uri.parse(href), meta: json['meta']);
+      }
+    }
     throw DocumentException(
         'A JSON:API link must be a JSON string or a JSON object');
   }
@@ -39,16 +44,6 @@ class LinkObject extends Link {
   final Map<String, Object> meta;
 
   LinkObject(Uri href, {this.meta}) : super(href);
-
-  static LinkObject fromJson(Object json) {
-    if (json is Map) {
-      final href = json['href'];
-      if (href is String) {
-        return LinkObject(Uri.parse(href), meta: json['meta']);
-      }
-    }
-    throw DocumentException('A JSON:API link object must be a JSON object');
-  }
 
   @override
   Object toJson() => {

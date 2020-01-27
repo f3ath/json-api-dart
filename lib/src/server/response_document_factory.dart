@@ -9,7 +9,7 @@ class ResponseDocumentFactory {
   Document makeErrorDocument(Iterable<JsonApiError> errors) =>
       Document.error(errors, api: _api);
 
-  /// A document containing a collection of (primary) resources
+  /// A document containing a collection of resources
   Document<ResourceCollectionData> makeCollectionDocument(
           Uri self, Iterable<Resource> collection,
           {int total, Iterable<Resource> included}) =>
@@ -19,16 +19,7 @@ class ResponseDocumentFactory {
               included: included?.map(_resourceObject)),
           api: _api);
 
-  /// A document containing a collection of related resources
-  Document<ResourceCollectionData> makeRelatedCollectionDocument(
-          Uri self, Iterable<Resource> collection,
-          {int total, Iterable<Resource> included}) =>
-      Document(
-          ResourceCollectionData(collection.map(_resourceObject),
-              links: {'self': Link(self), ..._navigation(self, total)}),
-          api: _api);
-
-  /// A document containing a single (primary) resource
+  /// A document containing a single resource
   Document<ResourceData> makeResourceDocument(Uri self, Resource resource,
           {Iterable<Resource> included}) =>
       Document(
@@ -50,15 +41,6 @@ class ResponseDocumentFactory {
   Document<ResourceData> makeCreatedResourceDocument(Resource resource) =>
       makeResourceDocument(
           _urlFactory.resourceUri(resource.type, resource.id), resource);
-
-  /// A document containing a single related resource
-  Document<ResourceData> makeRelatedResourceDocument(
-          Uri self, Resource resource, {Iterable<Resource> included}) =>
-      Document(
-          ResourceData(nullable(_resourceObject)(resource),
-              links: {'self': Link(self)},
-              included: included?.map(_resourceObject)),
-          api: _api);
 
   /// A document containing a to-many relationship
   Document<ToMany> makeToManyDocument(

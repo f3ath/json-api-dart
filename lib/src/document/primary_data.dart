@@ -9,13 +9,14 @@ import 'package:json_api/src/document/resource_object.dart';
 abstract class PrimaryData {
   /// In a Compound document this member contains the included resources.
   /// May be empty or null.
-  final Iterable<ResourceObject> included;
+  final List<ResourceObject> included;
 
   /// The top-level `links` object. May be empty or null.
   final Map<String, Link> links;
 
   PrimaryData({Iterable<ResourceObject> included, Map<String, Link> links})
-      : included = (included == null) ? null : List.unmodifiable(included),
+      : included =
+            (included == null) ? null : List.unmodifiable(_unique(included)),
         links = (links == null) ? null : Map.unmodifiable(links);
 
   /// The `self` link. May be null.
@@ -23,7 +24,7 @@ abstract class PrimaryData {
 
   /// Documents with included resources are called compound
   /// Details: http://jsonapi.org/format/#document-compound-documents
-  bool get isCompound => included != null && included.isNotEmpty;
+  bool get isCompound => included != null;
 
   /// Top-level JSON object
   Map<String, Object> toJson() => {
@@ -31,3 +32,7 @@ abstract class PrimaryData {
         if (included != null) ...{'included': included}
       };
 }
+
+Iterable<ResourceObject> _unique(Iterable<ResourceObject> included) =>
+    Map<String, ResourceObject>.fromIterable(included,
+        key: (_) => '${_.type}:${_.id}').values;

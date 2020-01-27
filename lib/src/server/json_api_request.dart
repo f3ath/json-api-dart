@@ -13,8 +13,9 @@ abstract class JsonApiRequest {
 
   static JsonApiRequest createResource(String type) => _CreateResource(type);
 
-  static JsonApiRequest invalidRequest(String method) =>
-      _InvalidRequest(method);
+  /// Creates a request which always returns the [response]
+  static JsonApiRequest predefinedResponse(JsonApiResponse response) =>
+      _PredefinedResponse(response);
 
   static JsonApiRequest fetchResource(String type, String id) =>
       _FetchResource(type, id);
@@ -151,17 +152,15 @@ class _FetchResource implements JsonApiRequest {
   _FetchResource(this.type, this.id);
 }
 
-class _InvalidRequest implements JsonApiRequest {
-  final String method;
+class _PredefinedResponse implements JsonApiRequest {
+  final JsonApiResponse response;
 
   @override
   FutureOr<JsonApiResponse> call<R>(
-      JsonApiController<R> controller, Object jsonPayload, R request) {
-    // TODO: implement call
-    return null;
-  }
+          JsonApiController<R> controller, Object jsonPayload, R request) =>
+      response;
 
-  _InvalidRequest(this.method);
+  _PredefinedResponse(this.response);
 }
 
 class _UpdateRelationship implements JsonApiRequest {

@@ -16,15 +16,16 @@ class ResourceData extends PrimaryData {
 
   static ResourceData fromJson(Object json) {
     if (json is Map) {
+      Iterable<ResourceObject> resources;
       final included = json['included'];
-      final resources = <ResourceObject>[];
       if (included is List) {
-        resources.addAll(included.map(ResourceObject.fromJson));
+        resources = included.map(ResourceObject.fromJson);
+      } else if (included != null) {
+        throw DocumentException("The 'included' value must be a JSON array");
       }
       final data = nullable(ResourceObject.fromJson)(json['data']);
       return ResourceData(data,
-          links: Link.mapFromJson(json['links'] ?? {}),
-          included: resources.isNotEmpty ? resources : null);
+          links: Link.mapFromJson(json['links'] ?? {}), included: resources);
     }
     throw DocumentException(
         "A JSON:API resource document must be a JSON object and contain the 'data' member");

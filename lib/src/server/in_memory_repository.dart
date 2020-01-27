@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:json_api/document.dart';
-import 'package:json_api/src/server/repository/repository.dart';
+import 'package:json_api/src/server/repository.dart';
 
 typedef IdGenerator = String Function(String collection);
 typedef TypeAttributionCriteria = bool Function(String collection, String type);
@@ -42,7 +42,7 @@ class InMemoryRepository implements Repository {
   }
 
   @override
-  FutureOr<Resource> get(String collection, String id) {
+  FutureOr<Resource> get(String collection, String id) async {
     if (_collections.containsKey(collection)) {
       final resource = _collections[collection][id];
       if (resource == null) {
@@ -80,7 +80,7 @@ class InMemoryRepository implements Repository {
   }
 
   @override
-  FutureOr<Collection<Resource>> getCollection(String collection) {
+  FutureOr<Collection<Resource>> getCollection(String collection) async {
     if (_collections.containsKey(collection)) {
       return Collection(
           _collections[collection].values, _collections[collection].length);

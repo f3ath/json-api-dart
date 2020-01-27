@@ -4,7 +4,7 @@ import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/server.dart';
-import 'package:json_api/src/server/repository/in_memory_repository.dart';
+import 'package:json_api/src/server/in_memory_repository.dart';
 import 'package:json_api/src/server/repository_controller.dart';
 import 'package:json_api/uri_design.dart';
 import 'package:shelf/shelf_io.dart';
@@ -24,17 +24,19 @@ void main() async {
 
   setUp(() async {
     client = UriAwareClient(design);
+    final repository = InMemoryRepository({
+      'books': {},
+      'people': {},
+      'companies': {},
+      'noServerId': {},
+      'fruits': {},
+      'apples': {}
+    }, generateId: (_) => _ == 'noServerId' ? null : Uuid().v4());
     server = await serve(
         RequestHandler(
             ShelfRequestResponseConverter(),
-            RepositoryController(InMemoryRepository({
-              'books': {},
-              'people': {},
-              'companies': {},
-              'noServerId': {},
-              'fruits': {},
-              'apples': {}
-            }, generateId: (_) => _ == 'noServerId' ? null : Uuid().v4())),
+            RepositoryController(
+                repository, ShelfRequestResponseConverter().getUri),
             design),
         host,
         port);

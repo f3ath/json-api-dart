@@ -21,7 +21,8 @@ class Sort extends QueryParameters with IterableMixin<SortField> {
         super({'sort': fields.join(',')});
 
   static Sort fromUri(Uri uri) =>
-      Sort((uri.queryParameters['sort'] ?? '').split(',').map(SortField.parse));
+      Sort((uri.queryParametersAll['sort']?.expand((_) => _.split(',')) ?? [])
+          .map(SortField.parse));
 
   @override
   Iterator<SortField> get iterator => _fields.iterator;

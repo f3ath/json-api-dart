@@ -17,10 +17,6 @@ abstract class JsonApiResponse {
 
   static JsonApiResponse meta(Map<String, Object> meta) => _Meta(meta);
 
-  static JsonApiResponse relatedCollection(Iterable<Resource> collection,
-          {Iterable<Resource> included, int total}) =>
-      _RelatedCollection(collection, included: included, total: total);
-
   static JsonApiResponse collection(Iterable<Resource> collection,
           {Iterable<Resource> included, int total}) =>
       _Collection(collection, included: included, total: total);
@@ -29,15 +25,8 @@ abstract class JsonApiResponse {
           {Iterable<Resource> included}) =>
       _Resource(resource, included: included);
 
-  static JsonApiResponse relatedResource(Resource resource,
-          {Iterable<Resource> included}) =>
-      _RelatedResource(resource, included: included);
-
   static JsonApiResponse resourceCreated(Resource resource) =>
       _ResourceCreated(resource);
-
-  static JsonApiResponse resourceUpdated(Resource resource) =>
-      _ResourceUpdated(resource);
 
   static JsonApiResponse seeOther(String type, String id) =>
       _SeeOther(type, id);
@@ -63,8 +52,10 @@ abstract class JsonApiResponse {
   static JsonApiResponse notFound(Iterable<JsonApiError> errors) =>
       _Error(404, errors);
 
-  static JsonApiResponse methodNotAllowed(Iterable<JsonApiError> errors) =>
-      _Error(405, errors);
+  /// The allowed methods can be specified in [allow]
+  static JsonApiResponse methodNotAllowed(Iterable<JsonApiError> errors,
+          {Iterable<String> allow}) =>
+      _Error(405, errors, headers: {'Allow': allow.join(', ')});
 
   static JsonApiResponse conflict(Iterable<JsonApiError> errors) =>
       _Error(409, errors);
@@ -123,8 +114,10 @@ class _Accepted extends JsonApiResponse {
 
 class _Error extends JsonApiResponse {
   final Iterable<JsonApiError> errors;
+  final Map<String, String> headers;
 
-  const _Error(int status, this.errors) : super(status);
+  const _Error(int status, this.errors, {this.headers = const {}})
+      : super(status);
 
   @override
   Document buildDocument(ResponseDocumentFactory builder, Uri self) =>
@@ -132,7 +125,7 @@ class _Error extends JsonApiResponse {
 
   @override
   Map<String, String> buildHeaders(UriDesign design) =>
-      {'Content-Type': Document.contentType};
+      {...headers, 'Content-Type': Document.contentType};
 }
 
 class _Meta extends JsonApiResponse {
@@ -149,34 +142,16 @@ class _Meta extends JsonApiResponse {
       {'Content-Type': Document.contentType};
 }
 
-class _RelatedCollection extends JsonApiResponse {
-  final Iterable<Resource> collection;
-  final Iterable<Resource> included;
-  final int total;
-
-  const _RelatedCollection(this.collection, {this.included, this.total})
-      : super(200);
-
-  @override
-  Document<ResourceCollectionData> buildDocument(
-          ResponseDocumentFactory builder, Uri self) =>
-      builder.makeRelatedCollectionDocument(self, collection, total: total);
-
-  @override
-  Map<String, String> buildHeaders(UriDesign design) =>
-      {'Content-Type': Document.contentType};
-}
-
-class _RelatedResource extends JsonApiResponse {
+class _Resource extends JsonApiResponse {
   final Resource resource;
   final Iterable<Resource> included;
 
-  const _RelatedResource(this.resource, {this.included}) : super(200);
+  const _Resource(this.resource, {this.included}) : super(200);
 
   @override
   Document<ResourceData> buildDocument(
           ResponseDocumentFactory builder, Uri self) =>
-      builder.makeRelatedResourceDocument(self, resource);
+      builder.makeResourceDocument(self, resource, included: included);
 
   @override
   Map<String, String> buildHeaders(UriDesign design) =>
@@ -200,37 +175,6 @@ class _ResourceCreated extends JsonApiResponse {
         'Content-Type': Document.contentType,
         'Location': design.resourceUri(resource.type, resource.id).toString()
       };
-}
-
-class _Resource extends JsonApiResponse {
-  final Resource resource;
-  final Iterable<Resource> included;
-
-  const _Resource(this.resource, {this.included}) : super(200);
-
-  @override
-  Document<ResourceData> buildDocument(
-          ResponseDocumentFactory builder, Uri self) =>
-      builder.makeResourceDocument(self, resource, included: included);
-
-  @override
-  Map<String, String> buildHeaders(UriDesign design) =>
-      {'Content-Type': Document.contentType};
-}
-
-class _ResourceUpdated extends JsonApiResponse {
-  final Resource resource;
-
-  _ResourceUpdated(this.resource) : super(200);
-
-  @override
-  Document<ResourceData> buildDocument(
-          ResponseDocumentFactory builder, Uri self) =>
-      builder.makeResourceDocument(self, resource);
-
-  @override
-  Map<String, String> buildHeaders(UriDesign design) =>
-      {'Content-Type': Document.contentType};
 }
 
 class _SeeOther extends JsonApiResponse {
