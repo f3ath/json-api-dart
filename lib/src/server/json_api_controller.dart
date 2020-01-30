@@ -1,7 +1,10 @@
 import 'dart:async';
 
-import 'package:json_api/document.dart';
+import 'package:json_api/http.dart';
+import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/json_api_response.dart';
+import 'package:json_api/uri_design.dart';
 
 /// The Controller consolidates all possible requests a JSON:API server
 /// may handle. The controller is agnostic to the request, therefore it is
@@ -9,20 +12,22 @@ import 'package:json_api/src/server/json_api_response.dart';
 /// [JsonApiResponse] object or a [Future] of it.
 ///
 /// The response may either be a successful or an error.
-abstract class JsonApiController<R> {
-  /// Finds an returns a primary  resource collection of the given [type].
+abstract class JsonApiController {
+  /// Finds an returns a primary resource collection.
   /// Use [JsonApiResponse.collection] to return a successful response.
   /// Use [JsonApiResponse.notFound] if the collection does not exist.
   ///
   /// See https://jsonapi.org/format/#fetching-resources
-  FutureOr<JsonApiResponse> fetchCollection(R request, String type);
+  FutureOr<JsonApiResponse> fetchCollection(
+      HttpRequest request, CollectionTarget target);
 
-  /// Finds an returns a primary resource of the given [type] and [id].
+  /// Finds an returns a primary resource.
   /// Use [JsonApiResponse.resource] to return a successful response.
   /// Use [JsonApiResponse.notFound] if the resource does not exist.
   ///
   /// See https://jsonapi.org/format/#fetching-resources
-  FutureOr<JsonApiResponse> fetchResource(R request, String type, String id);
+  FutureOr<JsonApiResponse> fetchResource(
+      HttpRequest request, ResourceTarget target);
 
   /// Finds an returns a related resource or a collection of related resources.
   /// Use [JsonApiResponse.relatedResource] or [JsonApiResponse.relatedCollection] to return a successful response.
@@ -30,24 +35,25 @@ abstract class JsonApiController<R> {
   ///
   /// See https://jsonapi.org/format/#fetching-resources
   FutureOr<JsonApiResponse> fetchRelated(
-      R request, String type, String id, String relationship);
+      HttpRequest request, RelatedTarget target);
 
-  /// Finds an returns a relationship of a primary resource identified by [type] and [id].
+  /// Finds an returns a relationship of a primary resource.
   /// Use [JsonApiResponse.toOne] or [JsonApiResponse.toMany] to return a successful response.
   /// Use [JsonApiResponse.notFound] if the resource or the relationship does not exist.
   ///
   /// See https://jsonapi.org/format/#fetching-relationships
   FutureOr<JsonApiResponse> fetchRelationship(
-      R request, String type, String id, String relationship);
+      HttpRequest request, RelationshipTarget target);
 
-  /// Deletes the resource identified by [type] and [id].
+  /// Deletes the resource.
   /// A successful response may be one of [JsonApiResponse.accepted], [JsonApiResponse.noContent], or [JsonApiResponse.resource].
   /// Use [JsonApiResponse.notFound] if the resource does not exist.
   ///
   /// See https://jsonapi.org/format/#crud-deleting
-  FutureOr<JsonApiResponse> deleteResource(R request, String type, String id);
+  FutureOr<JsonApiResponse> deleteResource(
+      HttpRequest request, ResourceTarget target);
 
-  /// Creates a new [resource] in the collection of the given [type].
+  /// Creates a new resource in the collection.
   /// A successful response may be one of [JsonApiResponse.accepted], [JsonApiResponse.noContent], or [JsonApiResponse.resource].
   /// Use [JsonApiResponse.notFound] if the collection does not exist.
   /// Use [JsonApiResponse.forbidden] if the server does not support this operation.
@@ -56,41 +62,40 @@ abstract class JsonApiController<R> {
   ///
   /// See https://jsonapi.org/format/#crud-creating
   FutureOr<JsonApiResponse> createResource(
-      R request, String type, Resource resource);
+      HttpRequest request, CollectionTarget target, Resource resource);
 
-  /// Updates the resource identified by [type] and [id]. The [resource] argument
-  /// contains the data to update/replace.
+  /// Updates the resource.
   /// A successful response may be one of [JsonApiResponse.accepted], [JsonApiResponse.noContent], or [JsonApiResponse.resource].
   ///
   /// See https://jsonapi.org/format/#crud-updating
   FutureOr<JsonApiResponse> updateResource(
-      R request, String type, String id, Resource resource);
+      HttpRequest request, ResourceTarget target, Resource resource);
 
-  /// Replaces the to-one relationship with the given [identifier].
+  /// Replaces the to-one relationship.
   /// A successful response may be one of [JsonApiResponse.accepted], [JsonApiResponse.noContent], or [JsonApiResponse.toOne].
   ///
   /// See https://jsonapi.org/format/#crud-updating-to-one-relationships
-  FutureOr<JsonApiResponse> replaceToOne(R request, String type, String id,
-      String relationship, Identifier identifier);
+  FutureOr<JsonApiResponse> replaceToOne(
+      HttpRequest request, RelationshipTarget target, Identifier identifier);
 
-  /// Replaces the to-many relationship with the given [identifiers].
+  /// Replaces the to-many relationship.
   /// A successful response may be one of [JsonApiResponse.accepted], [JsonApiResponse.noContent], or [JsonApiResponse.toMany].
   ///
   /// See https://jsonapi.org/format/#crud-updating-to-many-relationships
-  FutureOr<JsonApiResponse> replaceToMany(R request, String type, String id,
-      String relationship, Iterable<Identifier> identifiers);
+  FutureOr<JsonApiResponse> replaceToMany(HttpRequest request,
+      RelationshipTarget target, Iterable<Identifier> identifiers);
 
-  /// Removes the given [identifiers] from the to-many relationship.
+  /// Removes the given identifiers from the to-many relationship.
   /// A successful response may be one of [JsonApiResponse.accepted], [JsonApiResponse.noContent], or [JsonApiResponse.toMany].
   ///
   /// See https://jsonapi.org/format/#crud-updating-to-many-relationships
-  FutureOr<JsonApiResponse> deleteFromRelationship(R request, String type,
-      String id, String relationship, Iterable<Identifier> identifiers);
+  FutureOr<JsonApiResponse> deleteFromRelationship(HttpRequest request,
+      RelationshipTarget target, Iterable<Identifier> identifiers);
 
-  /// Adds the given [identifiers] to  the to-many relationship.
+  /// Adds the given identifiers to  the to-many relationship.
   /// A successful response may be one of [JsonApiResponse.accepted], [JsonApiResponse.noContent], or [JsonApiResponse.toMany].
   ///
   /// See https://jsonapi.org/format/#crud-updating-to-many-relationships
-  FutureOr<JsonApiResponse> addToRelationship(R request, String type, String id,
-      String relationship, Iterable<Identifier> identifiers);
+  FutureOr<JsonApiResponse> addToRelationship(HttpRequest request,
+      RelationshipTarget target, Iterable<Identifier> identifiers);
 }

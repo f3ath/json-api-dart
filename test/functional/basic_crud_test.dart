@@ -1,29 +1,25 @@
-import 'dart:io';
-
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/server.dart';
 import 'package:json_api/src/server/in_memory_repository.dart';
+import 'package:json_api/src/server/json_api_server.dart';
 import 'package:json_api/src/server/repository_controller.dart';
 import 'package:json_api/uri_design.dart';
-import 'package:shelf/shelf_io.dart';
 import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
 
 import '../helper/expect_resources_equal.dart';
-import '../helper/shelf_request_response_converter.dart';
 
 void main() async {
-  HttpServer server;
-  UriAwareClient client;
+  SimpleClient client;
+  JsonApiServer server;
   final host = 'localhost';
-  final port = 8081;
+  final port = 80;
   final base = Uri(scheme: 'http', host: host, port: port);
   final design = UriDesign.standard(base);
 
   setUp(() async {
-    client = UriAwareClient(design);
     final repository = InMemoryRepository({
       'books': {},
       'people': {},
@@ -32,19 +28,8 @@ void main() async {
       'fruits': {},
       'apples': {}
     }, generateId: (_) => _ == 'noServerId' ? null : Uuid().v4());
-    server = await serve(
-        RequestHandler(
-            ShelfRequestResponseConverter(),
-            RepositoryController(
-                repository, ShelfRequestResponseConverter().getUri),
-            design),
-        host,
-        port);
-  });
-
-  tearDown(() async {
-    client.close();
-    await server.close();
+    server = JsonApiServer(design, RepositoryController(repository));
+    client = SimpleClient(design, httpHandler: server);
   });
 
   group('Creating Resources', () {
@@ -60,7 +45,8 @@ void main() async {
       expect(created.type, person.type);
       expect(created.id, isNotNull);
       expect(created.attributes, equals(person.attributes));
-      final r1 = await JsonApiClient().fetchResource(r.location);
+      final r1 =
+          await JsonApiClient(httpClient: server).fetchResource(r.location);
       expect(r1.isSuccessful, isTrue);
       expect(r1.statusCode, 200);
       expectResourcesEqual(r1.data.unwrap(), created);
@@ -134,7 +120,7 @@ void main() async {
     });
 
     test('409 when the resource type does not match collection', () async {
-      final r = await JsonApiClient().createResource(
+      final r = await JsonApiClient(httpClient: server).createResource(
           design.collectionUri('fruits'), Resource('cucumbers', null));
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);

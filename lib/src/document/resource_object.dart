@@ -80,7 +80,7 @@ class ResourceObject {
       if (rel is ToOne) {
         toOne[name] = rel.unwrap();
       } else if (rel is ToMany) {
-        toMany[name] = rel.identifiers;
+        toMany[name] = rel.unwrap();
       } else {
         incomplete[name] = rel;
       }

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
@@ -7,17 +5,15 @@ import 'package:json_api/server.dart';
 import 'package:json_api/src/server/in_memory_repository.dart';
 import 'package:json_api/src/server/repository_controller.dart';
 import 'package:json_api/uri_design.dart';
-import 'package:shelf/shelf_io.dart';
 import 'package:test/test.dart';
 
 import '../helper/expect_resources_equal.dart';
-import '../helper/shelf_request_response_converter.dart';
 
 void main() async {
-  HttpServer server;
-  UriAwareClient client;
+  SimpleClient client;
+  JsonApiServer server;
   final host = 'localhost';
-  final port = 8082;
+  final port = 80;
   final base = Uri(scheme: 'http', host: host, port: port);
   final design = UriDesign.standard(base);
   final wonderland =
@@ -44,7 +40,7 @@ void main() async {
   });
 
   setUp(() async {
-    client = UriAwareClient(design);
+    client = SimpleClient(design);
     final repository = InMemoryRepository({
       'posts': {'1': post},
       'comments': {'1': comment1, '2': comment2},
@@ -52,15 +48,8 @@ void main() async {
       'countries': {'1': wonderland},
       'tags': {}
     });
-    final converter = ShelfRequestResponseConverter();
-    final controller = RepositoryController(repository, converter.getUri);
-    server =
-        await serve(RequestHandler(converter, controller, design), host, port);
-  });
-
-  tearDown(() async {
-    client.close();
-    await server.close();
+    server = JsonApiServer(design, RepositoryController(repository));
+    client = SimpleClient(design, httpHandler: server);
   });
 
   group('Compound document', () {

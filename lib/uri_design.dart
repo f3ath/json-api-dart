@@ -26,23 +26,57 @@ abstract class UriFactory {
 
 /// Determines if a given URI matches a specific target
 abstract class TargetMatcher {
-  /// Matches the target of the [uri]. If the target can be determined,
-  /// the corresponding method of [onTargetMatch] will be called with the target parameters
-  void matchTarget(Uri uri, OnTargetMatch onTargetMatch);
+  /// Returns the target of the [uri] or null.
+  Target matchTarget(Uri uri);
 }
 
-abstract class OnTargetMatch {
-  /// Called when a URI targets a collection.
-  void collection(String type);
+abstract class Target {}
 
-  /// Called when a URI targets a resource.
-  void resource(String type, String id);
+/// The target of a URI referring a resource collection
+class CollectionTarget implements Target {
+  /// Resource type
+  final String type;
 
-  /// Called when a URI targets a related resource or collection.
-  void related(String type, String id, String relationship);
+  const CollectionTarget(this.type);
+}
 
-  /// Called when a URI targets a relationship.
-  void relationship(String type, String id, String relationship);
+/// The target of a URI referring to a single resource
+class ResourceTarget implements Target {
+  /// Resource type
+  final String type;
+
+  /// Resource id
+  final String id;
+
+  const ResourceTarget(this.type, this.id);
+}
+
+/// The target of a URI referring a related resource or collection
+class RelatedTarget implements Target {
+  /// Resource type
+  final String type;
+
+  /// Resource id
+  final String id;
+
+  /// Relationship name
+  final String relationship;
+
+  const RelatedTarget(this.type, this.id, this.relationship);
+}
+
+/// The target of a URI referring a relationship
+class RelationshipTarget implements Target {
+  /// Resource type
+  final String type;
+
+  /// Resource id
+  final String id;
+
+  /// Relationship name
+  final String relationship;
+
+  const RelationshipTarget(this.type, this.id, this.relationship);
 }
 
 class _Standard implements UriDesign {
@@ -69,21 +103,22 @@ class _Standard implements UriDesign {
   Uri resourceUri(String type, String id) => _appendToBase([type, id]);
 
   @override
-  void matchTarget(Uri uri, OnTargetMatch match) {
-    if (!uri.toString().startsWith(_base.toString())) return;
+  Target matchTarget(Uri uri) {
+    if (!uri.toString().startsWith(_base.toString())) return null;
     final s = uri.pathSegments.sublist(_base.pathSegments.length);
     if (s.length == 1) {
-      match.collection(s[0]);
+      return CollectionTarget(s[0]);
     } else if (s.length == 2) {
-      match.resource(s[0], s[1]);
+      return ResourceTarget(s[0], s[1]);
     } else if (s.length == 3) {
-      match.related(s[0], s[1], s[2]);
+      return RelatedTarget(s[0], s[1], s[2]);
     } else if (s.length == 4 && s[2] == _relationships) {
-      match.relationship(s[0], s[1], s[3]);
+      return RelationshipTarget(s[0], s[1], s[3]);
     }
+    return null;
   }
 
-  _Standard(this._base);
+  const _Standard(this._base);
 
   static const _relationships = 'relationships';
 

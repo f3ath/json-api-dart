@@ -2,6 +2,13 @@ import 'package:json_api/src/query/sort.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('emptiness', () {
+    expect(Sort([]).isEmpty, isTrue);
+    expect(Sort([]).isNotEmpty, isFalse);
+    expect(Sort([Desc('created')]).isEmpty, isFalse);
+    expect(Sort([Desc('created')]).isNotEmpty, isTrue);
+  });
+
   test('Can decode url wthout duplicate keys', () {
     final uri = Uri.parse('/articles?sort=-created,title');
     final sort = Sort.fromUri(uri);

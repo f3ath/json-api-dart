@@ -3,9 +3,6 @@ class DocumentException implements Exception {
   /// Human-readable text explaining the issue..
   final String message;
 
-  @override
-  String toString() => message;
-
   DocumentException(this.message);
 
   /// Throws a [DocumentException] with the [message] if [value] is null.

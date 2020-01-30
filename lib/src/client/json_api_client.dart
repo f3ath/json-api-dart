@@ -1,32 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
 import 'package:json_api/document.dart';
+import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
+import 'package:json_api/src/client/dart_http_client.dart';
+import 'package:json_api/src/client/json_api_response.dart';
 import 'package:json_api/src/client/request_document_factory.dart';
-import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/client/status_code.dart';
 
 /// The JSON:API Client.
-///
-/// [JsonApiClient] works on top of Dart's built-in HTTP client.
-/// ```dart
-/// import 'package:http/http.dart';
-/// import 'package:json_api/client.dart';
-///
-/// /// Start `dart example/hybrid_server.dart` first!
-/// void main() async {
-///   final jsonApiClient = JsonApiClient();
-///   final url = Uri.parse('http://localhost:8080/companies');
-///   final response = await jsonApiClient.fetchCollection(url);
-///   jsonApiClient.close(); // Don't forget to close the inner http client
-///   print('The collection page size is ${response.data.collection.length}');
-///   final resource = response.data.unwrap().first;
-///   print('The last element is ${resource}');
-///   resource.attributes.forEach((k, v) => print('Attribute $k is $v'));
-/// }
-/// ```
 class JsonApiClient {
   /// Fetches a resource collection by sending a GET query to the [uri].
   /// Use [headers] to pass extra HTTP headers.
@@ -143,97 +126,77 @@ class JsonApiClient {
       _call(_post(uri, headers, _factory.toManyDocument(identifiers)),
           ToMany.fromJson);
 
-  /// Closes the internal HTTP client. You have to either call this method or
-  /// close the client yourself.
-  ///
-  /// See [httpClient.close]
-  void close() => _http.close();
-
   /// Creates an instance of JSON:API client.
   /// You have to create and pass an instance of the [httpClient] yourself.
   /// Do not forget to call [httpClient.close] when you're done using
   /// the JSON:API client.
   /// The [onHttpCall] hook, if passed, gets called when an http response is
   /// received from the HTTP Client.
-  JsonApiClient(
-      {RequestDocumentFactory builder,
-      OnHttpCall onHttpCall,
-      http.Client httpClient})
+  JsonApiClient({RequestDocumentFactory builder, HttpHandler httpClient})
       : _factory = builder ?? RequestDocumentFactory(api: Api(version: '1.0')),
-        _http = httpClient ?? http.Client(),
-        _onHttpCall = onHttpCall ?? _doNothing;
+        _http = httpClient ?? DartHttpClient();
 
-  final http.Client _http;
-  final OnHttpCall _onHttpCall;
+  final HttpHandler _http;
   final RequestDocumentFactory _factory;
 
-  http.Request _get(Uri uri, Map<String, String> headers,
+  HttpRequest _get(Uri uri, Map<String, String> headers,
           QueryParameters queryParameters) =>
-      http.Request(
-          'GET', (queryParameters ?? QueryParameters({})).addToUri(uri))
-        ..headers.addAll({
-          ...headers ?? {},
-          'Accept': Document.contentType,
-        });
+      HttpRequest('GET', (queryParameters ?? QueryParameters({})).addToUri(uri),
+          headers: {
+            ...headers ?? {},
+            'Accept': Document.contentType,
+          });
 
-  http.Request _post(Uri uri, Map<String, String> headers, Document doc) =>
-      http.Request('POST', uri)
-        ..headers.addAll({
-          ...headers ?? {},
-          'Accept': Document.contentType,
-          'Content-Type': Document.contentType,
-        })
-        ..body = json.encode(doc);
+  HttpRequest _post(Uri uri, Map<String, String> headers, Document doc) =>
+      HttpRequest('POST', uri,
+          headers: {
+            ...headers ?? {},
+            'Accept': Document.contentType,
+            'Content-Type': Document.contentType,
+          },
+          body: jsonEncode(doc));
 
-  http.Request _delete(Uri uri, Map<String, String> headers) =>
-      http.Request('DELETE', uri)
-        ..headers.addAll({
-          ...headers ?? {},
-          'Accept': Document.contentType,
-        });
+  HttpRequest _delete(Uri uri, Map<String, String> headers) =>
+      HttpRequest('DELETE', uri, headers: {
+        ...headers ?? {},
+        'Accept': Document.contentType,
+      });
 
-  http.Request _deleteWithBody(
+  HttpRequest _deleteWithBody(
           Uri uri, Map<String, String> headers, Document doc) =>
-      http.Request('DELETE', uri)
-        ..headers.addAll({
-          ...headers ?? {},
-          'Accept': Document.contentType,
-          'Content-Type': Document.contentType,
-        })
-        ..body = json.encode(doc);
+      HttpRequest('DELETE', uri,
+          headers: {
+            ...headers ?? {},
+            'Accept': Document.contentType,
+            'Content-Type': Document.contentType,
+          },
+          body: jsonEncode(doc));
 
-  http.Request _patch(uri, Map<String, String> headers, Document doc) =>
-      http.Request('PATCH', uri)
-        ..headers.addAll({
-          ...headers ?? {},
-          'Accept': Document.contentType,
-          'Content-Type': Document.contentType,
-        })
-        ..body = json.encode(doc);
+  HttpRequest _patch(uri, Map<String, String> headers, Document doc) =>
+      HttpRequest('PATCH', uri,
+          headers: {
+            ...headers ?? {},
+            'Accept': Document.contentType,
+            'Content-Type': Document.contentType,
+          },
+          body: jsonEncode(doc));
 
   Future<JsonApiResponse<D>> _call<D extends PrimaryData>(
-      http.Request request, D Function(Object _) decodePrimaryData) async {
-    final response = await http.Response.fromStream(await _http.send(request));
-    _onHttpCall(request, response);
-    if (response.body.isEmpty) {
+      HttpRequest request, D Function(Object _) decodePrimaryData) async {
+    final response = await _http(request);
+    final document = response.body.isEmpty ? null : jsonDecode(response.body);
+    if (document == null) {
       return JsonApiResponse(response.statusCode, response.headers);
     }
-    final body = json.decode(response.body);
     if (StatusCode(response.statusCode).isPending) {
       return JsonApiResponse(response.statusCode, response.headers,
-          asyncDocument: body == null
+          asyncDocument: document == null
               ? null
-              : Document.fromJson(body, ResourceData.fromJson));
+              : Document.fromJson(document, ResourceData.fromJson));
     }
     return JsonApiResponse(response.statusCode, response.headers,
-        document:
-            body == null ? null : Document.fromJson(body, decodePrimaryData));
+        document: document == null
+            ? null
+            : Document.fromJson(document, decodePrimaryData));
   }
 }
-
-/// Defines the hook which gets called when the HTTP response is received from
-/// the HTTP Client.
-typedef OnHttpCall = void Function(
-    http.Request request, http.Response response);
-
-void _doNothing(http.Request request, http.Response response) {}

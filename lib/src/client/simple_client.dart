@@ -1,12 +1,14 @@
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
+import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
+import 'package:json_api/src/client/dart_http_client.dart';
 import 'package:json_api/uri_design.dart';
 
 /// A wrapper over [JsonApiClient] making use of the given UrlFactory.
 /// This wrapper reduces the boilerplate code but is not as flexible
 /// as [JsonApiClient].
-class UriAwareClient {
+class SimpleClient {
   /// Creates a new resource.
   ///
   /// If [collection] is specified, the resource will be added to that collection,
@@ -165,12 +167,10 @@ class UriAwareClient {
           _uriFactory.relationshipUri(type, id, relationship), identifier,
           headers: headers);
 
-  /// Closes the internal client. You have to either call this method or
-  /// close the client yourself.
-  void close() => _client.close();
-
-  UriAwareClient(this._uriFactory, {JsonApiClient jsonApiClient})
-      : _client = jsonApiClient ?? JsonApiClient();
+  SimpleClient(this._uriFactory,
+      {JsonApiClient jsonApiClient, HttpHandler httpHandler})
+      : _client = jsonApiClient ??
+            JsonApiClient(httpClient: httpHandler ?? DartHttpClient());
   final JsonApiClient _client;
   final UriFactory _uriFactory;
 }

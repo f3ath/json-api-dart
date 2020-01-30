@@ -2,6 +2,7 @@ library document;
 
 export 'package:json_api/src/document/api.dart';
 export 'package:json_api/src/document/document.dart';
+export 'package:json_api/src/document/document_exception.dart';
 export 'package:json_api/src/document/identifier.dart';
 export 'package:json_api/src/document/identifier_object.dart';
 export 'package:json_api/src/document/json_api_error.dart';
