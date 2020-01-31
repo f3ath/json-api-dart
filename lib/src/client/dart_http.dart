@@ -2,7 +2,7 @@ import 'package:http/http.dart';
 import 'package:json_api/http.dart';
 
 /// A handler using the Dart's built-in http client
-class DartHttpClient implements HttpHandler {
+class DartHttp implements HttpHandler {
   @override
   Future<HttpResponse> call(HttpRequest request) async {
     final response = await _send(Request(request.method, request.uri)
@@ -12,13 +12,7 @@ class DartHttpClient implements HttpHandler {
         body: response.body, headers: response.headers);
   }
 
-  /// Calls the inner client's `close()`. You have to either call this method
-  /// or close the inner client yourself!
-  ///
-  /// See https://pub.dev/documentation/http/latest/http/Client/close.html
-  void close() => _client.close();
-
-  DartHttpClient([Client client]) : _client = client ?? Client();
+  DartHttp(this._client);
 
   final Client _client;
 

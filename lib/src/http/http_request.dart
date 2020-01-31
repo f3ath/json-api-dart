@@ -14,8 +14,12 @@ class HttpRequest {
   /// Request headers. Unmodifiable. Lowercase keys
   final Map<String, String> headers;
 
+  @override
+  String toString() => 'HttpRequest($method $uri)';
+
   HttpRequest(String method, this.uri,
-      {this.body = '', Map<String, String> headers})
+      {String body, Map<String, String> headers})
       : headers = normalize(headers),
-        method = method.toUpperCase();
+        method = method.toUpperCase(),
+        body = body ?? '';
 }

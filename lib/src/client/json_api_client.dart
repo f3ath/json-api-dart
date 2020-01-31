@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
-import 'package:json_api/src/client/dart_http_client.dart';
 import 'package:json_api/src/client/json_api_response.dart';
 import 'package:json_api/src/client/request_document_factory.dart';
 import 'package:json_api/src/client/status_code.dart';
@@ -127,14 +126,12 @@ class JsonApiClient {
           ToMany.fromJson);
 
   /// Creates an instance of JSON:API client.
-  /// You have to create and pass an instance of the [httpClient] yourself.
-  /// Do not forget to call [httpClient.close] when you're done using
-  /// the JSON:API client.
-  /// The [onHttpCall] hook, if passed, gets called when an http response is
-  /// received from the HTTP Client.
-  JsonApiClient({RequestDocumentFactory builder, HttpHandler httpClient})
-      : _factory = builder ?? RequestDocumentFactory(api: Api(version: '1.0')),
-        _http = httpClient ?? DartHttpClient();
+  /// Pass an instance of DartHttpClient (comes with this package) or
+  /// another instance of [HttpHandler].
+  /// Use a custom [documentFactory] if you want to build the outgoing
+  /// documents in a special way.
+  JsonApiClient(this._http, {RequestDocumentFactory documentFactory})
+      : _factory = documentFactory ?? RequestDocumentFactory();
 
   final HttpHandler _http;
   final RequestDocumentFactory _factory;

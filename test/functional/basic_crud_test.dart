@@ -29,7 +29,7 @@ void main() async {
       'apples': {}
     }, generateId: (_) => _ == 'noServerId' ? null : Uuid().v4());
     server = JsonApiServer(design, RepositoryController(repository));
-    client = SimpleClient(design, httpHandler: server);
+    client = SimpleClient(design, JsonApiClient(server));
   });
 
   group('Creating Resources', () {
@@ -45,8 +45,7 @@ void main() async {
       expect(created.type, person.type);
       expect(created.id, isNotNull);
       expect(created.attributes, equals(person.attributes));
-      final r1 =
-          await JsonApiClient(httpClient: server).fetchResource(r.location);
+      final r1 = await JsonApiClient(server).fetchResource(r.location);
       expect(r1.isSuccessful, isTrue);
       expect(r1.statusCode, 200);
       expectResourcesEqual(r1.data.unwrap(), created);
@@ -120,7 +119,7 @@ void main() async {
     });
 
     test('409 when the resource type does not match collection', () async {
-      final r = await JsonApiClient(httpClient: server).createResource(
+      final r = await JsonApiClient(server).createResource(
           design.collectionUri('fruits'), Resource('cucumbers', null));
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);

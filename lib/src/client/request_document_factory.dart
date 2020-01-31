@@ -17,7 +17,7 @@ class RequestDocumentFactory {
       Document(ToOne(nullable(IdentifierObject.fromIdentifier)(id)), api: _api);
 
   /// Creates an instance of the factory.
-  RequestDocumentFactory({Api api}) : _api = api;
+  RequestDocumentFactory({Api api}) : _api = api ?? Api(version: '1.0');
 
   final Api _api;
 

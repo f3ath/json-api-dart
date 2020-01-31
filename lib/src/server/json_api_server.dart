@@ -10,8 +10,9 @@ class JsonApiServer implements HttpHandler {
   @override
   Future<HttpResponse> call(HttpRequest request) async {
     final response = await _do(request);
+    final document = response.buildDocument(_factory, request.uri);
     return HttpResponse(response.statusCode,
-        body: jsonEncode(response.buildDocument(_factory, request.uri)),
+        body: document == null ? null : jsonEncode(document),
         headers: response.buildHeaders(_uriDesign));
   }
 

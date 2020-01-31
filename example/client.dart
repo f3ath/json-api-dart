@@ -1,19 +1,56 @@
+import 'package:http/http.dart';
 import 'package:json_api/client.dart';
+import 'package:json_api/document.dart';
+import 'package:json_api/http.dart';
+import 'package:json_api/query.dart';
+import 'package:json_api/src/client/dart_http.dart';
 import 'package:json_api/uri_design.dart';
 
 /// This example shows how to use the JSON:API client.
 /// Run the server first!
-void main() {
+void main() async {
   /// Use the same URI design as the server
   final uriDesign = UriDesign.standard(Uri.parse('http://localhost:8080'));
-  /// There are two clients in this library:
-  /// - JsonApiClient, the main implementation, most flexible but a bit verbose
-  /// - SimpleClient, less boilerplate but not as flexible
-  /// The example will show both in parallel
-  final client = JsonApiClient();
-  final simpleClient = SimpleClient(uriDesign);
 
+  /// Create the HTTP client. We're using Dart's native client.
+  /// Do not forget to call [Client.close] when you're done using it.
+  final httpClient = Client();
 
+  /// We'll use a logging handler to how the requests and responses
+  final httpHandler = LoggingHttpHandler(DartHttp(httpClient),
+      onRequest: print, onResponse: print);
 
+  /// The JSON:API client
+  final jsonApiClient = JsonApiClient(httpHandler);
 
+  /// We will use a wrapper over the JSON:API client to reduce boilerplate code.
+  /// This wrapper makes use of the URI design to build query URIs.
+  final client = SimpleClient(uriDesign, jsonApiClient);
+
+  /// Create the first resource
+  await client.createResource(
+      Resource('writers', '1', attributes: {'name': 'Martin Fowler'}));
+
+  /// Create the second resource
+  await client.createResource(Resource('books', '2', attributes: {
+    'title': 'Refactoring'
+  }, toMany: {
+    'authors': [Identifier('writers', '1')]
+  }));
+
+  /// Fetch the book, including its authors
+  final response = await client.fetchResource('books', '2',
+      parameters: Include(['authors']));
+
+  /// Extract the primary resource
+  final book = response.data.unwrap();
+
+  /// Extract the included resource
+  final author = response.data.included.first.unwrap();
+
+  print('Book: $book');
+  print('Author: $author');
+
+  /// Do not forget to always close the HTTP client.
+  httpClient.close();
 }

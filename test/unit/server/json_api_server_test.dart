@@ -11,7 +11,7 @@ void main() {
   final server =
       JsonApiServer(url, RepositoryController(InMemoryRepository({})));
 
-  group('HTTP Handler', () {
+  group('JsonApiServer', () {
     test('returns `bad request` on incomplete relationship', () async {
       final rq = HttpRequest(
           'PATCH', url.relationshipUri('books', '1', 'author'),

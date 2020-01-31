@@ -40,7 +40,6 @@ void main() async {
   });
 
   setUp(() async {
-    client = SimpleClient(design);
     final repository = InMemoryRepository({
       'posts': {'1': post},
       'comments': {'1': comment1, '2': comment2},
@@ -49,7 +48,7 @@ void main() async {
       'tags': {}
     });
     server = JsonApiServer(design, RepositoryController(repository));
-    client = SimpleClient(design, httpHandler: server);
+    client = SimpleClient(design, JsonApiClient(server));
   });
 
   group('Compound document', () {

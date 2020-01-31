@@ -1,8 +1,6 @@
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
-import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
-import 'package:json_api/src/client/dart_http_client.dart';
 import 'package:json_api/uri_design.dart';
 
 /// A wrapper over [JsonApiClient] making use of the given UrlFactory.
@@ -167,10 +165,8 @@ class SimpleClient {
           _uriFactory.relationshipUri(type, id, relationship), identifier,
           headers: headers);
 
-  SimpleClient(this._uriFactory,
-      {JsonApiClient jsonApiClient, HttpHandler httpHandler})
-      : _client = jsonApiClient ??
-            JsonApiClient(httpClient: httpHandler ?? DartHttpClient());
+  SimpleClient(this._uriFactory, this._client);
+
   final JsonApiClient _client;
   final UriFactory _uriFactory;
 }
