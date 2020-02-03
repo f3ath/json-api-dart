@@ -14,9 +14,6 @@ class HttpRequest {
   /// Request headers. Unmodifiable. Lowercase keys
   final Map<String, String> headers;
 
-  @override
-  String toString() => 'HttpRequest($method $uri)';
-
   HttpRequest(String method, this.uri,
       {String body, Map<String, String> headers})
       : headers = normalize(headers),

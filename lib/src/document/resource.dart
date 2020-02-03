@@ -24,20 +24,6 @@ class Resource {
   /// Unmodifiable map of to-many relationships
   final Map<String, Iterable<Identifier>> toMany;
 
-  /// Creates an instance of [Resource].
-  /// The [type] can not be null.
-  /// The [id] may be null for the resources to be created on the server.
-  Resource(this.type, this.id,
-      {Map<String, Object> attributes,
-      Map<String, Identifier> toOne,
-      Map<String, Iterable<Identifier>> toMany})
-      : attributes = Map.unmodifiable(attributes ?? {}),
-        toOne = Map.unmodifiable(toOne ?? {}),
-        toMany = Map.unmodifiable(
-            (toMany ?? {}).map((k, v) => MapEntry(k, Set.of(v)))) {
-    DocumentException.throwIfNull(type, "Resource 'type' must not be null");
-  }
-
   /// Resource type and id combined
   String get key => '$type:$id';
 
@@ -62,4 +48,26 @@ class Resource {
           attributes: attributes ?? this.attributes,
           toOne: toOne ?? this.toOne,
           toMany: toMany ?? this.toMany);
+
+  /// Creates an instance of [Resource].
+  /// The [type] can not be null.
+  /// The [id] may be null for the resources to be created on the server.
+  Resource(this.type, this.id,
+      {Map<String, Object> attributes,
+      Map<String, Identifier> toOne,
+      Map<String, Iterable<Identifier>> toMany})
+      : attributes = Map.unmodifiable(attributes ?? {}),
+        toOne = Map.unmodifiable(toOne ?? {}),
+        toMany = Map.unmodifiable(
+            (toMany ?? {}).map((k, v) => MapEntry(k, Set.of(v)))) {
+    DocumentException.throwIfNull(type, "Resource 'type' must not be null");
+  }
+
+  /// Returns a resource to be created on the server (without the "id")
+  static Resource toCreate(String type,
+          {Map<String, Object> attributes,
+          Map<String, Identifier> toOne,
+          Map<String, Iterable<Identifier>> toMany}) =>
+      Resource(type, null,
+          attributes: attributes, toMany: toMany, toOne: toOne);
 }

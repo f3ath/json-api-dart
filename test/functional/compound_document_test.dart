@@ -51,109 +51,107 @@ void main() async {
     client = SimpleClient(design, JsonApiClient(server));
   });
 
-  group('Compound document', () {
-    group('Single Resouces', () {
-      test('included == null by default', () async {
-        final r = await client.fetchResource('posts', '1');
-        expectResourcesEqual(r.data.unwrap(), post);
-        expect(r.data.included, isNull);
-      });
-
-      test('included == [] when requested but nothing to include', () async {
-        final r = await client.fetchResource('posts', '1',
-            parameters: Include(['tags']));
-        expectResourcesEqual(r.data.unwrap(), post);
-        expect(r.data.included, []);
-      });
-
-      test('can include first-level relatives', () async {
-        final r = await client.fetchResource('posts', '1',
-            parameters: Include(['comments']));
-        expectResourcesEqual(r.data.unwrap(), post);
-        expect(r.data.included.length, 2);
-        expectResourcesEqual(r.data.included[0].unwrap(), comment1);
-        expectResourcesEqual(r.data.included[1].unwrap(), comment2);
-      });
-
-      test('can include second-level relatives', () async {
-        final r = await client.fetchResource('posts', '1',
-            parameters: Include(['comments.author']));
-        expectResourcesEqual(r.data.unwrap(), post);
-        expect(r.data.included.length, 2);
-        expectResourcesEqual(r.data.included.first.unwrap(), bob);
-        expectResourcesEqual(r.data.included.last.unwrap(), alice);
-      });
-
-      test('can include third-level relatives', () async {
-        final r = await client.fetchResource('posts', '1',
-            parameters: Include(['comments.author.birthplace']));
-        expectResourcesEqual(r.data.unwrap(), post);
-        expect(r.data.included.length, 1);
-        expectResourcesEqual(r.data.included.first.unwrap(), wonderland);
-      });
-
-      test('can include first- and second-level relatives', () async {
-        final r = await client.fetchResource('posts', '1',
-            parameters: Include(['comments', 'comments.author']));
-        expectResourcesEqual(r.data.unwrap(), post);
-        expect(r.data.included.length, 4);
-        expectResourcesEqual(r.data.included[0].unwrap(), comment1);
-        expectResourcesEqual(r.data.included[1].unwrap(), comment2);
-        expectResourcesEqual(r.data.included[2].unwrap(), bob);
-        expectResourcesEqual(r.data.included[3].unwrap(), alice);
-      });
+  group('Single Resouces', () {
+    test('included == null by default', () async {
+      final r = await client.fetchResource('posts', '1');
+      expectResourcesEqual(r.data.unwrap(), post);
+      expect(r.data.included, isNull);
     });
 
-    group('Resource Collection', () {
-      test('included == null by default', () async {
-        final r = await client.fetchCollection('posts');
-        expectResourcesEqual(r.data.unwrap().first, post);
-        expect(r.data.included, isNull);
-      });
-
-      test('included == [] when requested but nothing to include', () async {
-        final r = await client.fetchCollection('posts',
-            parameters: Include(['tags']));
-        expectResourcesEqual(r.data.unwrap().first, post);
-        expect(r.data.included, []);
-      });
-
-      test('can include first-level relatives', () async {
-        final r = await client.fetchCollection('posts',
-            parameters: Include(['comments']));
-        expectResourcesEqual(r.data.unwrap().first, post);
-        expect(r.data.included.length, 2);
-        expectResourcesEqual(r.data.included[0].unwrap(), comment1);
-        expectResourcesEqual(r.data.included[1].unwrap(), comment2);
-      });
-
-      test('can include second-level relatives', () async {
-        final r = await client.fetchCollection('posts',
-            parameters: Include(['comments.author']));
-        expectResourcesEqual(r.data.unwrap().first, post);
-        expect(r.data.included.length, 2);
-        expectResourcesEqual(r.data.included.first.unwrap(), bob);
-        expectResourcesEqual(r.data.included.last.unwrap(), alice);
-      });
-
-      test('can include third-level relatives', () async {
-        final r = await client.fetchCollection('posts',
-            parameters: Include(['comments.author.birthplace']));
-        expectResourcesEqual(r.data.unwrap().first, post);
-        expect(r.data.included.length, 1);
-        expectResourcesEqual(r.data.included.first.unwrap(), wonderland);
-      });
-
-      test('can include first- and second-level relatives', () async {
-        final r = await client.fetchCollection('posts',
-            parameters: Include(['comments', 'comments.author']));
-        expectResourcesEqual(r.data.unwrap().first, post);
-        expect(r.data.included.length, 4);
-        expectResourcesEqual(r.data.included[0].unwrap(), comment1);
-        expectResourcesEqual(r.data.included[1].unwrap(), comment2);
-        expectResourcesEqual(r.data.included[2].unwrap(), bob);
-        expectResourcesEqual(r.data.included[3].unwrap(), alice);
-      });
+    test('included == [] when requested but nothing to include', () async {
+      final r = await client.fetchResource('posts', '1',
+          parameters: Include(['tags']));
+      expectResourcesEqual(r.data.unwrap(), post);
+      expect(r.data.included, []);
     });
-  }, testOn: 'vm');
+
+    test('can include first-level relatives', () async {
+      final r = await client.fetchResource('posts', '1',
+          parameters: Include(['comments']));
+      expectResourcesEqual(r.data.unwrap(), post);
+      expect(r.data.included.length, 2);
+      expectResourcesEqual(r.data.included[0].unwrap(), comment1);
+      expectResourcesEqual(r.data.included[1].unwrap(), comment2);
+    });
+
+    test('can include second-level relatives', () async {
+      final r = await client.fetchResource('posts', '1',
+          parameters: Include(['comments.author']));
+      expectResourcesEqual(r.data.unwrap(), post);
+      expect(r.data.included.length, 2);
+      expectResourcesEqual(r.data.included.first.unwrap(), bob);
+      expectResourcesEqual(r.data.included.last.unwrap(), alice);
+    });
+
+    test('can include third-level relatives', () async {
+      final r = await client.fetchResource('posts', '1',
+          parameters: Include(['comments.author.birthplace']));
+      expectResourcesEqual(r.data.unwrap(), post);
+      expect(r.data.included.length, 1);
+      expectResourcesEqual(r.data.included.first.unwrap(), wonderland);
+    });
+
+    test('can include first- and second-level relatives', () async {
+      final r = await client.fetchResource('posts', '1',
+          parameters: Include(['comments', 'comments.author']));
+      expectResourcesEqual(r.data.unwrap(), post);
+      expect(r.data.included.length, 4);
+      expectResourcesEqual(r.data.included[0].unwrap(), comment1);
+      expectResourcesEqual(r.data.included[1].unwrap(), comment2);
+      expectResourcesEqual(r.data.included[2].unwrap(), bob);
+      expectResourcesEqual(r.data.included[3].unwrap(), alice);
+    });
+  });
+
+  group('Resource Collection', () {
+    test('included == null by default', () async {
+      final r = await client.fetchCollection('posts');
+      expectResourcesEqual(r.data.unwrap().first, post);
+      expect(r.data.included, isNull);
+    });
+
+    test('included == [] when requested but nothing to include', () async {
+      final r =
+          await client.fetchCollection('posts', parameters: Include(['tags']));
+      expectResourcesEqual(r.data.unwrap().first, post);
+      expect(r.data.included, []);
+    });
+
+    test('can include first-level relatives', () async {
+      final r = await client.fetchCollection('posts',
+          parameters: Include(['comments']));
+      expectResourcesEqual(r.data.unwrap().first, post);
+      expect(r.data.included.length, 2);
+      expectResourcesEqual(r.data.included[0].unwrap(), comment1);
+      expectResourcesEqual(r.data.included[1].unwrap(), comment2);
+    });
+
+    test('can include second-level relatives', () async {
+      final r = await client.fetchCollection('posts',
+          parameters: Include(['comments.author']));
+      expectResourcesEqual(r.data.unwrap().first, post);
+      expect(r.data.included.length, 2);
+      expectResourcesEqual(r.data.included.first.unwrap(), bob);
+      expectResourcesEqual(r.data.included.last.unwrap(), alice);
+    });
+
+    test('can include third-level relatives', () async {
+      final r = await client.fetchCollection('posts',
+          parameters: Include(['comments.author.birthplace']));
+      expectResourcesEqual(r.data.unwrap().first, post);
+      expect(r.data.included.length, 1);
+      expectResourcesEqual(r.data.included.first.unwrap(), wonderland);
+    });
+
+    test('can include first- and second-level relatives', () async {
+      final r = await client.fetchCollection('posts',
+          parameters: Include(['comments', 'comments.author']));
+      expectResourcesEqual(r.data.unwrap().first, post);
+      expect(r.data.included.length, 4);
+      expectResourcesEqual(r.data.included[0].unwrap(), comment1);
+      expectResourcesEqual(r.data.included[1].unwrap(), comment2);
+      expectResourcesEqual(r.data.included[2].unwrap(), bob);
+      expectResourcesEqual(r.data.included[3].unwrap(), alice);
+    });
+  });
 }

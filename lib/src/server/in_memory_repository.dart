@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:json_api/document.dart';
 import 'package:json_api/src/server/repository.dart';
 
-typedef IdGenerator = String Function(String collection);
+typedef IdGenerator = String Function();
 typedef TypeAttributionCriteria = bool Function(String collection, String type);
 
 final _typeEqualsCollection = ((t, s) => t == s);
 
 class InMemoryRepository implements Repository {
   final Map<String, Map<String, Resource>> _collections;
-  final IdGenerator _generateId;
+  final IdGenerator _nextId;
   final TypeAttributionCriteria _typeBelongs;
 
   @override
@@ -26,10 +26,10 @@ class InMemoryRepository implements Repository {
       await get(relationship.type, relationship.id);
     }
     if (resource.id == null) {
-      final id = _generateId?.call(collection);
-      if (id == null) {
+      if (_nextId == null) {
         throw UnsupportedOperation('Id generation is not supported');
       }
+      final id = _nextId();
       final created = resource.replace(id: id);
       _collections[collection][created.id] = created;
       return created;
@@ -61,6 +61,12 @@ class InMemoryRepository implements Repository {
       throw _invalidType(resource, collection);
     }
     final original = await get(collection, id);
+    if (resource.attributes.isEmpty &&
+        resource.toOne.isEmpty &&
+        resource.toMany.isEmpty &&
+        resource.id == id) {
+      return null;
+    }
     final updated = Resource(
       original.type,
       original.id,
@@ -94,7 +100,7 @@ class InMemoryRepository implements Repository {
   }
 
   InMemoryRepository(this._collections,
-      {TypeAttributionCriteria typeBelongs, IdGenerator generateId})
+      {TypeAttributionCriteria typeBelongs, IdGenerator nextId})
       : _typeBelongs = typeBelongs ?? _typeEqualsCollection,
-        _generateId = generateId;
+        _nextId = nextId;
 }

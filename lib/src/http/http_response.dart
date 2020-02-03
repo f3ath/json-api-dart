@@ -11,9 +11,6 @@ class HttpResponse {
   /// Response headers. Unmodifiable. Lowercase keys
   final Map<String, String> headers;
 
-  @override
-  String toString() => 'HttpResponse($statusCode)';
-
   HttpResponse(this.statusCode, {String body, Map<String, String> headers})
       : headers = normalize(headers),
         body = body ?? '';
