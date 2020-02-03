@@ -10,7 +10,7 @@ import 'package:test/test.dart';
 import 'seed_resources.dart';
 
 void main() async {
-  SimpleClient client;
+  JsonApiClient client;
   JsonApiServer server;
   final host = 'localhost';
   final port = 80;
@@ -21,7 +21,7 @@ void main() async {
     final repository =
         InMemoryRepository({'books': {}, 'people': {}, 'companies': {}});
     server = JsonApiServer(design, RepositoryController(repository));
-    client = SimpleClient(design, JsonApiClient(server));
+    client = JsonApiClient(server, uriFactory: design);
 
     await seedResources(client);
   });

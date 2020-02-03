@@ -6,19 +6,17 @@ import 'package:json_api/src/server/repository.dart';
 typedef IdGenerator = String Function();
 typedef TypeAttributionCriteria = bool Function(String collection, String type);
 
-final _typeEqualsCollection = ((t, s) => t == s);
-
+/// An in-memory implementation of [Repository]
 class InMemoryRepository implements Repository {
   final Map<String, Map<String, Resource>> _collections;
   final IdGenerator _nextId;
-  final TypeAttributionCriteria _typeBelongs;
 
   @override
   FutureOr<Resource> create(String collection, Resource resource) async {
     if (!_collections.containsKey(collection)) {
       throw CollectionNotFound("Collection '$collection' does not exist");
     }
-    if (!_typeBelongs(collection, resource.type)) {
+    if (collection != resource.type) {
       throw _invalidType(resource, collection);
     }
     for (final relationship in resource.toOne.values
@@ -99,8 +97,6 @@ class InMemoryRepository implements Repository {
         "Type '${resource.type}' does not belong in '$collection'");
   }
 
-  InMemoryRepository(this._collections,
-      {TypeAttributionCriteria typeBelongs, IdGenerator nextId})
-      : _typeBelongs = typeBelongs ?? _typeEqualsCollection,
-        _nextId = nextId;
+  InMemoryRepository(this._collections, {IdGenerator nextId})
+      : _nextId = nextId;
 }

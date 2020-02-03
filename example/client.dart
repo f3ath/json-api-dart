@@ -18,14 +18,11 @@ void main() async {
 
   /// We'll use a logging handler to how the requests and responses
   final httpHandler = LoggingHttpHandler(DartHttp(httpClient),
-      onRequest: print, onResponse: print);
+      onRequest: (r) => print('${r.method} ${r.uri}'),
+      onResponse: (r) => print('${r.statusCode}'));
 
   /// The JSON:API client
-  final jsonApiClient = JsonApiClient(httpHandler);
-
-  /// We will use a wrapper over the JSON:API client to reduce boilerplate code.
-  /// This wrapper makes use of the URI design to build query URIs.
-  final client = SimpleClient(uriDesign, jsonApiClient);
+  final client = JsonApiClient(httpHandler, uriFactory: uriDesign);
 
   /// Create the first resource
   await client.createResource(

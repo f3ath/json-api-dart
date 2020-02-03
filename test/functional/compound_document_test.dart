@@ -10,7 +10,7 @@ import 'package:test/test.dart';
 import '../helper/expect_resources_equal.dart';
 
 void main() async {
-  SimpleClient client;
+  JsonApiClient client;
   JsonApiServer server;
   final host = 'localhost';
   final port = 80;
@@ -48,7 +48,7 @@ void main() async {
       'tags': {}
     });
     server = JsonApiServer(design, RepositoryController(repository));
-    client = SimpleClient(design, JsonApiClient(server));
+    client = JsonApiClient(server, uriFactory: design);
   });
 
   group('Single Resouces', () {

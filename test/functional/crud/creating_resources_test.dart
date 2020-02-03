@@ -11,7 +11,7 @@ import 'package:uuid/uuid.dart';
 import '../../helper/expect_resources_equal.dart';
 
 void main() async {
-  SimpleClient client;
+  JsonApiClient client;
   JsonApiServer server;
   final host = 'localhost';
   final port = 80;
@@ -24,7 +24,7 @@ void main() async {
         'people': {},
       }, nextId: Uuid().v4);
       server = JsonApiServer(design, RepositoryController(repository));
-      client = SimpleClient(design, JsonApiClient(server));
+      client = JsonApiClient(server, uriFactory: design);
 
       final person =
           Resource.toCreate('people', attributes: {'name': 'Martin Fowler'});
@@ -36,17 +36,16 @@ void main() async {
       expect(created.type, person.type);
       expect(created.id, isNotNull);
       expect(created.attributes, equals(person.attributes));
-      final r1 = await JsonApiClient(server).fetchResource(r.location);
+      final r1 = await JsonApiClient(server).fetchResourceAt(r.location);
       expect(r1.statusCode, 200);
       expectResourcesEqual(r1.data.unwrap(), created);
     });
 
     test('403 when the id can not be generated', () async {
       final repository = InMemoryRepository({'people': {}});
-      client = SimpleClient(
-          design,
-          JsonApiClient(
-              JsonApiServer(design, RepositoryController(repository))));
+      client = JsonApiClient(
+          JsonApiServer(design, RepositoryController(repository)),
+          uriFactory: design);
 
       final r = await client.createResource(Resource('people', null));
       expect(r.statusCode, 403);
@@ -69,7 +68,7 @@ void main() async {
         'apples': {}
       });
       server = JsonApiServer(design, RepositoryController(repository));
-      client = SimpleClient(design, JsonApiClient(server));
+      client = JsonApiClient(server, uriFactory: design);
     });
     test('204 No Content', () async {
       final person =
@@ -126,7 +125,7 @@ void main() async {
     });
 
     test('409 when the resource type does not match collection', () async {
-      final r = await JsonApiClient(server).createResource(
+      final r = await JsonApiClient(server).createResourceAt(
           design.collectionUri('fruits'), Resource('cucumbers', null));
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);

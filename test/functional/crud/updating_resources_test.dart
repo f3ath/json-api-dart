@@ -11,7 +11,7 @@ import '../../helper/expect_resources_equal.dart';
 import 'seed_resources.dart';
 
 void main() async {
-  SimpleClient client;
+  JsonApiClient client;
   JsonApiServer server;
   final host = 'localhost';
   final port = 80;
@@ -22,7 +22,7 @@ void main() async {
     final repository =
         InMemoryRepository({'books': {}, 'people': {}, 'companies': {}});
     server = JsonApiServer(design, RepositoryController(repository));
-    client = SimpleClient(design, JsonApiClient(server));
+    client = JsonApiClient(server, uriFactory: design);
 
     await seedResources(client);
   });
@@ -61,7 +61,7 @@ void main() async {
   });
 
   test('404 on the target resource', () async {
-    final r = await client.updateResource(Resource('books', '42'), id: '42');
+    final r = await client.updateResource(Resource('books', '42'));
     expect(r.isSuccessful, isFalse);
     expect(r.statusCode, 404);
     expect(r.data, isNull);
@@ -72,8 +72,8 @@ void main() async {
   });
 
   test('409 when the resource type does not match the collection', () async {
-    final r = await client.updateResource(Resource('books', '1'),
-        collection: 'people');
+    final r = await client.updateResourceAt(
+        design.resourceUri('people', '1'), Resource('books', '1'));
     expect(r.isSuccessful, isFalse);
     expect(r.statusCode, 409);
     expect(r.data, isNull);

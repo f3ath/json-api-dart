@@ -7,7 +7,7 @@ import 'package:json_api/uri_design.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final url = UriDesign.standard(Uri.parse('http://exapmle.com'));
+  final url = UriDesign.standard(Uri.parse('http://example.com'));
   final server =
       JsonApiServer(url, RepositoryController(InMemoryRepository({})));
 
@@ -80,7 +80,7 @@ void main() {
       expect(error.detail, 'Allowed methods: GET, POST');
     });
 
-    test('returns `method not allowed` for resource ', () async {
+    test('returns `method not allowed` for resource', () async {
       final rq = HttpRequest('POST', url.resourceUri('books', '1'));
       final rs = await server(rq);
       expect(rs.statusCode, 405);
@@ -91,7 +91,7 @@ void main() {
       expect(error.detail, 'Allowed methods: DELETE, GET, PATCH');
     });
 
-    test('returns `method not allowed` for related ', () async {
+    test('returns `method not allowed` for related', () async {
       final rq = HttpRequest('POST', url.relatedUri('books', '1', 'author'));
       final rs = await server(rq);
       expect(rs.statusCode, 405);
@@ -102,7 +102,7 @@ void main() {
       expect(error.detail, 'Allowed methods: GET');
     });
 
-    test('returns `method not allowed` for relationship ', () async {
+    test('returns `method not allowed` for relationship', () async {
       final rq =
           HttpRequest('PUT', url.relationshipUri('books', '1', 'author'));
       final rs = await server(rq);

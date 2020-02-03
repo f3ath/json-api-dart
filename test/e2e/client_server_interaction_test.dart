@@ -20,13 +20,13 @@ void main() {
     final jsonApiServer = JsonApiServer(design, RepositoryController(repo));
     final serverHandler = DartServerHandler(jsonApiServer);
     Client httpClient;
-    SimpleClient client;
+    JsonApiClient client;
     HttpServer server;
 
     setUp(() async {
       server = await HttpServer.bind(host, port);
       httpClient = Client();
-      client = SimpleClient(design, JsonApiClient(DartHttp(httpClient)));
+      client = JsonApiClient(DartHttp(httpClient), uriFactory: design);
       unawaited(server.forEach(serverHandler));
     });
 

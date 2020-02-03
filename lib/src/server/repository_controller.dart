@@ -12,10 +12,6 @@ typedef UriReader<R> = FutureOr<Uri> Function(R request);
 
 /// An opinionated implementation of [JsonApiController]
 class RepositoryController<R> implements JsonApiController {
-  final Repository _repo;
-
-  RepositoryController(this._repo);
-
   @override
   FutureOr<JsonApiResponse> addToRelationship(HttpRequest request,
           RelationshipTarget target, Iterable<Identifier> identifiers) =>
@@ -136,6 +132,43 @@ class RepositoryController<R> implements JsonApiController {
             included: include.isEmpty ? null : resources);
       });
 
+  @override
+  FutureOr<JsonApiResponse> replaceToMany(HttpRequest request,
+          RelationshipTarget target, Iterable<Identifier> identifiers) =>
+      _do(() async {
+        await _repo.update(
+            target.type,
+            target.id,
+            Resource(target.type, target.id,
+                toMany: {target.relationship: identifiers}));
+        return JsonApiResponse.noContent();
+      });
+
+  @override
+  FutureOr<JsonApiResponse> updateResource(
+          HttpRequest request, ResourceTarget target, Resource resource) =>
+      _do(() async {
+        final modified = await _repo.update(target.type, target.id, resource);
+        if (modified == null) return JsonApiResponse.noContent();
+        return JsonApiResponse.resource(modified);
+      });
+
+  @override
+  FutureOr<JsonApiResponse> replaceToOne(HttpRequest request,
+          RelationshipTarget target, Identifier identifier) =>
+      _do(() async {
+        await _repo.update(
+            target.type,
+            target.id,
+            Resource(target.type, target.id,
+                toOne: {target.relationship: identifier}));
+        return JsonApiResponse.noContent();
+      });
+
+  RepositoryController(this._repo);
+
+  final Repository _repo;
+
   FutureOr<Resource> _getByIdentifier(Identifier identifier) =>
       _repo.get(identifier.type, identifier.id);
 
@@ -162,39 +195,6 @@ class RepositoryController<R> implements JsonApiController {
     }
     return resources;
   }
-
-  @override
-  FutureOr<JsonApiResponse> replaceToMany(HttpRequest request,
-          RelationshipTarget target, Iterable<Identifier> identifiers) =>
-      _do(() async {
-        await _repo.update(
-            target.type,
-            target.id,
-            Resource(target.type, target.id,
-                toMany: {target.relationship: identifiers}));
-        return JsonApiResponse.noContent();
-      });
-
-  @override
-  FutureOr<JsonApiResponse> replaceToOne(HttpRequest request,
-          RelationshipTarget target, Identifier identifier) =>
-      _do(() async {
-        await _repo.update(
-            target.type,
-            target.id,
-            Resource(target.type, target.id,
-                toOne: {target.relationship: identifier}));
-        return JsonApiResponse.noContent();
-      });
-
-  @override
-  FutureOr<JsonApiResponse> updateResource(
-          HttpRequest request, ResourceTarget target, Resource resource) =>
-      _do(() async {
-        final modified = await _repo.update(target.type, target.id, resource);
-        if (modified == null) return JsonApiResponse.noContent();
-        return JsonApiResponse.resource(modified);
-      });
 
   FutureOr<JsonApiResponse> _do(
       FutureOr<JsonApiResponse> Function() action) async {

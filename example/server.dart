@@ -30,8 +30,9 @@ void main() async {
   final jsonApiServer = JsonApiServer(uriDesign, controller);
 
   /// We will be logging the requests and responses to the console
-  final loggingJsonApiServer =
-      LoggingHttpHandler(jsonApiServer, onRequest: print, onResponse: print);
+  final loggingJsonApiServer = LoggingHttpHandler(jsonApiServer,
+      onRequest: (r) => print('${r.method} ${r.uri}'),
+      onResponse: (r) => print('${r.statusCode}'));
 
   /// The handler for the built-in HTTP server
   final serverHandler = DartServerHandler(loggingJsonApiServer);
