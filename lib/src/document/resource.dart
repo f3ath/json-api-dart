@@ -27,27 +27,8 @@ class Resource {
   /// Resource type and id combined
   String get key => '$type:$id';
 
-  Identifier toIdentifier() {
-    if (id == null) {
-      throw StateError('Can not create an Identifier with id==null');
-    }
-    return Identifier(type, id);
-  }
-
   @override
   String toString() => 'Resource($key $attributes)';
-
-  /// Creates a new instance of the resource with replaced properties
-  Resource replace(
-          {String type,
-          String id,
-          Map<String, Object> attributes,
-          Map<String, Identifier> toOne,
-          Map<String, Iterable<Identifier>> toMany}) =>
-      Resource(type ?? this.type, id ?? this.id,
-          attributes: attributes ?? this.attributes,
-          toOne: toOne ?? this.toOne,
-          toMany: toMany ?? this.toMany);
 
   /// Creates an instance of [Resource].
   /// The [type] can not be null.

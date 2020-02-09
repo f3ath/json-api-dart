@@ -61,6 +61,7 @@ void main() async {
       expect(error.title, 'Resource not found');
       expect(error.detail, "Resource '42' does not exist in 'books'");
     });
+
   });
 
   group('Deleting a to-one relationship', () {
@@ -184,6 +185,19 @@ void main() async {
       expect(error.status, '404');
       expect(error.title, 'Resource not found');
       expect(error.detail, "Resource '42' does not exist in 'books'");
+    });
+
+    test('404 when relationship not found', () async {
+      final r = await client.addToRelationship(
+          'books', '1', 'sellers', [Identifier('companies', '3')]);
+      expect(r.isSuccessful, isFalse);
+      expect(r.statusCode, 404);
+      expect(r.data, isNull);
+      final error = r.errors.first;
+      expect(error.status, '404');
+      expect(error.title, 'Relationship not found');
+      expect(error.detail,
+          "There is no to-many relationship 'sellers' in this resource");
     });
   });
 

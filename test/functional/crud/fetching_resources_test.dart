@@ -106,7 +106,7 @@ void main() async {
       expect(r.errors.first.status, '404');
       expect(r.errors.first.title, 'Relationship not found');
       expect(r.errors.first.detail,
-          "Relationship 'owner' does not exist in 'books:1'");
+          "Relationship 'owner' does not exist in this resource");
     });
   });
 
@@ -144,7 +144,7 @@ void main() async {
       expect(r.errors.first.status, '404');
       expect(r.errors.first.title, 'Relationship not found');
       expect(r.errors.first.detail,
-          "Relationship 'readers' does not exist in 'books:1'");
+          "Relationship 'readers' does not exist in this resource");
     });
   });
 }

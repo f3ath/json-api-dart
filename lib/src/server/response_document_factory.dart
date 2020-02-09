@@ -40,7 +40,7 @@ class ResponseDocumentFactory {
   /// See https://jsonapi.org/format/#crud-creating-responses-201
   Document<ResourceData> makeCreatedResourceDocument(Resource resource) =>
       makeResourceDocument(
-          _urlFactory.resourceUri(resource.type, resource.id), resource);
+          _urlFactory.resource(resource.type, resource.id), resource);
 
   /// A document containing a to-many relationship
   Document<ToMany> makeToManyDocument(
@@ -54,7 +54,7 @@ class ResponseDocumentFactory {
             identifiers.map(IdentifierObject.fromIdentifier),
             links: {
               'self': Link(self),
-              'related': Link(_urlFactory.relatedUri(type, id, relationship))
+              'related': Link(_urlFactory.related(type, id, relationship))
             },
           ),
           api: _api);
@@ -67,7 +67,7 @@ class ResponseDocumentFactory {
             nullable(IdentifierObject.fromIdentifier)(identifier),
             links: {
               'self': Link(self),
-              'related': Link(_urlFactory.relatedUri(type, id, relationship))
+              'related': Link(_urlFactory.related(type, id, relationship))
             },
           ),
           api: _api);
@@ -91,8 +91,8 @@ class ResponseDocumentFactory {
             ToOne(
               nullable(IdentifierObject.fromIdentifier)(v),
               links: {
-                'self': Link(_urlFactory.relationshipUri(r.type, r.id, k)),
-                'related': Link(_urlFactory.relatedUri(r.type, r.id, k))
+                'self': Link(_urlFactory.relationship(r.type, r.id, k)),
+                'related': Link(_urlFactory.related(r.type, r.id, k))
               },
             ))),
         ...r.toMany.map((k, v) => MapEntry(
@@ -100,12 +100,12 @@ class ResponseDocumentFactory {
             ToMany(
               v.map(IdentifierObject.fromIdentifier),
               links: {
-                'self': Link(_urlFactory.relationshipUri(r.type, r.id, k)),
-                'related': Link(_urlFactory.relatedUri(r.type, r.id, k))
+                'self': Link(_urlFactory.relationship(r.type, r.id, k)),
+                'related': Link(_urlFactory.related(r.type, r.id, k))
               },
             )))
       }, links: {
-        'self': Link(_urlFactory.resourceUri(r.type, r.id))
+        'self': Link(_urlFactory.resource(r.type, r.id))
       });
 
   Map<String, Link> _navigation(Uri uri, int total) {

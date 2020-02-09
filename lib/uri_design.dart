@@ -8,20 +8,20 @@ abstract class UriDesign implements TargetMatcher, UriFactory {
 /// Makes URIs for specific targets
 abstract class UriFactory {
   /// Returns a URL for the primary resource collection of type [type]
-  Uri collectionUri(String type);
+  Uri collection(String type);
 
   /// Returns a URL for the related resource/collection.
   /// The [type] and [id] identify the primary resource and the [relationship]
   /// is the relationship name.
-  Uri relatedUri(String type, String id, String relationship);
+  Uri related(String type, String id, String relationship);
 
   /// Returns a URL for the relationship itself.
   /// The [type] and [id] identify the primary resource and the [relationship]
   /// is the relationship name.
-  Uri relationshipUri(String type, String id, String relationship);
+  Uri relationship(String type, String id, String relationship);
 
   /// Returns a URL for the primary resource of type [type] with id [id]
-  Uri resourceUri(String type, String id);
+  Uri resource(String type, String id);
 }
 
 /// Determines if a given URI matches a specific target
@@ -82,25 +82,25 @@ class RelationshipTarget implements Target {
 class _Standard implements UriDesign {
   /// Returns a URL for the primary resource collection of type [type]
   @override
-  Uri collectionUri(String type) => _appendToBase([type]);
+  Uri collection(String type) => _appendToBase([type]);
 
   /// Returns a URL for the related resource/collection.
   /// The [type] and [id] identify the primary resource and the [relationship]
   /// is the relationship name.
   @override
-  Uri relatedUri(String type, String id, String relationship) =>
+  Uri related(String type, String id, String relationship) =>
       _appendToBase([type, id, relationship]);
 
   /// Returns a URL for the relationship itself.
   /// The [type] and [id] identify the primary resource and the [relationship]
   /// is the relationship name.
   @override
-  Uri relationshipUri(String type, String id, String relationship) =>
+  Uri relationship(String type, String id, String relationship) =>
       _appendToBase([type, id, _relationships, relationship]);
 
   /// Returns a URL for the primary resource of type [type] with id [id]
   @override
-  Uri resourceUri(String type, String id) => _appendToBase([type, id]);
+  Uri resource(String type, String id) => _appendToBase([type, id]);
 
   @override
   Target matchTarget(Uri uri) {

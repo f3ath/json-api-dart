@@ -22,10 +22,6 @@ abstract class PrimaryData {
   /// The `self` link. May be null.
   Link get self => (links ?? {})['self'];
 
-  /// Documents with included resources are called compound
-  /// Details: http://jsonapi.org/format/#document-compound-documents
-  bool get isCompound => included != null;
-
   /// Top-level JSON object
   Map<String, Object> toJson() => {
         if (links != null) ...{'links': links},

@@ -14,7 +14,7 @@ void main() {
   group('JsonApiServer', () {
     test('returns `bad request` on incomplete relationship', () async {
       final rq = HttpRequest(
-          'PATCH', url.relationshipUri('books', '1', 'author'),
+          'PATCH', url.relationship('books', '1', 'author'),
           body: '{}');
       final rs = await server(rq);
       expect(rs.statusCode, 400);
@@ -26,7 +26,7 @@ void main() {
 
     test('returns `bad request` when payload is not a valid JSON', () async {
       final rq =
-          HttpRequest('POST', url.collectionUri('books'), body: '"ololo"abc');
+          HttpRequest('POST', url.collection('books'), body: '"ololo"abc');
       final rs = await server(rq);
       expect(rs.statusCode, 400);
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
@@ -38,7 +38,7 @@ void main() {
     test('returns `bad request` when payload is not a valid JSON:API object',
         () async {
       final rq =
-          HttpRequest('POST', url.collectionUri('books'), body: '"oops"');
+          HttpRequest('POST', url.collection('books'), body: '"oops"');
       final rs = await server(rq);
       expect(rs.statusCode, 400);
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
@@ -50,7 +50,7 @@ void main() {
 
     test('returns `bad request` when payload violates JSON:API', () async {
       final rq =
-          HttpRequest('POST', url.collectionUri('books'), body: '{"data": {}}');
+          HttpRequest('POST', url.collection('books'), body: '{"data": {}}');
       final rs = await server(rq);
       expect(rs.statusCode, 400);
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
@@ -70,7 +70,7 @@ void main() {
     });
 
     test('returns `method not allowed` for resource collection', () async {
-      final rq = HttpRequest('DELETE', url.collectionUri('books'));
+      final rq = HttpRequest('DELETE', url.collection('books'));
       final rs = await server(rq);
       expect(rs.statusCode, 405);
       expect(rs.headers['allow'], 'GET, POST');
@@ -81,7 +81,7 @@ void main() {
     });
 
     test('returns `method not allowed` for resource', () async {
-      final rq = HttpRequest('POST', url.resourceUri('books', '1'));
+      final rq = HttpRequest('POST', url.resource('books', '1'));
       final rs = await server(rq);
       expect(rs.statusCode, 405);
       expect(rs.headers['allow'], 'DELETE, GET, PATCH');
@@ -92,7 +92,7 @@ void main() {
     });
 
     test('returns `method not allowed` for related', () async {
-      final rq = HttpRequest('POST', url.relatedUri('books', '1', 'author'));
+      final rq = HttpRequest('POST', url.related('books', '1', 'author'));
       final rs = await server(rq);
       expect(rs.statusCode, 405);
       expect(rs.headers['allow'], 'GET');
@@ -104,7 +104,7 @@ void main() {
 
     test('returns `method not allowed` for relationship', () async {
       final rq =
-          HttpRequest('PUT', url.relationshipUri('books', '1', 'author'));
+          HttpRequest('PUT', url.relationship('books', '1', 'author'));
       final rs = await server(rq);
       expect(rs.statusCode, 405);
       expect(rs.headers['allow'], 'DELETE, GET, PATCH, POST');

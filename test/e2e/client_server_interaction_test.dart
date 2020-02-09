@@ -35,15 +35,17 @@ void main() {
       await server.close();
     });
 
-    test('can create and fetch resources', () async {
-      await client.createResource(
-          Resource('writers', '1', attributes: {'name': 'Martin Fowler'}));
+    test('Happy Path', () async {
+      final writer =
+          Resource('writers', '1', attributes: {'name': 'Martin Fowler'});
+      final book = Resource('books', '2', attributes: {'title': 'Refactoring'});
 
-      await client.createResource(Resource('books', '2', attributes: {
-        'title': 'Refactoring'
-      }, toMany: {
-        'authors': [Identifier('writers', '1')]
-      }));
+      await client.createResource(writer);
+      await client.createResource(book);
+      await client
+          .updateResource(Resource('books', '2', toMany: {'authors': []}));
+      await client.addToRelationship(
+          'books', '2', 'authors', [Identifier('writers', '1')]);
 
       final response = await client.fetchResource('books', '2',
           parameters: Include(['authors']));

@@ -1,5 +1,3 @@
-import 'package:json_api/src/http/normalize.dart';
-
 /// The request which is sent by the client and received by the server
 class HttpRequest {
   /// Requested URI
@@ -16,7 +14,8 @@ class HttpRequest {
 
   HttpRequest(String method, this.uri,
       {String body, Map<String, String> headers})
-      : headers = normalize(headers),
+      : headers = Map.unmodifiable(
+            (headers ?? {}).map((k, v) => MapEntry(k.toLowerCase(), v))),
         method = method.toUpperCase(),
         body = body ?? '';
 }

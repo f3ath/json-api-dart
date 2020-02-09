@@ -126,7 +126,7 @@ void main() async {
 
     test('409 when the resource type does not match collection', () async {
       final r = await JsonApiClient(server).createResourceAt(
-          design.collectionUri('fruits'), Resource('cucumbers', null));
+          design.collection('fruits'), Resource('cucumbers', null));
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);
       expect(r.statusCode, 409);

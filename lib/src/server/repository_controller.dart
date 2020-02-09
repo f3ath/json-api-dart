@@ -17,6 +17,15 @@ class RepositoryController<R> implements JsonApiController {
           RelationshipTarget target, Iterable<Identifier> identifiers) =>
       _do(() async {
         final original = await _repo.get(target.type, target.id);
+        if (!original.toMany.containsKey(target.relationship)) {
+          return JsonApiResponse.notFound([
+            JsonApiError(
+                status: '404',
+                title: 'Relationship not found',
+                detail:
+                    "There is no to-many relationship '${target.relationship}' in this resource")
+          ]);
+        }
         final updated = await _repo.update(
             target.type,
             target.id,
@@ -97,8 +106,7 @@ class RepositoryController<R> implements JsonApiController {
           }
           return JsonApiResponse.collection(related);
         }
-        return _relationshipNotFound(
-            target.relationship, target.type, target.id);
+        return _relationshipNotFound(target.relationship);
       });
 
   @override
@@ -114,8 +122,7 @@ class RepositoryController<R> implements JsonApiController {
           return JsonApiResponse.toMany(target.type, target.id,
               target.relationship, resource.toMany[target.relationship]);
         }
-        return _relationshipNotFound(
-            target.relationship, target.type, target.id);
+        return _relationshipNotFound(target.relationship);
       });
 
   @override
@@ -228,12 +235,14 @@ class RepositoryController<R> implements JsonApiController {
   }
 
   JsonApiResponse _relationshipNotFound(
-      String relationship, String type, String id) {
+    String relationship,
+  ) {
     return JsonApiResponse.notFound([
       JsonApiError(
           status: '404',
           title: 'Relationship not found',
-          detail: "Relationship '$relationship' does not exist in '$type:$id'")
+          detail:
+              "Relationship '$relationship' does not exist in this resource")
     ]);
   }
 }

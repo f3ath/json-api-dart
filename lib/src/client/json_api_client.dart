@@ -314,15 +314,15 @@ class JsonApiClient {
             : Document.fromJson(document, decodePrimaryData));
   }
 
-  Uri _collection(String type) => _uri.collectionUri(type);
+  Uri _collection(String type) => _uri.collection(type);
 
   Uri _relationship(String type, String id, String relationship) =>
-      _uri.relationshipUri(type, id, relationship);
+      _uri.relationship(type, id, relationship);
 
-  Uri _resource(String type, String id) => _uri.resourceUri(type, id);
+  Uri _resource(String type, String id) => _uri.resource(type, id);
 
   Uri _related(String type, String id, String relationship) =>
-      _uri.relatedUri(type, id, relationship);
+      _uri.related(type, id, relationship);
 }
 
 final _error =
@@ -332,22 +332,22 @@ class _NullUriFactory implements UriFactory {
   const _NullUriFactory();
 
   @override
-  Uri collectionUri(String type) {
+  Uri collection(String type) {
     throw _error;
   }
 
   @override
-  Uri relatedUri(String type, String id, String relationship) {
+  Uri related(String type, String id, String relationship) {
     throw _error;
   }
 
   @override
-  Uri relationshipUri(String type, String id, String relationship) {
+  Uri relationship(String type, String id, String relationship) {
     throw _error;
   }
 
   @override
-  Uri resourceUri(String type, String id) {
+  Uri resource(String type, String id) {
     throw _error;
   }
 }

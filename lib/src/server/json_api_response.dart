@@ -108,7 +108,7 @@ class _Accepted extends JsonApiResponse {
   Map<String, String> buildHeaders(UriDesign design) => {
         'Content-Type': Document.contentType,
         'Content-Location':
-            design.resourceUri(resource.type, resource.id).toString(),
+            design.resource(resource.type, resource.id).toString(),
       };
 }
 
@@ -173,7 +173,7 @@ class _ResourceCreated extends JsonApiResponse {
   @override
   Map<String, String> buildHeaders(UriDesign design) => {
         'Content-Type': Document.contentType,
-        'Location': design.resourceUri(resource.type, resource.id).toString()
+        'Location': design.resource(resource.type, resource.id).toString()
       };
 }
 
@@ -188,7 +188,7 @@ class _SeeOther extends JsonApiResponse {
 
   @override
   Map<String, String> buildHeaders(UriDesign design) =>
-      {'Location': design.resourceUri(type, id).toString()};
+      {'Location': design.resource(type, id).toString()};
 }
 
 class _ToMany extends JsonApiResponse {

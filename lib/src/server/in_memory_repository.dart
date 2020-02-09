@@ -28,7 +28,10 @@ class InMemoryRepository implements Repository {
         throw UnsupportedOperation('Id generation is not supported');
       }
       final id = _nextId();
-      final created = resource.replace(id: id);
+      final created = Resource(resource.type, id ?? resource.id,
+          attributes: resource.attributes,
+          toOne: resource.toOne,
+          toMany: resource.toMany);
       _collections[collection][created.id] = created;
       return created;
     }

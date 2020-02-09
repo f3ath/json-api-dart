@@ -1,5 +1,3 @@
-import 'normalize.dart';
-
 /// The response sent by the server and received by the client
 class HttpResponse {
   /// Response status code
@@ -12,6 +10,7 @@ class HttpResponse {
   final Map<String, String> headers;
 
   HttpResponse(this.statusCode, {String body, Map<String, String> headers})
-      : headers = normalize(headers),
+      : headers = Map.unmodifiable(
+            (headers ?? {}).map((k, v) => MapEntry(k.toLowerCase(), v))),
         body = body ?? '';
 }

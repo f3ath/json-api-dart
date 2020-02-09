@@ -73,7 +73,7 @@ void main() async {
 
   test('409 when the resource type does not match the collection', () async {
     final r = await client.updateResourceAt(
-        design.resourceUri('people', '1'), Resource('books', '1'));
+        design.resource('people', '1'), Resource('books', '1'));
     expect(r.isSuccessful, isFalse);
     expect(r.statusCode, 409);
     expect(r.data, isNull);
