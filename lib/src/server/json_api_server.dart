@@ -11,7 +11,9 @@ class JsonApiServer implements HttpHandler {
   @override
   Future<HttpResponse> call(HttpRequest request) async {
     final response = await _do(request);
-    final document = response.buildDocument(_factory, request.uri);
+    response.buildDocument(_factory, request.uri);
+    final document = _factory.build();
+
     return HttpResponse(response.statusCode,
         body: document == null ? null : jsonEncode(document),
         headers: response.buildHeaders(_routing));
@@ -24,7 +26,7 @@ class JsonApiServer implements HttpHandler {
   final Routing _routing;
   final JsonApiController _controller;
   final ResponseDocumentFactory _factory;
-  
+
   Future<JsonApiResponse> _do(HttpRequest request) async {
     try {
       return await RequestDispatcher(_controller).dispatch(request);
@@ -57,7 +59,7 @@ class RequestDispatcher {
           return _controller.createResource(request, target,
               ResourceData.fromJson(jsonDecode(request.body)).unwrap());
         default:
-          return _allow(['GET', 'POST']);
+          return _methodNotAllowed(['GET', 'POST']);
       }
     } else if (s.length == 2) {
       final target = ResourceTarget(s[0], s[1]);
@@ -70,7 +72,7 @@ class RequestDispatcher {
           return _controller.updateResource(request, target,
               ResourceData.fromJson(jsonDecode(request.body)).unwrap());
         default:
-          return _allow(['DELETE', 'GET', 'PATCH']);
+          return _methodNotAllowed(['DELETE', 'GET', 'PATCH']);
       }
     } else if (s.length == 3) {
       switch (request.method) {
@@ -78,7 +80,7 @@ class RequestDispatcher {
           return _controller.fetchRelated(
               request, RelatedTarget(s[0], s[1], s[2]));
         default:
-          return _allow(['GET']);
+          return _methodNotAllowed(['GET']);
       }
     } else if (s.length == 4 && s[2] == 'relationships') {
       final target = RelationshipTarget(s[0], s[1], s[3]);
@@ -106,7 +108,7 @@ class RequestDispatcher {
           return _controller.addToRelationship(request, target,
               ToMany.fromJson(jsonDecode(request.body)).unwrap());
         default:
-          return _allow(['DELETE', 'GET', 'PATCH', 'POST']);
+          return _methodNotAllowed(['DELETE', 'GET', 'PATCH', 'POST']);
       }
     }
     return JsonApiResponse.notFound([
@@ -121,7 +123,7 @@ class RequestDispatcher {
 
   final JsonApiController _controller;
 
-  JsonApiResponse _allow(Iterable<String> allow) =>
+  JsonApiResponse _methodNotAllowed(Iterable<String> allow) =>
       JsonApiResponse.methodNotAllowed([
         JsonApiError(
             status: '405',

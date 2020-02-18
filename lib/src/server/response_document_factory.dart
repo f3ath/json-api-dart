@@ -1,32 +1,34 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/routing.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/query/page.dart';
 import 'package:json_api/src/server/pagination.dart';
-import 'package:json_api/routing.dart';
 
 class ResponseDocumentFactory {
   /// A document containing a list of errors
-  Document makeErrorDocument(Iterable<JsonApiError> errors) =>
-      Document.error(errors, api: _api);
+  Document makeErrorDocument(Iterable<JsonApiError> errors) {
+    return _document = Document.error(errors, api: _api);
+  }
 
   /// A document containing a collection of resources
-  Document<ResourceCollectionData> makeCollectionDocument(
-          Uri self, Iterable<Resource> collection,
-          {int total, Iterable<Resource> included}) =>
-      Document(
-          ResourceCollectionData(collection.map(_resourceObject),
-              links: {'self': Link(self), ..._navigation(self, total)},
-              included: included?.map(_resourceObject)),
-          api: _api);
+  Document makeCollectionDocument(Uri self, Iterable<Resource> collection,
+      {int total, Iterable<Resource> included}) {
+    return _document = Document(
+        ResourceCollectionData(collection.map(_resourceObject),
+            links: {'self': Link(self), ..._navigation(self, total)},
+            included: included?.map(_resourceObject)),
+        api: _api);
+  }
 
   /// A document containing a single resource
-  Document<ResourceData> makeResourceDocument(Uri self, Resource resource,
-          {Iterable<Resource> included}) =>
-      Document(
-          ResourceData(_resourceObject(resource),
-              links: {'self': Link(self)},
-              included: included?.map(_resourceObject)),
-          api: _api);
+  Document makeResourceDocument(Uri self, Resource resource,
+      {Iterable<Resource> included}) {
+    return _document = Document(
+        ResourceData(_resourceObject(resource),
+            links: {'self': Link(self)},
+            included: included?.map(_resourceObject)),
+        api: _api);
+  }
 
   /// A document containing a single (primary) resource which has been created
   /// on the server. The difference with [makeResourceDocument] is that this
@@ -38,43 +40,47 @@ class ResponseDocumentFactory {
   /// > the self member MUST match the value of the Location header.
   ///
   /// See https://jsonapi.org/format/#crud-creating-responses-201
-  Document<ResourceData> makeCreatedResourceDocument(Resource resource) =>
-      makeResourceDocument(
-          _urlFactory.resource(resource.type, resource.id), resource);
+  Document makeCreatedResourceDocument(Resource resource) {
+    return _document = makeResourceDocument(
+        _urlFactory.resource(resource.type, resource.id), resource);
+  }
 
   /// A document containing a to-many relationship
-  Document<ToMany> makeToManyDocument(
-          Uri self,
-          Iterable<Identifier> identifiers,
-          String type,
-          String id,
-          String relationship) =>
-      Document(
-          ToMany(
-            identifiers.map(IdentifierObject.fromIdentifier),
-            links: {
-              'self': Link(self),
-              'related': Link(_urlFactory.related(type, id, relationship))
-            },
-          ),
-          api: _api);
+  Document makeToManyDocument(Uri self, Iterable<Identifier> identifiers,
+      String type, String id, String relationship) {
+    return _document = Document(
+        ToMany(
+          identifiers.map(IdentifierObject.fromIdentifier),
+          links: {
+            'self': Link(self),
+            'related': Link(_urlFactory.related(type, id, relationship))
+          },
+        ),
+        api: _api);
+  }
 
   /// A document containing a to-one relationship
-  Document<ToOne> makeToOneDocument(Uri self, Identifier identifier,
-          String type, String id, String relationship) =>
-      Document(
-          ToOne(
-            nullable(IdentifierObject.fromIdentifier)(identifier),
-            links: {
-              'self': Link(self),
-              'related': Link(_urlFactory.related(type, id, relationship))
-            },
-          ),
-          api: _api);
+  Document makeToOneDocument(Uri self, Identifier identifier, String type,
+      String id, String relationship) {
+    return _document = Document(
+        ToOne(
+          nullable(IdentifierObject.fromIdentifier)(identifier),
+          links: {
+            'self': Link(self),
+            'related': Link(_urlFactory.related(type, id, relationship))
+          },
+        ),
+        api: _api);
+  }
 
   /// A document containing just a meta member
-  Document makeMetaDocument(Map<String, Object> meta) =>
-      Document.empty(meta, api: _api);
+  Document makeMetaDocument(Map<String, Object> meta) {
+    return _document = Document.empty(meta, api: _api);
+  }
+
+  Document build() {
+    return _document;
+  }
 
   ResponseDocumentFactory(this._urlFactory, {Api api, Pagination pagination})
       : _api = api,
@@ -83,6 +89,7 @@ class ResponseDocumentFactory {
   final Routing _urlFactory;
   final Pagination _pagination;
   final Api _api;
+  Document _document;
 
   ResourceObject _resourceObject(Resource r) =>
       ResourceObject(r.type, r.id, attributes: r.attributes, relationships: {

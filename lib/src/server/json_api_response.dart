@@ -1,13 +1,13 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/src/server/response_document_factory.dart';
 import 'package:json_api/routing.dart';
+import 'package:json_api/src/server/response_document_factory.dart';
 
 abstract class JsonApiResponse {
   final int statusCode;
 
   const JsonApiResponse(this.statusCode);
 
-  Document buildDocument(ResponseDocumentFactory factory, Uri self);
+  void buildDocument(ResponseDocumentFactory factory, Uri self);
 
   Map<String, String> buildHeaders(Routing routing);
 
@@ -68,9 +68,7 @@ class _NoContent extends JsonApiResponse {
   const _NoContent() : super(204);
 
   @override
-  Document<PrimaryData> buildDocument(
-          ResponseDocumentFactory factory, Uri self) =>
-      null;
+  Document buildDocument(ResponseDocumentFactory factory, Uri self) => null;
 
   @override
   Map<String, String> buildHeaders(Routing routing) => {};
@@ -84,8 +82,7 @@ class _Collection extends JsonApiResponse {
   const _Collection(this.collection, {this.included, this.total}) : super(200);
 
   @override
-  Document<ResourceCollectionData> buildDocument(
-          ResponseDocumentFactory builder, Uri self) =>
+  void buildDocument(ResponseDocumentFactory builder, Uri self) =>
       builder.makeCollectionDocument(self, collection,
           included: included, total: total);
 
@@ -100,8 +97,7 @@ class _Accepted extends JsonApiResponse {
   _Accepted(this.resource) : super(202);
 
   @override
-  Document<ResourceData> buildDocument(
-          ResponseDocumentFactory factory, Uri self) =>
+  void buildDocument(ResponseDocumentFactory factory, Uri self) =>
       factory.makeResourceDocument(self, resource);
 
   @override
@@ -120,7 +116,7 @@ class _Error extends JsonApiResponse {
       : super(status);
 
   @override
-  Document buildDocument(ResponseDocumentFactory builder, Uri self) =>
+  void buildDocument(ResponseDocumentFactory builder, Uri self) =>
       builder.makeErrorDocument(errors);
 
   @override
@@ -134,7 +130,7 @@ class _Meta extends JsonApiResponse {
   _Meta(this.meta) : super(200);
 
   @override
-  Document buildDocument(ResponseDocumentFactory builder, Uri self) =>
+  void buildDocument(ResponseDocumentFactory builder, Uri self) =>
       builder.makeMetaDocument(meta);
 
   @override
@@ -149,8 +145,7 @@ class _Resource extends JsonApiResponse {
   const _Resource(this.resource, {this.included}) : super(200);
 
   @override
-  Document<ResourceData> buildDocument(
-          ResponseDocumentFactory builder, Uri self) =>
+  void buildDocument(ResponseDocumentFactory builder, Uri self) =>
       builder.makeResourceDocument(self, resource, included: included);
 
   @override
@@ -166,8 +161,7 @@ class _ResourceCreated extends JsonApiResponse {
   }
 
   @override
-  Document<ResourceData> buildDocument(
-          ResponseDocumentFactory builder, Uri self) =>
+  void buildDocument(ResponseDocumentFactory builder, Uri self) =>
       builder.makeCreatedResourceDocument(resource);
 
   @override
@@ -184,7 +178,7 @@ class _SeeOther extends JsonApiResponse {
   _SeeOther(this.type, this.id) : super(303);
 
   @override
-  Document buildDocument(ResponseDocumentFactory builder, Uri self) => null;
+  void buildDocument(ResponseDocumentFactory builder, Uri self) => null;
 
   @override
   Map<String, String> buildHeaders(Routing routing) =>
@@ -201,7 +195,7 @@ class _ToMany extends JsonApiResponse {
       : super(200);
 
   @override
-  Document<ToMany> buildDocument(ResponseDocumentFactory builder, Uri self) =>
+  void buildDocument(ResponseDocumentFactory builder, Uri self) =>
       builder.makeToManyDocument(self, collection, type, id, relationship);
 
   @override
@@ -219,7 +213,7 @@ class _ToOne extends JsonApiResponse {
       : super(200);
 
   @override
-  Document<ToOne> buildDocument(ResponseDocumentFactory builder, Uri self) =>
+  void buildDocument(ResponseDocumentFactory builder, Uri self) =>
       builder.makeToOneDocument(self, identifier, type, id, relationship);
 
   @override

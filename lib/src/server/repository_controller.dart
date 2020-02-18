@@ -6,7 +6,6 @@ import 'package:json_api/query.dart';
 import 'package:json_api/src/server/json_api_controller.dart';
 import 'package:json_api/src/server/json_api_response.dart';
 import 'package:json_api/src/server/repository.dart';
-import 'package:json_api/routing.dart';
 import 'package:json_api/src/server/target.dart';
 
 typedef UriReader<R> = FutureOr<Uri> Function(R request);
@@ -97,8 +96,8 @@ class RepositoryController<R> implements JsonApiController {
       _do(() async {
         final resource = await _repo.get(target.type, target.id);
         if (resource.toOne.containsKey(target.relationship)) {
-          final identifier = resource.toOne[target.relationship];
-          return JsonApiResponse.resource(await _getByIdentifier(identifier));
+          return JsonApiResponse.resource(
+              await _getByIdentifier(resource.toOne[target.relationship]));
         }
         if (resource.toMany.containsKey(target.relationship)) {
           final related = <Resource>[];

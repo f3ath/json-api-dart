@@ -1,8 +1,5 @@
-
-abstract class Target {}
-
 /// The target of a URI referring a resource collection
-class CollectionTarget implements Target {
+class CollectionTarget {
   /// Resource type
   final String type;
 
@@ -10,7 +7,7 @@ class CollectionTarget implements Target {
 }
 
 /// The target of a URI referring to a single resource
-class ResourceTarget implements Target {
+class ResourceTarget {
   /// Resource type
   final String type;
 
@@ -21,7 +18,7 @@ class ResourceTarget implements Target {
 }
 
 /// The target of a URI referring a related resource or collection
-class RelatedTarget implements Target {
+class RelatedTarget {
   /// Resource type
   final String type;
 
@@ -35,7 +32,7 @@ class RelatedTarget implements Target {
 }
 
 /// The target of a URI referring a relationship
-class RelationshipTarget implements Target {
+class RelationshipTarget {
   /// Resource type
   final String type;
 
