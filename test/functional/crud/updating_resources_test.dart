@@ -4,31 +4,33 @@ import 'package:json_api/server.dart';
 import 'package:json_api/src/server/in_memory_repository.dart';
 import 'package:json_api/src/server/json_api_server.dart';
 import 'package:json_api/src/server/repository_controller.dart';
-import 'package:json_api/uri_design.dart';
+import 'package:json_api/routing.dart';
 import 'package:test/test.dart';
 
 import '../../helper/expect_resources_equal.dart';
 import 'seed_resources.dart';
 
 void main() async {
-  JsonApiClient client;
   JsonApiServer server;
+  JsonApiClient client;
+  RoutingClient routingClient;
   final host = 'localhost';
   final port = 80;
   final base = Uri(scheme: 'http', host: host, port: port);
-  final design = UriDesign.standard(base);
+  final routing = StandardRouting(base);
 
   setUp(() async {
     final repository =
         InMemoryRepository({'books': {}, 'people': {}, 'companies': {}});
-    server = JsonApiServer(design, RepositoryController(repository));
-    client = JsonApiClient(server, uriFactory: design);
+    server = JsonApiServer(routing, RepositoryController(repository));
+    client = JsonApiClient(server);
+    routingClient = RoutingClient(client, routing);
 
-    await seedResources(client);
+    await seedResources(routingClient);
   });
 
   test('200 OK', () async {
-    final r = await client.updateResource(Resource('books', '1', attributes: {
+    final r = await routingClient.updateResource(Resource('books', '1', attributes: {
       'title': 'Refactoring. Improving the Design of Existing Code',
       'pages': 448
     }, toOne: {
@@ -49,19 +51,19 @@ void main() async {
     expect(r.data.unwrap().toMany['reviewers'],
         equals([Identifier('people', '2')]));
 
-    final r1 = await client.fetchResource('books', '1');
+    final r1 = await routingClient.fetchResource('books', '1');
     expectResourcesEqual(r1.data.unwrap(), r.data.unwrap());
   });
 
   test('204 No Content', () async {
-    final r = await client.updateResource(Resource('books', '1'));
+    final r = await routingClient.updateResource(Resource('books', '1'));
     expect(r.isSuccessful, isTrue);
     expect(r.statusCode, 204);
     expect(r.data, isNull);
   });
 
   test('404 on the target resource', () async {
-    final r = await client.updateResource(Resource('books', '42'));
+    final r = await routingClient.updateResource(Resource('books', '42'));
     expect(r.isSuccessful, isFalse);
     expect(r.statusCode, 404);
     expect(r.data, isNull);
@@ -73,7 +75,7 @@ void main() async {
 
   test('409 when the resource type does not match the collection', () async {
     final r = await client.updateResourceAt(
-        design.resource('people', '1'), Resource('books', '1'));
+        routing.resource('people', '1'), Resource('books', '1'));
     expect(r.isSuccessful, isFalse);
     expect(r.statusCode, 409);
     expect(r.data, isNull);

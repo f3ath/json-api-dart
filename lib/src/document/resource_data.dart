@@ -17,6 +17,9 @@ class ResourceData extends PrimaryData {
                 ? null
                 : {...?resourceObject?.links, ...?links});
 
+  static ResourceData fromResource(Resource resource) =>
+      ResourceData(ResourceObject.fromResource(resource));
+
   static ResourceData fromJson(Object json) {
     if (json is Map) {
       Iterable<ResourceObject> resources;

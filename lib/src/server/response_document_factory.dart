@@ -2,7 +2,7 @@ import 'package:json_api/document.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/query/page.dart';
 import 'package:json_api/src/server/pagination.dart';
-import 'package:json_api/uri_design.dart';
+import 'package:json_api/routing.dart';
 
 class ResponseDocumentFactory {
   /// A document containing a list of errors
@@ -80,7 +80,7 @@ class ResponseDocumentFactory {
       : _api = api,
         _pagination = pagination ?? Pagination.none();
 
-  final UriFactory _urlFactory;
+  final Routing _urlFactory;
   final Pagination _pagination;
   final Api _api;
 

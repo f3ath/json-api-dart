@@ -43,12 +43,13 @@ class Resource {
             (toMany ?? {}).map((k, v) => MapEntry(k, Set.of(v)))) {
     DocumentException.throwIfNull(type, "Resource 'type' must not be null");
   }
+}
 
-  /// Returns a resource to be created on the server (without the "id")
-  static Resource toCreate(String type,
-          {Map<String, Object> attributes,
-          Map<String, Identifier> toOne,
-          Map<String, Iterable<Identifier>> toMany}) =>
-      Resource(type, null,
-          attributes: attributes, toMany: toMany, toOne: toOne);
+/// Resource to be created on the server. Does not have the id yet.
+class NewResource extends Resource {
+  NewResource(String type,
+      {Map<String, Object> attributes,
+      Map<String, Identifier> toOne,
+      Map<String, Iterable<Identifier>> toMany})
+      : super(type, null, attributes: attributes, toOne: toOne, toMany: toMany);
 }

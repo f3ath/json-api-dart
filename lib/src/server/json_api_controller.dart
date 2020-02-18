@@ -4,11 +4,10 @@ import 'package:json_api/http.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/json_api_response.dart';
-import 'package:json_api/uri_design.dart';
+import 'package:json_api/src/server/target.dart';
 
 /// The Controller consolidates all possible requests a JSON:API server
-/// may handle. The controller is agnostic to the request, therefore it is
-/// generalized with `<R>`. Each of the methods is expected to return a
+/// may handle. Each of the methods is expected to return a
 /// [JsonApiResponse] object or a [Future] of it.
 ///
 /// The response may either be a successful or an error.

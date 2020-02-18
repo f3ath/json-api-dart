@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:json_api/http.dart';
 import 'package:json_api/server.dart';
-import 'package:json_api/uri_design.dart';
+import 'package:json_api/routing.dart';
 
 /// This example shows how to run a simple JSON:API server using the built-in
 /// HTTP server (dart:io).
@@ -18,7 +18,7 @@ void main() async {
   final base = Uri(host: address, port: port, scheme: 'http');
 
   /// Use the standard URI design
-  final uriDesign = UriDesign.standard(base);
+  final routing = StandardRouting(base);
 
   /// Resource repository supports two kind of entities: writers and books
   final repo = InMemoryRepository({'writers': {}, 'books': {}});
@@ -27,7 +27,7 @@ void main() async {
   final controller = RepositoryController(repo);
 
   /// The JSON:API server uses the given URI design to route requests to the controller
-  final jsonApiServer = JsonApiServer(uriDesign, controller);
+  final jsonApiServer = JsonApiServer(routing, controller);
 
   /// We will be logging the requests and responses to the console
   final loggingJsonApiServer = LoggingHttpHandler(jsonApiServer,

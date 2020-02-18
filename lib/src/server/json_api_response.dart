@@ -1,6 +1,6 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/server/response_document_factory.dart';
-import 'package:json_api/uri_design.dart';
+import 'package:json_api/routing.dart';
 
 abstract class JsonApiResponse {
   final int statusCode;
@@ -9,7 +9,7 @@ abstract class JsonApiResponse {
 
   Document buildDocument(ResponseDocumentFactory factory, Uri self);
 
-  Map<String, String> buildHeaders(UriDesign design);
+  Map<String, String> buildHeaders(Routing routing);
 
   static JsonApiResponse noContent() => _NoContent();
 
@@ -73,7 +73,7 @@ class _NoContent extends JsonApiResponse {
       null;
 
   @override
-  Map<String, String> buildHeaders(UriDesign design) => {};
+  Map<String, String> buildHeaders(Routing routing) => {};
 }
 
 class _Collection extends JsonApiResponse {
@@ -90,7 +90,7 @@ class _Collection extends JsonApiResponse {
           included: included, total: total);
 
   @override
-  Map<String, String> buildHeaders(UriDesign design) =>
+  Map<String, String> buildHeaders(Routing routing) =>
       {'Content-Type': Document.contentType};
 }
 
@@ -105,10 +105,10 @@ class _Accepted extends JsonApiResponse {
       factory.makeResourceDocument(self, resource);
 
   @override
-  Map<String, String> buildHeaders(UriDesign design) => {
+  Map<String, String> buildHeaders(Routing routing) => {
         'Content-Type': Document.contentType,
         'Content-Location':
-            design.resource(resource.type, resource.id).toString(),
+            routing.resource(resource.type, resource.id).toString(),
       };
 }
 
@@ -124,7 +124,7 @@ class _Error extends JsonApiResponse {
       builder.makeErrorDocument(errors);
 
   @override
-  Map<String, String> buildHeaders(UriDesign design) =>
+  Map<String, String> buildHeaders(Routing routing) =>
       {...headers, 'Content-Type': Document.contentType};
 }
 
@@ -138,7 +138,7 @@ class _Meta extends JsonApiResponse {
       builder.makeMetaDocument(meta);
 
   @override
-  Map<String, String> buildHeaders(UriDesign design) =>
+  Map<String, String> buildHeaders(Routing routing) =>
       {'Content-Type': Document.contentType};
 }
 
@@ -154,7 +154,7 @@ class _Resource extends JsonApiResponse {
       builder.makeResourceDocument(self, resource, included: included);
 
   @override
-  Map<String, String> buildHeaders(UriDesign design) =>
+  Map<String, String> buildHeaders(Routing routing) =>
       {'Content-Type': Document.contentType};
 }
 
@@ -171,9 +171,9 @@ class _ResourceCreated extends JsonApiResponse {
       builder.makeCreatedResourceDocument(resource);
 
   @override
-  Map<String, String> buildHeaders(UriDesign design) => {
+  Map<String, String> buildHeaders(Routing routing) => {
         'Content-Type': Document.contentType,
-        'Location': design.resource(resource.type, resource.id).toString()
+        'Location': routing.resource(resource.type, resource.id).toString()
       };
 }
 
@@ -187,8 +187,8 @@ class _SeeOther extends JsonApiResponse {
   Document buildDocument(ResponseDocumentFactory builder, Uri self) => null;
 
   @override
-  Map<String, String> buildHeaders(UriDesign design) =>
-      {'Location': design.resource(type, id).toString()};
+  Map<String, String> buildHeaders(Routing routing) =>
+      {'Location': routing.resource(type, id).toString()};
 }
 
 class _ToMany extends JsonApiResponse {
@@ -205,7 +205,7 @@ class _ToMany extends JsonApiResponse {
       builder.makeToManyDocument(self, collection, type, id, relationship);
 
   @override
-  Map<String, String> buildHeaders(UriDesign design) =>
+  Map<String, String> buildHeaders(Routing routing) =>
       {'Content-Type': Document.contentType};
 }
 
@@ -223,6 +223,6 @@ class _ToOne extends JsonApiResponse {
       builder.makeToOneDocument(self, identifier, type, id, relationship);
 
   @override
-  Map<String, String> buildHeaders(UriDesign design) =>
+  Map<String, String> buildHeaders(Routing routing) =>
       {'Content-Type': Document.contentType};
 }

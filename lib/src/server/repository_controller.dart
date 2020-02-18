@@ -6,7 +6,8 @@ import 'package:json_api/query.dart';
 import 'package:json_api/src/server/json_api_controller.dart';
 import 'package:json_api/src/server/json_api_response.dart';
 import 'package:json_api/src/server/repository.dart';
-import 'package:json_api/uri_design.dart';
+import 'package:json_api/routing.dart';
+import 'package:json_api/src/server/target.dart';
 
 typedef UriReader<R> = FutureOr<Uri> Function(R request);
 

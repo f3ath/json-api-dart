@@ -37,6 +37,16 @@ class ResourceObject {
 
   Link get self => (links ?? {})['self'];
 
+  static ResourceObject fromResource(Resource resource) =>
+      ResourceObject(resource.type, resource.id,
+          attributes: resource.attributes,
+          relationships: {
+            ...resource.toOne.map((k, v) => MapEntry(
+                k, ToOne(nullable(IdentifierObject.fromIdentifier)(v)))),
+            ...resource.toMany.map((k, v) =>
+                MapEntry(k, ToMany(v.map(IdentifierObject.fromIdentifier))))
+          });
+
   /// Reconstructs the `data` member of a JSON:API Document.
   /// If [json] is null, returns null.
   static ResourceObject fromJson(Object json) {

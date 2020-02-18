@@ -75,6 +75,9 @@ class ToOne extends Relationship {
       : linkage = null,
         super(links: links);
 
+  static ToOne fromIdentifier(Identifier identifier) =>
+      ToOne(nullable(IdentifierObject.fromIdentifier)(identifier));
+
   static ToOne fromJson(Object json) {
     if (json is Map && json.containsKey('data')) {
       final included = json['included'];
@@ -115,6 +118,9 @@ class ToMany extends Relationship {
       {Iterable<ResourceObject> included, Map<String, Link> links})
       : linkage = List.unmodifiable(linkage),
         super(included: included, links: links);
+
+  static ToMany fromIdentifiers(Iterable<Identifier> identifiers) =>
+      ToMany(identifiers.map(IdentifierObject.fromIdentifier));
 
   static ToMany fromJson(Object json) {
     if (json is Map && json.containsKey('data')) {

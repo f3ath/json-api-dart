@@ -4,9 +4,9 @@ import 'package:http/http.dart';
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
+import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 import 'package:json_api/src/client/dart_http.dart';
-import 'package:json_api/uri_design.dart';
 import 'package:pedantic/pedantic.dart';
 import 'package:test/test.dart';
 
@@ -14,19 +14,19 @@ void main() {
   group('Client-Server interation over HTTP', () {
     final port = 8088;
     final host = 'localhost';
-    final design =
-        UriDesign.standard(Uri(host: host, port: port, scheme: 'http'));
+    final routing =
+        StandardRouting(Uri(host: host, port: port, scheme: 'http'));
     final repo = InMemoryRepository({'writers': {}, 'books': {}});
-    final jsonApiServer = JsonApiServer(design, RepositoryController(repo));
+    final jsonApiServer = JsonApiServer(routing, RepositoryController(repo));
     final serverHandler = DartServerHandler(jsonApiServer);
     Client httpClient;
-    JsonApiClient client;
+    RoutingClient client;
     HttpServer server;
 
     setUp(() async {
       server = await HttpServer.bind(host, port);
       httpClient = Client();
-      client = JsonApiClient(DartHttp(httpClient), uriFactory: design);
+      client = RoutingClient(JsonApiClient(DartHttp(httpClient)), routing);
       unawaited(server.forEach(serverHandler));
     });
 
