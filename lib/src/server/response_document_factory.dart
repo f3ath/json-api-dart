@@ -46,7 +46,7 @@ class ResponseDocumentFactory {
   }
 
   /// A document containing a to-many relationship
-  Document makeToManyDocument(Uri self, Iterable<Identifier> identifiers,
+  Document makeToManyDocument(Uri self, Iterable<Identifiers> identifiers,
       String type, String id, String relationship) {
     return _document = Document(
         ToMany(
@@ -60,7 +60,7 @@ class ResponseDocumentFactory {
   }
 
   /// A document containing a to-one relationship
-  Document makeToOneDocument(Uri self, Identifier identifier, String type,
+  Document makeToOneDocument(Uri self, Identifiers identifier, String type,
       String id, String relationship) {
     return _document = Document(
         ToOne(

@@ -32,7 +32,7 @@ void main() async {
   await client.createResource(Resource('books', '2', attributes: {
     'title': 'Refactoring'
   }, toMany: {
-    'authors': [Identifier('writers', '1')]
+    'authors': [Identifiers('writers', '1')]
   }));
 
   /// Fetch the book, including its authors

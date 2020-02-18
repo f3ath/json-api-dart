@@ -16,8 +16,8 @@ Future<void> seedResources(RoutingClient client) async {
     'title': 'Refactoring',
     'ISBN-10': '0134757599'
   }, toOne: {
-    'publisher': Identifier('companies', '1')
+    'publisher': Identifiers('companies', '1')
   }, toMany: {
-    'authors': [Identifier('people', '1'), Identifier('people', '2')]
+    'authors': [Identifiers('people', '1'), Identifiers('people', '2')]
   }));
 }

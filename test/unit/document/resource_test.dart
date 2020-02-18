@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 void main() {
   test('Removes duplicate identifiers in toMany relationships', () {
     final r = Resource('type', 'id', toMany: {
-      'rel': [Identifier('foo', '1'), Identifier('foo', '1')]
+      'rel': [Identifiers('foo', '1'), Identifiers('foo', '1')]
     });
     expect(r.toMany['rel'].length, 1);
   });

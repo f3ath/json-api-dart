@@ -74,7 +74,7 @@ class RoutingClient {
 
   /// Replaces the to-one [relationship] of [type] : [id].
   Future<JsonApiResponse<ToOne>> replaceToOne(
-          String type, String id, String relationship, Identifier identifier,
+          String type, String id, String relationship, Identifiers identifier,
           {Map<String, String> headers}) =>
       _client.replaceToOneAt(_relationship(type, id, relationship), identifier,
           headers: headers);
@@ -88,7 +88,7 @@ class RoutingClient {
 
   /// Deletes the [identifiers] from the to-many [relationship] of [type] : [id].
   Future<JsonApiResponse<ToMany>> deleteFromToMany(String type, String id,
-          String relationship, Iterable<Identifier> identifiers,
+          String relationship, Iterable<Identifiers> identifiers,
           {Map<String, String> headers}) =>
       _client.deleteFromToManyAt(
           _relationship(type, id, relationship), identifiers,
@@ -96,7 +96,7 @@ class RoutingClient {
 
   /// Replaces the to-many [relationship] of [type] : [id] with the [identifiers].
   Future<JsonApiResponse<ToMany>> replaceToMany(String type, String id,
-          String relationship, Iterable<Identifier> identifiers,
+          String relationship, Iterable<Identifiers> identifiers,
           {Map<String, String> headers}) =>
       _client.replaceToManyAt(
           _relationship(type, id, relationship), identifiers,
@@ -104,7 +104,7 @@ class RoutingClient {
 
   /// Adds the [identifiers] to the to-many [relationship] of [type] : [id].
   Future<JsonApiResponse<ToMany>> addToRelationship(String type, String id,
-          String relationship, Iterable<Identifier> identifiers,
+          String relationship, Iterable<Identifiers> identifiers,
           {Map<String, String> headers}) =>
       _client.addToRelationshipAt(
           _relationship(type, id, relationship), identifiers,

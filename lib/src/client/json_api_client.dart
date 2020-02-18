@@ -82,7 +82,7 @@ class JsonApiClient {
   /// Updates a to-one relationship via PATCH query
   ///
   /// https://jsonapi.org/format/#crud-updating-to-one-relationships
-  Future<JsonApiResponse<ToOne>> replaceToOneAt(Uri uri, Identifier identifier,
+  Future<JsonApiResponse<ToOne>> replaceToOneAt(Uri uri, Identifiers identifier,
           {Map<String, String> headers}) =>
       _call(_patch(uri, headers, _toOneDoc(identifier)), ToOne.fromJson);
 
@@ -96,7 +96,7 @@ class JsonApiClient {
   ///
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<JsonApiResponse<ToMany>> deleteFromToManyAt(
-          Uri uri, Iterable<Identifier> identifiers,
+          Uri uri, Iterable<Identifiers> identifiers,
           {Map<String, String> headers}) =>
       _call(_deleteWithBody(uri, headers, _toManyDoc(identifiers)),
           ToMany.fromJson);
@@ -109,7 +109,7 @@ class JsonApiClient {
   ///
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<JsonApiResponse<ToMany>> replaceToManyAt(
-          Uri uri, Iterable<Identifier> identifiers,
+          Uri uri, Iterable<Identifiers> identifiers,
           {Map<String, String> headers}) =>
       _call(_patch(uri, headers, _toManyDoc(identifiers)), ToMany.fromJson);
 
@@ -117,7 +117,7 @@ class JsonApiClient {
   ///
   /// https://jsonapi.org/format/#crud-updating-to-many-relationships
   Future<JsonApiResponse<ToMany>> addToRelationshipAt(
-          Uri uri, Iterable<Identifier> identifiers,
+          Uri uri, Iterable<Identifiers> identifiers,
           {Map<String, String> headers}) =>
       _call(_post(uri, headers, _toManyDoc(identifiers)), ToMany.fromJson);
 
@@ -131,10 +131,10 @@ class JsonApiClient {
   Document<ResourceData> _resourceDoc(Resource resource) =>
       Document(ResourceData.fromResource(resource), api: _api);
 
-  Document<ToMany> _toManyDoc(Iterable<Identifier> identifiers) =>
+  Document<ToMany> _toManyDoc(Iterable<Identifiers> identifiers) =>
       Document(ToMany.fromIdentifiers(identifiers), api: _api);
 
-  Document<ToOne> _toOneDoc(Identifier identifier) =>
+  Document<ToOne> _toOneDoc(Identifiers identifier) =>
       Document(ToOne.fromIdentifier(identifier), api: _api);
 
   HttpRequest _get(Uri uri, Map<String, String> headers,

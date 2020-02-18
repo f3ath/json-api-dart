@@ -1,7 +1,7 @@
 import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 
-/// [IdentifierObject] is a JSON representation of the [Identifier].
+/// [IdentifierObject] is a JSON representation of the [Identifiers].
 /// It carries all JSON-related logic and the Meta-data.
 class IdentifierObject {
   /// Resource type
@@ -21,7 +21,7 @@ class IdentifierObject {
     ArgumentError.checkNotNull(id);
   }
 
-  static IdentifierObject fromIdentifier(Identifier identifier,
+  static IdentifierObject fromIdentifier(Identifiers identifier,
           {Map<String, Object> meta}) =>
       IdentifierObject(identifier.type, identifier.id, meta: meta);
 
@@ -32,7 +32,7 @@ class IdentifierObject {
     throw DocumentException('A JSON:API identifier must be a JSON object');
   }
 
-  Identifier unwrap() => Identifier(type, id);
+  Identifiers unwrap() => Identifiers(type, id);
 
   Map<String, Object> toJson() => {
         'type': type,

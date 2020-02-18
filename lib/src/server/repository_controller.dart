@@ -1,83 +1,75 @@
 import 'dart:async';
 
 import 'package:json_api/document.dart';
-import 'package:json_api/http.dart';
-import 'package:json_api/query.dart';
-import 'package:json_api/src/server/json_api_controller.dart';
+import 'package:json_api/server.dart';
+import 'package:json_api/src/server/json_api_request.dart';
 import 'package:json_api/src/server/json_api_response.dart';
 import 'package:json_api/src/server/repository.dart';
-import 'package:json_api/src/server/target.dart';
-
-typedef UriReader<R> = FutureOr<Uri> Function(R request);
 
 /// An opinionated implementation of [JsonApiController]
 class RepositoryController<R> implements JsonApiController {
   @override
-  FutureOr<JsonApiResponse> addToRelationship(HttpRequest request,
-          RelationshipTarget target, Iterable<Identifier> identifiers) =>
+  FutureOr<JsonApiResponse> addToRelationship(AddToRelationship request) =>
       _do(() async {
-        final original = await _repo.get(target.type, target.id);
-        if (!original.toMany.containsKey(target.relationship)) {
+        final original = await _repo.get(request.type, request.id);
+        if (!original.toMany.containsKey(request.relationship)) {
           return JsonApiResponse.notFound([
             JsonApiError(
                 status: '404',
                 title: 'Relationship not found',
                 detail:
-                    "There is no to-many relationship '${target.relationship}' in this resource")
+                    "There is no to-many relationship '${request.relationship}' in this resource")
           ]);
         }
         final updated = await _repo.update(
-            target.type,
-            target.id,
-            Resource(target.type, target.id, toMany: {
-              target.relationship: {
-                ...original.toMany[target.relationship],
-                ...identifiers
+            request.type,
+            request.id,
+            Resource(request.type, request.id, toMany: {
+              request.relationship: {
+                ...original.toMany[request.relationship],
+                ...request.identifiers
               }
             }));
-        return JsonApiResponse.toMany(target.type, target.id,
-            target.relationship, updated.toMany[target.relationship]);
+        return JsonApiResponse.toMany(request.type, request.id,
+            request.relationship, updated.toMany[request.relationship]);
       });
 
   @override
-  FutureOr<JsonApiResponse> createResource(
-          HttpRequest request, CollectionTarget target, Resource resource) =>
+  FutureOr<JsonApiResponse> createResource(CreateResource request) =>
       _do(() async {
-        final modified = await _repo.create(target.type, resource);
+        final modified = await _repo.create(request.type, request.resource);
         if (modified == null) return JsonApiResponse.noContent();
         return JsonApiResponse.resourceCreated(modified);
       });
 
   @override
-  FutureOr<JsonApiResponse> deleteFromRelationship(HttpRequest request,
-          RelationshipTarget target, Iterable<Identifier> identifiers) =>
+  FutureOr<JsonApiResponse> deleteFromRelationship(
+          DeleteFromRelationship request) =>
       _do(() async {
-        final original = await _repo.get(target.type, target.id);
+        final original = await _repo.get(request.type, request.id);
         final updated = await _repo.update(
-            target.type,
-            target.id,
-            Resource(target.type, target.id, toMany: {
-              target.relationship: {...original.toMany[target.relationship]}
-                ..removeAll(identifiers)
+            request.type,
+            request.id,
+            Resource(request.type, request.id, toMany: {
+              request.relationship: {...original.toMany[request.relationship]}
+                ..removeAll(request.identifiers)
             }));
-        return JsonApiResponse.toMany(target.type, target.id,
-            target.relationship, updated.toMany[target.relationship]);
+        return JsonApiResponse.toMany(request.type, request.id,
+            request.relationship, updated.toMany[request.relationship]);
       });
 
   @override
-  FutureOr<JsonApiResponse> deleteResource(
-          HttpRequest request, ResourceTarget target) =>
+  FutureOr<JsonApiResponse> deleteResource(DeleteResource request) =>
       _do(() async {
-        await _repo.delete(target.type, target.id);
+        await _repo.delete(request.type, request.id);
         return JsonApiResponse.noContent();
       });
 
   @override
-  FutureOr<JsonApiResponse> fetchCollection(
-          HttpRequest request, CollectionTarget target) =>
+  FutureOr<JsonApiResponse> fetchCollection(FetchCollection request) =>
       _do(() async {
-        final c = await _repo.getCollection(target.type);
-        final include = Include.fromUri(request.uri);
+        final c = await _repo.getCollection(request.type);
+        final include = request.include;
 
         final resources = <Resource>[];
         for (final resource in c.elements) {
@@ -91,46 +83,42 @@ class RepositoryController<R> implements JsonApiController {
       });
 
   @override
-  FutureOr<JsonApiResponse> fetchRelated(
-          HttpRequest request, RelatedTarget target) =>
-      _do(() async {
-        final resource = await _repo.get(target.type, target.id);
-        if (resource.toOne.containsKey(target.relationship)) {
+  FutureOr<JsonApiResponse> fetchRelated(FetchRelated request) => _do(() async {
+        final resource = await _repo.get(request.type, request.id);
+        if (resource.toOne.containsKey(request.relationship)) {
           return JsonApiResponse.resource(
-              await _getByIdentifier(resource.toOne[target.relationship]));
+              await _getByIdentifier(resource.toOne[request.relationship]));
         }
-        if (resource.toMany.containsKey(target.relationship)) {
+        if (resource.toMany.containsKey(request.relationship)) {
           final related = <Resource>[];
-          for (final identifier in resource.toMany[target.relationship]) {
+          for (final identifier in resource.toMany[request.relationship]) {
             related.add(await _getByIdentifier(identifier));
           }
           return JsonApiResponse.collection(related);
         }
-        return _relationshipNotFound(target.relationship);
+        return _relationshipNotFound(request.relationship);
       });
 
   @override
-  FutureOr<JsonApiResponse> fetchRelationship(
-          HttpRequest request, RelationshipTarget target) =>
+  FutureOr<JsonApiResponse> fetchRelationship(FetchRelationship request) =>
       _do(() async {
-        final resource = await _repo.get(target.type, target.id);
-        if (resource.toOne.containsKey(target.relationship)) {
-          return JsonApiResponse.toOne(target.type, target.id,
-              target.relationship, resource.toOne[target.relationship]);
+        final resource = await _repo.get(request.type, request.id);
+        if (resource.toOne.containsKey(request.relationship)) {
+          return JsonApiResponse.toOne(request.type, request.id,
+              request.relationship, resource.toOne[request.relationship]);
         }
-        if (resource.toMany.containsKey(target.relationship)) {
-          return JsonApiResponse.toMany(target.type, target.id,
-              target.relationship, resource.toMany[target.relationship]);
+        if (resource.toMany.containsKey(request.relationship)) {
+          return JsonApiResponse.toMany(request.type, request.id,
+              request.relationship, resource.toMany[request.relationship]);
         }
-        return _relationshipNotFound(target.relationship);
+        return _relationshipNotFound(request.relationship);
       });
 
   @override
-  FutureOr<JsonApiResponse> fetchResource(
-          HttpRequest request, ResourceTarget target) =>
+  FutureOr<JsonApiResponse> fetchResource(FetchResource request) =>
       _do(() async {
-        final include = Include.fromUri(request.uri);
-        final resource = await _repo.get(target.type, target.id);
+        final include = request.include;
+        final resource = await _repo.get(request.type, request.id);
         final resources = <Resource>[];
         for (final path in include) {
           resources.addAll(await _getRelated(resource, path.split('.')));
@@ -140,35 +128,32 @@ class RepositoryController<R> implements JsonApiController {
       });
 
   @override
-  FutureOr<JsonApiResponse> replaceToMany(HttpRequest request,
-          RelationshipTarget target, Iterable<Identifier> identifiers) =>
+  FutureOr<JsonApiResponse> replaceToMany(ReplaceToMany request) =>
       _do(() async {
         await _repo.update(
-            target.type,
-            target.id,
-            Resource(target.type, target.id,
-                toMany: {target.relationship: identifiers}));
+            request.type,
+            request.id,
+            Resource(request.type, request.id,
+                toMany: {request.relationship: request.identifiers}));
         return JsonApiResponse.noContent();
       });
 
   @override
-  FutureOr<JsonApiResponse> updateResource(
-          HttpRequest request, ResourceTarget target, Resource resource) =>
+  FutureOr<JsonApiResponse> updateResource(UpdateResourceRequest request) =>
       _do(() async {
-        final modified = await _repo.update(target.type, target.id, resource);
+        final modified =
+            await _repo.update(request.type, request.id, request.resource);
         if (modified == null) return JsonApiResponse.noContent();
         return JsonApiResponse.resource(modified);
       });
 
   @override
-  FutureOr<JsonApiResponse> replaceToOne(HttpRequest request,
-          RelationshipTarget target, Identifier identifier) =>
-      _do(() async {
+  FutureOr<JsonApiResponse> replaceToOne(ReplaceToOne request) => _do(() async {
         await _repo.update(
-            target.type,
-            target.id,
-            Resource(target.type, target.id,
-                toOne: {target.relationship: identifier}));
+            request.type,
+            request.id,
+            Resource(request.type, request.id,
+                toOne: {request.relationship: request.identifier}));
         return JsonApiResponse.noContent();
       });
 
@@ -176,7 +161,7 @@ class RepositoryController<R> implements JsonApiController {
 
   final Repository _repo;
 
-  FutureOr<Resource> _getByIdentifier(Identifier identifier) =>
+  FutureOr<Resource> _getByIdentifier(Identifiers identifier) =>
       _repo.get(identifier.type, identifier.id);
 
   Future<Iterable<Resource>> _getRelated(
@@ -185,7 +170,7 @@ class RepositoryController<R> implements JsonApiController {
   ) async {
     if (path.isEmpty) return [];
     final resources = <Resource>[];
-    final ids = <Identifier>[];
+    final ids = <Identifiers>[];
 
     if (resource.toOne.containsKey(path.first)) {
       ids.add(resource.toOne[path.first]);

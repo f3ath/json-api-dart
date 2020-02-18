@@ -20,22 +20,22 @@ void main() async {
       Resource('countries', '1', attributes: {'name': 'Wonderland'});
   final alice = Resource('people', '1',
       attributes: {'name': 'Alice'},
-      toOne: {'birthplace': Identifier.of(wonderland)});
+      toOne: {'birthplace': Identifiers.of(wonderland)});
   final bob = Resource('people', '2',
       attributes: {'name': 'Bob'},
-      toOne: {'birthplace': Identifier.of(wonderland)});
+      toOne: {'birthplace': Identifiers.of(wonderland)});
   final comment1 = Resource('comments', '1',
       attributes: {'text': 'First comment!'},
-      toOne: {'author': Identifier.of(bob)});
+      toOne: {'author': Identifiers.of(bob)});
   final comment2 = Resource('comments', '2',
       attributes: {'text': 'Oh hi Bob'},
-      toOne: {'author': Identifier.of(alice)});
+      toOne: {'author': Identifiers.of(alice)});
   final post = Resource('posts', '1', attributes: {
     'title': 'Hello World'
   }, toOne: {
-    'author': Identifier.of(alice)
+    'author': Identifiers.of(alice)
   }, toMany: {
-    'comments': [Identifier.of(comment1), Identifier.of(comment2)],
+    'comments': [Identifiers.of(comment1), Identifiers.of(comment2)],
     'tags': []
   });
 

@@ -32,11 +32,11 @@ abstract class JsonApiResponse {
       _SeeOther(type, id);
 
   static JsonApiResponse toMany(String type, String id, String relationship,
-          Iterable<Identifier> identifiers) =>
+          Iterable<Identifiers> identifiers) =>
       _ToMany(type, id, relationship, identifiers);
 
-  static JsonApiResponse toOne(
-          String type, String id, String relationship, Identifier identifier) =>
+  static JsonApiResponse toOne(String type, String id, String relationship,
+          Identifiers identifier) =>
       _ToOne(type, id, relationship, identifier);
 
   /// Generic error response
@@ -186,7 +186,7 @@ class _SeeOther extends JsonApiResponse {
 }
 
 class _ToMany extends JsonApiResponse {
-  final Iterable<Identifier> collection;
+  final Iterable<Identifiers> collection;
   final String type;
   final String id;
   final String relationship;
@@ -207,7 +207,7 @@ class _ToOne extends JsonApiResponse {
   final String type;
   final String id;
   final String relationship;
-  final Identifier identifier;
+  final Identifiers identifier;
 
   const _ToOne(this.type, this.id, this.relationship, this.identifier)
       : super(200);
