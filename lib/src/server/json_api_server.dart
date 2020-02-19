@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
@@ -9,26 +8,21 @@ import 'package:json_api/src/server/request_factory.dart';
 
 class JsonApiServer implements HttpHandler {
   @override
-  Future<HttpResponse> call(HttpRequest request) async {
-    final rq = JsonApiRequestFactory().getJsonApiRequest(request);
+  Future<HttpResponse> call(HttpRequest httpRequest) async {
+    final jsonApiRequest =
+        JsonApiRequestFactory().getJsonApiRequest(httpRequest);
     // Implementation-specific logic (e.g. auth) goes here
-    final response = await rq.call(_controller);
+    final jsonApiResponse = await jsonApiRequest.call(_controller);
 
-    // Build response Document
-    response.buildDocument(_factory, request.uri);
-    final document = _factory.build();
+    final httpResponse = HttpResponseBuilder(_routing, httpRequest.uri);
+    jsonApiResponse.build(httpResponse);
 
     // Any response post-processing goes here
-    return HttpResponse(response.statusCode,
-        body: document == null ? null : jsonEncode(document),
-        headers: response.buildHeaders(_routing));
+    return httpResponse.buildHttpResponse();
   }
 
-  JsonApiServer(this._routing, this._controller,
-      {ResponseDocumentFactory documentFactory})
-      : _factory = documentFactory ?? ResponseDocumentFactory(_routing);
+  JsonApiServer(this._routing, this._controller);
 
   final Routing _routing;
   final JsonApiController _controller;
-  final ResponseDocumentFactory _factory;
 }

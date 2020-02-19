@@ -1,222 +1,156 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/routing.dart';
-import 'package:json_api/src/server/response_document_factory.dart';
+import 'package:json_api/src/server/http_response_builder.dart';
 
 abstract class JsonApiResponse {
-  final int statusCode;
-
-  const JsonApiResponse(this.statusCode);
-
-  void buildDocument(ResponseDocumentFactory factory, Uri self);
-
-  Map<String, String> buildHeaders(Routing routing);
-
-  static JsonApiResponse noContent() => _NoContent();
-
-  static JsonApiResponse accepted(Resource resource) => _Accepted(resource);
-
-  static JsonApiResponse meta(Map<String, Object> meta) => _Meta(meta);
-
-  static JsonApiResponse collection(Iterable<Resource> collection,
-          {Iterable<Resource> included, int total}) =>
-      _Collection(collection, included: included, total: total);
-
-  static JsonApiResponse resource(Resource resource,
-          {Iterable<Resource> included}) =>
-      _Resource(resource, included: included);
-
-  static JsonApiResponse resourceCreated(Resource resource) =>
-      _ResourceCreated(resource);
-
-  static JsonApiResponse seeOther(String type, String id) =>
-      _SeeOther(type, id);
-
-  static JsonApiResponse toMany(String type, String id, String relationship,
-          Iterable<Identifiers> identifiers) =>
-      _ToMany(type, id, relationship, identifiers);
-
-  static JsonApiResponse toOne(String type, String id, String relationship,
-          Identifiers identifier) =>
-      _ToOne(type, id, relationship, identifier);
-
-  /// Generic error response
-  static JsonApiResponse error(int statusCode, Iterable<JsonApiError> errors) =>
-      _Error(statusCode, errors);
-
-  static JsonApiResponse badRequest(Iterable<JsonApiError> errors) =>
-      _Error(400, errors);
-
-  static JsonApiResponse forbidden(Iterable<JsonApiError> errors) =>
-      _Error(403, errors);
-
-  static JsonApiResponse notFound(Iterable<JsonApiError> errors) =>
-      _Error(404, errors);
-
-  /// The allowed methods can be specified in [allow]
-  static JsonApiResponse methodNotAllowed(Iterable<JsonApiError> errors,
-          {Iterable<String> allow}) =>
-      _Error(405, errors, headers: {'Allow': allow.join(', ')});
-
-  static JsonApiResponse conflict(Iterable<JsonApiError> errors) =>
-      _Error(409, errors);
-
-  static JsonApiResponse notImplemented(Iterable<JsonApiError> errors) =>
-      _Error(501, errors);
+  void build(HttpResponseBuilder response);
 }
 
-class _NoContent extends JsonApiResponse {
-  const _NoContent() : super(204);
-
+class NoContentResponse implements JsonApiResponse {
   @override
-  Document buildDocument(ResponseDocumentFactory factory, Uri self) => null;
-
-  @override
-  Map<String, String> buildHeaders(Routing routing) => {};
+  void build(HttpResponseBuilder response) {
+    response.statusCode = 204;
+  }
 }
 
-class _Collection extends JsonApiResponse {
+class CollectionResponse implements JsonApiResponse {
   final Iterable<Resource> collection;
   final Iterable<Resource> included;
   final int total;
 
-  const _Collection(this.collection, {this.included, this.total}) : super(200);
+  CollectionResponse(this.collection, {this.included, this.total});
 
   @override
-  void buildDocument(ResponseDocumentFactory builder, Uri self) =>
-      builder.makeCollectionDocument(self, collection,
-          included: included, total: total);
-
-  @override
-  Map<String, String> buildHeaders(Routing routing) =>
-      {'Content-Type': Document.contentType};
+  void build(HttpResponseBuilder response) {
+    response.collectionDocument(collection, included: included, total: total);
+  }
 }
 
-class _Accepted extends JsonApiResponse {
+class AcceptedResponse implements JsonApiResponse {
   final Resource resource;
 
-  _Accepted(this.resource) : super(202);
+  AcceptedResponse(this.resource);
 
   @override
-  void buildDocument(ResponseDocumentFactory factory, Uri self) =>
-      factory.makeResourceDocument(self, resource);
-
-  @override
-  Map<String, String> buildHeaders(Routing routing) => {
-        'Content-Type': Document.contentType,
-        'Content-Location':
-            routing.resource(resource.type, resource.id).toString(),
-      };
+  void build(HttpResponseBuilder response) {
+    response
+      ..statusCode = 202
+      ..addContentLocation(resource.type, resource.id)
+      ..resourceDocument(resource);
+  }
 }
 
-class _Error extends JsonApiResponse {
+class ErrorResponse implements JsonApiResponse {
   final Iterable<JsonApiError> errors;
-  final Map<String, String> headers;
+  final int statusCode;
 
-  const _Error(int status, this.errors, {this.headers = const {}})
-      : super(status);
+  ErrorResponse(this.statusCode, this.errors);
+
+  static JsonApiResponse badRequest(Iterable<JsonApiError> errors) =>
+      ErrorResponse(400, errors);
+
+  static JsonApiResponse forbidden(Iterable<JsonApiError> errors) =>
+      ErrorResponse(403, errors);
+
+  static JsonApiResponse notFound(Iterable<JsonApiError> errors) =>
+      ErrorResponse(404, errors);
+
+  /// The allowed methods can be specified in [allow]
+  static JsonApiResponse methodNotAllowed(Iterable<JsonApiError> errors,
+          {Iterable<String> allow}) =>
+      ErrorResponse(405, errors).._headers['Allow'] = allow.join(', ');
+
+  static JsonApiResponse conflict(Iterable<JsonApiError> errors) =>
+      ErrorResponse(409, errors);
+
+  static JsonApiResponse notImplemented(Iterable<JsonApiError> errors) =>
+      ErrorResponse(501, errors);
 
   @override
-  void buildDocument(ResponseDocumentFactory builder, Uri self) =>
-      builder.makeErrorDocument(errors);
+  void build(HttpResponseBuilder response) {
+    response
+      ..statusCode = statusCode
+      ..addHeaders(_headers)
+      ..errorDocument(errors);
+  }
 
-  @override
-  Map<String, String> buildHeaders(Routing routing) =>
-      {...headers, 'Content-Type': Document.contentType};
+  final _headers = <String, String>{};
 }
 
-class _Meta extends JsonApiResponse {
+class MetaResponse implements JsonApiResponse {
   final Map<String, Object> meta;
 
-  _Meta(this.meta) : super(200);
+  MetaResponse(this.meta);
 
   @override
-  void buildDocument(ResponseDocumentFactory builder, Uri self) =>
-      builder.makeMetaDocument(meta);
-
-  @override
-  Map<String, String> buildHeaders(Routing routing) =>
-      {'Content-Type': Document.contentType};
+  void build(HttpResponseBuilder response) {
+    response.metaDocument(meta);
+  }
 }
 
-class _Resource extends JsonApiResponse {
+class ResourceResponse implements JsonApiResponse {
   final Resource resource;
   final Iterable<Resource> included;
 
-  const _Resource(this.resource, {this.included}) : super(200);
+  ResourceResponse(this.resource, {this.included});
 
   @override
-  void buildDocument(ResponseDocumentFactory builder, Uri self) =>
-      builder.makeResourceDocument(self, resource, included: included);
-
-  @override
-  Map<String, String> buildHeaders(Routing routing) =>
-      {'Content-Type': Document.contentType};
+  void build(HttpResponseBuilder response) {
+    response.resourceDocument(resource, included: included);
+  }
 }
 
-class _ResourceCreated extends JsonApiResponse {
+class ResourceCreatedResponse implements JsonApiResponse {
   final Resource resource;
 
-  _ResourceCreated(this.resource) : super(201) {
-    ArgumentError.checkNotNull(resource.id, 'resource.id');
+  ResourceCreatedResponse(this.resource);
+
+  @override
+  void build(HttpResponseBuilder response) {
+    response
+      ..statusCode = 201
+      ..addLocation(resource.type, resource.id)
+      ..createdResourceDocument(resource);
   }
-
-  @override
-  void buildDocument(ResponseDocumentFactory builder, Uri self) =>
-      builder.makeCreatedResourceDocument(resource);
-
-  @override
-  Map<String, String> buildHeaders(Routing routing) => {
-        'Content-Type': Document.contentType,
-        'Location': routing.resource(resource.type, resource.id).toString()
-      };
 }
 
-class _SeeOther extends JsonApiResponse {
+class SeeOtherResponse implements JsonApiResponse {
   final String type;
   final String id;
 
-  _SeeOther(this.type, this.id) : super(303);
+  SeeOtherResponse(this.type, this.id);
 
   @override
-  void buildDocument(ResponseDocumentFactory builder, Uri self) => null;
-
-  @override
-  Map<String, String> buildHeaders(Routing routing) =>
-      {'Location': routing.resource(type, id).toString()};
+  void build(HttpResponseBuilder response) {
+    response
+      ..statusCode = 303
+      ..addLocation(type, id);
+  }
 }
 
-class _ToMany extends JsonApiResponse {
+class ToManyResponse implements JsonApiResponse {
   final Iterable<Identifiers> collection;
   final String type;
   final String id;
   final String relationship;
 
-  const _ToMany(this.type, this.id, this.relationship, this.collection)
-      : super(200);
+  ToManyResponse(this.type, this.id, this.relationship, this.collection);
 
   @override
-  void buildDocument(ResponseDocumentFactory builder, Uri self) =>
-      builder.makeToManyDocument(self, collection, type, id, relationship);
-
-  @override
-  Map<String, String> buildHeaders(Routing routing) =>
-      {'Content-Type': Document.contentType};
+  void build(HttpResponseBuilder response) {
+    response.toManyDocument(collection, type, id, relationship);
+  }
 }
 
-class _ToOne extends JsonApiResponse {
+class ToOneResponse implements JsonApiResponse {
   final String type;
   final String id;
   final String relationship;
   final Identifiers identifier;
 
-  const _ToOne(this.type, this.id, this.relationship, this.identifier)
-      : super(200);
+  ToOneResponse(this.type, this.id, this.relationship, this.identifier);
 
   @override
-  void buildDocument(ResponseDocumentFactory builder, Uri self) =>
-      builder.makeToOneDocument(self, identifier, type, id, relationship);
-
-  @override
-  Map<String, String> buildHeaders(Routing routing) =>
-      {'Content-Type': Document.contentType};
+  void build(HttpResponseBuilder response) {
+    response.toOneDocument(identifier, type, id, relationship);
+  }
 }

@@ -13,7 +13,7 @@ class RepositoryController<R> implements JsonApiController {
       _do(() async {
         final original = await _repo.get(request.type, request.id);
         if (!original.toMany.containsKey(request.relationship)) {
-          return JsonApiResponse.notFound([
+          return ErrorResponse.notFound([
             JsonApiError(
                 status: '404',
                 title: 'Relationship not found',
@@ -30,16 +30,16 @@ class RepositoryController<R> implements JsonApiController {
                 ...request.identifiers
               }
             }));
-        return JsonApiResponse.toMany(request.type, request.id,
-            request.relationship, updated.toMany[request.relationship]);
+        return ToManyResponse(request.type, request.id, request.relationship,
+            updated.toMany[request.relationship]);
       });
 
   @override
   FutureOr<JsonApiResponse> createResource(CreateResource request) =>
       _do(() async {
         final modified = await _repo.create(request.type, request.resource);
-        if (modified == null) return JsonApiResponse.noContent();
-        return JsonApiResponse.resourceCreated(modified);
+        if (modified == null) return NoContentResponse();
+        return ResourceCreatedResponse(modified);
       });
 
   @override
@@ -54,15 +54,15 @@ class RepositoryController<R> implements JsonApiController {
               request.relationship: {...original.toMany[request.relationship]}
                 ..removeAll(request.identifiers)
             }));
-        return JsonApiResponse.toMany(request.type, request.id,
-            request.relationship, updated.toMany[request.relationship]);
+        return ToManyResponse(request.type, request.id, request.relationship,
+            updated.toMany[request.relationship]);
       });
 
   @override
   FutureOr<JsonApiResponse> deleteResource(DeleteResource request) =>
       _do(() async {
         await _repo.delete(request.type, request.id);
-        return JsonApiResponse.noContent();
+        return NoContentResponse();
       });
 
   @override
@@ -78,7 +78,7 @@ class RepositoryController<R> implements JsonApiController {
           }
         }
 
-        return JsonApiResponse.collection(c.elements,
+        return CollectionResponse(c.elements,
             total: c.total, included: include.isEmpty ? null : resources);
       });
 
@@ -86,7 +86,7 @@ class RepositoryController<R> implements JsonApiController {
   FutureOr<JsonApiResponse> fetchRelated(FetchRelated request) => _do(() async {
         final resource = await _repo.get(request.type, request.id);
         if (resource.toOne.containsKey(request.relationship)) {
-          return JsonApiResponse.resource(
+          return ResourceResponse(
               await _getByIdentifier(resource.toOne[request.relationship]));
         }
         if (resource.toMany.containsKey(request.relationship)) {
@@ -94,7 +94,7 @@ class RepositoryController<R> implements JsonApiController {
           for (final identifier in resource.toMany[request.relationship]) {
             related.add(await _getByIdentifier(identifier));
           }
-          return JsonApiResponse.collection(related);
+          return CollectionResponse(related);
         }
         return _relationshipNotFound(request.relationship);
       });
@@ -104,12 +104,12 @@ class RepositoryController<R> implements JsonApiController {
       _do(() async {
         final resource = await _repo.get(request.type, request.id);
         if (resource.toOne.containsKey(request.relationship)) {
-          return JsonApiResponse.toOne(request.type, request.id,
-              request.relationship, resource.toOne[request.relationship]);
+          return ToOneResponse(request.type, request.id, request.relationship,
+              resource.toOne[request.relationship]);
         }
         if (resource.toMany.containsKey(request.relationship)) {
-          return JsonApiResponse.toMany(request.type, request.id,
-              request.relationship, resource.toMany[request.relationship]);
+          return ToManyResponse(request.type, request.id, request.relationship,
+              resource.toMany[request.relationship]);
         }
         return _relationshipNotFound(request.relationship);
       });
@@ -123,7 +123,7 @@ class RepositoryController<R> implements JsonApiController {
         for (final path in include) {
           resources.addAll(await _getRelated(resource, path.split('.')));
         }
-        return JsonApiResponse.resource(resource,
+        return ResourceResponse(resource,
             included: include.isEmpty ? null : resources);
       });
 
@@ -135,16 +135,16 @@ class RepositoryController<R> implements JsonApiController {
             request.id,
             Resource(request.type, request.id,
                 toMany: {request.relationship: request.identifiers}));
-        return JsonApiResponse.noContent();
+        return NoContentResponse();
       });
 
   @override
-  FutureOr<JsonApiResponse> updateResource(UpdateResourceRequest request) =>
+  FutureOr<JsonApiResponse> updateResource(UpdateResource request) =>
       _do(() async {
         final modified =
             await _repo.update(request.type, request.id, request.resource);
-        if (modified == null) return JsonApiResponse.noContent();
-        return JsonApiResponse.resource(modified);
+        if (modified == null) return NoContentResponse();
+        return ResourceResponse(modified);
       });
 
   @override
@@ -154,7 +154,7 @@ class RepositoryController<R> implements JsonApiController {
             request.id,
             Resource(request.type, request.id,
                 toOne: {request.relationship: request.identifier}));
-        return JsonApiResponse.noContent();
+        return NoContentResponse();
       });
 
   RepositoryController(this._repo);
@@ -193,27 +193,27 @@ class RepositoryController<R> implements JsonApiController {
     try {
       return await action();
     } on UnsupportedOperation catch (e) {
-      return JsonApiResponse.forbidden([
+      return ErrorResponse.forbidden([
         JsonApiError(
             status: '403', title: 'Unsupported operation', detail: e.message)
       ]);
     } on CollectionNotFound catch (e) {
-      return JsonApiResponse.notFound([
+      return ErrorResponse.notFound([
         JsonApiError(
             status: '404', title: 'Collection not found', detail: e.message)
       ]);
     } on ResourceNotFound catch (e) {
-      return JsonApiResponse.notFound([
+      return ErrorResponse.notFound([
         JsonApiError(
             status: '404', title: 'Resource not found', detail: e.message)
       ]);
     } on InvalidType catch (e) {
-      return JsonApiResponse.conflict([
+      return ErrorResponse.conflict([
         JsonApiError(
             status: '409', title: 'Invalid resource type', detail: e.message)
       ]);
     } on ResourceExists catch (e) {
-      return JsonApiResponse.conflict([
+      return ErrorResponse.conflict([
         JsonApiError(status: '409', title: 'Resource exists', detail: e.message)
       ]);
     }
@@ -222,7 +222,7 @@ class RepositoryController<R> implements JsonApiController {
   JsonApiResponse _relationshipNotFound(
     String relationship,
   ) {
-    return JsonApiResponse.notFound([
+    return ErrorResponse.notFound([
       JsonApiError(
           status: '404',
           title: 'Relationship not found',

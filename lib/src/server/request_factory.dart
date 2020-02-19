@@ -5,19 +5,20 @@ import 'package:json_api/http.dart';
 import 'package:json_api/src/server/json_api_request.dart';
 import 'package:json_api/src/server/json_api_response.dart';
 
+/// TODO: Extract routing
 class JsonApiRequestFactory {
   JsonApiRequest getJsonApiRequest(HttpRequest request) {
     try {
       return _convert(request);
     } on FormatException catch (e) {
-      return PredefinedResponse(JsonApiResponse.badRequest([
+      return PredefinedResponse(ErrorResponse.badRequest([
         JsonApiError(
             status: '400',
             title: 'Bad request',
             detail: 'Invalid JSON. ${e.message}')
       ]));
     } on DocumentException catch (e) {
-      return PredefinedResponse(JsonApiResponse.badRequest([
+      return PredefinedResponse(ErrorResponse.badRequest([
         JsonApiError(status: '400', title: 'Bad request', detail: e.message)
       ]));
     }
@@ -42,7 +43,7 @@ class JsonApiRequestFactory {
         case 'GET':
           return FetchResource(s[0], s[1], request.uri.queryParametersAll);
         case 'PATCH':
-          return UpdateResourceRequest(s[0], s[1],
+          return UpdateResource(s[0], s[1],
               ResourceData.fromJson(jsonDecode(request.body)).unwrap());
         default:
           return _methodNotAllowed(['DELETE', 'GET', 'PATCH']);
@@ -70,7 +71,7 @@ class JsonApiRequestFactory {
           if (rel is ToMany) {
             return ReplaceToMany(s[0], s[1], s[3], rel.unwrap());
           }
-          return PredefinedResponse(JsonApiResponse.badRequest([
+          return PredefinedResponse(ErrorResponse.badRequest([
             JsonApiError(
                 status: '400',
                 title: 'Bad request',
@@ -83,7 +84,7 @@ class JsonApiRequestFactory {
           return _methodNotAllowed(['DELETE', 'GET', 'PATCH', 'POST']);
       }
     }
-    return PredefinedResponse(JsonApiResponse.notFound([
+    return PredefinedResponse(ErrorResponse.notFound([
       JsonApiError(
           status: '404',
           title: 'Not Found',
@@ -92,7 +93,7 @@ class JsonApiRequestFactory {
   }
 
   JsonApiRequest _methodNotAllowed(Iterable<String> allow) =>
-      PredefinedResponse(JsonApiResponse.methodNotAllowed([
+      PredefinedResponse(ErrorResponse.methodNotAllowed([
         JsonApiError(
             status: '405',
             title: 'Method Not Allowed',
