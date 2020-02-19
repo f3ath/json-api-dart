@@ -97,15 +97,6 @@ abstract class QueryParameters {
   Include get include => Include.fromQueryParameters(queryParameters);
 }
 
-class PredefinedResponse implements JsonApiRequest {
-  final JsonApiResponse response;
-
-  PredefinedResponse(this.response);
-
-  @override
-  FutureOr<JsonApiResponse> call(JsonApiController c) => response;
-}
-
 class FetchCollection with QueryParameters implements JsonApiRequest {
   final String type;
 

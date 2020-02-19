@@ -6,13 +6,13 @@ import 'package:test/test.dart';
 void main() {
   group('links', () {
     test('recognizes custom links', () {
-      final e = JsonApiError(
+      final e = ErrorObject(
           links: {'my-link': Link(Uri.parse('http://example.com'))});
       expect(e.links['my-link'].toString(), 'http://example.com');
     });
 
     test('"links" may contain the "about" key', () {
-      final e = JsonApiError(links: {
+      final e = ErrorObject(links: {
         'my-link': Link(Uri.parse('http://example.com')),
         'about': Link(Uri.parse('/about'))
       });
@@ -22,10 +22,10 @@ void main() {
     });
 
     test('custom "links" survives json serialization', () {
-      final e = JsonApiError(
+      final e = ErrorObject(
           links: {'my-link': Link(Uri.parse('http://example.com'))});
       expect(
-          JsonApiError.fromJson(json.decode(json.encode(e)))
+          ErrorObject.fromJson(json.decode(json.encode(e)))
               .links['my-link']
               .toString(),
           'http://example.com');
@@ -35,7 +35,7 @@ void main() {
   group('fromJson()', () {
     test('if no links is present, the "links" property is null', () {
       final e =
-          JsonApiError.fromJson(json.decode(json.encode((JsonApiError()))));
+          ErrorObject.fromJson(json.decode(json.encode((ErrorObject()))));
       expect(e.links, null);
       expect(e.about, null);
     });

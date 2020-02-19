@@ -1,6 +1,6 @@
 import 'package:json_api/src/document/api.dart';
 import 'package:json_api/src/document/document_exception.dart';
-import 'package:json_api/src/document/json_api_error.dart';
+import 'package:json_api/src/document/error_object.dart';
 import 'package:json_api/src/document/primary_data.dart';
 
 class Document<Data extends PrimaryData> {
@@ -13,7 +13,7 @@ class Document<Data extends PrimaryData> {
   final Api api;
 
   /// List of errors. May be null.
-  final Iterable<JsonApiError> errors;
+  final Iterable<ErrorObject> errors;
 
   /// Meta data. May be empty or null.
   final Map<String, Object> meta;
@@ -24,7 +24,7 @@ class Document<Data extends PrimaryData> {
         meta = (meta == null) ? null : Map.unmodifiable(meta);
 
   /// Create a document with errors (no primary data)
-  Document.error(Iterable<JsonApiError> errors,
+  Document.error(Iterable<ErrorObject> errors,
       {Map<String, Object> meta, this.api})
       : data = null,
         meta = (meta == null) ? null : Map.unmodifiable(meta),
@@ -49,7 +49,7 @@ class Document<Data extends PrimaryData> {
       if (json.containsKey('errors')) {
         final errors = json['errors'];
         if (errors is List) {
-          return Document.error(errors.map(JsonApiError.fromJson),
+          return Document.error(errors.map(ErrorObject.fromJson),
               meta: json['meta'], api: api);
         }
       } else if (json.containsKey('data')) {

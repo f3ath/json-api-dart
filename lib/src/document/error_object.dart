@@ -2,10 +2,10 @@ import 'package:json_api/document.dart';
 import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/link.dart';
 
-/// [JsonApiError] represents an error occurred on the server.
+/// [ErrorObject] represents an error occurred on the server.
 ///
 /// More on this: https://jsonapi.org/format/#errors
-class JsonApiError {
+class ErrorObject {
   /// A unique identifier for this particular occurrence of the problem.
   /// May be null.
   final String id;
@@ -54,7 +54,7 @@ class JsonApiError {
   /// The [links] map may contain custom links. The about link
   /// passed through the [about] argument takes precedence and will overwrite
   /// the `about` key in [links].
-  JsonApiError({
+  ErrorObject({
     this.id,
     this.status,
     this.code,
@@ -67,7 +67,7 @@ class JsonApiError {
   })  : links = (links == null) ? null : Map.unmodifiable(links),
         meta = (meta == null) ? null : Map.unmodifiable(meta);
 
-  static JsonApiError fromJson(Object json) {
+  static ErrorObject fromJson(Object json) {
     if (json is Map) {
       String pointer;
       String parameter;
@@ -77,7 +77,7 @@ class JsonApiError {
         pointer = source['pointer'];
       }
       final links = json['links'];
-      return JsonApiError(
+      return ErrorObject(
           id: json['id'],
           status: json['status'],
           code: json['code'],

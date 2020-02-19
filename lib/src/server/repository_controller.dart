@@ -14,7 +14,7 @@ class RepositoryController<R> implements JsonApiController {
         final original = await _repo.get(request.type, request.id);
         if (!original.toMany.containsKey(request.relationship)) {
           return ErrorResponse.notFound([
-            JsonApiError(
+            ErrorObject(
                 status: '404',
                 title: 'Relationship not found',
                 detail:
@@ -194,27 +194,27 @@ class RepositoryController<R> implements JsonApiController {
       return await action();
     } on UnsupportedOperation catch (e) {
       return ErrorResponse.forbidden([
-        JsonApiError(
+        ErrorObject(
             status: '403', title: 'Unsupported operation', detail: e.message)
       ]);
     } on CollectionNotFound catch (e) {
       return ErrorResponse.notFound([
-        JsonApiError(
+        ErrorObject(
             status: '404', title: 'Collection not found', detail: e.message)
       ]);
     } on ResourceNotFound catch (e) {
       return ErrorResponse.notFound([
-        JsonApiError(
+        ErrorObject(
             status: '404', title: 'Resource not found', detail: e.message)
       ]);
     } on InvalidType catch (e) {
       return ErrorResponse.conflict([
-        JsonApiError(
+        ErrorObject(
             status: '409', title: 'Invalid resource type', detail: e.message)
       ]);
     } on ResourceExists catch (e) {
       return ErrorResponse.conflict([
-        JsonApiError(status: '409', title: 'Resource exists', detail: e.message)
+        ErrorObject(status: '409', title: 'Resource exists', detail: e.message)
       ]);
     }
   }
@@ -223,7 +223,7 @@ class RepositoryController<R> implements JsonApiController {
     String relationship,
   ) {
     return ErrorResponse.notFound([
-      JsonApiError(
+      ErrorObject(
           status: '404',
           title: 'Relationship not found',
           detail:

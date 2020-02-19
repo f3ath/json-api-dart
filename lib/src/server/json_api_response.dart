@@ -1,15 +1,15 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/src/server/http_response_builder.dart';
+import 'package:json_api/http.dart';
+import 'package:json_api/src/server/http_response_factory.dart';
 
 abstract class JsonApiResponse {
-  void build(HttpResponseBuilder response);
+  HttpResponse httpResponse(HttpResponseFactory response);
 }
 
 class NoContentResponse implements JsonApiResponse {
   @override
-  void build(HttpResponseBuilder response) {
-    response.statusCode = 204;
-  }
+  HttpResponse httpResponse(HttpResponseFactory response) =>
+      response.noContent();
 }
 
 class CollectionResponse implements JsonApiResponse {
@@ -20,9 +20,8 @@ class CollectionResponse implements JsonApiResponse {
   CollectionResponse(this.collection, {this.included, this.total});
 
   @override
-  void build(HttpResponseBuilder response) {
-    response.collectionDocument(collection, included: included, total: total);
-  }
+  HttpResponse httpResponse(HttpResponseFactory response) =>
+      response.collection(collection, included: included, total: total);
 }
 
 class AcceptedResponse implements JsonApiResponse {
@@ -31,47 +30,39 @@ class AcceptedResponse implements JsonApiResponse {
   AcceptedResponse(this.resource);
 
   @override
-  void build(HttpResponseBuilder response) {
-    response
-      ..statusCode = 202
-      ..addContentLocation(resource.type, resource.id)
-      ..resourceDocument(resource);
-  }
+  HttpResponse httpResponse(HttpResponseFactory response) =>
+      response.accepted(resource);
 }
 
 class ErrorResponse implements JsonApiResponse {
-  final Iterable<JsonApiError> errors;
+  final Iterable<ErrorObject> errors;
   final int statusCode;
 
   ErrorResponse(this.statusCode, this.errors);
 
-  static JsonApiResponse badRequest(Iterable<JsonApiError> errors) =>
+  static JsonApiResponse badRequest(Iterable<ErrorObject> errors) =>
       ErrorResponse(400, errors);
 
-  static JsonApiResponse forbidden(Iterable<JsonApiError> errors) =>
+  static JsonApiResponse forbidden(Iterable<ErrorObject> errors) =>
       ErrorResponse(403, errors);
 
-  static JsonApiResponse notFound(Iterable<JsonApiError> errors) =>
+  static JsonApiResponse notFound(Iterable<ErrorObject> errors) =>
       ErrorResponse(404, errors);
 
   /// The allowed methods can be specified in [allow]
-  static JsonApiResponse methodNotAllowed(Iterable<JsonApiError> errors,
-          {Iterable<String> allow}) =>
+  static JsonApiResponse methodNotAllowed(
+          Iterable<ErrorObject> errors, Iterable<String> allow) =>
       ErrorResponse(405, errors).._headers['Allow'] = allow.join(', ');
 
-  static JsonApiResponse conflict(Iterable<JsonApiError> errors) =>
+  static JsonApiResponse conflict(Iterable<ErrorObject> errors) =>
       ErrorResponse(409, errors);
 
-  static JsonApiResponse notImplemented(Iterable<JsonApiError> errors) =>
+  static JsonApiResponse notImplemented(Iterable<ErrorObject> errors) =>
       ErrorResponse(501, errors);
 
   @override
-  void build(HttpResponseBuilder response) {
-    response
-      ..statusCode = statusCode
-      ..addHeaders(_headers)
-      ..errorDocument(errors);
-  }
+  HttpResponse httpResponse(HttpResponseFactory response) =>
+      response.error(errors, statusCode, _headers);
 
   final _headers = <String, String>{};
 }
@@ -82,9 +73,8 @@ class MetaResponse implements JsonApiResponse {
   MetaResponse(this.meta);
 
   @override
-  void build(HttpResponseBuilder response) {
-    response.metaDocument(meta);
-  }
+  HttpResponse httpResponse(HttpResponseFactory response) =>
+      response.meta(meta);
 }
 
 class ResourceResponse implements JsonApiResponse {
@@ -94,9 +84,8 @@ class ResourceResponse implements JsonApiResponse {
   ResourceResponse(this.resource, {this.included});
 
   @override
-  void build(HttpResponseBuilder response) {
-    response.resourceDocument(resource, included: included);
-  }
+  HttpResponse httpResponse(HttpResponseFactory response) =>
+      response.resource(resource, included: included);
 }
 
 class ResourceCreatedResponse implements JsonApiResponse {
@@ -105,12 +94,8 @@ class ResourceCreatedResponse implements JsonApiResponse {
   ResourceCreatedResponse(this.resource);
 
   @override
-  void build(HttpResponseBuilder response) {
-    response
-      ..statusCode = 201
-      ..addLocation(resource.type, resource.id)
-      ..createdResourceDocument(resource);
-  }
+  HttpResponse httpResponse(HttpResponseFactory response) =>
+      response.resourceCreated(resource);
 }
 
 class SeeOtherResponse implements JsonApiResponse {
@@ -120,11 +105,8 @@ class SeeOtherResponse implements JsonApiResponse {
   SeeOtherResponse(this.type, this.id);
 
   @override
-  void build(HttpResponseBuilder response) {
-    response
-      ..statusCode = 303
-      ..addLocation(type, id);
-  }
+  HttpResponse httpResponse(HttpResponseFactory response) =>
+      response.seeOther(type, id);
 }
 
 class ToManyResponse implements JsonApiResponse {
@@ -136,9 +118,8 @@ class ToManyResponse implements JsonApiResponse {
   ToManyResponse(this.type, this.id, this.relationship, this.collection);
 
   @override
-  void build(HttpResponseBuilder response) {
-    response.toManyDocument(collection, type, id, relationship);
-  }
+  HttpResponse httpResponse(HttpResponseFactory response) =>
+      response.toMany(collection, type, id, relationship);
 }
 
 class ToOneResponse implements JsonApiResponse {
@@ -150,7 +131,6 @@ class ToOneResponse implements JsonApiResponse {
   ToOneResponse(this.type, this.id, this.relationship, this.identifier);
 
   @override
-  void build(HttpResponseBuilder response) {
-    response.toOneDocument(identifier, type, id, relationship);
-  }
+  HttpResponse httpResponse(HttpResponseFactory response) =>
+      response.toOneDocument(identifier, type, id, relationship);
 }

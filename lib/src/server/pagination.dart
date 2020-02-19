@@ -20,16 +20,11 @@ abstract class Pagination {
 
   /// Reference to the first page. Null if not supported or if current page is the first.
   Page prev(Page page);
-
-  /// No pagination. The server will not be able to produce pagination links.
-  static Pagination none() => _None();
-
-  /// Pages of fixed [size].
-  static Pagination fixedSize(int size) => _FixedSize(size);
 }
 
-class _None implements Pagination {
-  const _None();
+/// No pagination. The server will not be able to produce pagination links.
+class NoPagination implements Pagination {
+  const NoPagination();
 
   @override
   Page first() => null;
@@ -50,10 +45,11 @@ class _None implements Pagination {
   Page prev(Page page) => null;
 }
 
-class _FixedSize implements Pagination {
+/// Pages of fixed [size].
+class FixedSizePage implements Pagination {
   final int size;
 
-  _FixedSize(this.size) {
+  FixedSizePage(this.size) {
     if (size < 1) throw ArgumentError();
   }
 

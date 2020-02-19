@@ -3,28 +3,10 @@ import 'dart:convert';
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/src/server/json_api_request.dart';
-import 'package:json_api/src/server/json_api_response.dart';
 
 /// TODO: Extract routing
 class JsonApiRequestFactory {
   JsonApiRequest getJsonApiRequest(HttpRequest request) {
-    try {
-      return _convert(request);
-    } on FormatException catch (e) {
-      return PredefinedResponse(ErrorResponse.badRequest([
-        JsonApiError(
-            status: '400',
-            title: 'Bad request',
-            detail: 'Invalid JSON. ${e.message}')
-      ]));
-    } on DocumentException catch (e) {
-      return PredefinedResponse(ErrorResponse.badRequest([
-        JsonApiError(status: '400', title: 'Bad request', detail: e.message)
-      ]));
-    }
-  }
-
-  JsonApiRequest _convert(HttpRequest request) {
     final s = request.uri.pathSegments;
     if (s.length == 1) {
       switch (request.method) {
@@ -34,7 +16,7 @@ class JsonApiRequestFactory {
           return CreateResource(
               s[0], ResourceData.fromJson(jsonDecode(request.body)).unwrap());
         default:
-          return _methodNotAllowed(['GET', 'POST']);
+          throw MethodNotAllowedException(allow: ['GET', 'POST']);
       }
     } else if (s.length == 2) {
       switch (request.method) {
@@ -46,14 +28,14 @@ class JsonApiRequestFactory {
           return UpdateResource(s[0], s[1],
               ResourceData.fromJson(jsonDecode(request.body)).unwrap());
         default:
-          return _methodNotAllowed(['DELETE', 'GET', 'PATCH']);
+          throw MethodNotAllowedException(allow: ['DELETE', 'GET', 'PATCH']);
       }
     } else if (s.length == 3) {
       switch (request.method) {
         case 'GET':
           return FetchRelated(s[0], s[1], s[2], request.uri.queryParametersAll);
         default:
-          return _methodNotAllowed(['GET']);
+          throw MethodNotAllowedException(allow: ['GET']);
       }
     } else if (s.length == 4 && s[2] == 'relationships') {
       switch (request.method) {
@@ -71,32 +53,28 @@ class JsonApiRequestFactory {
           if (rel is ToMany) {
             return ReplaceToMany(s[0], s[1], s[3], rel.unwrap());
           }
-          return PredefinedResponse(ErrorResponse.badRequest([
-            JsonApiError(
-                status: '400',
-                title: 'Bad request',
-                detail: 'Incomplete relationship object')
-          ]));
+          throw IncompleteRelationshipException();
         case 'POST':
           return AddToRelationship(s[0], s[1], s[3],
               ToMany.fromJson(jsonDecode(request.body)).unwrap());
         default:
-          return _methodNotAllowed(['DELETE', 'GET', 'PATCH', 'POST']);
+          throw MethodNotAllowedException(
+              allow: ['DELETE', 'GET', 'PATCH', 'POST']);
       }
     }
-    return PredefinedResponse(ErrorResponse.notFound([
-      JsonApiError(
-          status: '404',
-          title: 'Not Found',
-          detail: 'The requested URL does exist on the server')
-    ]));
+    throw InvalidUriException();
   }
-
-  JsonApiRequest _methodNotAllowed(Iterable<String> allow) =>
-      PredefinedResponse(ErrorResponse.methodNotAllowed([
-        JsonApiError(
-            status: '405',
-            title: 'Method Not Allowed',
-            detail: 'Allowed methods: ${allow.join(', ')}')
-      ], allow: allow));
 }
+
+/// Thrown if HTTP method is not allowed for the given route
+class MethodNotAllowedException implements Exception {
+  final Iterable<String> allow;
+
+  MethodNotAllowedException({this.allow = const []});
+}
+
+/// Thrown if the request URI can not be matched to a target
+class InvalidUriException implements Exception {}
+
+/// Thrown if the relationship object has no data
+class IncompleteRelationshipException implements Exception {}

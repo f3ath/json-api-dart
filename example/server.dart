@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:json_api/http.dart';
-import 'package:json_api/server.dart';
 import 'package:json_api/routing.dart';
+import 'package:json_api/server.dart';
 
 /// This example shows how to run a simple JSON:API server using the built-in
 /// HTTP server (dart:io).

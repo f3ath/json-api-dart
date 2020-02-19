@@ -27,7 +27,7 @@ class JsonApiResponse<Data extends PrimaryData> {
 
   /// List of errors (if any) returned by the server in case of an unsuccessful
   /// operation. May be empty. Will be null if the operation was successful.
-  List<JsonApiError> get errors => document?.errors;
+  List<ErrorObject> get errors => document?.errors;
 
   /// Primary Data from the async document (if any)
   ResourceData get asyncData => asyncDocument?.data;
