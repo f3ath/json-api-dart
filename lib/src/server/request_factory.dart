@@ -5,7 +5,6 @@ import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/server/request.dart';
 
-/// TODO: Extract routing
 class RequestFactory {
   /// Creates a [Request] from [httpRequest]
   Request createFromHttp(HttpRequest httpRequest) {
