@@ -9,7 +9,7 @@ import 'package:json_api/src/server/pagination.dart';
 import 'package:json_api/src/server/response_converter.dart';
 
 /// An implementation of [ResponseConverter] converting to [HttpResponse].
-class HttpResponseFactory implements ResponseConverter<HttpResponse> {
+class ToHttpResponse implements ResponseConverter<HttpResponse> {
   @override
   HttpResponse error(Iterable<ErrorObject> errors, int statusCode,
           Map<String, String> headers) =>
@@ -103,10 +103,10 @@ class HttpResponseFactory implements ResponseConverter<HttpResponse> {
   @override
   HttpResponse noContent() => HttpResponse(204);
 
-  HttpResponseFactory(this._routing, this._self);
+  ToHttpResponse(this._routing, this._self);
 
   final Uri _self;
-  final Routing _routing;
+  final RouteFactory _routing;
   final Api _api = Api(version: '1.0');
 
   HttpResponse _document(Document d,

@@ -17,7 +17,7 @@ void main() {
     final routing =
         StandardRouting(Uri(host: host, port: port, scheme: 'http'));
     final repo = InMemoryRepository({'writers': {}, 'books': {}});
-    final jsonApiServer = JsonApiServer(routing, RepositoryController(repo));
+    final jsonApiServer = JsonApiServer(RepositoryController(repo));
     final serverHandler = DartServer(jsonApiServer);
     Client httpClient;
     RoutingClient client;

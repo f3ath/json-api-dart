@@ -47,7 +47,7 @@ void main() async {
       'countries': {'1': wonderland},
       'tags': {}
     });
-    server = JsonApiServer(routing, RepositoryController(repository));
+    server = JsonApiServer(RepositoryController(repository));
     client = RoutingClient(JsonApiClient(server), routing);
   });
 

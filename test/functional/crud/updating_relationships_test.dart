@@ -1,10 +1,10 @@
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
+import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 import 'package:json_api/src/server/in_memory_repository.dart';
 import 'package:json_api/src/server/json_api_server.dart';
 import 'package:json_api/src/server/repository_controller.dart';
-import 'package:json_api/routing.dart';
 import 'package:test/test.dart';
 
 import 'seed_resources.dart';
@@ -21,7 +21,7 @@ void main() async {
   setUp(() async {
     final repository =
         InMemoryRepository({'books': {}, 'people': {}, 'companies': {}});
-    server = JsonApiServer(routing, RepositoryController(repository));
+    server = JsonApiServer(RepositoryController(repository));
     client = JsonApiClient(server);
     routingClient = RoutingClient(client, routing);
 
@@ -63,7 +63,6 @@ void main() async {
       expect(error.title, 'Resource not found');
       expect(error.detail, "Resource '42' does not exist in 'books'");
     });
-
   });
 
   group('Deleting a to-one relationship', () {

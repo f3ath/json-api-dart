@@ -2,14 +2,13 @@ import 'dart:convert';
 
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
-import 'package:json_api/server.dart';
 import 'package:json_api/routing.dart';
+import 'package:json_api/server.dart';
 import 'package:test/test.dart';
 
 void main() {
   final routing = StandardRouting(Uri.parse('http://example.com'));
-  final server =
-      JsonApiServer(routing, RepositoryController(InMemoryRepository({})));
+  final server = JsonApiServer(RepositoryController(InMemoryRepository({})));
 
   group('JsonApiServer', () {
     test('returns `bad request` on incomplete relationship', () async {
@@ -49,8 +48,8 @@ void main() {
     });
 
     test('returns `bad request` when payload violates JSON:API', () async {
-      final rq =
-          HttpRequest('POST', routing.collection('books'), body: '{"data": {}}');
+      final rq = HttpRequest('POST', routing.collection('books'),
+          body: '{"data": {}}');
       final rs = await server(rq);
       expect(rs.statusCode, 400);
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;

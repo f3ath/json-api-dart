@@ -2,7 +2,7 @@ import 'package:json_api/document.dart';
 
 /// This is a controller consolidating all possible requests a JSON:API server
 /// may handle.
-abstract class JsonApiRequestHandler<T> {
+abstract class RequestHandler<T> {
   /// Finds an returns a primary resource collection.
   /// See https://jsonapi.org/format/#fetching-resources
   T fetchCollection(

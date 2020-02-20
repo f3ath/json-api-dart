@@ -3,19 +3,15 @@ import 'dart:async';
 import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/server.dart';
-import 'package:json_api/src/server/json_api_request_handler.dart';
-import 'package:json_api/src/server/json_api_response.dart';
 import 'package:json_api/src/server/repository.dart';
+import 'package:json_api/src/server/request_handler.dart';
+import 'package:json_api/src/server/response.dart';
 
-/// An opinionated implementation of [JsonApiRequestHandler]
-class RepositoryController<R>
-    implements JsonApiRequestHandler<FutureOr<JsonApiResponse>> {
+/// An opinionated implementation of [RequestHandler]
+class RepositoryController<R> implements RequestHandler<FutureOr<Response>> {
   @override
-  FutureOr<JsonApiResponse> addToRelationship(
-          final String type,
-          final String id,
-          final String relationship,
-          final Iterable<Identifier> identifiers) =>
+  FutureOr<Response> addToRelationship(final String type, final String id,
+          final String relationship, final Iterable<Identifier> identifiers) =>
       _do(() async {
         final original = await _repo.get(type, id);
         if (!original.toMany.containsKey(relationship)) {
@@ -38,7 +34,7 @@ class RepositoryController<R>
       });
 
   @override
-  FutureOr<JsonApiResponse> createResource(String type, Resource resource) =>
+  FutureOr<Response> createResource(String type, Resource resource) =>
       _do(() async {
         final modified = await _repo.create(type, resource);
         if (modified == null) return NoContentResponse();
@@ -46,11 +42,8 @@ class RepositoryController<R>
       });
 
   @override
-  FutureOr<JsonApiResponse> deleteFromRelationship(
-          final String type,
-          final String id,
-          final String relationship,
-          final Iterable<Identifier> identifiers) =>
+  FutureOr<Response> deleteFromRelationship(final String type, final String id,
+          final String relationship, final Iterable<Identifier> identifiers) =>
       _do(() async {
         final original = await _repo.get(type, id);
         final updated = await _repo.update(
@@ -65,14 +58,13 @@ class RepositoryController<R>
       });
 
   @override
-  FutureOr<JsonApiResponse> deleteResource(String type, String id) =>
-      _do(() async {
+  FutureOr<Response> deleteResource(String type, String id) => _do(() async {
         await _repo.delete(type, id);
         return NoContentResponse();
       });
 
   @override
-  FutureOr<JsonApiResponse> fetchCollection(
+  FutureOr<Response> fetchCollection(
           final String type, final Map<String, List<String>> queryParameters) =>
       _do(() async {
         final c = await _repo.getCollection(type);
@@ -90,7 +82,7 @@ class RepositoryController<R>
       });
 
   @override
-  FutureOr<JsonApiResponse> fetchRelated(
+  FutureOr<Response> fetchRelated(
           final String type,
           final String id,
           final String relationship,
@@ -112,7 +104,7 @@ class RepositoryController<R>
       });
 
   @override
-  FutureOr<JsonApiResponse> fetchRelationship(
+  FutureOr<Response> fetchRelationship(
           final String type,
           final String id,
           final String relationship,
@@ -131,7 +123,7 @@ class RepositoryController<R>
       });
 
   @override
-  FutureOr<JsonApiResponse> fetchResource(final String type, final String id,
+  FutureOr<Response> fetchResource(final String type, final String id,
           final Map<String, List<String>> queryParameters) =>
       _do(() async {
         final include = Include.fromQueryParameters(queryParameters);
@@ -145,7 +137,7 @@ class RepositoryController<R>
       });
 
   @override
-  FutureOr<JsonApiResponse> replaceToMany(final String type, final String id,
+  FutureOr<Response> replaceToMany(final String type, final String id,
           final String relationship, final Iterable<Identifier> identifiers) =>
       _do(() async {
         await _repo.update(
@@ -154,7 +146,7 @@ class RepositoryController<R>
       });
 
   @override
-  FutureOr<JsonApiResponse> updateResource(
+  FutureOr<Response> updateResource(
           String type, String id, Resource resource) =>
       _do(() async {
         final modified = await _repo.update(type, id, resource);
@@ -163,7 +155,7 @@ class RepositoryController<R>
       });
 
   @override
-  FutureOr<JsonApiResponse> replaceToOne(final String type, final String id,
+  FutureOr<Response> replaceToOne(final String type, final String id,
           final String relationship, final Identifier identifier) =>
       _do(() async {
         await _repo.update(
@@ -202,8 +194,7 @@ class RepositoryController<R>
     return resources;
   }
 
-  FutureOr<JsonApiResponse> _do(
-      FutureOr<JsonApiResponse> Function() action) async {
+  FutureOr<Response> _do(FutureOr<Response> Function() action) async {
     try {
       return await action();
     } on UnsupportedOperation catch (e) {
@@ -233,7 +224,7 @@ class RepositoryController<R>
     }
   }
 
-  JsonApiResponse _relationshipNotFound(
+  Response _relationshipNotFound(
     String relationship,
   ) {
     return ErrorResponse.notFound([

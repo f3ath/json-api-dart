@@ -2,17 +2,17 @@ import 'package:json_api/document.dart';
 import 'package:json_api/src/server/response_converter.dart';
 
 /// the base interface for all JSON:API responses
-abstract class JsonApiResponse {
+abstract class Response {
   /// Converts the JSON:API response to another object, e.g. HTTP response.
   T convert<T>(ResponseConverter<T> converter);
 }
 
-class NoContentResponse implements JsonApiResponse {
+class NoContentResponse implements Response {
   @override
   T convert<T>(ResponseConverter<T> converter) => converter.noContent();
 }
 
-class CollectionResponse implements JsonApiResponse {
+class CollectionResponse implements Response {
   final Iterable<Resource> collection;
   final Iterable<Resource> included;
   final int total;
@@ -24,7 +24,7 @@ class CollectionResponse implements JsonApiResponse {
       converter.collection(collection, included: included, total: total);
 }
 
-class AcceptedResponse implements JsonApiResponse {
+class AcceptedResponse implements Response {
   final Resource resource;
 
   AcceptedResponse(this.resource);
@@ -33,30 +33,30 @@ class AcceptedResponse implements JsonApiResponse {
   T convert<T>(ResponseConverter<T> converter) => converter.accepted(resource);
 }
 
-class ErrorResponse implements JsonApiResponse {
+class ErrorResponse implements Response {
   final Iterable<ErrorObject> errors;
   final int statusCode;
 
   ErrorResponse(this.statusCode, this.errors);
 
-  static JsonApiResponse badRequest(Iterable<ErrorObject> errors) =>
+  static Response badRequest(Iterable<ErrorObject> errors) =>
       ErrorResponse(400, errors);
 
-  static JsonApiResponse forbidden(Iterable<ErrorObject> errors) =>
+  static Response forbidden(Iterable<ErrorObject> errors) =>
       ErrorResponse(403, errors);
 
-  static JsonApiResponse notFound(Iterable<ErrorObject> errors) =>
+  static Response notFound(Iterable<ErrorObject> errors) =>
       ErrorResponse(404, errors);
 
   /// The allowed methods can be specified in [allow]
-  static JsonApiResponse methodNotAllowed(
+  static Response methodNotAllowed(
           Iterable<ErrorObject> errors, Iterable<String> allow) =>
       ErrorResponse(405, errors).._headers['Allow'] = allow.join(', ');
 
-  static JsonApiResponse conflict(Iterable<ErrorObject> errors) =>
+  static Response conflict(Iterable<ErrorObject> errors) =>
       ErrorResponse(409, errors);
 
-  static JsonApiResponse notImplemented(Iterable<ErrorObject> errors) =>
+  static Response notImplemented(Iterable<ErrorObject> errors) =>
       ErrorResponse(501, errors);
 
   @override
@@ -66,7 +66,7 @@ class ErrorResponse implements JsonApiResponse {
   final _headers = <String, String>{};
 }
 
-class MetaResponse implements JsonApiResponse {
+class MetaResponse implements Response {
   final Map<String, Object> meta;
 
   MetaResponse(this.meta);
@@ -75,7 +75,7 @@ class MetaResponse implements JsonApiResponse {
   T convert<T>(ResponseConverter<T> converter) => converter.meta(meta);
 }
 
-class ResourceResponse implements JsonApiResponse {
+class ResourceResponse implements Response {
   final Resource resource;
   final Iterable<Resource> included;
 
@@ -86,7 +86,7 @@ class ResourceResponse implements JsonApiResponse {
       converter.resource(resource, included: included);
 }
 
-class ResourceCreatedResponse implements JsonApiResponse {
+class ResourceCreatedResponse implements Response {
   final Resource resource;
 
   ResourceCreatedResponse(this.resource);
@@ -96,7 +96,7 @@ class ResourceCreatedResponse implements JsonApiResponse {
       converter.resourceCreated(resource);
 }
 
-class SeeOtherResponse implements JsonApiResponse {
+class SeeOtherResponse implements Response {
   final String type;
   final String id;
 
@@ -106,7 +106,7 @@ class SeeOtherResponse implements JsonApiResponse {
   T convert<T>(ResponseConverter<T> converter) => converter.seeOther(type, id);
 }
 
-class ToManyResponse implements JsonApiResponse {
+class ToManyResponse implements Response {
   final Iterable<Identifier> collection;
   final String type;
   final String id;
@@ -119,7 +119,7 @@ class ToManyResponse implements JsonApiResponse {
       converter.toMany(type, id, relationship, collection);
 }
 
-class ToOneResponse implements JsonApiResponse {
+class ToOneResponse implements Response {
   final String type;
   final String id;
   final String relationship;

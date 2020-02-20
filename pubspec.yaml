@@ -1,5 +1,5 @@
 name: json_api
-version: 4.0.0-dev.4
+version: 4.0.0-dev.5
 homepage: https://github.com/f3ath/json-api-dart
 description: JSON:API Client for Flutter, Web and VM. Supports JSON:API v1.0 (http://jsonapi.org)
 environment:

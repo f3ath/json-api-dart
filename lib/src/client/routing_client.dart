@@ -113,7 +113,7 @@ class RoutingClient {
   RoutingClient(this._client, this._routing);
 
   final JsonApiClient _client;
-  final Routing _routing;
+  final RouteFactory _routing;
 
   Uri _collection(String type) => _routing.collection(type);
 

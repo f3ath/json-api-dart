@@ -18,7 +18,7 @@ void main() async {
       final repository = InMemoryRepository({
         'people': {},
       }, nextId: Uuid().v4);
-      final server = JsonApiServer(routing, RepositoryController(repository));
+      final server = JsonApiServer(RepositoryController(repository));
       final client = JsonApiClient(server);
       final routingClient = RoutingClient(client, routing);
 
@@ -39,7 +39,7 @@ void main() async {
 
     test('403 when the id can not be generated', () async {
       final repository = InMemoryRepository({'people': {}});
-      final server = JsonApiServer(routing, RepositoryController(repository));
+      final server = JsonApiServer(RepositoryController(repository));
       final client = JsonApiClient(server);
       final routingClient = RoutingClient(client, routing);
 
@@ -65,7 +65,7 @@ void main() async {
         'fruits': {},
         'apples': {}
       });
-      final server = JsonApiServer(routing, RepositoryController(repository));
+      final server = JsonApiServer(RepositoryController(repository));
       client = JsonApiClient(server);
       routingClient = RoutingClient(client, routing);
     });

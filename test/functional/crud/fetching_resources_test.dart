@@ -1,9 +1,9 @@
 import 'package:json_api/client.dart';
+import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 import 'package:json_api/src/server/in_memory_repository.dart';
 import 'package:json_api/src/server/json_api_server.dart';
 import 'package:json_api/src/server/repository_controller.dart';
-import 'package:json_api/routing.dart';
 import 'package:test/test.dart';
 
 import 'seed_resources.dart';
@@ -20,7 +20,7 @@ void main() async {
   setUp(() async {
     final repository =
         InMemoryRepository({'books': {}, 'people': {}, 'companies': {}});
-    server = JsonApiServer(routing, RepositoryController(repository));
+    server = JsonApiServer(RepositoryController(repository));
     client = JsonApiClient(server);
     routingClient = RoutingClient(client, routing);
 
@@ -76,7 +76,8 @@ void main() async {
 
   group('Related Resource', () {
     test('200 OK', () async {
-      final r = await routingClient.fetchRelatedResource('books', '1', 'publisher');
+      final r =
+          await routingClient.fetchRelatedResource('books', '1', 'publisher');
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
       expect(r.data.unwrap().type, 'companies');
@@ -84,7 +85,8 @@ void main() async {
     });
 
     test('404 on collection', () async {
-      final r = await routingClient.fetchRelatedResource('unicorns', '1', 'publisher');
+      final r = await routingClient.fetchRelatedResource(
+          'unicorns', '1', 'publisher');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
       expect(r.errors.first.status, '404');
@@ -93,7 +95,8 @@ void main() async {
     });
 
     test('404 on resource', () async {
-      final r = await routingClient.fetchRelatedResource('books', '42', 'publisher');
+      final r =
+          await routingClient.fetchRelatedResource('books', '42', 'publisher');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
       expect(r.errors.first.status, '404');
@@ -114,7 +117,8 @@ void main() async {
 
   group('Related Collection', () {
     test('successful', () async {
-      final r = await routingClient.fetchRelatedCollection('books', '1', 'authors');
+      final r =
+          await routingClient.fetchRelatedCollection('books', '1', 'authors');
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
       expect(r.data.unwrap().length, 2);
@@ -122,7 +126,8 @@ void main() async {
     });
 
     test('404 on collection', () async {
-      final r = await routingClient.fetchRelatedCollection('unicorns', '1', 'athors');
+      final r =
+          await routingClient.fetchRelatedCollection('unicorns', '1', 'athors');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
       expect(r.errors.first.status, '404');
@@ -131,7 +136,8 @@ void main() async {
     });
 
     test('404 on resource', () async {
-      final r = await routingClient.fetchRelatedCollection('books', '42', 'authors');
+      final r =
+          await routingClient.fetchRelatedCollection('books', '42', 'authors');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
       expect(r.errors.first.status, '404');
@@ -140,7 +146,8 @@ void main() async {
     });
 
     test('404 on relationship', () async {
-      final r = await routingClient.fetchRelatedCollection('books', '1', 'readers');
+      final r =
+          await routingClient.fetchRelatedCollection('books', '1', 'readers');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
       expect(r.errors.first.status, '404');

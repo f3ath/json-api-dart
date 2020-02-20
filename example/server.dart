@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:json_api/http.dart';
-import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 
 /// This example shows how to run a simple JSON:API server using the built-in
@@ -14,20 +13,14 @@ void main() async {
   /// Listening on the localhost
   final address = 'localhost';
 
-  /// Base URI to let the URI design detect the request target properly
-  final base = Uri(host: address, port: port, scheme: 'http');
-
-  /// Use the standard URI design
-  final routing = StandardRouting(base);
-
   /// Resource repository supports two kind of entities: writers and books
   final repo = InMemoryRepository({'writers': {}, 'books': {}});
 
   /// Controller provides JSON:API interface to the repository
   final controller = RepositoryController(repo);
 
-  /// The JSON:API server uses the given URI design to route requests to the controller
-  final jsonApiServer = JsonApiServer(routing, controller);
+  /// The JSON:API server routes requests to the controller
+  final jsonApiServer = JsonApiServer(controller);
 
   /// We will be logging the requests and responses to the console
   final loggingJsonApiServer = LoggingHttpHandler(jsonApiServer,
@@ -39,7 +32,7 @@ void main() async {
 
   /// Start the server
   final server = await HttpServer.bind(address, port);
-  print('Listening on $base');
+  print('Listening on ${Uri(host: address, port: port, scheme: 'http')}');
 
   /// Each HTTP request will be processed by the handler
   await server.forEach(serverHandler);

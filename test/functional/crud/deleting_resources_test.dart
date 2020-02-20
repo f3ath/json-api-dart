@@ -20,7 +20,7 @@ void main() async {
   setUp(() async {
     final repository =
         InMemoryRepository({'books': {}, 'people': {}, 'companies': {}});
-    server = JsonApiServer(routing, RepositoryController(repository));
+    server = JsonApiServer(RepositoryController(repository));
     client = JsonApiClient(server);
     routingClient = RoutingClient(client, routing);
 
