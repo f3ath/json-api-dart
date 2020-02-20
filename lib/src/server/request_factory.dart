@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
-import 'package:json_api/src/server/json_api_request.dart';
+import 'package:json_api/src/server/request.dart';
 
 /// TODO: Extract routing
 class JsonApiRequestFactory {
-  JsonApiRequest getJsonApiRequest(HttpRequest request) {
+  Request createFromHttp(HttpRequest request) {
     final s = request.uri.pathSegments;
     if (s.length == 1) {
       switch (request.method) {

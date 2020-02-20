@@ -36,8 +36,8 @@ void main() async {
     }, toOne: {
       'publisher': null
     }, toMany: {
-      'authors': [Identifiers('people', '1')],
-      'reviewers': [Identifiers('people', '2')]
+      'authors': [Identifier('people', '1')],
+      'reviewers': [Identifier('people', '2')]
     }));
     expect(r.isSuccessful, isTrue);
     expect(r.statusCode, 200);
@@ -47,9 +47,9 @@ void main() async {
     expect(r.data.unwrap().attributes['ISBN-10'], '0134757599');
     expect(r.data.unwrap().toOne['publisher'], isNull);
     expect(
-        r.data.unwrap().toMany['authors'], equals([Identifiers('people', '1')]));
+        r.data.unwrap().toMany['authors'], equals([Identifier('people', '1')]));
     expect(r.data.unwrap().toMany['reviewers'],
-        equals([Identifiers('people', '2')]));
+        equals([Identifier('people', '2')]));
 
     final r1 = await routingClient.fetchResource('books', '1');
     expectResourcesEqual(r1.data.unwrap(), r.data.unwrap());

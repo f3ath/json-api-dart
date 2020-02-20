@@ -35,7 +35,7 @@ void main() async {
       onResponse: (r) => print('${r.statusCode}'));
 
   /// The handler for the built-in HTTP server
-  final serverHandler = DartServerHandler(loggingJsonApiServer);
+  final serverHandler = DartServer(loggingJsonApiServer);
 
   /// Start the server
   final server = await HttpServer.bind(address, port);

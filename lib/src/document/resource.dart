@@ -3,7 +3,7 @@ import 'package:json_api/src/document/identifier.dart';
 
 /// Resource
 ///
-/// Together with [Identifiers] forms the core of the Document model.
+/// Together with [Identifier] forms the core of the Document model.
 /// Resources are passed between the server and the client in the form
 /// of [ResourceObject]s.
 class Resource {
@@ -19,10 +19,10 @@ class Resource {
   final Map<String, Object> attributes;
 
   /// Unmodifiable map of to-one relationships
-  final Map<String, Identifiers> toOne;
+  final Map<String, Identifier> toOne;
 
   /// Unmodifiable map of to-many relationships
-  final Map<String, Iterable<Identifiers>> toMany;
+  final Map<String, Iterable<Identifier>> toMany;
 
   /// Resource type and id combined
   String get key => '$type:$id';
@@ -35,8 +35,8 @@ class Resource {
   /// The [id] may be null for the resources to be created on the server.
   Resource(this.type, this.id,
       {Map<String, Object> attributes,
-      Map<String, Identifiers> toOne,
-      Map<String, Iterable<Identifiers>> toMany})
+      Map<String, Identifier> toOne,
+      Map<String, Iterable<Identifier>> toMany})
       : attributes = Map.unmodifiable(attributes ?? {}),
         toOne = Map.unmodifiable(toOne ?? {}),
         toMany = Map.unmodifiable(
@@ -49,7 +49,7 @@ class Resource {
 class NewResource extends Resource {
   NewResource(String type,
       {Map<String, Object> attributes,
-      Map<String, Identifiers> toOne,
-      Map<String, Iterable<Identifiers>> toMany})
+      Map<String, Identifier> toOne,
+      Map<String, Iterable<Identifier>> toMany})
       : super(type, null, attributes: attributes, toOne: toOne, toMany: toMany);
 }

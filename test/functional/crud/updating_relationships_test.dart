@@ -31,7 +31,7 @@ void main() async {
   group('Updatng a to-one relationship', () {
     test('204 No Content', () async {
       final r = await routingClient.replaceToOne(
-          'books', '1', 'publisher', Identifiers('companies', '2'));
+          'books', '1', 'publisher', Identifier('companies', '2'));
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 204);
       expect(r.data, isNull);
@@ -42,7 +42,7 @@ void main() async {
 
     test('404 on collection', () async {
       final r = await routingClient.replaceToOne(
-          'unicorns', '1', 'breed', Identifiers('companies', '2'));
+          'unicorns', '1', 'breed', Identifier('companies', '2'));
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
       expect(r.data, isNull);
@@ -54,7 +54,7 @@ void main() async {
 
     test('404 on resource', () async {
       final r = await routingClient.replaceToOne(
-          'books', '42', 'publisher', Identifiers('companies', '2'));
+          'books', '42', 'publisher', Identifier('companies', '2'));
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
       expect(r.data, isNull);
@@ -103,7 +103,7 @@ void main() async {
   group('Replacing a to-many relationship', () {
     test('204 No Content', () async {
       final r = await routingClient
-          .replaceToMany('books', '1', 'authors', [Identifiers('people', '1')]);
+          .replaceToMany('books', '1', 'authors', [Identifier('people', '1')]);
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 204);
       expect(r.data, isNull);
@@ -115,7 +115,7 @@ void main() async {
 
     test('404 when collection not found', () async {
       final r = await routingClient.replaceToMany(
-          'unicorns', '1', 'breed', [Identifiers('companies', '2')]);
+          'unicorns', '1', 'breed', [Identifier('companies', '2')]);
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
       expect(r.data, isNull);
@@ -127,7 +127,7 @@ void main() async {
 
     test('404 when resource not found', () async {
       final r = await routingClient.replaceToMany(
-          'books', '42', 'publisher', [Identifiers('companies', '2')]);
+          'books', '42', 'publisher', [Identifier('companies', '2')]);
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
       expect(r.data, isNull);
@@ -141,7 +141,7 @@ void main() async {
   group('Adding to a to-many relationship', () {
     test('successfully adding a new identifier', () async {
       final r = await routingClient.addToRelationship(
-          'books', '1', 'authors', [Identifiers('people', '3')]);
+          'books', '1', 'authors', [Identifier('people', '3')]);
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
       expect(r.data.unwrap().length, 3);
@@ -154,7 +154,7 @@ void main() async {
 
     test('successfully adding an existing identifier', () async {
       final r = await routingClient.addToRelationship(
-          'books', '1', 'authors', [Identifiers('people', '2')]);
+          'books', '1', 'authors', [Identifier('people', '2')]);
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
       expect(r.data.unwrap().length, 2);
@@ -167,7 +167,7 @@ void main() async {
 
     test('404 when collection not found', () async {
       final r = await routingClient.addToRelationship(
-          'unicorns', '1', 'breed', [Identifiers('companies', '3')]);
+          'unicorns', '1', 'breed', [Identifier('companies', '3')]);
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
       expect(r.data, isNull);
@@ -179,7 +179,7 @@ void main() async {
 
     test('404 when resource not found', () async {
       final r = await routingClient.addToRelationship(
-          'books', '42', 'publisher', [Identifiers('companies', '3')]);
+          'books', '42', 'publisher', [Identifier('companies', '3')]);
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
       expect(r.data, isNull);
@@ -191,7 +191,7 @@ void main() async {
 
     test('404 when relationship not found', () async {
       final r = await routingClient.addToRelationship(
-          'books', '1', 'sellers', [Identifiers('companies', '3')]);
+          'books', '1', 'sellers', [Identifier('companies', '3')]);
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
       expect(r.data, isNull);
@@ -206,7 +206,7 @@ void main() async {
   group('Deleting from a to-many relationship', () {
     test('successfully deleting an identifier', () async {
       final r = await routingClient.deleteFromToMany(
-          'books', '1', 'authors', [Identifiers('people', '1')]);
+          'books', '1', 'authors', [Identifier('people', '1')]);
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
       expect(r.data.unwrap().length, 1);
@@ -218,7 +218,7 @@ void main() async {
 
     test('successfully deleting a non-present identifier', () async {
       final r = await routingClient.deleteFromToMany(
-          'books', '1', 'authors', [Identifiers('people', '3')]);
+          'books', '1', 'authors', [Identifier('people', '3')]);
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
       expect(r.data.unwrap().length, 2);
@@ -231,7 +231,7 @@ void main() async {
 
     test('404 when collection not found', () async {
       final r = await routingClient.deleteFromToMany(
-          'unicorns', '1', 'breed', [Identifiers('companies', '1')]);
+          'unicorns', '1', 'breed', [Identifier('companies', '1')]);
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
       expect(r.data, isNull);
@@ -243,7 +243,7 @@ void main() async {
 
     test('404 when resource not found', () async {
       final r = await routingClient.deleteFromToMany(
-          'books', '42', 'publisher', [Identifiers('companies', '1')]);
+          'books', '42', 'publisher', [Identifier('companies', '1')]);
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
       expect(r.data, isNull);

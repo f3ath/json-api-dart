@@ -6,20 +6,22 @@ import 'package:json_api/routing.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/query/page.dart';
 import 'package:json_api/src/server/pagination.dart';
+import 'package:json_api/src/server/response_converter.dart';
 
-class HttpResponseFactory {
-  /// A document containing a list of errors
+/// An implementation of [ResponseConverter] converting to [HttpResponse].
+class HttpResponseFactory implements ResponseConverter<HttpResponse> {
+  @override
   HttpResponse error(Iterable<ErrorObject> errors, int statusCode,
           Map<String, String> headers) =>
-      _doc(Document.error(errors, api: _api),
+      _document(Document.error(errors, api: _api),
           status: statusCode, headers: headers);
 
-  /// A document containing a collection of resources
+  @override
   HttpResponse collection(Iterable<Resource> collection,
       {int total,
       Iterable<Resource> included,
       Pagination pagination = const NoPagination()}) {
-    return _doc(Document(
+    return _document(Document(
         ResourceCollectionData(collection.map(_resourceObject),
             links: {
               'self': Link(_self),
@@ -29,8 +31,9 @@ class HttpResponseFactory {
         api: _api));
   }
 
+  @override
   HttpResponse accepted(Resource resource) =>
-      _doc(
+      _document(
           Document(
               ResourceData(_resourceObject(resource),
                   links: {'self': Link(_self)}),
@@ -41,29 +44,20 @@ class HttpResponseFactory {
                 _routing.resource(resource.type, resource.id).toString()
           });
 
-  /// A document containing just a meta member
+  @override
   HttpResponse meta(Map<String, Object> meta) =>
-      _doc(Document.empty(meta, api: _api));
+      _document(Document.empty(meta, api: _api));
 
-  /// A document containing a single resource
+  @override
   HttpResponse resource(Resource resource, {Iterable<Resource> included}) =>
-      _doc(Document(
+      _document(Document(
           ResourceData(_resourceObject(resource),
               links: {'self': Link(_self)},
               included: included?.map(_resourceObject)),
           api: _api));
 
-  /// A document containing a single (primary) resource which has been created
-  /// on the server. The difference with [resource] is that this
-  /// method generates the `self` link to match the `location` header.
-  ///
-  /// This is the quote from the documentation:
-  /// > If the resource object returned by the response contains a self key
-  /// > in its links member and a Location header is provided, the value of
-  /// > the self member MUST match the value of the Location header.
-  ///
-  /// See https://jsonapi.org/format/#crud-creating-responses-201
-  HttpResponse resourceCreated(Resource resource) => _doc(
+  @override
+  HttpResponse resourceCreated(Resource resource) => _document(
           Document(
               ResourceData(_resourceObject(resource), links: {
                 'self': Link(_routing.resource(resource.type, resource.id))
@@ -74,13 +68,15 @@ class HttpResponseFactory {
             'Location': _routing.resource(resource.type, resource.id).toString()
           });
 
+  @override
   HttpResponse seeOther(String type, String id) => HttpResponse(303,
       headers: {'Location': _routing.resource(type, id).toString()});
 
-  /// A document containing a to-many relationship
-  HttpResponse toMany(Iterable<Identifiers> identifiers, String type, String id,
-          String relationship) =>
-      _doc(Document(
+  @override
+  HttpResponse toMany(String type, String id, String relationship,
+          Iterable<Identifier> identifiers,
+          {Iterable<Resource> included}) =>
+      _document(Document(
           ToMany(
             identifiers.map(IdentifierObject.fromIdentifier),
             links: {
@@ -90,10 +86,11 @@ class HttpResponseFactory {
           ),
           api: _api));
 
-  /// A document containing a to-one relationship
-  HttpResponse toOneDocument(Identifiers identifier, String type, String id,
-          String relationship) =>
-      _doc(Document(
+  @override
+  HttpResponse toOne(
+          Identifier identifier, String type, String id, String relationship,
+          {Iterable<Resource> included}) =>
+      _document(Document(
           ToOne(
             nullable(IdentifierObject.fromIdentifier)(identifier),
             links: {
@@ -103,6 +100,7 @@ class HttpResponseFactory {
           ),
           api: _api));
 
+  @override
   HttpResponse noContent() => HttpResponse(204);
 
   HttpResponseFactory(this._routing, this._self);
@@ -111,7 +109,7 @@ class HttpResponseFactory {
   final Routing _routing;
   final Api _api = Api(version: '1.0');
 
-  HttpResponse _doc(Document d,
+  HttpResponse _document(Document d,
           {int status = 200, Map<String, String> headers = const {}}) =>
       HttpResponse(status,
           body: jsonEncode(d),

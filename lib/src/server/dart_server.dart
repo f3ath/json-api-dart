@@ -3,10 +3,10 @@ import 'dart:io' as dart;
 
 import 'package:json_api/http.dart';
 
-class DartServerHandler {
+class DartServer {
   final HttpHandler _handler;
 
-  DartServerHandler(this._handler);
+  DartServer(this._handler);
 
   Future<void> call(dart.HttpRequest request) async {
     final response = await _handler(await _convertRequest(request));

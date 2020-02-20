@@ -75,7 +75,7 @@ class ToOne extends Relationship {
       : linkage = null,
         super(links: links);
 
-  static ToOne fromIdentifier(Identifiers identifier) =>
+  static ToOne fromIdentifier(Identifier identifier) =>
       ToOne(nullable(IdentifierObject.fromIdentifier)(identifier));
 
   static ToOne fromJson(Object json) {
@@ -97,12 +97,12 @@ class ToOne extends Relationship {
         ...{'data': linkage}
       };
 
-  /// Converts to [Identifiers].
+  /// Converts to [Identifier].
   /// For empty relationships returns null.
-  Identifiers unwrap() => linkage?.unwrap();
+  Identifier unwrap() => linkage?.unwrap();
 
   /// Same as [unwrap()]
-  Identifiers get identifier => unwrap();
+  Identifier get identifier => unwrap();
 }
 
 /// Relationship to-many
@@ -119,7 +119,7 @@ class ToMany extends Relationship {
       : linkage = List.unmodifiable(linkage),
         super(included: included, links: links);
 
-  static ToMany fromIdentifiers(Iterable<Identifiers> identifiers) =>
+  static ToMany fromIdentifiers(Iterable<Identifier> identifiers) =>
       ToMany(identifiers.map(IdentifierObject.fromIdentifier));
 
   static ToMany fromJson(Object json) {
@@ -145,5 +145,5 @@ class ToMany extends Relationship {
 
   /// Converts to Iterable<Identifier>.
   /// For empty relationships returns an empty List.
-  Iterable<Identifiers> unwrap() => linkage.map((_) => _.unwrap());
+  Iterable<Identifier> unwrap() => linkage.map((_) => _.unwrap());
 }

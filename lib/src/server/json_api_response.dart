@@ -1,15 +1,15 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/http.dart';
-import 'package:json_api/src/server/http_response_factory.dart';
+import 'package:json_api/src/server/response_converter.dart';
 
+/// the base interface for all JSON:API responses
 abstract class JsonApiResponse {
-  HttpResponse httpResponse(HttpResponseFactory response);
+  /// Converts the JSON:API response to another object, e.g. HTTP response.
+  T convert<T>(ResponseConverter<T> converter);
 }
 
 class NoContentResponse implements JsonApiResponse {
   @override
-  HttpResponse httpResponse(HttpResponseFactory response) =>
-      response.noContent();
+  T convert<T>(ResponseConverter<T> converter) => converter.noContent();
 }
 
 class CollectionResponse implements JsonApiResponse {
@@ -20,8 +20,8 @@ class CollectionResponse implements JsonApiResponse {
   CollectionResponse(this.collection, {this.included, this.total});
 
   @override
-  HttpResponse httpResponse(HttpResponseFactory response) =>
-      response.collection(collection, included: included, total: total);
+  T convert<T>(ResponseConverter<T> converter) =>
+      converter.collection(collection, included: included, total: total);
 }
 
 class AcceptedResponse implements JsonApiResponse {
@@ -30,8 +30,7 @@ class AcceptedResponse implements JsonApiResponse {
   AcceptedResponse(this.resource);
 
   @override
-  HttpResponse httpResponse(HttpResponseFactory response) =>
-      response.accepted(resource);
+  T convert<T>(ResponseConverter<T> converter) => converter.accepted(resource);
 }
 
 class ErrorResponse implements JsonApiResponse {
@@ -61,8 +60,8 @@ class ErrorResponse implements JsonApiResponse {
       ErrorResponse(501, errors);
 
   @override
-  HttpResponse httpResponse(HttpResponseFactory response) =>
-      response.error(errors, statusCode, _headers);
+  T convert<T>(ResponseConverter<T> converter) =>
+      converter.error(errors, statusCode, _headers);
 
   final _headers = <String, String>{};
 }
@@ -73,8 +72,7 @@ class MetaResponse implements JsonApiResponse {
   MetaResponse(this.meta);
 
   @override
-  HttpResponse httpResponse(HttpResponseFactory response) =>
-      response.meta(meta);
+  T convert<T>(ResponseConverter<T> converter) => converter.meta(meta);
 }
 
 class ResourceResponse implements JsonApiResponse {
@@ -84,8 +82,8 @@ class ResourceResponse implements JsonApiResponse {
   ResourceResponse(this.resource, {this.included});
 
   @override
-  HttpResponse httpResponse(HttpResponseFactory response) =>
-      response.resource(resource, included: included);
+  T convert<T>(ResponseConverter<T> converter) =>
+      converter.resource(resource, included: included);
 }
 
 class ResourceCreatedResponse implements JsonApiResponse {
@@ -94,8 +92,8 @@ class ResourceCreatedResponse implements JsonApiResponse {
   ResourceCreatedResponse(this.resource);
 
   @override
-  HttpResponse httpResponse(HttpResponseFactory response) =>
-      response.resourceCreated(resource);
+  T convert<T>(ResponseConverter<T> converter) =>
+      converter.resourceCreated(resource);
 }
 
 class SeeOtherResponse implements JsonApiResponse {
@@ -105,12 +103,11 @@ class SeeOtherResponse implements JsonApiResponse {
   SeeOtherResponse(this.type, this.id);
 
   @override
-  HttpResponse httpResponse(HttpResponseFactory response) =>
-      response.seeOther(type, id);
+  T convert<T>(ResponseConverter<T> converter) => converter.seeOther(type, id);
 }
 
 class ToManyResponse implements JsonApiResponse {
-  final Iterable<Identifiers> collection;
+  final Iterable<Identifier> collection;
   final String type;
   final String id;
   final String relationship;
@@ -118,19 +115,19 @@ class ToManyResponse implements JsonApiResponse {
   ToManyResponse(this.type, this.id, this.relationship, this.collection);
 
   @override
-  HttpResponse httpResponse(HttpResponseFactory response) =>
-      response.toMany(collection, type, id, relationship);
+  T convert<T>(ResponseConverter<T> converter) =>
+      converter.toMany(type, id, relationship, collection);
 }
 
 class ToOneResponse implements JsonApiResponse {
   final String type;
   final String id;
   final String relationship;
-  final Identifiers identifier;
+  final Identifier identifier;
 
   ToOneResponse(this.type, this.id, this.relationship, this.identifier);
 
   @override
-  HttpResponse httpResponse(HttpResponseFactory response) =>
-      response.toOneDocument(identifier, type, id, relationship);
+  T convert<T>(ResponseConverter<T> converter) =>
+      converter.toOne(identifier, type, id, relationship);
 }

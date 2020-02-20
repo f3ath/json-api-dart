@@ -18,7 +18,7 @@ void main() {
         StandardRouting(Uri(host: host, port: port, scheme: 'http'));
     final repo = InMemoryRepository({'writers': {}, 'books': {}});
     final jsonApiServer = JsonApiServer(routing, RepositoryController(repo));
-    final serverHandler = DartServerHandler(jsonApiServer);
+    final serverHandler = DartServer(jsonApiServer);
     Client httpClient;
     RoutingClient client;
     HttpServer server;
@@ -45,7 +45,7 @@ void main() {
       await client
           .updateResource(Resource('books', '2', toMany: {'authors': []}));
       await client.addToRelationship(
-          'books', '2', 'authors', [Identifiers('writers', '1')]);
+          'books', '2', 'authors', [Identifier('writers', '1')]);
 
       final response = await client.fetchResource('books', '2',
           parameters: Include(['authors']));

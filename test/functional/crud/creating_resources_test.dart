@@ -98,7 +98,7 @@ void main() async {
 
     test('404 when the related resource does not exist (to-one)', () async {
       final book = Resource('books', null,
-          toOne: {'publisher': Identifiers('companies', '123')});
+          toOne: {'publisher': Identifier('companies', '123')});
       final r = await routingClient.createResource(book);
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);
@@ -112,7 +112,7 @@ void main() async {
 
     test('404 when the related resource does not exist (to-many)', () async {
       final book = Resource('books', null, toMany: {
-        'authors': [Identifiers('people', '123')]
+        'authors': [Identifier('people', '123')]
       });
       final r = await routingClient.createResource(book);
       expect(r.isSuccessful, isFalse);

@@ -83,8 +83,8 @@ class ResourceObject {
   /// without `data` member. In this case the original [Resource] can not be
   /// recovered and this method will throw a [StateError].
   Resource unwrap() {
-    final toOne = <String, Identifiers>{};
-    final toMany = <String, Iterable<Identifiers>>{};
+    final toOne = <String, Identifier>{};
+    final toMany = <String, Iterable<Identifier>>{};
     final incomplete = <String, Relationship>{};
     (relationships ?? {}).forEach((name, rel) {
       if (rel is ToOne) {
