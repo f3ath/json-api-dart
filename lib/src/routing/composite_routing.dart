@@ -18,14 +18,6 @@ class CompositeRouting implements Routing {
   @override
   Uri resource(String type, String id) => resourceRoute.uri(type, id);
 
-  CompositeRouting(this.collectionRoute, this.resourceRoute, this.relatedRoute,
-      this.relationshipRoute);
-
-  final CollectionRoute collectionRoute;
-  final ResourceRoute resourceRoute;
-  final RelationshipRoute relatedRoute;
-  final RelationshipRoute relationshipRoute;
-
   @override
   bool matchCollection(Uri uri, void Function(String type) onMatch) =>
       collectionRoute.match(uri, onMatch);
@@ -43,4 +35,12 @@ class CompositeRouting implements Routing {
   @override
   bool matchResource(Uri uri, void Function(String type, String id) onMatch) =>
       resourceRoute.match(uri, onMatch);
+
+  CompositeRouting(this.collectionRoute, this.resourceRoute, this.relatedRoute,
+      this.relationshipRoute);
+
+  final CollectionRoute collectionRoute;
+  final ResourceRoute resourceRoute;
+  final RelationshipRoute relatedRoute;
+  final RelationshipRoute relationshipRoute;
 }

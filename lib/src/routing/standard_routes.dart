@@ -14,7 +14,7 @@ class StandardCollectionRoute extends _BaseRoute implements CollectionRoute {
   }
 
   @override
-  Uri uri(String type) => _appendToBase([type]);
+  Uri uri(String type) => _resolve([type]);
 
   StandardCollectionRoute([Uri base]) : super(base);
 }
@@ -31,7 +31,7 @@ class StandardResourceRoute extends _BaseRoute implements ResourceRoute {
   }
 
   @override
-  Uri uri(String type, String id) => _appendToBase([type, id]);
+  Uri uri(String type, String id) => _resolve([type, id]);
 
   StandardResourceRoute([Uri base]) : super(base);
 }
@@ -50,7 +50,7 @@ class StandardRelatedRoute extends _BaseRoute implements RelationshipRoute {
 
   @override
   Uri uri(String type, String id, String relationship) =>
-      _appendToBase([type, id, relationship]);
+      _resolve([type, id, relationship]);
 
   StandardRelatedRoute([Uri base]) : super(base);
 }
@@ -70,7 +70,7 @@ class StandardRelationshipRoute extends _BaseRoute
 
   @override
   Uri uri(String type, String id, String relationship) =>
-      _appendToBase([type, id, _rel, relationship]);
+      _resolve([type, id, _rel, relationship]);
 
   StandardRelationshipRoute([Uri base]) : super(base);
 
@@ -78,12 +78,12 @@ class StandardRelationshipRoute extends _BaseRoute
 }
 
 class _BaseRoute {
-  _BaseRoute([Uri base]) : _base = base ?? Uri();
+  _BaseRoute([Uri base]) : _base = base ?? Uri(path: '/');
 
   final Uri _base;
 
-  Uri _appendToBase(List<String> segments) =>
-      _base.replace(pathSegments: _base.pathSegments + segments);
+  Uri _resolve(List<String> pathSegments) =>
+      _base.resolveUri(Uri(pathSegments: pathSegments));
 
   List<String> _segments(Uri uri) =>
       uri.pathSegments.skip(_base.pathSegments.length).toList();

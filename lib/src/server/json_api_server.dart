@@ -49,8 +49,18 @@ class JsonApiServer implements HttpHandler {
             detail: 'Incomplete relationship object')
       ]);
     }
-    jsonApiResponse ??= await jsonApiRequest.handleWith(_controller);
-    return jsonApiResponse.convert(ToHttpResponse(_routing, httpRequest.uri));
+    jsonApiResponse ??= await jsonApiRequest.handleWith(_controller) ??
+        ErrorResponse.internalServerError([
+          ErrorObject(
+              status: '500',
+              title: 'Internal Server Error',
+              detail: 'Controller responded with null')
+        ]);
+
+    final links = StandardLinks(httpRequest.uri, _routing);
+    final documentFactory = DocumentFactory(links: links);
+    final responseFactory = HttpResponseFactory(documentFactory, _routing);
+    return jsonApiResponse.convert(responseFactory);
   }
 
   JsonApiServer(this._controller, {RouteFactory routing})

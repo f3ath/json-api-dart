@@ -56,6 +56,9 @@ class ErrorResponse implements Response {
   static Response conflict(Iterable<ErrorObject> errors) =>
       ErrorResponse(409, errors);
 
+  static ErrorResponse internalServerError(Iterable<ErrorObject> errors) =>
+      ErrorResponse(500, errors);
+
   static Response notImplemented(Iterable<ErrorObject> errors) =>
       ErrorResponse(501, errors);
 

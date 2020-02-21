@@ -1,4 +1,3 @@
-
 abstract class RelationshipRoute {
   Uri uri(String type, String id, String relationship);
 
