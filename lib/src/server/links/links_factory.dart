@@ -1,6 +1,7 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/server/pagination.dart';
 
+/// Creates `links` objects for JSON:API documents
 abstract class LinksFactory {
   /// Links for a resource object (primary or related)
   Map<String, Link> resource();

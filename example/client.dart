@@ -4,7 +4,6 @@ import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/src/client/dart_http.dart';
 
 /// This example shows how to use the JSON:API client.
 /// Run the server first!

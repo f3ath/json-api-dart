@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.0.0
+### Changed
+- This is a major **BC-breaking** rework which affected pretty much all areas.
+
 ## [3.2.2] - 2020-01-07
 ### Fixed
 -  Can not decode related resource which is null ([#77](https://github.com/f3ath/json-api-dart/issues/77))

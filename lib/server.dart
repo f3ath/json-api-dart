@@ -1,6 +1,3 @@
-/// # The JSON:API Server
-///
-/// The server API is not stable. Expect breaking changes.
 library server;
 
 export 'package:json_api/src/server/dart_server.dart';
