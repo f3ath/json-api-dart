@@ -1,11 +1,53 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/document/document_exception.dart';
+import 'package:json_api/src/document/json_encodable.dart';
 import 'package:json_api/src/document/link.dart';
 
 /// [ErrorObject] represents an error occurred on the server.
 ///
 /// More on this: https://jsonapi.org/format/#errors
-class ErrorObject {
+class ErrorObject implements JsonEncodable {
+  /// Creates an instance of a JSON:API Error.
+  /// The [links] map may contain custom links. The about link
+  /// passed through the [about] argument takes precedence and will overwrite
+  /// the `about` key in [links].
+  ErrorObject({
+    this.id,
+    this.status,
+    this.code,
+    this.title,
+    this.detail,
+    this.parameter,
+    this.pointer,
+    Map<String, Object> meta,
+    Map<String, Link> links,
+  })  : links = (links == null) ? null : Map.unmodifiable(links),
+        meta = (meta == null) ? null : Map.unmodifiable(meta);
+
+  static ErrorObject fromJson(Object json) {
+    if (json is Map) {
+      String pointer;
+      String parameter;
+      final source = json['source'];
+      if (source is Map) {
+        parameter = source['parameter'];
+        pointer = source['pointer'];
+      }
+      final links = json['links'];
+      return ErrorObject(
+          id: json['id'],
+          status: json['status'],
+          code: json['code'],
+          title: json['title'],
+          detail: json['detail'],
+          pointer: pointer,
+          parameter: parameter,
+          meta: json['meta'],
+          links: (links == null) ? null : Link.mapFromJson(links));
+    }
+    throw DocumentException('A JSON:API error must be a JSON object');
+  }
+
   /// A unique identifier for this particular occurrence of the problem.
   /// May be null.
   final String id;
@@ -50,47 +92,7 @@ class ErrorObject {
   /// https://jsonapi.org/format/#document-links
   final Map<String, Link> links;
 
-  /// Creates an instance of a JSON:API Error.
-  /// The [links] map may contain custom links. The about link
-  /// passed through the [about] argument takes precedence and will overwrite
-  /// the `about` key in [links].
-  ErrorObject({
-    this.id,
-    this.status,
-    this.code,
-    this.title,
-    this.detail,
-    this.parameter,
-    this.pointer,
-    Map<String, Object> meta,
-    Map<String, Link> links,
-  })  : links = (links == null) ? null : Map.unmodifiable(links),
-        meta = (meta == null) ? null : Map.unmodifiable(meta);
-
-  static ErrorObject fromJson(Object json) {
-    if (json is Map) {
-      String pointer;
-      String parameter;
-      final source = json['source'];
-      if (source is Map) {
-        parameter = source['parameter'];
-        pointer = source['pointer'];
-      }
-      final links = json['links'];
-      return ErrorObject(
-          id: json['id'],
-          status: json['status'],
-          code: json['code'],
-          title: json['title'],
-          detail: json['detail'],
-          pointer: pointer,
-          parameter: parameter,
-          meta: json['meta'],
-          links: (links == null) ? null : Link.mapFromJson(links));
-    }
-    throw DocumentException('A JSON:API error must be a JSON object');
-  }
-
+  @override
   Map<String, Object> toJson() {
     final source = {
       if (pointer != null) ...{'pointer': pointer},

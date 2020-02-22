@@ -47,11 +47,11 @@ class NoPagination implements Pagination {
 
 /// Pages of fixed [size].
 class FixedSizePage implements Pagination {
-  final int size;
-
   FixedSizePage(this.size) {
     if (size < 1) throw ArgumentError();
   }
+
+  final int size;
 
   @override
   Page first() => _page(1);

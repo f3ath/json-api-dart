@@ -1,6 +1,9 @@
 /// This class and its descendants describe the query parameters recognized
 /// by JSON:API.
 class QueryParameters {
+  QueryParameters(Map<String, String> parameters)
+      : _parameters = {...parameters};
+
   bool get isEmpty => _parameters.isEmpty;
 
   bool get isNotEmpty => _parameters.isNotEmpty;
@@ -17,9 +20,6 @@ class QueryParameters {
   /// A shortcut for [merge]
   QueryParameters operator &(QueryParameters moreParameters) =>
       merge(moreParameters);
-
-  QueryParameters(Map<String, String> parameters)
-      : _parameters = {...parameters};
 
   final Map<String, String> _parameters;
 }

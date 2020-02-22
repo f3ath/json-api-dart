@@ -5,9 +5,14 @@ import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/server/request.dart';
 
-class RequestFactory {
+/// Converts HTTP requests to JSON:API requests
+class RequestConverter {
+  RequestConverter({RouteMatcher routeMatcher})
+      : _matcher = routeMatcher ?? StandardRouting();
+  final RouteMatcher _matcher;
+
   /// Creates a [Request] from [httpRequest]
-  Request createFromHttp(HttpRequest httpRequest) {
+  Request convert(HttpRequest httpRequest) {
     String type;
     String id;
     String rel;
@@ -36,7 +41,7 @@ class RequestFactory {
           return CreateResource(type,
               ResourceData.fromJson(jsonDecode(httpRequest.body)).unwrap());
         default:
-          throw MethodNotAllowedException(allow: ['GET', 'POST']);
+          throw MethodNotAllowedException(['GET', 'POST']);
       }
     } else if (_matcher.matchResource(uri, setTypeId)) {
       switch (httpRequest.method) {
@@ -48,14 +53,14 @@ class RequestFactory {
           return UpdateResource(type, id,
               ResourceData.fromJson(jsonDecode(httpRequest.body)).unwrap());
         default:
-          throw MethodNotAllowedException(allow: ['DELETE', 'GET', 'PATCH']);
+          throw MethodNotAllowedException(['DELETE', 'GET', 'PATCH']);
       }
     } else if (_matcher.matchRelated(uri, setTypeIdRel)) {
       switch (httpRequest.method) {
         case 'GET':
           return FetchRelated(type, id, rel, uri.queryParametersAll);
         default:
-          throw MethodNotAllowedException(allow: ['GET']);
+          throw MethodNotAllowedException(['GET']);
       }
     } else if (_matcher.matchRelationship(uri, setTypeIdRel)) {
       switch (httpRequest.method) {
@@ -67,7 +72,11 @@ class RequestFactory {
         case 'PATCH':
           final r = Relationship.fromJson(jsonDecode(httpRequest.body));
           if (r is ToOne) {
-            return ReplaceToOne(type, id, rel, r.unwrap());
+            final identifier = r.unwrap();
+            if (identifier != null) {
+              return ReplaceToOne(type, id, rel, identifier);
+            }
+            return DeleteToOne(type, id, rel);
           }
           if (r is ToMany) {
             return ReplaceToMany(type, id, rel, r.unwrap());
@@ -77,25 +86,21 @@ class RequestFactory {
           return AddToRelationship(type, id, rel,
               ToMany.fromJson(jsonDecode(httpRequest.body)).unwrap());
         default:
-          throw MethodNotAllowedException(
-              allow: ['DELETE', 'GET', 'PATCH', 'POST']);
+          throw MethodNotAllowedException(['DELETE', 'GET', 'PATCH', 'POST']);
       }
     }
     throw UnmatchedUriException();
   }
-
-  RequestFactory({RouteMatcher routeMatcher})
-      : _matcher = routeMatcher ?? StandardRouting();
-  final RouteMatcher _matcher;
 }
 
 class RequestFactoryException implements Exception {}
 
 /// Thrown if HTTP method is not allowed for the given route
 class MethodNotAllowedException implements RequestFactoryException {
-  final Iterable<String> allow;
+  MethodNotAllowedException(this.allow);
 
-  MethodNotAllowedException({this.allow = const []});
+  /// List of allowed methods
+  final Iterable<String> allow;
 }
 
 /// Thrown if the request URI can not be matched to a target

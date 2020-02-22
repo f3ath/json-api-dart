@@ -4,6 +4,14 @@ import 'package:json_api/src/routing/resource_route.dart';
 import 'package:json_api/src/routing/routing.dart';
 
 class CompositeRouting implements Routing {
+  CompositeRouting(this.collectionRoute, this.resourceRoute, this.relatedRoute,
+      this.relationshipRoute);
+
+  final CollectionRoute collectionRoute;
+  final ResourceRoute resourceRoute;
+  final RelationshipRoute relatedRoute;
+  final RelationshipRoute relationshipRoute;
+
   @override
   Uri collection(String type) => collectionRoute.uri(type);
 
@@ -35,12 +43,4 @@ class CompositeRouting implements Routing {
   @override
   bool matchResource(Uri uri, void Function(String type, String id) onMatch) =>
       resourceRoute.match(uri, onMatch);
-
-  CompositeRouting(this.collectionRoute, this.resourceRoute, this.relatedRoute,
-      this.relationshipRoute);
-
-  final CollectionRoute collectionRoute;
-  final ResourceRoute resourceRoute;
-  final RelationshipRoute relatedRoute;
-  final RelationshipRoute relationshipRoute;
 }

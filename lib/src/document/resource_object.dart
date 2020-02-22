@@ -1,6 +1,7 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/json_encodable.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
@@ -13,17 +14,7 @@ import 'package:json_api/src/nullable.dart';
 /// resource collection.
 ///
 /// More on this: https://jsonapi.org/format/#document-resource-objects
-class ResourceObject {
-  final String type;
-  final String id;
-
-  final Map<String, Object> attributes;
-  final Map<String, Relationship> relationships;
-  final Map<String, Object> meta;
-
-  /// Read-only `links` object. May be empty.
-  final Map<String, Link> links;
-
+class ResourceObject implements JsonEncodable {
   ResourceObject(this.type, this.id,
       {Map<String, Object> attributes,
       Map<String, Relationship> relationships,
@@ -34,8 +25,6 @@ class ResourceObject {
         meta = (meta == null) ? null : Map.unmodifiable(meta),
         relationships =
             (relationships == null) ? null : Map.unmodifiable(relationships);
-
-  Link get self => (links ?? {})['self'];
 
   static ResourceObject fromResource(Resource resource) =>
       ResourceObject(resource.type, resource.id,
@@ -65,11 +54,20 @@ class ResourceObject {
     throw DocumentException('A JSON:API resource must be a JSON object');
   }
 
-  static Iterable<ResourceObject> fromJsonList(Iterable<Object> json) =>
-      json.map(fromJson);
+  final String type;
+  final String id;
+  final Map<String, Object> attributes;
+  final Map<String, Relationship> relationships;
+  final Map<String, Object> meta;
+
+  /// Read-only `links` object. May be empty.
+  final Map<String, Link> links;
+
+  Link get self => (links ?? {})['self'];
 
   /// Returns the JSON object to be used in the `data` or `included` members
   /// of a JSON:API Document
+  @override
   Map<String, Object> toJson() => {
         'type': type,
         if (id != null) ...{'id': id},

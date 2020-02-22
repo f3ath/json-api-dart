@@ -1,13 +1,14 @@
 import 'package:json_api/src/document/document_exception.dart';
+import 'package:json_api/src/document/json_encodable.dart';
 
 /// A JSON:API link
 /// https://jsonapi.org/format/#document-links
-class Link {
-  final Uri uri;
-
+class Link implements JsonEncodable {
   Link(this.uri) {
     ArgumentError.checkNotNull(uri, 'uri');
   }
+
+  final Uri uri;
 
   /// Reconstructs the link from the [json] object
   static Link fromJson(Object json) {
@@ -32,6 +33,7 @@ class Link {
     throw DocumentException('A JSON:API links object must be a JSON object');
   }
 
+  @override
   Object toJson() => uri.toString();
 
   @override
@@ -41,9 +43,9 @@ class Link {
 /// A JSON:API link object
 /// https://jsonapi.org/format/#document-links
 class LinkObject extends Link {
-  final Map<String, Object> meta;
-
   LinkObject(Uri href, {this.meta}) : super(href);
+
+  final Map<String, Object> meta;
 
   @override
   Object toJson() => {

@@ -55,7 +55,7 @@ void main() {
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
       expect(error.status, '400');
       expect(error.title, 'Bad request');
-      expect(error.detail, "Resource 'type' must not be null");
+      expect(error.detail, "Resource 'type' must be not empty");
     });
 
     test('returns `not found` if URI is not recognized', () async {

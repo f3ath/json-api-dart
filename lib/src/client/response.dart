@@ -3,8 +3,8 @@ import 'package:json_api/src/client/status_code.dart';
 import 'package:json_api/src/nullable.dart';
 
 /// A response returned by JSON:API client
-class JsonApiResponse<Data extends PrimaryData> {
-  const JsonApiResponse(this.statusCode, this.headers,
+class Response<Data extends PrimaryData> {
+  const Response(this.statusCode, this.headers,
       {this.document, this.asyncDocument});
 
   /// HTTP status code

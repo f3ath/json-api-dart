@@ -6,10 +6,8 @@ import 'package:json_api/src/document/resource_object.dart';
 
 /// Represents a resource collection or a collection of related resources of a to-many relationship
 class ResourceCollectionData extends PrimaryData {
-  final Iterable<ResourceObject> collection;
-
   ResourceCollectionData(Iterable<ResourceObject> collection,
-      {Iterable<ResourceObject> included, Map<String, Link> links = const {}})
+      {Iterable<ResourceObject> included, Map<String, Link> links})
       : collection = List.unmodifiable(collection),
         super(included: included, links: links);
 
@@ -21,13 +19,15 @@ class ResourceCollectionData extends PrimaryData {
         return ResourceCollectionData(data.map(ResourceObject.fromJson),
             links: Link.mapFromJson(json['links'] ?? {}),
             included: included is List
-                ? ResourceObject.fromJsonList(included)
+                ? included.map(ResourceObject.fromJson)
                 : null);
       }
     }
     throw DocumentException(
         "A JSON:API resource collection document must be a JSON object with a JSON array in the 'data' member");
   }
+
+  final Iterable<ResourceObject> collection;
 
   /// The link to the last page. May be null.
   Link get last => (links ?? {})['last'];

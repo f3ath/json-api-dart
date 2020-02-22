@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:json_api/src/document/resource.dart';
 
+/// The Repository translates CRUD operations on resources to actual data
+/// manipulation.
 abstract class Repository {
   /// Creates the [resource] in the [collection].
   /// If the resource was modified during creation,
@@ -39,40 +41,52 @@ abstract class Repository {
 
 /// A collection of elements (e.g. resources) returned by the server.
 class Collection<T> {
+  Collection(this.elements, [this.total]);
+
   final Iterable<T> elements;
 
   /// Total count of the elements on the server. May be null.
   final int total;
-
-  Collection(this.elements, [this.total]);
 }
 
+/// Thrown when the requested collection does not exist
+/// This exception should result in HTTP 404.
 class CollectionNotFound implements Exception {
-  final String message;
-
   CollectionNotFound(this.message);
+
+  final String message;
 }
 
+/// Thrown when the requested resource does not exist.
+/// This exception should result in HTTP 404.
 class ResourceNotFound implements Exception {
-  final String message;
-
   ResourceNotFound(this.message);
+
+  final String message;
 }
 
+/// Thrown if the operation
+/// is not supported (e.g. the client sent a resource without the id, but
+/// the id generation is not supported by this repository).
+/// This exception should result in HTTP 403.
 class UnsupportedOperation implements Exception {
-  final String message;
-
   UnsupportedOperation(this.message);
+
+  final String message;
 }
 
+/// Thrown if the resource type does not belong to the collection.
+/// This exception should result in HTTP 409.
 class InvalidType implements Exception {
-  final String message;
-
   InvalidType(this.message);
+
+  final String message;
 }
 
+/// Thrown if the client asks to create a resource which already exists.
+/// This exception should result in HTTP 409.
 class ResourceExists implements Exception {
-  final String message;
-
   ResourceExists(this.message);
+
+  final String message;
 }

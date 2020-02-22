@@ -7,8 +7,6 @@ import 'package:json_api/src/nullable.dart';
 
 /// Represents a single resource or a single related resource of a to-one relationship
 class ResourceData extends PrimaryData {
-  final ResourceObject resourceObject;
-
   ResourceData(this.resourceObject,
       {Iterable<ResourceObject> included, Map<String, Link> links})
       : super(
@@ -36,6 +34,8 @@ class ResourceData extends PrimaryData {
     throw DocumentException(
         "A JSON:API resource document must be a JSON object and contain the 'data' member");
   }
+
+  final ResourceObject resourceObject;
 
   @override
   Map<String, Object> toJson() => {

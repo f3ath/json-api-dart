@@ -7,20 +7,24 @@ import 'package:json_api/src/document/document_exception.dart';
 /// Identifiers are passed between the server and the client in the form
 /// of [IdentifierObject]s.
 class Identifier {
+  /// Neither [type] nor [id] can be null or empty.
+  Identifier(this.type, this.id) {
+    if (id == null || id.isEmpty) {
+      throw DocumentException("Identifier 'id' must be not empty");
+    }
+    if (type == null || type.isEmpty) {
+      throw DocumentException("Identifier 'type' must be not empty");
+    }
+  }
+
+  static Identifier of(Resource resource) =>
+      Identifier(resource.type, resource.id);
+
   /// Resource type
   final String type;
 
   /// Resource id
   final String id;
-
-  /// Neither [type] nor [id] can be null or empty.
-  Identifier(this.type, this.id) {
-    DocumentException.throwIfNull(id, "Identifier 'id' must not be null");
-    DocumentException.throwIfNull(type, "Identifier 'type' must not be null");
-  }
-
-  static Identifier of(Resource resource) =>
-      Identifier(resource.type, resource.id);
 
   /// Returns true if the two identifiers have the same [type] and [id]
   bool equals(Identifier other) =>

@@ -14,7 +14,7 @@ void main() {
   test('Client understands async responses', () async {
     final links = StandardLinks(Uri.parse('/books'), routing);
     final responseFactory =
-        HttpResponseFactory(DocumentFactory(links: links), routing);
+        HttpResponseConverter(DocumentFactory(links: links), routing);
     handler.nextResponse = responseFactory.accepted(Resource('jobs', '42'));
 
     final r = await client.createResource(Resource('books', '1'));

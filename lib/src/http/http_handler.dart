@@ -14,10 +14,10 @@ abstract class HttpHandler {
 typedef HttpHandlerFunc = Future<HttpResponse> Function(HttpRequest request);
 
 class _HandlerFromFunction implements HttpHandler {
+  const _HandlerFromFunction(this._f);
+
   @override
   Future<HttpResponse> call(HttpRequest request) => _f(request);
-
-  const _HandlerFromFunction(this._f);
 
   final HttpHandlerFunc _f;
 }

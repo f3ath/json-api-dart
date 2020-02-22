@@ -8,18 +8,23 @@ import 'package:json_api/src/server/pagination.dart';
 import 'package:json_api/src/server/response_converter.dart';
 
 /// An implementation of [ResponseConverter] converting to [HttpResponse].
-class HttpResponseFactory implements ResponseConverter<HttpResponse> {
+class HttpResponseConverter implements ResponseConverter<HttpResponse> {
+  HttpResponseConverter(this._doc, this._routing);
+
+  final RouteFactory _routing;
+  final DocumentFactory _doc;
+
   @override
   HttpResponse error(Iterable<ErrorObject> errors, int statusCode,
           Map<String, String> headers) =>
       _ok(_doc.error(errors), status: statusCode, headers: headers);
 
   @override
-  HttpResponse collection(Iterable<Resource> collection,
+  HttpResponse collection(Iterable<Resource> resources,
       {int total,
       Iterable<Resource> included,
       Pagination pagination = const NoPagination()}) {
-    return _ok(_doc.collection(collection,
+    return _ok(_doc.collection(resources,
         total: total, included: included, pagination: pagination));
   }
 
@@ -61,11 +66,6 @@ class HttpResponseFactory implements ResponseConverter<HttpResponse> {
 
   @override
   HttpResponse noContent() => HttpResponse(204);
-
-  HttpResponseFactory(this._doc, this._routing);
-
-  final RouteFactory _routing;
-  final DocumentFactory _doc;
 
   HttpResponse _ok(Document d,
           {int status = 200, Map<String, String> headers = const {}}) =>

@@ -5,17 +5,23 @@ import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 import 'package:json_api/src/server/request.dart';
-import 'package:json_api/src/server/request_factory.dart';
+import 'package:json_api/src/server/request_converter.dart';
 import 'package:json_api/src/server/request_handler.dart';
 
 /// A simple implementation of JSON:API server
 class JsonApiServer implements HttpHandler {
+  JsonApiServer(this._controller, {RouteFactory routing})
+      : _routing = routing ?? StandardRouting();
+
+  final RouteFactory _routing;
+  final RequestHandler<FutureOr<Response>> _controller;
+
   @override
   Future<HttpResponse> call(HttpRequest httpRequest) async {
     Request jsonApiRequest;
     Response jsonApiResponse;
     try {
-      jsonApiRequest = RequestFactory().createFromHttp(httpRequest);
+      jsonApiRequest = RequestConverter().convert(httpRequest);
     } on FormatException catch (e) {
       jsonApiResponse = ErrorResponse.badRequest([
         ErrorObject(
@@ -59,13 +65,7 @@ class JsonApiServer implements HttpHandler {
 
     final links = StandardLinks(httpRequest.uri, _routing);
     final documentFactory = DocumentFactory(links: links);
-    final responseFactory = HttpResponseFactory(documentFactory, _routing);
+    final responseFactory = HttpResponseConverter(documentFactory, _routing);
     return jsonApiResponse.convert(responseFactory);
   }
-
-  JsonApiServer(this._controller, {RouteFactory routing})
-      : _routing = routing ?? StandardRouting();
-
-  final RouteFactory _routing;
-  final RequestHandler<FutureOr<Response>> _controller;
 }

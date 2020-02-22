@@ -6,6 +6,12 @@ import 'package:json_api/src/server/pagination.dart';
 
 /// The factory producing JSON:API Documents
 class DocumentFactory {
+  DocumentFactory({LinksFactory links = const NoLinks()}) : _links = links;
+
+  final Api _api = Api(version: '1.0');
+
+  final LinksFactory _links;
+
   /// An error document
   Document error(Iterable<ErrorObject> errors) =>
       Document.error(errors, api: _api);
@@ -56,12 +62,6 @@ class DocumentFactory {
             links: _links.relationship(type, id, relationship),
           ),
           api: _api);
-
-  DocumentFactory({LinksFactory links = const NoLinks()}) : _links = links;
-
-  final Api _api = Api(version: '1.0');
-
-  final LinksFactory _links;
 
   ResourceObject _resourceObject(Resource r) => ResourceObject(r.type, r.id,
       attributes: r.attributes,

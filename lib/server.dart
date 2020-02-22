@@ -2,7 +2,7 @@ library server;
 
 export 'package:json_api/src/server/dart_server.dart';
 export 'package:json_api/src/server/document_factory.dart';
-export 'package:json_api/src/server/http_response_factory.dart';
+export 'package:json_api/src/server/http_response_converter.dart';
 export 'package:json_api/src/server/in_memory_repository.dart';
 export 'package:json_api/src/server/json_api_server.dart';
 export 'package:json_api/src/server/links/links_factory.dart';

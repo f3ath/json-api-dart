@@ -3,6 +3,8 @@ import 'package:json_api/http.dart';
 
 /// A handler using the Dart's built-in http client
 class DartHttp implements HttpHandler {
+  DartHttp(this._client);
+
   @override
   Future<HttpResponse> call(HttpRequest request) async {
     final response = await _send(Request(request.method, request.uri)
@@ -11,8 +13,6 @@ class DartHttp implements HttpHandler {
     return HttpResponse(response.statusCode,
         body: response.body, headers: response.headers);
   }
-
-  DartHttp(this._client);
 
   final Client _client;
 

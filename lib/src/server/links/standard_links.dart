@@ -5,6 +5,11 @@ import 'package:json_api/src/server/links/links_factory.dart';
 import 'package:json_api/src/server/pagination.dart';
 
 class StandardLinks implements LinksFactory {
+  StandardLinks(this._requested, this._route);
+
+  final Uri _requested;
+  final RouteFactory _route;
+
   @override
   Map<String, Link> resource() => {'self': Link(_requested)};
 
@@ -28,11 +33,6 @@ class StandardLinks implements LinksFactory {
         'self': Link(_route.relationship(type, id, rel)),
         'related': Link(_route.related(type, id, rel))
       };
-
-  StandardLinks(this._requested, this._route);
-
-  final Uri _requested;
-  final RouteFactory _route;
 
   Map<String, Link> _navigation(int total, Pagination pagination) {
     final page = Page.fromUri(_requested);

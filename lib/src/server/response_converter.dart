@@ -3,21 +3,36 @@ import 'package:json_api/src/server/pagination.dart';
 
 /// Converts JsonApi Controller responses to other responses, e.g. HTTP
 abstract class ResponseConverter<T> {
-  /// A document containing a list of errors
+  /// A common error response.
+  ///
+  /// See: https://jsonapi.org/format/#errors
   T error(Iterable<ErrorObject> errors, int statusCode,
       Map<String, String> headers);
 
-  /// A document containing a collection of resources
-  T collection(Iterable<Resource> collection,
+  /// HTTP 200 OK response with a resource collection.
+  ///
+  /// See: https://jsonapi.org/format/#fetching-resources-responses-200
+  T collection(Iterable<Resource> resources,
       {int total, Iterable<Resource> included, Pagination pagination});
 
-  /// HTTP 202 Accepted response
+  /// HTTP 202 Accepted response.
+  ///
+  /// See: https://jsonapi.org/recommendations/#asynchronous-processing
   T accepted(Resource resource);
 
-  /// HTTP 200 with a document containing just a meta member
+  /// HTTP 200 OK response containing an empty document.
+  ///
+  /// See:
+  /// - https://jsonapi.org/format/#crud-updating-responses-200
+  /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
+  /// - https://jsonapi.org/format/#crud-deleting-responses-200
   T meta(Map<String, Object> meta);
 
-  /// HTTP 200 with a document containing a single resource
+  /// A successful response containing a resource object.
+  ///
+  /// See:
+  /// - https://jsonapi.org/format/#fetching-resources-responses-200
+  /// - https://jsonapi.org/format/#crud-updating-responses-200
   T resource(Resource resource, {Iterable<Resource> included});
 
   /// HTTP 200 with a document containing a single (primary) resource which has been created
@@ -32,19 +47,34 @@ abstract class ResponseConverter<T> {
   /// See https://jsonapi.org/format/#crud-creating-responses-201
   T resourceCreated(Resource resource);
 
-  /// HTTP 303 See Other response with the Location header pointing
-  /// to another resource
+  /// HTTP 303 See Other response.
+  ///
+  /// See: https://jsonapi.org/recommendations/#asynchronous-processing
   T seeOther(String type, String id);
 
-  /// HTTP 200 with a document containing a to-many relationship
+  /// HTTP 200 OK response containing a to-may relationship.
+  ///
+  /// See:
+  /// - https://jsonapi.org/format/#fetching-relationships-responses-200
+  /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
   T toMany(String type, String id, String relationship,
       Iterable<Identifier> identifiers,
       {Iterable<Resource> included});
 
-  /// HTTP 200 with a document containing a to-one relationship
+  /// HTTP 200 OK response containing a to-one relationship
+  ///
+  /// See:
+  /// - https://jsonapi.org/format/#fetching-relationships-responses-200
+  /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
   T toOne(Identifier identifier, String type, String id, String relationship,
       {Iterable<Resource> included});
 
-  /// The HTTP 204 No Content response
+  /// HTTP 204 No Content response.
+  ///
+  /// See:
+  /// - https://jsonapi.org/format/#crud-creating-responses-204
+  /// - https://jsonapi.org/format/#crud-updating-responses-204
+  /// - https://jsonapi.org/format/#crud-updating-relationship-responses-204
+  /// - https://jsonapi.org/format/#crud-deleting-responses-204
   T noContent();
 }

@@ -1,23 +1,11 @@
 import 'package:json_api/src/document/api.dart';
 import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/error_object.dart';
+import 'package:json_api/src/document/json_encodable.dart';
 import 'package:json_api/src/document/primary_data.dart';
+import 'package:json_api/src/nullable.dart';
 
-class Document<Data extends PrimaryData> {
-  static const contentType = 'application/vnd.api+json';
-
-  /// The Primary Data
-  final Data data;
-
-  /// The jsonapi object. May be null.
-  final Api api;
-
-  /// List of errors. May be null.
-  final Iterable<ErrorObject> errors;
-
-  /// Meta data. May be empty or null.
-  final Map<String, Object> meta;
-
+class Document<Data extends PrimaryData> implements JsonEncodable {
   /// Create a document with primary data
   Document(this.data, {Map<String, Object> meta, this.api})
       : errors = null,
@@ -35,17 +23,14 @@ class Document<Data extends PrimaryData> {
       : data = null,
         meta = (meta == null) ? null : Map.unmodifiable(meta),
         errors = null {
-    DocumentException.throwIfNull(meta, "The 'meta' member must not be null");
+    ArgumentError.checkNotNull(meta);
   }
 
   /// Reconstructs a document with the specified primary data
   static Document<Data> fromJson<Data extends PrimaryData>(
       Object json, Data Function(Object json) primaryData) {
     if (json is Map) {
-      Api api;
-      if (json.containsKey(Api.memberName)) {
-        api = Api.fromJson(json[Api.memberName]);
-      }
+      final api = nullable(Api.fromJson)(json['jsonapi']);
       if (json.containsKey('errors')) {
         final errors = json['errors'];
         if (errors is List) {
@@ -54,13 +39,29 @@ class Document<Data extends PrimaryData> {
         }
       } else if (json.containsKey('data')) {
         return Document(primaryData(json), meta: json['meta'], api: api);
-      } else {
+      } else if (json['meta'] != null) {
         return Document.empty(json['meta'], api: api);
       }
+      throw DocumentException('Unrecognized JSON:API document structure');
     }
     throw DocumentException('A JSON:API document must be a JSON object');
   }
 
+  static const contentType = 'application/vnd.api+json';
+
+  /// The Primary Data
+  final Data data;
+
+  /// The `jsonapi` object. May be null.
+  final Api api;
+
+  /// List of errors. May be null.
+  final Iterable<ErrorObject> errors;
+
+  /// Meta data. May be empty or null.
+  final Map<String, Object> meta;
+
+  @override
   Map<String, Object> toJson() => {
         if (data != null)
           ...data.toJson()

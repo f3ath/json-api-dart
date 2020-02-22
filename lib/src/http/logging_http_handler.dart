@@ -4,6 +4,8 @@ import 'package:json_api/src/http/http_response.dart';
 
 /// A wrapper over [HttpHandler] which allows logging
 class LoggingHttpHandler implements HttpHandler {
+  LoggingHttpHandler(this.wrapped, {this.onRequest, this.onResponse});
+
   /// The wrapped handler
   final HttpHandler wrapped;
 
@@ -20,6 +22,4 @@ class LoggingHttpHandler implements HttpHandler {
     onResponse?.call(response);
     return response;
   }
-
-  LoggingHttpHandler(this.wrapped, {this.onRequest, this.onResponse});
 }

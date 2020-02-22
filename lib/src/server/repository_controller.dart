@@ -7,8 +7,13 @@ import 'package:json_api/src/server/repository.dart';
 import 'package:json_api/src/server/request_handler.dart';
 import 'package:json_api/src/server/response.dart';
 
-/// An opinionated implementation of [RequestHandler]
+/// An opinionated implementation of [RequestHandler]. It translates JSON:API
+/// requests to [Repository] methods calls.
 class RepositoryController<R> implements RequestHandler<FutureOr<Response>> {
+  RepositoryController(this._repo);
+
+  final Repository _repo;
+
   @override
   FutureOr<Response> addToRelationship(final String type, final String id,
           final String relationship, final Iterable<Identifier> identifiers) =>
@@ -163,9 +168,10 @@ class RepositoryController<R> implements RequestHandler<FutureOr<Response>> {
         return NoContentResponse();
       });
 
-  RepositoryController(this._repo);
-
-  final Repository _repo;
+  @override
+  FutureOr<Response> deleteToOne(
+          final String type, final String id, final String relationship) =>
+      replaceToOne(type, id, relationship, null);
 
   FutureOr<Resource> _getByIdentifier(Identifier identifier) =>
       _repo.get(identifier.type, identifier.id);
@@ -191,8 +197,12 @@ class RepositoryController<R> implements RequestHandler<FutureOr<Response>> {
         resources.add(r);
       }
     }
-    return resources;
+    return _unique(resources);
   }
+
+  Iterable<Resource> _unique(Iterable<Resource> included) =>
+      Map<String, Resource>.fromIterable(included,
+          key: (_) => '${_.type}:${_.id}').values;
 
   FutureOr<Response> _do(FutureOr<Response> Function() action) async {
     try {
@@ -224,9 +234,7 @@ class RepositoryController<R> implements RequestHandler<FutureOr<Response>> {
     }
   }
 
-  Response _relationshipNotFound(
-    String relationship,
-  ) {
+  Response _relationshipNotFound(String relationship) {
     return ErrorResponse.notFound([
       ErrorObject(
           status: '404',

@@ -8,6 +8,8 @@ typedef TypeAttributionCriteria = bool Function(String collection, String type);
 
 /// An in-memory implementation of [Repository]
 class InMemoryRepository implements Repository {
+  InMemoryRepository(this._collections, {IdGenerator nextId})
+      : _nextId = nextId;
   final Map<String, Map<String, Resource>> _collections;
   final IdGenerator _nextId;
 
@@ -99,7 +101,4 @@ class InMemoryRepository implements Repository {
     return InvalidType(
         "Type '${resource.type}' does not belong in '$collection'");
   }
-
-  InMemoryRepository(this._collections, {IdGenerator nextId})
-      : _nextId = nextId;
 }

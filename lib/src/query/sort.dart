@@ -31,18 +31,6 @@ class Sort extends QueryParameters with IterableMixin<SortField> {
 }
 
 class SortField {
-  final bool isAsc;
-
-  final bool isDesc;
-
-  final String name;
-
-  /// Returns 1 for Ascending fields, -1 for Descending
-  int get comparisonFactor => isAsc ? 1 : -1;
-
-  @override
-  String toString() => isAsc ? name : '-$name';
-
   SortField.Asc(this.name)
       : isAsc = true,
         isDesc = false;
@@ -54,6 +42,17 @@ class SortField {
   static SortField parse(String queryParam) => queryParam.startsWith('-')
       ? Desc(queryParam.substring(1))
       : Asc(queryParam);
+  final bool isAsc;
+
+  final bool isDesc;
+
+  final String name;
+
+  /// Returns 1 for Ascending fields, -1 for Descending
+  int get comparisonFactor => isAsc ? 1 : -1;
+
+  @override
+  String toString() => isAsc ? name : '-$name';
 }
 
 class Asc extends SortField {

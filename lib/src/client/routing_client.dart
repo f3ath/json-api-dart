@@ -3,91 +3,96 @@ import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
 
-import 'json_api_response.dart';
+import 'response.dart';
 
 /// This is a wrapper over [JsonApiClient] capable of building the
 /// request URIs by itself.
 class RoutingClient {
+  RoutingClient(this._client, this._routing);
+
+  final JsonApiClient _client;
+  final RouteFactory _routing;
+
   /// Fetches a primary resource collection by [type].
-  Future<JsonApiResponse<ResourceCollectionData>> fetchCollection(String type,
+  Future<Response<ResourceCollectionData>> fetchCollection(String type,
           {Map<String, String> headers, QueryParameters parameters}) =>
       _client.fetchCollectionAt(_collection(type),
           headers: headers, parameters: parameters);
 
   /// Fetches a related resource collection. Guesses the URI by [type], [id], [relationship].
-  Future<JsonApiResponse<ResourceCollectionData>> fetchRelatedCollection(
+  Future<Response<ResourceCollectionData>> fetchRelatedCollection(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
       _client.fetchCollectionAt(_related(type, id, relationship),
           headers: headers, parameters: parameters);
 
   /// Fetches a primary resource by [type] and [id].
-  Future<JsonApiResponse<ResourceData>> fetchResource(String type, String id,
+  Future<Response<ResourceData>> fetchResource(String type, String id,
           {Map<String, String> headers, QueryParameters parameters}) =>
       _client.fetchResourceAt(_resource(type, id),
           headers: headers, parameters: parameters);
 
   /// Fetches a related resource by [type], [id], [relationship].
-  Future<JsonApiResponse<ResourceData>> fetchRelatedResource(
+  Future<Response<ResourceData>> fetchRelatedResource(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
       _client.fetchResourceAt(_related(type, id, relationship),
           headers: headers, parameters: parameters);
 
   /// Fetches a to-one relationship by [type], [id], [relationship].
-  Future<JsonApiResponse<ToOne>> fetchToOne(
+  Future<Response<ToOne>> fetchToOne(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
       _client.fetchToOneAt(_relationship(type, id, relationship),
           headers: headers, parameters: parameters);
 
   /// Fetches a to-many relationship by [type], [id], [relationship].
-  Future<JsonApiResponse<ToMany>> fetchToMany(
+  Future<Response<ToMany>> fetchToMany(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
       _client.fetchToManyAt(_relationship(type, id, relationship),
           headers: headers, parameters: parameters);
 
   /// Fetches a [relationship] of [type] : [id].
-  Future<JsonApiResponse<Relationship>> fetchRelationship(
+  Future<Response<Relationship>> fetchRelationship(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
       _client.fetchRelationshipAt(_relationship(type, id, relationship),
           headers: headers, parameters: parameters);
 
   /// Creates the [resource] on the server.
-  Future<JsonApiResponse<ResourceData>> createResource(Resource resource,
+  Future<Response<ResourceData>> createResource(Resource resource,
           {Map<String, String> headers}) =>
       _client.createResourceAt(_collection(resource.type), resource,
           headers: headers);
 
   /// Deletes the resource by [type] and [id].
-  Future<JsonApiResponse> deleteResource(String type, String id,
+  Future<Response> deleteResource(String type, String id,
           {Map<String, String> headers}) =>
       _client.deleteResourceAt(_resource(type, id), headers: headers);
 
   /// Updates the [resource].
-  Future<JsonApiResponse<ResourceData>> updateResource(Resource resource,
+  Future<Response<ResourceData>> updateResource(Resource resource,
           {Map<String, String> headers}) =>
       _client.updateResourceAt(_resource(resource.type, resource.id), resource,
           headers: headers);
 
   /// Replaces the to-one [relationship] of [type] : [id].
-  Future<JsonApiResponse<ToOne>> replaceToOne(
+  Future<Response<ToOne>> replaceToOne(
           String type, String id, String relationship, Identifier identifier,
           {Map<String, String> headers}) =>
       _client.replaceToOneAt(_relationship(type, id, relationship), identifier,
           headers: headers);
 
   /// Deletes the to-one [relationship] of [type] : [id].
-  Future<JsonApiResponse<ToOne>> deleteToOne(
+  Future<Response<ToOne>> deleteToOne(
           String type, String id, String relationship,
           {Map<String, String> headers}) =>
       _client.deleteToOneAt(_relationship(type, id, relationship),
           headers: headers);
 
   /// Deletes the [identifiers] from the to-many [relationship] of [type] : [id].
-  Future<JsonApiResponse<ToMany>> deleteFromToMany(String type, String id,
+  Future<Response<ToMany>> deleteFromToMany(String type, String id,
           String relationship, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       _client.deleteFromToManyAt(
@@ -95,7 +100,7 @@ class RoutingClient {
           headers: headers);
 
   /// Replaces the to-many [relationship] of [type] : [id] with the [identifiers].
-  Future<JsonApiResponse<ToMany>> replaceToMany(String type, String id,
+  Future<Response<ToMany>> replaceToMany(String type, String id,
           String relationship, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       _client.replaceToManyAt(
@@ -103,17 +108,12 @@ class RoutingClient {
           headers: headers);
 
   /// Adds the [identifiers] to the to-many [relationship] of [type] : [id].
-  Future<JsonApiResponse<ToMany>> addToRelationship(String type, String id,
+  Future<Response<ToMany>> addToRelationship(String type, String id,
           String relationship, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       _client.addToRelationshipAt(
           _relationship(type, id, relationship), identifiers,
           headers: headers);
-
-  RoutingClient(this._client, this._routing);
-
-  final JsonApiClient _client;
-  final RouteFactory _routing;
 
   Uri _collection(String type) => _routing.collection(type);
 

@@ -43,6 +43,10 @@ abstract class RequestHandler<T> {
   T replaceToOne(final String type, final String id, final String relationship,
       final Identifier identifier);
 
+  /// Deletes the to-one relationship.
+  /// See https://jsonapi.org/format/#crud-updating-to-one-relationships
+  T deleteToOne(final String type, final String id, final String relationship);
+
   /// Replaces the to-many relationship.
   /// See https://jsonapi.org/format/#crud-updating-to-many-relationships
   T replaceToMany(final String type, final String id, final String relationship,

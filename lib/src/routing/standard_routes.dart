@@ -3,6 +3,8 @@ import 'package:json_api/src/routing/relationship_route.dart';
 import 'package:json_api/src/routing/resource_route.dart';
 
 class StandardCollectionRoute extends _BaseRoute implements CollectionRoute {
+  StandardCollectionRoute([Uri base]) : super(base);
+
   @override
   bool match(Uri uri, void Function(String type) onMatch) {
     final seg = _segments(uri);
@@ -15,11 +17,11 @@ class StandardCollectionRoute extends _BaseRoute implements CollectionRoute {
 
   @override
   Uri uri(String type) => _resolve([type]);
-
-  StandardCollectionRoute([Uri base]) : super(base);
 }
 
 class StandardResourceRoute extends _BaseRoute implements ResourceRoute {
+  StandardResourceRoute([Uri base]) : super(base);
+
   @override
   bool match(Uri uri, void Function(String type, String id) onMatch) {
     final seg = _segments(uri);
@@ -32,11 +34,11 @@ class StandardResourceRoute extends _BaseRoute implements ResourceRoute {
 
   @override
   Uri uri(String type, String id) => _resolve([type, id]);
-
-  StandardResourceRoute([Uri base]) : super(base);
 }
 
 class StandardRelatedRoute extends _BaseRoute implements RelationshipRoute {
+  StandardRelatedRoute([Uri base]) : super(base);
+
   @override
   bool match(Uri uri,
       void Function(String type, String id, String relationship) onMatch) {
@@ -51,12 +53,12 @@ class StandardRelatedRoute extends _BaseRoute implements RelationshipRoute {
   @override
   Uri uri(String type, String id, String relationship) =>
       _resolve([type, id, relationship]);
-
-  StandardRelatedRoute([Uri base]) : super(base);
 }
 
 class StandardRelationshipRoute extends _BaseRoute
     implements RelationshipRoute {
+  StandardRelationshipRoute([Uri base]) : super(base);
+
   @override
   bool match(Uri uri,
       void Function(String type, String id, String relationship) onMatch) {
@@ -71,8 +73,6 @@ class StandardRelationshipRoute extends _BaseRoute
   @override
   Uri uri(String type, String id, String relationship) =>
       _resolve([type, id, _rel, relationship]);
-
-  StandardRelationshipRoute([Uri base]) : super(base);
 
   static const _rel = 'relationships';
 }

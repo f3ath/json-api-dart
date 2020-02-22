@@ -7,10 +7,26 @@ import 'package:json_api/src/document/identifier.dart';
 /// Resources are passed between the server and the client in the form
 /// of [ResourceObject]s.
 class Resource {
-  /// Resource type.
+  /// Creates an instance of [Resource].
+  /// The [type] can not be null.
+  /// The [id] may be null for the resources to be created on the server.
+  Resource(this.type, this.id,
+      {Map<String, Object> attributes,
+      Map<String, Identifier> toOne,
+      Map<String, Iterable<Identifier>> toMany})
+      : attributes = Map.unmodifiable(attributes ?? {}),
+        toOne = Map.unmodifiable(toOne ?? {}),
+        toMany = Map.unmodifiable(
+            (toMany ?? {}).map((k, v) => MapEntry(k, Set.of(v)))) {
+    if (type == null || type.isEmpty) {
+      throw DocumentException("Resource 'type' must be not empty");
+    }
+  }
+
+  /// Resource type
   final String type;
 
-  /// Resource id.
+  /// Resource id
   ///
   /// May be null for resources to be created on the server
   final String id;
@@ -29,23 +45,9 @@ class Resource {
 
   @override
   String toString() => 'Resource($key $attributes)';
-
-  /// Creates an instance of [Resource].
-  /// The [type] can not be null.
-  /// The [id] may be null for the resources to be created on the server.
-  Resource(this.type, this.id,
-      {Map<String, Object> attributes,
-      Map<String, Identifier> toOne,
-      Map<String, Iterable<Identifier>> toMany})
-      : attributes = Map.unmodifiable(attributes ?? {}),
-        toOne = Map.unmodifiable(toOne ?? {}),
-        toMany = Map.unmodifiable(
-            (toMany ?? {}).map((k, v) => MapEntry(k, Set.of(v)))) {
-    DocumentException.throwIfNull(type, "Resource 'type' must not be null");
-  }
 }
 
-/// Resource to be created on the server. Does not have the id yet.
+/// Resource to be created on the server. Does not have the id yet
 class NewResource extends Resource {
   NewResource(String type,
       {Map<String, Object> attributes,
