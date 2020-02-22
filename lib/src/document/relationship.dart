@@ -128,7 +128,7 @@ class ToMany extends Relationship {
   /// Can be empty for empty relationships
   ///
   /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
-  final Iterable<IdentifierObject> linkage;
+  final List<IdentifierObject> linkage;
 
   @override
   Map<String, Object> toJson() => {
@@ -136,7 +136,7 @@ class ToMany extends Relationship {
         'data': linkage,
       };
 
-  /// Converts to Iterable<Identifier>.
+  /// Converts to List<Identifier>.
   /// For empty relationships returns an empty List.
-  Iterable<Identifier> unwrap() => linkage.map((_) => _.unwrap());
+  List<Identifier> unwrap() => linkage.map((_) => _.unwrap()).toList();
 }

@@ -82,7 +82,7 @@ class ResourceObject implements JsonEncodable {
   /// recovered and this method will throw a [StateError].
   Resource unwrap() {
     final toOne = <String, Identifier>{};
-    final toMany = <String, Iterable<Identifier>>{};
+    final toMany = <String, List<Identifier>>{};
     final incomplete = <String, Relationship>{};
     (relationships ?? {}).forEach((name, rel) {
       if (rel is ToOne) {

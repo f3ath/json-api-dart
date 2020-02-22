@@ -13,7 +13,7 @@ class Fields extends QueryParameters {
   /// ```
   /// ?fields[articles]=title,body&fields[people]=name
   /// ```
-  Fields(Map<String, Iterable<String>> fields)
+  Fields(Map<String, List<String>> fields)
       : _fields = {...fields},
         super(fields.map((k, v) => MapEntry('fields[$k]', v.join(','))));
 

@@ -13,11 +13,11 @@ class Resource {
   Resource(this.type, this.id,
       {Map<String, Object> attributes,
       Map<String, Identifier> toOne,
-      Map<String, Iterable<Identifier>> toMany})
+      Map<String, List<Identifier>> toMany})
       : attributes = Map.unmodifiable(attributes ?? {}),
         toOne = Map.unmodifiable(toOne ?? {}),
         toMany = Map.unmodifiable(
-            (toMany ?? {}).map((k, v) => MapEntry(k, Set.of(v)))) {
+            (toMany ?? {}).map((k, v) => MapEntry(k, Set.of(v).toList()))) {
     if (type == null || type.isEmpty) {
       throw DocumentException("Resource 'type' must be not empty");
     }
@@ -38,7 +38,7 @@ class Resource {
   final Map<String, Identifier> toOne;
 
   /// Unmodifiable map of to-many relationships
-  final Map<String, Iterable<Identifier>> toMany;
+  final Map<String, List<Identifier>> toMany;
 
   /// Resource type and id combined
   String get key => '$type:$id';
@@ -52,6 +52,6 @@ class NewResource extends Resource {
   NewResource(String type,
       {Map<String, Object> attributes,
       Map<String, Identifier> toOne,
-      Map<String, Iterable<Identifier>> toMany})
+      Map<String, List<Identifier>> toMany})
       : super(type, null, attributes: attributes, toOne: toOne, toMany: toMany);
 }

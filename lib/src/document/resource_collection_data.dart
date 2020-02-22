@@ -27,7 +27,7 @@ class ResourceCollectionData extends PrimaryData {
         "A JSON:API resource collection document must be a JSON object with a JSON array in the 'data' member");
   }
 
-  final Iterable<ResourceObject> collection;
+  final List<ResourceObject> collection;
 
   /// The link to the last page. May be null.
   Link get last => (links ?? {})['last'];
@@ -42,7 +42,7 @@ class ResourceCollectionData extends PrimaryData {
   Link get prev => (links ?? {})['prev'];
 
   /// Returns a list of resources contained in the collection
-  Iterable<Resource> unwrap() => collection.map((_) => _.unwrap());
+  List<Resource> unwrap() => collection.map((_) => _.unwrap()).toList();
 
   /// Returns a map of resources indexed by ids
   Map<String, Resource> unwrapToMap() =>

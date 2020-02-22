@@ -4,9 +4,9 @@ import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
-import 'package:json_api/src/server/request.dart';
+import 'package:json_api/src/server/controller.dart';
+import 'package:json_api/src/server/json_api_request.dart';
 import 'package:json_api/src/server/request_converter.dart';
-import 'package:json_api/src/server/request_handler.dart';
 
 /// A simple implementation of JSON:API server
 class JsonApiServer implements HttpHandler {
@@ -14,12 +14,12 @@ class JsonApiServer implements HttpHandler {
       : _routing = routing ?? StandardRouting();
 
   final RouteFactory _routing;
-  final RequestHandler<FutureOr<Response>> _controller;
+  final Controller<FutureOr<JsonApiResponse>> _controller;
 
   @override
   Future<HttpResponse> call(HttpRequest httpRequest) async {
-    Request jsonApiRequest;
-    Response jsonApiResponse;
+    JsonApiRequest jsonApiRequest;
+    JsonApiResponse jsonApiResponse;
     try {
       jsonApiRequest = RequestConverter().convert(httpRequest);
     } on FormatException catch (e) {

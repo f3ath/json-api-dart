@@ -56,7 +56,7 @@ class Document<Data extends PrimaryData> implements JsonEncodable {
   final Api api;
 
   /// List of errors. May be null.
-  final Iterable<ErrorObject> errors;
+  final List<ErrorObject> errors;
 
   /// Meta data. May be empty or null.
   final Map<String, Object> meta;

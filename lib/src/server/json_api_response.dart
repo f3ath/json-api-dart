@@ -1,8 +1,8 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/server/response_converter.dart';
 
-/// The base interface for all JSON:API responses
-abstract class Response {
+/// The base interface for JSON:API responses.
+abstract class JsonApiResponse {
   /// Converts the JSON:API response to another object, e.g. HTTP response.
   T convert<T>(ResponseConverter<T> converter);
 }
@@ -14,7 +14,7 @@ abstract class Response {
 /// - https://jsonapi.org/format/#crud-updating-responses-204
 /// - https://jsonapi.org/format/#crud-updating-relationship-responses-204
 /// - https://jsonapi.org/format/#crud-deleting-responses-204
-class NoContentResponse implements Response {
+class NoContentResponse implements JsonApiResponse {
   @override
   T convert<T>(ResponseConverter<T> converter) => converter.noContent();
 }
@@ -22,11 +22,14 @@ class NoContentResponse implements Response {
 /// HTTP 200 OK response with a resource collection.
 ///
 /// See: https://jsonapi.org/format/#fetching-resources-responses-200
-class CollectionResponse implements Response {
-  CollectionResponse(this.resources, {this.included, this.total});
+class CollectionResponse implements JsonApiResponse {
+  CollectionResponse(Iterable<Resource> resources,
+      {Iterable<Resource> included, this.total})
+      : resources = List.unmodifiable(resources),
+        included = included == null ? null : List.unmodifiable(included);
 
-  final Iterable<Resource> resources;
-  final Iterable<Resource> included;
+  final List<Resource> resources;
+  final List<Resource> included;
 
   final int total;
 
@@ -38,7 +41,7 @@ class CollectionResponse implements Response {
 /// HTTP 202 Accepted response.
 ///
 /// See: https://jsonapi.org/recommendations/#asynchronous-processing
-class AcceptedResponse implements Response {
+class AcceptedResponse implements JsonApiResponse {
   AcceptedResponse(this.resource);
 
   final Resource resource;
@@ -50,10 +53,11 @@ class AcceptedResponse implements Response {
 /// A common error response.
 ///
 /// See: https://jsonapi.org/format/#errors
-class ErrorResponse implements Response {
-  ErrorResponse(this.statusCode, this.errors,
+class ErrorResponse implements JsonApiResponse {
+  ErrorResponse(this.statusCode, Iterable<ErrorObject> errors,
       {Map<String, String> headers = const {}})
-      : _headers = Map.unmodifiable(headers);
+      : _headers = Map.unmodifiable(headers),
+        errors = List.unmodifiable(errors);
 
   /// HTTP 400 Bad Request response.
   ///
@@ -104,7 +108,7 @@ class ErrorResponse implements Response {
       : this(501, errors);
 
   /// Error objects to send with the response
-  final Iterable<ErrorObject> errors;
+  final List<ErrorObject> errors;
 
   /// HTTP status code
   final int statusCode;
@@ -121,7 +125,7 @@ class ErrorResponse implements Response {
 /// - https://jsonapi.org/format/#crud-updating-responses-200
 /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
 /// - https://jsonapi.org/format/#crud-deleting-responses-200
-class MetaResponse implements Response {
+class MetaResponse implements JsonApiResponse {
   MetaResponse(Map<String, Object> meta) : meta = Map.unmodifiable(meta);
 
   final Map<String, Object> meta;
@@ -135,12 +139,13 @@ class MetaResponse implements Response {
 /// See:
 /// - https://jsonapi.org/format/#fetching-resources-responses-200
 /// - https://jsonapi.org/format/#crud-updating-responses-200
-class ResourceResponse implements Response {
-  ResourceResponse(this.resource, {this.included});
+class ResourceResponse implements JsonApiResponse {
+  ResourceResponse(this.resource, {Iterable<Resource> included})
+      : included = included == null ? null : List.unmodifiable(included);
 
   final Resource resource;
 
-  final Iterable<Resource> included;
+  final List<Resource> included;
 
   @override
   T convert<T>(ResponseConverter<T> converter) =>
@@ -150,7 +155,7 @@ class ResourceResponse implements Response {
 /// HTTP 201 Created response containing a newly created resource
 ///
 /// See: https://jsonapi.org/format/#crud-creating-responses-201
-class ResourceCreatedResponse implements Response {
+class ResourceCreatedResponse implements JsonApiResponse {
   ResourceCreatedResponse(this.resource);
 
   final Resource resource;
@@ -163,7 +168,7 @@ class ResourceCreatedResponse implements Response {
 /// HTTP 303 See Other response.
 ///
 /// See: https://jsonapi.org/recommendations/#asynchronous-processing
-class SeeOtherResponse implements Response {
+class SeeOtherResponse implements JsonApiResponse {
   SeeOtherResponse(this.type, this.id);
 
   /// Resource type
@@ -181,13 +186,16 @@ class SeeOtherResponse implements Response {
 /// See:
 /// - https://jsonapi.org/format/#fetching-relationships-responses-200
 /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
-class ToManyResponse implements Response {
-  ToManyResponse(this.type, this.id, this.relationship, this.identifiers);
+class ToManyResponse implements JsonApiResponse {
+  ToManyResponse(
+      this.type, this.id, this.relationship, Iterable<Identifier> identifiers)
+      : identifiers =
+            identifiers == null ? null : List.unmodifiable(identifiers);
 
   final String type;
   final String id;
   final String relationship;
-  final Iterable<Identifier> identifiers;
+  final List<Identifier> identifiers;
 
   @override
   T convert<T>(ResponseConverter<T> converter) =>
@@ -199,7 +207,7 @@ class ToManyResponse implements Response {
 /// See:
 /// - https://jsonapi.org/format/#fetching-relationships-responses-200
 /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
-class ToOneResponse implements Response {
+class ToOneResponse implements JsonApiResponse {
   ToOneResponse(this.type, this.id, this.relationship, this.identifier);
 
   final String type;

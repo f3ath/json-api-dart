@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/src/server/request.dart';
+import 'package:json_api/src/server/json_api_request.dart';
 
 /// Converts HTTP requests to JSON:API requests
 class RequestConverter {
@@ -11,8 +11,8 @@ class RequestConverter {
       : _matcher = routeMatcher ?? StandardRouting();
   final RouteMatcher _matcher;
 
-  /// Creates a [Request] from [httpRequest]
-  Request convert(HttpRequest httpRequest) {
+  /// Creates a [JsonApiRequest] from [httpRequest]
+  JsonApiRequest convert(HttpRequest httpRequest) {
     String type;
     String id;
     String rel;
@@ -97,10 +97,11 @@ class RequestFactoryException implements Exception {}
 
 /// Thrown if HTTP method is not allowed for the given route
 class MethodNotAllowedException implements RequestFactoryException {
-  MethodNotAllowedException(this.allow);
+  MethodNotAllowedException(Iterable<String> allow)
+      : allow = List.unmodifiable(allow ?? const []);
 
   /// List of allowed methods
-  final Iterable<String> allow;
+  final List<String> allow;
 }
 
 /// Thrown if the request URI can not be matched to a target
