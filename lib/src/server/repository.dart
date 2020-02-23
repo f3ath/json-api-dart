@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:json_api/document.dart';
 import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/src/server/resource_target.dart';
 
 /// The Repository translates CRUD operations on resources to actual data
 /// manipulation.
@@ -21,20 +22,19 @@ abstract class Repository {
   /// will be converted to HTTP 403 error.
   ///
   /// Throws [InvalidType] if the [resource]
-  /// does not belong to the collection. This exception will be converted to HTTP 409
-  /// error.
+  /// does not belong to the collection.
   FutureOr<Resource> create(String collection, Resource resource);
 
-  /// Returns the resource by [identifier].
-  FutureOr<Resource> get(Identifier identifier);
+  /// Returns the resource by [target].
+  FutureOr<Resource> get(ResourceTarget target);
 
-  /// Updates the resource identified by [identifier].
+  /// Updates the resource identified by [target].
   /// If the resource was modified during update, returns the modified resource.
   /// Otherwise returns null.
-  FutureOr<Resource> update(Identifier identifier, Resource resource);
+  FutureOr<Resource> update(ResourceTarget target, Resource resource);
 
-  /// Deletes the resource identified by [identifier]
-  FutureOr<void> delete(Identifier identifier);
+  /// Deletes the resource identified by [target]
+  FutureOr<void> delete(ResourceTarget target);
 
   /// Returns a collection of resources
   FutureOr<Collection<Resource>> getCollection(String collection);

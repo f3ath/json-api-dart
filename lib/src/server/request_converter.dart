@@ -4,6 +4,8 @@ import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/server/json_api_request.dart';
+import 'package:json_api/src/server/relationship_target.dart';
+import 'package:json_api/src/server/resource_target.dart';
 
 /// Converts HTTP requests to JSON:API requests
 class RequestConverter {
@@ -44,13 +46,14 @@ class RequestConverter {
           throw MethodNotAllowedException(['GET', 'POST']);
       }
     } else if (_matcher.matchResource(uri, setTypeId)) {
+      final target = ResourceTarget(type, id);
       switch (httpRequest.method) {
         case 'DELETE':
-          return DeleteResource(type, id);
+          return DeleteResource(target);
         case 'GET':
-          return FetchResource(type, id, uri.queryParametersAll);
+          return FetchResource(target, uri.queryParametersAll);
         case 'PATCH':
-          return UpdateResource(type, id,
+          return UpdateResource(target,
               ResourceData.fromJson(jsonDecode(httpRequest.body)).unwrap());
         default:
           throw MethodNotAllowedException(['DELETE', 'GET', 'PATCH']);
@@ -58,33 +61,35 @@ class RequestConverter {
     } else if (_matcher.matchRelated(uri, setTypeIdRel)) {
       switch (httpRequest.method) {
         case 'GET':
-          return FetchRelated(type, id, rel, uri.queryParametersAll);
+          return FetchRelated(
+              RelationshipTarget(type, id, rel), uri.queryParametersAll);
         default:
           throw MethodNotAllowedException(['GET']);
       }
     } else if (_matcher.matchRelationship(uri, setTypeIdRel)) {
+      final target = RelationshipTarget(type, id, rel);
       switch (httpRequest.method) {
         case 'DELETE':
-          return DeleteFromRelationship(type, id, rel,
-              ToMany.fromJson(jsonDecode(httpRequest.body)).unwrap());
+          return DeleteFromRelationship(
+              target, ToMany.fromJson(jsonDecode(httpRequest.body)).unwrap());
         case 'GET':
-          return FetchRelationship(type, id, rel, uri.queryParametersAll);
+          return FetchRelationship(target, uri.queryParametersAll);
         case 'PATCH':
           final r = Relationship.fromJson(jsonDecode(httpRequest.body));
           if (r is ToOne) {
             final identifier = r.unwrap();
             if (identifier != null) {
-              return ReplaceToOne(type, id, rel, identifier);
+              return ReplaceToOne(target, identifier);
             }
-            return DeleteToOne(type, id, rel);
+            return DeleteToOne(target);
           }
           if (r is ToMany) {
-            return ReplaceToMany(type, id, rel, r.unwrap());
+            return ReplaceToMany(target, r.unwrap());
           }
           throw IncompleteRelationshipException();
         case 'POST':
-          return AddToRelationship(type, id, rel,
-              ToMany.fromJson(jsonDecode(httpRequest.body)).unwrap());
+          return AddToRelationship(
+              target, ToMany.fromJson(jsonDecode(httpRequest.body)).unwrap());
         default:
           throw MethodNotAllowedException(['DELETE', 'GET', 'PATCH', 'POST']);
       }
