@@ -16,9 +16,12 @@ class Page extends QueryParameters {
       : _parameters = {...parameters},
         super(parameters.map((k, v) => MapEntry('page[${k}]', v)));
 
-  static Page fromUri(Uri uri) => Page(uri.queryParameters
-      .map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1), v))
-        ..removeWhere((k, v) => k == null));
+  static Page fromUri(Uri uri) => fromQueryParameters(uri.queryParametersAll);
+
+  static Page fromQueryParameters(Map<String, List<String>> queryParameters) =>
+      Page(queryParameters
+          .map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1), v.last))
+            ..removeWhere((k, v) => k == null));
 
   String operator [](String key) => _parameters[key];
 

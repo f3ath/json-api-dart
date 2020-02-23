@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:json_api/document.dart';
+import 'package:json_api/query.dart';
 import 'package:json_api/src/server/repository.dart';
 import 'package:json_api/src/server/resource_target.dart';
 
@@ -90,7 +91,8 @@ class InMemoryRepository implements Repository {
   }
 
   @override
-  FutureOr<Collection<Resource>> getCollection(String collection) async {
+  FutureOr<Collection<Resource>> getCollection(String collection,
+      {int limit, int offset, List<SortField> sort}) async {
     if (_collections.containsKey(collection)) {
       return Collection(
           _collections[collection].values, _collections[collection].length);

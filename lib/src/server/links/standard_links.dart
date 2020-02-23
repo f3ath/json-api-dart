@@ -39,7 +39,7 @@ class StandardLinks implements LinksFactory {
       };
 
   Map<String, Link> _navigation(int total, Pagination pagination) {
-    final page = Page.fromUri(_requested);
+    final page = Page.fromQueryParameters(_requested.queryParametersAll);
 
     return ({
       'first': pagination.first(),

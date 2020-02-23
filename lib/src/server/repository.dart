@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:json_api/document.dart';
+import 'package:json_api/query.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/server/resource_target.dart';
 
@@ -37,7 +38,8 @@ abstract class Repository {
   FutureOr<void> delete(ResourceTarget target);
 
   /// Returns a collection of resources
-  FutureOr<Collection<Resource>> getCollection(String collection);
+  FutureOr<Collection<Resource>> getCollection(String collection,
+      {int limit, int offset, List<SortField> sort});
 }
 
 /// A collection of elements (e.g. resources) returned by the server.

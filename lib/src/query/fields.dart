@@ -18,8 +18,12 @@ class Fields extends QueryParameters {
         super(fields.map((k, v) => MapEntry('fields[$k]', v.join(','))));
 
   /// Extracts the requested fields from the [uri].
-  static Fields fromUri(Uri uri) =>
-      Fields(uri.queryParametersAll.map((k, v) => MapEntry(
+  static Fields fromUri(Uri uri) => fromQueryParameters(uri.queryParametersAll);
+
+  /// Extracts the requested fields from [queryParameters].
+  static Fields fromQueryParameters(
+          Map<String, List<String>> queryParameters) =>
+      Fields(queryParameters.map((k, v) => MapEntry(
           _regex.firstMatch(k)?.group(1),
           v.expand((_) => _.split(',')).toList()))
         ..removeWhere((k, v) => k == null));

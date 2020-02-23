@@ -9,12 +9,14 @@ import 'package:json_api/src/server/relationship_target.dart';
 import 'package:json_api/src/server/repository.dart';
 import 'package:json_api/src/server/resource_target.dart';
 
-/// An opinionated implementation of [Controller]. It translates JSON:API
+/// An opinionated implementation of [Controller]. Translates JSON:API
 /// requests to [Repository] methods calls.
 class RepositoryController<R> implements Controller<FutureOr<JsonApiResponse>> {
-  RepositoryController(this._repo);
+  RepositoryController(this._repo, {Pagination pagination})
+      : _pagination = pagination ?? NoPagination();
 
   final Repository _repo;
+  final Pagination _pagination;
 
   @override
   FutureOr<JsonApiResponse> addToRelationship(
@@ -75,8 +77,14 @@ class RepositoryController<R> implements Controller<FutureOr<JsonApiResponse>> {
   FutureOr<JsonApiResponse> fetchCollection(
           String type, Map<String, List<String>> queryParameters) =>
       _do(() async {
-        final c = await _repo.getCollection(type);
+        final sort = Sort.fromQueryParameters(queryParameters);
         final include = Include.fromQueryParameters(queryParameters);
+        final page = Page.fromQueryParameters(queryParameters);
+        final limit = _pagination.limit(page);
+        final offset = _pagination.offset(page);
+
+        final c = await _repo.getCollection(type,
+            sort: sort.toList(), limit: limit, offset: offset);
 
         final resources = <Resource>[];
         for (final resource in c.elements) {
