@@ -23,7 +23,8 @@ class InMemoryRepository implements Repository {
     }
     for (final relationship in resource.toOne.values
         .followedBy(resource.toMany.values.expand((_) => _))) {
-      await get(relationship.type, relationship.id);
+      // Make sure the relationships exist
+      await get(relationship);
     }
     if (resource.id == null) {
       if (_nextId == null) {
@@ -45,29 +46,29 @@ class InMemoryRepository implements Repository {
   }
 
   @override
-  FutureOr<Resource> get(String collection, String id) async {
-    if (_collections.containsKey(collection)) {
-      final resource = _collections[collection][id];
+  FutureOr<Resource> get(Identifier identifier) async {
+    if (_collections.containsKey(identifier.type)) {
+      final resource = _collections[identifier.type][identifier.id];
       if (resource == null) {
         throw ResourceNotFound(
-            "Resource '$id' does not exist in '$collection'");
+            "Resource '${identifier.id}' does not exist in '${identifier.type}'");
       }
       return resource;
     }
-    throw CollectionNotFound("Collection '$collection' does not exist");
+    throw CollectionNotFound("Collection '${identifier.type}' does not exist");
   }
 
   @override
   FutureOr<Resource> update(
-      String collection, String id, Resource resource) async {
-    if (collection != resource.type) {
-      throw _invalidType(resource, collection);
+      Identifier identifier, Resource resource) async {
+    if (identifier.type != resource.type) {
+      throw _invalidType(resource, identifier.type);
     }
-    final original = await get(collection, id);
+    final original = await get(identifier);
     if (resource.attributes.isEmpty &&
         resource.toOne.isEmpty &&
         resource.toMany.isEmpty &&
-        resource.id == id) {
+        resource.id == identifier.id) {
       return null;
     }
     final updated = Resource(
@@ -77,14 +78,14 @@ class InMemoryRepository implements Repository {
       toOne: {...original.toOne}..addAll(resource.toOne),
       toMany: {...original.toMany}..addAll(resource.toMany),
     );
-    _collections[collection][id] = updated;
+    _collections[identifier.type][identifier.id] = updated;
     return updated;
   }
 
   @override
-  FutureOr<void> delete(String type, String id) async {
-    await get(type, id);
-    _collections[type].remove(id);
+  FutureOr<void> delete(Identifier identifier) async {
+    await get(identifier);
+    _collections[identifier.type].remove(identifier.id);
     return null;
   }
 

@@ -3,12 +3,12 @@
 [JSON:API] is a specification for building APIs in JSON.
 
 This package consists of several libraries:
-- The [Document library] to model for resources, relationships, identifiers, etc
-- The [Client library] to make requests to JSON:API servers
-- The [Server library] which is still under development
-- The [HTTP library] to interact with Dart's native HTTP client and server
-- The [Query library] to build and parse the query parameters (pagination, sorting, etc)
-- The [URI Design library] to build and match URIs for resources, collections, and relationships
+- The [Document] - the core of this package, describes the JSON:API document structure
+- The [Client library] - JSON:API Client for Flutter, Web and Server-side
+- The [Server library] - a framework-agnostic JSON:API server implementation
+- The [HTTP library] - a thin abstraction of HTTP requests and responses
+- The [Query library] - builds and parses the query parameters (pagination, sorting, filtering, etc)
+- The [Routing library] - builds and matches URIs for resources, collections, and relationships
 
 
 ## Document model
@@ -97,7 +97,7 @@ The Server is itself an implementation of [HttpHandler].
 [Server library]: https://pub.dev/documentation/json_api/latest/server/server-library.html
 [Document library]: https://pub.dev/documentation/json_api/latest/document/document-library.html
 [Query library]: https://pub.dev/documentation/json_api/latest/query/query-library.html
-[URI Design library]: https://pub.dev/documentation/json_api/latest/uri_design/uri_design-library.html
+[Routing library]: https://pub.dev/documentation/json_api/latest/uri_design/uri_design-library.html
 [HTTP library]: https://pub.dev/documentation/json_api/latest/http/http-library.html
 
 [Resource]: https://pub.dev/documentation/json_api/latest/document/Resource-class.html
