@@ -3,6 +3,8 @@ import 'package:json_api/server.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/server/links/links_factory.dart';
 import 'package:json_api/src/server/pagination.dart';
+import 'package:json_api/src/server/relationship_target.dart';
+import 'package:json_api/src/server/resource_target.dart';
 
 /// The factory producing JSON:API Documents
 class DocumentFactory {
@@ -40,26 +42,26 @@ class DocumentFactory {
 
   Document<ResourceData> resourceCreated(Resource resource) => Document(
       ResourceData(_resourceObject(resource),
-          links: _links.createdResource(resource.type, resource.id)),
+          links: _links
+              .createdResource(ResourceTarget(resource.type, resource.id))),
       api: _api);
 
-  Document<ToMany> toMany(String type, String id, String relationship,
-          Iterable<Identifier> identifiers,
+  Document<ToMany> toMany(
+          RelationshipTarget target, Iterable<Identifier> identifiers,
           {Iterable<Resource> included}) =>
       Document(
           ToMany(
             identifiers.map(IdentifierObject.fromIdentifier),
-            links: _links.relationship(type, id, relationship),
+            links: _links.relationship(target),
           ),
           api: _api);
 
-  Document<ToOne> toOne(
-          Identifier identifier, String type, String id, String relationship,
+  Document<ToOne> toOne(RelationshipTarget target, Identifier identifier,
           {Iterable<Resource> included}) =>
       Document(
           ToOne(
             nullable(IdentifierObject.fromIdentifier)(identifier),
-            links: _links.relationship(type, id, relationship),
+            links: _links.relationship(target),
           ),
           api: _api);
 
@@ -69,11 +71,13 @@ class DocumentFactory {
         ...r.toOne.map((k, v) => MapEntry(
             k,
             ToOne(nullable(IdentifierObject.fromIdentifier)(v),
-                links: _links.resourceRelationship(r.type, r.id, k)))),
+                links: _links.resourceRelationship(
+                    RelationshipTarget(r.type, r.id, k))))),
         ...r.toMany.map((k, v) => MapEntry(
             k,
             ToMany(v.map(IdentifierObject.fromIdentifier),
-                links: _links.resourceRelationship(r.type, r.id, k))))
+                links: _links.resourceRelationship(
+                    RelationshipTarget(r.type, r.id, k)))))
       },
-      links: _links.createdResource(r.type, r.id));
+      links: _links.createdResource(ResourceTarget(r.type, r.id)));
 }

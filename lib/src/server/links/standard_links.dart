@@ -3,6 +3,8 @@ import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/server/links/links_factory.dart';
 import 'package:json_api/src/server/pagination.dart';
+import 'package:json_api/src/server/relationship_target.dart';
+import 'package:json_api/src/server/resource_target.dart';
 
 class StandardLinks implements LinksFactory {
   StandardLinks(this._requested, this._route);
@@ -18,20 +20,22 @@ class StandardLinks implements LinksFactory {
       {'self': Link(_requested), ..._navigation(total, pagination)};
 
   @override
-  Map<String, Link> createdResource(String type, String id) =>
-      {'self': Link(_route.resource(type, id))};
+  Map<String, Link> createdResource(ResourceTarget target) =>
+      {'self': Link(_route.resource(target.type, target.id))};
 
   @override
-  Map<String, Link> relationship(String type, String id, String rel) => {
+  Map<String, Link> relationship(RelationshipTarget target) => {
         'self': Link(_requested),
-        'related': Link(_route.related(type, id, rel))
+        'related':
+            Link(_route.related(target.type, target.id, target.relationship))
       };
 
   @override
-  Map<String, Link> resourceRelationship(String type, String id, String rel) =>
-      {
-        'self': Link(_route.relationship(type, id, rel)),
-        'related': Link(_route.related(type, id, rel))
+  Map<String, Link> resourceRelationship(RelationshipTarget target) => {
+        'self': Link(
+            _route.relationship(target.type, target.id, target.relationship)),
+        'related':
+            Link(_route.related(target.type, target.id, target.relationship))
       };
 
   Map<String, Link> _navigation(int total, Pagination pagination) {

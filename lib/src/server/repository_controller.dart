@@ -38,8 +38,7 @@ class RepositoryController<R> implements Controller<FutureOr<JsonApiResponse>> {
                 ...identifiers
               }.toList()
             }));
-        return ToManyResponse(target.type, target.id, target.relationship,
-            updated.toMany[target.relationship]);
+        return ToManyResponse(target, updated.toMany[target.relationship]);
       });
 
   @override
@@ -62,8 +61,7 @@ class RepositoryController<R> implements Controller<FutureOr<JsonApiResponse>> {
                     ..removeAll(identifiers))
                   .toList()
             }));
-        return ToManyResponse(target.type, target.id, target.relationship,
-            updated.toMany[target.relationship]);
+        return ToManyResponse(target, updated.toMany[target.relationship]);
       });
 
   @override
@@ -117,12 +115,10 @@ class RepositoryController<R> implements Controller<FutureOr<JsonApiResponse>> {
       _do(() async {
         final resource = await _repo.get(target.resource);
         if (resource.toOne.containsKey(target.relationship)) {
-          return ToOneResponse(target.type, target.id, target.relationship,
-              resource.toOne[target.relationship]);
+          return ToOneResponse(target, resource.toOne[target.relationship]);
         }
         if (resource.toMany.containsKey(target.relationship)) {
-          return ToManyResponse(target.type, target.id, target.relationship,
-              resource.toMany[target.relationship]);
+          return ToManyResponse(target, resource.toMany[target.relationship]);
         }
         return _relationshipNotFound(target.relationship);
       });

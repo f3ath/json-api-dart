@@ -5,6 +5,8 @@ import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/server/document_factory.dart';
 import 'package:json_api/src/server/pagination.dart';
+import 'package:json_api/src/server/relationship_target.dart';
+import 'package:json_api/src/server/resource_target.dart';
 import 'package:json_api/src/server/response_converter.dart';
 
 /// An implementation of [ResponseConverter] converting to [HttpResponse].
@@ -49,20 +51,20 @@ class HttpResponseConverter implements ResponseConverter<HttpResponse> {
       });
 
   @override
-  HttpResponse seeOther(String type, String id) => HttpResponse(303,
-      headers: {'Location': _routing.resource(type, id).toString()});
+  HttpResponse seeOther(ResourceTarget target) => HttpResponse(303, headers: {
+        'Location': _routing.resource(target.type, target.id).toString()
+      });
 
   @override
-  HttpResponse toMany(String type, String id, String relationship,
-          Iterable<Identifier> identifiers,
+  HttpResponse toMany(
+          RelationshipTarget target, Iterable<Identifier> identifiers,
           {Iterable<Resource> included}) =>
-      _ok(_doc.toMany(type, id, relationship, identifiers, included: included));
+      _ok(_doc.toMany(target, identifiers, included: included));
 
   @override
-  HttpResponse toOne(
-          Identifier identifier, String type, String id, String relationship,
+  HttpResponse toOne(RelationshipTarget target, Identifier identifier,
           {Iterable<Resource> included}) =>
-      _ok(_doc.toOne(identifier, type, id, relationship, included: included));
+      _ok(_doc.toOne(target, identifier, included: included));
 
   @override
   HttpResponse noContent() => HttpResponse(204);

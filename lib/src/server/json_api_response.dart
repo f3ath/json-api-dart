@@ -1,4 +1,6 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/src/server/relationship_target.dart';
+import 'package:json_api/src/server/resource_target.dart';
 import 'package:json_api/src/server/response_converter.dart';
 
 /// The base interface for JSON:API responses.
@@ -169,16 +171,12 @@ class ResourceCreatedResponse implements JsonApiResponse {
 ///
 /// See: https://jsonapi.org/recommendations/#asynchronous-processing
 class SeeOtherResponse implements JsonApiResponse {
-  SeeOtherResponse(this.type, this.id);
+  SeeOtherResponse(this.target);
 
-  /// Resource type
-  final String type;
-
-  /// Resource id
-  final String id;
+  final ResourceTarget target;
 
   @override
-  T convert<T>(ResponseConverter<T> converter) => converter.seeOther(type, id);
+  T convert<T>(ResponseConverter<T> converter) => converter.seeOther(target);
 }
 
 /// HTTP 200 OK response containing a to-may relationship.
@@ -187,19 +185,16 @@ class SeeOtherResponse implements JsonApiResponse {
 /// - https://jsonapi.org/format/#fetching-relationships-responses-200
 /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
 class ToManyResponse implements JsonApiResponse {
-  ToManyResponse(
-      this.type, this.id, this.relationship, Iterable<Identifier> identifiers)
+  ToManyResponse(this.target, Iterable<Identifier> identifiers)
       : identifiers =
             identifiers == null ? null : List.unmodifiable(identifiers);
 
-  final String type;
-  final String id;
-  final String relationship;
+  final RelationshipTarget target;
   final List<Identifier> identifiers;
 
   @override
   T convert<T>(ResponseConverter<T> converter) =>
-      converter.toMany(type, id, relationship, identifiers);
+      converter.toMany(target, identifiers);
 }
 
 /// HTTP 200 OK response containing a to-one relationship
@@ -208,15 +203,13 @@ class ToManyResponse implements JsonApiResponse {
 /// - https://jsonapi.org/format/#fetching-relationships-responses-200
 /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
 class ToOneResponse implements JsonApiResponse {
-  ToOneResponse(this.type, this.id, this.relationship, this.identifier);
+  ToOneResponse(this.target, this.identifier);
 
-  final String type;
-  final String id;
-  final String relationship;
+  final RelationshipTarget target;
 
   final Identifier identifier;
 
   @override
   T convert<T>(ResponseConverter<T> converter) =>
-      converter.toOne(identifier, type, id, relationship);
+      converter.toOne(target, identifier);
 }

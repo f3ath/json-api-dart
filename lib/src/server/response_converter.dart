@@ -1,5 +1,7 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/server/pagination.dart';
+import 'package:json_api/src/server/relationship_target.dart';
+import 'package:json_api/src/server/resource_target.dart';
 
 /// Converts JsonApi Controller responses to other responses, e.g. HTTP
 abstract class ResponseConverter<T> {
@@ -50,15 +52,14 @@ abstract class ResponseConverter<T> {
   /// HTTP 303 See Other response.
   ///
   /// See: https://jsonapi.org/recommendations/#asynchronous-processing
-  T seeOther(String type, String id);
+  T seeOther(ResourceTarget target);
 
   /// HTTP 200 OK response containing a to-may relationship.
   ///
   /// See:
   /// - https://jsonapi.org/format/#fetching-relationships-responses-200
   /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
-  T toMany(String type, String id, String relationship,
-      Iterable<Identifier> identifiers,
+  T toMany(RelationshipTarget target, Iterable<Identifier> identifiers,
       {Iterable<Resource> included});
 
   /// HTTP 200 OK response containing a to-one relationship
@@ -66,7 +67,7 @@ abstract class ResponseConverter<T> {
   /// See:
   /// - https://jsonapi.org/format/#fetching-relationships-responses-200
   /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
-  T toOne(Identifier identifier, String type, String id, String relationship,
+  T toOne(RelationshipTarget target, Identifier identifier,
       {Iterable<Resource> included});
 
   /// HTTP 204 No Content response.
