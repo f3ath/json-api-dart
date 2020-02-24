@@ -1,7 +1,9 @@
-import 'package:json_api/src/routing/collection_route.dart';
-import 'package:json_api/src/routing/relationship_route.dart';
-import 'package:json_api/src/routing/resource_route.dart';
+import 'package:json_api/src/routing/routes.dart';
 
+/// The recommended URI design for a primary resource collections.
+/// Example: `/photos`
+///
+/// See: https://jsonapi.org/recommendations/#urls-resource-collections
 class StandardCollectionRoute extends _BaseRoute implements CollectionRoute {
   StandardCollectionRoute([Uri base]) : super(base);
 
@@ -19,6 +21,10 @@ class StandardCollectionRoute extends _BaseRoute implements CollectionRoute {
   Uri uri(String type) => _resolve([type]);
 }
 
+/// The recommended URI design for a primary resource.
+/// Example: `/photos/1`
+///
+/// See: https://jsonapi.org/recommendations/#urls-individual-resources
 class StandardResourceRoute extends _BaseRoute implements ResourceRoute {
   StandardResourceRoute([Uri base]) : super(base);
 
@@ -36,7 +42,11 @@ class StandardResourceRoute extends _BaseRoute implements ResourceRoute {
   Uri uri(String type, String id) => _resolve([type, id]);
 }
 
-class StandardRelatedRoute extends _BaseRoute implements RelationshipRoute {
+/// The recommended URI design for a related resource or collections.
+/// Example: `/photos/1/comments`
+///
+/// See: https://jsonapi.org/recommendations/#urls-relationships
+class StandardRelatedRoute extends _BaseRoute implements RelatedRoute {
   StandardRelatedRoute([Uri base]) : super(base);
 
   @override
@@ -55,6 +65,10 @@ class StandardRelatedRoute extends _BaseRoute implements RelationshipRoute {
       _resolve([type, id, relationship]);
 }
 
+/// The recommended URI design for a relationship.
+/// Example: `/photos/1/relationships/comments`
+///
+/// See: https://jsonapi.org/recommendations/#urls-relationships
 class StandardRelationshipRoute extends _BaseRoute
     implements RelationshipRoute {
   StandardRelationshipRoute([Uri base]) : super(base);

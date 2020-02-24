@@ -8,87 +8,89 @@ import 'response.dart';
 /// This is a wrapper over [JsonApiClient] capable of building the
 /// request URIs by itself.
 class RoutingClient {
-  RoutingClient(this._client, this._routing);
+  RoutingClient(this._client, this._routes);
 
   final JsonApiClient _client;
-  final RouteFactory _routing;
+  final RouteFactory _routes;
 
   /// Fetches a primary resource collection by [type].
   Future<Response<ResourceCollectionData>> fetchCollection(String type,
           {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchCollectionAt(_collection(type),
+      _client.fetchCollectionAt(_routes.collection(type),
           headers: headers, parameters: parameters);
 
   /// Fetches a related resource collection. Guesses the URI by [type], [id], [relationship].
   Future<Response<ResourceCollectionData>> fetchRelatedCollection(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchCollectionAt(_related(type, id, relationship),
+      _client.fetchCollectionAt(_routes.related(type, id, relationship),
           headers: headers, parameters: parameters);
 
   /// Fetches a primary resource by [type] and [id].
   Future<Response<ResourceData>> fetchResource(String type, String id,
           {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchResourceAt(_resource(type, id),
+      _client.fetchResourceAt(_routes.resource(type, id),
           headers: headers, parameters: parameters);
 
   /// Fetches a related resource by [type], [id], [relationship].
   Future<Response<ResourceData>> fetchRelatedResource(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchResourceAt(_related(type, id, relationship),
+      _client.fetchResourceAt(_routes.related(type, id, relationship),
           headers: headers, parameters: parameters);
 
   /// Fetches a to-one relationship by [type], [id], [relationship].
   Future<Response<ToOne>> fetchToOne(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchToOneAt(_relationship(type, id, relationship),
+      _client.fetchToOneAt(_routes.relationship(type, id, relationship),
           headers: headers, parameters: parameters);
 
   /// Fetches a to-many relationship by [type], [id], [relationship].
   Future<Response<ToMany>> fetchToMany(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchToManyAt(_relationship(type, id, relationship),
+      _client.fetchToManyAt(_routes.relationship(type, id, relationship),
           headers: headers, parameters: parameters);
 
   /// Fetches a [relationship] of [type] : [id].
   Future<Response<Relationship>> fetchRelationship(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchRelationshipAt(_relationship(type, id, relationship),
+      _client.fetchRelationshipAt(_routes.relationship(type, id, relationship),
           headers: headers, parameters: parameters);
 
   /// Creates the [resource] on the server.
   Future<Response<ResourceData>> createResource(Resource resource,
           {Map<String, String> headers}) =>
-      _client.createResourceAt(_collection(resource.type), resource,
+      _client.createResourceAt(_routes.collection(resource.type), resource,
           headers: headers);
 
   /// Deletes the resource by [type] and [id].
   Future<Response> deleteResource(String type, String id,
           {Map<String, String> headers}) =>
-      _client.deleteResourceAt(_resource(type, id), headers: headers);
+      _client.deleteResourceAt(_routes.resource(type, id), headers: headers);
 
   /// Updates the [resource].
   Future<Response<ResourceData>> updateResource(Resource resource,
           {Map<String, String> headers}) =>
-      _client.updateResourceAt(_resource(resource.type, resource.id), resource,
+      _client.updateResourceAt(
+          _routes.resource(resource.type, resource.id), resource,
           headers: headers);
 
   /// Replaces the to-one [relationship] of [type] : [id].
   Future<Response<ToOne>> replaceToOne(
           String type, String id, String relationship, Identifier identifier,
           {Map<String, String> headers}) =>
-      _client.replaceToOneAt(_relationship(type, id, relationship), identifier,
+      _client.replaceToOneAt(
+          _routes.relationship(type, id, relationship), identifier,
           headers: headers);
 
   /// Deletes the to-one [relationship] of [type] : [id].
   Future<Response<ToOne>> deleteToOne(
           String type, String id, String relationship,
           {Map<String, String> headers}) =>
-      _client.deleteToOneAt(_relationship(type, id, relationship),
+      _client.deleteToOneAt(_routes.relationship(type, id, relationship),
           headers: headers);
 
   /// Deletes the [identifiers] from the to-many [relationship] of [type] : [id].
@@ -96,7 +98,7 @@ class RoutingClient {
           String relationship, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       _client.deleteFromToManyAt(
-          _relationship(type, id, relationship), identifiers,
+          _routes.relationship(type, id, relationship), identifiers,
           headers: headers);
 
   /// Replaces the to-many [relationship] of [type] : [id] with the [identifiers].
@@ -104,7 +106,7 @@ class RoutingClient {
           String relationship, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       _client.replaceToManyAt(
-          _relationship(type, id, relationship), identifiers,
+          _routes.relationship(type, id, relationship), identifiers,
           headers: headers);
 
   /// Adds the [identifiers] to the to-many [relationship] of [type] : [id].
@@ -112,16 +114,6 @@ class RoutingClient {
           String relationship, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       _client.addToRelationshipAt(
-          _relationship(type, id, relationship), identifiers,
+          _routes.relationship(type, id, relationship), identifiers,
           headers: headers);
-
-  Uri _collection(String type) => _routing.collection(type);
-
-  Uri _relationship(String type, String id, String relationship) =>
-      _routing.relationship(type, id, relationship);
-
-  Uri _resource(String type, String id) => _routing.resource(type, id);
-
-  Uri _related(String type, String id, String relationship) =>
-      _routing.related(type, id, relationship);
 }

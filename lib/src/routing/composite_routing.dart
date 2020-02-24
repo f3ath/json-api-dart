@@ -1,15 +1,15 @@
-import 'package:json_api/src/routing/collection_route.dart';
-import 'package:json_api/src/routing/relationship_route.dart';
-import 'package:json_api/src/routing/resource_route.dart';
-import 'package:json_api/src/routing/routing.dart';
+import 'package:json_api/src/routing/route_factory.dart';
+import 'package:json_api/src/routing/route_matcher.dart';
+import 'package:json_api/src/routing/routes.dart';
 
-class CompositeRouting implements Routing {
+/// URI design composed of independent routes.
+class CompositeRouting implements RouteFactory, RouteMatcher {
   CompositeRouting(this.collectionRoute, this.resourceRoute, this.relatedRoute,
       this.relationshipRoute);
 
   final CollectionRoute collectionRoute;
   final ResourceRoute resourceRoute;
-  final RelationshipRoute relatedRoute;
+  final RelatedRoute relatedRoute;
   final RelationshipRoute relationshipRoute;
 
   @override
