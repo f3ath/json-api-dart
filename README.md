@@ -3,12 +3,12 @@
 [JSON:API] is a specification for building APIs in JSON.
 
 This package consists of several libraries:
-- The [Document] - the core of this package, describes the JSON:API document structure
-- The [Client library] - JSON:API Client for Flutter, Web and Server-side
-- The [Server library] - a framework-agnostic JSON:API server implementation
-- The [HTTP library] - a thin abstraction of HTTP requests and responses
-- The [Query library] - builds and parses the query parameters (page, sorting, filtering, etc)
-- The [Routing library] - builds and matches URIs for resources, collections, and relationships
+- The [Document library] is the core of this package. It describes the JSON:API document structure
+- The [Client library] is a JSON:API Client for Flutter, Web and Server-side
+- The [Server library] is a framework-agnostic JSON:API server implementation
+- The [HTTP library] is a thin abstraction of HTTP requests and responses
+- The [Query library] builds and parses the query parameters (page, sorting, filtering, etc)
+- The [Routing library] builds and matches URIs for resources, collections, and relationships
 
 ## Document model
 The main concept of JSON:API model is the [Resource]. 
@@ -80,7 +80,7 @@ The [HttpHandler] interface turns an [HttpRequest] to an [HttpResponse].
 The Client consumes an implementation of [HttpHandler] as a low-level HTTP client.
 The Server is itself an implementation of [HttpHandler].
 
-## URL Queries
+## Query
 This is a set of classes for building avd parsing some URL query parameters defined in the standard.
 - [Fields] for [Sparse fieldsets]
 - [Include] for [Inclusion of Related Resources]
