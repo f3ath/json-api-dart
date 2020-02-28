@@ -8,7 +8,7 @@ class IdentifierObject implements JsonEncodable {
   /// Creates an instance of [IdentifierObject].
   /// [type] and [id] can not be null.
   IdentifierObject(this.type, this.id, {Map<String, Object> meta})
-      : meta = (meta == null) ? null : Map.unmodifiable(meta) {
+      : meta = Map.unmodifiable(meta ?? const {}) {
     ArgumentError.checkNotNull(type);
     ArgumentError.checkNotNull(id);
   }
@@ -39,6 +39,6 @@ class IdentifierObject implements JsonEncodable {
   Map<String, Object> toJson() => {
         'type': type,
         'id': id,
-        if (meta != null) ...{'meta': meta},
+        if (meta.isNotEmpty) 'meta': meta,
       };
 }

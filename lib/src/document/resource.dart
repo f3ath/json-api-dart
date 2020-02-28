@@ -1,4 +1,3 @@
-import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 
 /// Resource
@@ -14,13 +13,11 @@ class Resource {
       {Map<String, Object> attributes,
       Map<String, Identifier> toOne,
       Map<String, List<Identifier>> toMany})
-      : attributes = Map.unmodifiable(attributes ?? {}),
-        toOne = Map.unmodifiable(toOne ?? {}),
+      : attributes = Map.unmodifiable(attributes ?? const {}),
+        toOne = Map.unmodifiable(toOne ?? const {}),
         toMany = Map.unmodifiable(
             (toMany ?? {}).map((k, v) => MapEntry(k, Set.of(v).toList()))) {
-    if (type == null || type.isEmpty) {
-      throw DocumentException("Resource 'type' must be not empty");
-    }
+    ArgumentError.notNull(type);
   }
 
   /// Resource type

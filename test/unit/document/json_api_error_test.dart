@@ -31,12 +31,4 @@ void main() {
           'http://example.com');
     });
   });
-
-  group('fromJson()', () {
-    test('if no links is present, the "links" property is null', () {
-      final e = ErrorObject.fromJson(json.decode(json.encode((ErrorObject()))));
-      expect(e.links, null);
-      expect(e.about, null);
-    });
-  });
 }

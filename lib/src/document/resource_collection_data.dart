@@ -8,7 +8,7 @@ import 'package:json_api/src/document/resource_object.dart';
 class ResourceCollectionData extends PrimaryData {
   ResourceCollectionData(Iterable<ResourceObject> collection,
       {Iterable<ResourceObject> included, Map<String, Link> links})
-      : collection = List.unmodifiable(collection),
+      : collection = List.unmodifiable(collection ?? const []),
         super(included: included, links: links);
 
   static ResourceCollectionData fromJson(Object json) {

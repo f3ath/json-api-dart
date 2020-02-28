@@ -20,11 +20,10 @@ class ResourceObject implements JsonEncodable {
       Map<String, Relationship> relationships,
       Map<String, Object> meta,
       Map<String, Link> links})
-      : links = (links == null) ? null : Map.unmodifiable(links),
-        attributes = (attributes == null) ? null : Map.unmodifiable(attributes),
-        meta = (meta == null) ? null : Map.unmodifiable(meta),
-        relationships =
-            (relationships == null) ? null : Map.unmodifiable(relationships);
+      : links = Map.unmodifiable(links ?? const {}),
+        attributes = Map.unmodifiable(attributes ?? const {}),
+        meta = Map.unmodifiable(meta ?? const {}),
+        relationships = Map.unmodifiable(relationships ?? const {});
 
   static ResourceObject fromResource(Resource resource) =>
       ResourceObject(resource.type, resource.id,
@@ -37,19 +36,22 @@ class ResourceObject implements JsonEncodable {
           });
 
   /// Reconstructs the `data` member of a JSON:API Document.
-  /// If [json] is null, returns null.
   static ResourceObject fromJson(Object json) {
     if (json is Map) {
       final relationships = json['relationships'];
       final attributes = json['attributes'];
+      final type = json['type'];
       if ((relationships == null || relationships is Map) &&
-          (attributes == null || attributes is Map)) {
+          (attributes == null || attributes is Map) &&
+          type is String &&
+          type.isNotEmpty) {
         return ResourceObject(json['type'], json['id'],
             attributes: attributes,
             relationships: nullable(Relationship.mapFromJson)(relationships),
             links: Link.mapFromJson(json['links'] ?? {}),
             meta: json['meta']);
       }
+      throw DocumentException('Invalid JSON:API resource object');
     }
     throw DocumentException('A JSON:API resource must be a JSON object');
   }
@@ -63,28 +65,30 @@ class ResourceObject implements JsonEncodable {
   /// Read-only `links` object. May be empty.
   final Map<String, Link> links;
 
-  Link get self => (links ?? {})['self'];
+  Link get self => links['self'];
 
   /// Returns the JSON object to be used in the `data` or `included` members
   /// of a JSON:API Document
   @override
   Map<String, Object> toJson() => {
         'type': type,
-        if (id != null) ...{'id': id},
-        if (meta != null) ...{'meta': meta},
-        if (attributes != null) ...{'attributes': attributes},
-        if (relationships != null) ...{'relationships': relationships},
-        if (links != null) ...{'links': links},
+        if (id != null) 'id': id,
+        if (meta.isNotEmpty) 'meta': meta,
+        if (attributes.isNotEmpty) 'attributes': attributes,
+        if (relationships.isNotEmpty) 'relationships': relationships,
+        if (links.isNotEmpty) 'links': links,
       };
 
   /// Extracts the [Resource] if possible. The standard allows relationships
   /// without `data` member. In this case the original [Resource] can not be
   /// recovered and this method will throw a [StateError].
+  ///
+  /// Example of missing `data`: https://discuss.jsonapi.org/t/relationships-data-node/223
   Resource unwrap() {
     final toOne = <String, Identifier>{};
     final toMany = <String, List<Identifier>>{};
     final incomplete = <String, Relationship>{};
-    (relationships ?? {}).forEach((name, rel) {
+    relationships.forEach((name, rel) {
       if (rel is ToOne) {
         toOne[name] = rel.unwrap();
       } else if (rel is ToMany) {
@@ -96,7 +100,7 @@ class ResourceObject implements JsonEncodable {
 
     if (incomplete.isNotEmpty) {
       throw StateError('Can not convert to resource'
-          ' due to incomplete relationships data: ${incomplete.keys}');
+          ' due to incomplete relationship: ${incomplete.keys}');
     }
 
     return Resource(type, id,

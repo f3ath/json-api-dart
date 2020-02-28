@@ -55,7 +55,7 @@ void main() {
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
       expect(error.status, '400');
       expect(error.title, 'Bad request');
-      expect(error.detail, "Resource 'type' must be not empty");
+      expect(error.detail, 'Invalid JSON:API resource object');
     });
 
     test('returns `not found` if URI is not recognized', () async {

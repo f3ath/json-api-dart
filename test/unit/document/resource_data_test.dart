@@ -46,7 +46,7 @@ void main() {
       final data = ResourceData.fromJson(json.decode(json.encode({
         'data': {'type': 'apples', 'id': '1'}
       })));
-      expect(data.included, isNull);
+      expect(data.isCompound, isFalse);
     });
     test('[] decodes to []', () {
       final data = ResourceData.fromJson(json.decode(json.encode({
@@ -54,17 +54,17 @@ void main() {
         'included': []
       })));
       expect(data.included, equals([]));
+      expect(data.isCompound, isTrue);
     });
-    test('non empty [] decodes to non-emoty []', () {
+    test('non empty [] decodes to non-empty []', () {
       final data = ResourceData.fromJson(json.decode(json.encode({
         'data': {'type': 'apples', 'id': '1'},
         'included': [
-          {
-            'data': {'type': 'oranges', 'id': '1'}
-          }
+          {'type': 'oranges', 'id': '1'}
         ]
       })));
       expect(data.included, isNotEmpty);
+      expect(data.isCompound, isTrue);
     });
     test('invalid value throws DocumentException', () {
       expect(

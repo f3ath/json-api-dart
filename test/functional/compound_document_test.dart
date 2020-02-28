@@ -52,10 +52,10 @@ void main() async {
   });
 
   group('Single Resouces', () {
-    test('included == null by default', () async {
+    test('not compound by default', () async {
       final r = await client.fetchResource('posts', '1');
       expectResourcesEqual(r.data.unwrap(), post);
-      expect(r.data.included, isNull);
+      expect(r.data.isCompound, isFalse);
     });
 
     test('included == [] when requested but nothing to include', () async {
@@ -63,6 +63,7 @@ void main() async {
           parameters: Include(['tags']));
       expectResourcesEqual(r.data.unwrap(), post);
       expect(r.data.included, []);
+      expect(r.data.isCompound, isTrue);
     });
 
     test('can include first-level relatives', () async {
@@ -72,6 +73,7 @@ void main() async {
       expect(r.data.included.length, 2);
       expectResourcesEqual(r.data.included[0].unwrap(), comment1);
       expectResourcesEqual(r.data.included[1].unwrap(), comment2);
+      expect(r.data.isCompound, isTrue);
     });
 
     test('can include second-level relatives', () async {
@@ -81,6 +83,7 @@ void main() async {
       expect(r.data.included.length, 2);
       expectResourcesEqual(r.data.included.first.unwrap(), bob);
       expectResourcesEqual(r.data.included.last.unwrap(), alice);
+      expect(r.data.isCompound, isTrue);
     });
 
     test('can include third-level relatives', () async {
@@ -89,6 +92,7 @@ void main() async {
       expectResourcesEqual(r.data.unwrap(), post);
       expect(r.data.included.length, 1);
       expectResourcesEqual(r.data.included.first.unwrap(), wonderland);
+      expect(r.data.isCompound, isTrue);
     });
 
     test('can include first- and second-level relatives', () async {
@@ -100,21 +104,24 @@ void main() async {
       expectResourcesEqual(r.data.included[1].unwrap(), comment2);
       expectResourcesEqual(r.data.included[2].unwrap(), bob);
       expectResourcesEqual(r.data.included[3].unwrap(), alice);
+      expect(r.data.isCompound, isTrue);
     });
   });
 
   group('Resource Collection', () {
-    test('included == null by default', () async {
+    test('not compound by default', () async {
       final r = await client.fetchCollection('posts');
       expectResourcesEqual(r.data.unwrap().first, post);
-      expect(r.data.included, isNull);
+      expect(r.data.isCompound, isFalse);
     });
 
-    test('included == [] when requested but nothing to include', () async {
+    test('document is compound when requested but nothing to include',
+        () async {
       final r =
           await client.fetchCollection('posts', parameters: Include(['tags']));
       expectResourcesEqual(r.data.unwrap().first, post);
       expect(r.data.included, []);
+      expect(r.data.isCompound, isTrue);
     });
 
     test('can include first-level relatives', () async {
@@ -124,6 +131,7 @@ void main() async {
       expect(r.data.included.length, 2);
       expectResourcesEqual(r.data.included[0].unwrap(), comment1);
       expectResourcesEqual(r.data.included[1].unwrap(), comment2);
+      expect(r.data.isCompound, isTrue);
     });
 
     test('can include second-level relatives', () async {
@@ -133,6 +141,7 @@ void main() async {
       expect(r.data.included.length, 2);
       expectResourcesEqual(r.data.included.first.unwrap(), bob);
       expectResourcesEqual(r.data.included.last.unwrap(), alice);
+      expect(r.data.isCompound, isTrue);
     });
 
     test('can include third-level relatives', () async {
@@ -141,6 +150,7 @@ void main() async {
       expectResourcesEqual(r.data.unwrap().first, post);
       expect(r.data.included.length, 1);
       expectResourcesEqual(r.data.included.first.unwrap(), wonderland);
+      expect(r.data.isCompound, isTrue);
     });
 
     test('can include first- and second-level relatives', () async {
@@ -152,6 +162,7 @@ void main() async {
       expectResourcesEqual(r.data.included[1].unwrap(), comment2);
       expectResourcesEqual(r.data.included[2].unwrap(), bob);
       expectResourcesEqual(r.data.included[3].unwrap(), alice);
+      expect(r.data.isCompound, isTrue);
     });
   });
 }

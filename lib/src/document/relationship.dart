@@ -30,9 +30,7 @@ class Relationship extends PrimaryData {
           return ToMany.fromJson(json);
         }
       }
-      final links = json['links'];
-      return Relationship(
-          links: (links == null) ? null : Link.mapFromJson(links));
+      return Relationship(links: nullable(Link.mapFromJson)(json['links']));
     }
     throw DocumentException(
         'A JSON:API relationship object must be a JSON object');
@@ -48,7 +46,7 @@ class Relationship extends PrimaryData {
   }
 
   /// The "related" link. May be null.
-  Link get related => (links ?? {})['related'];
+  Link get related => links['related'];
 }
 
 /// Relationship to-one
@@ -87,7 +85,7 @@ class ToOne extends Relationship {
   @override
   Map<String, Object> toJson() => {
         ...super.toJson(),
-        ...{'data': linkage}
+        'data': linkage,
       };
 
   /// Converts to [Identifier].

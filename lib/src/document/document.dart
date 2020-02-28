@@ -7,24 +7,53 @@ import 'package:json_api/src/nullable.dart';
 
 class Document<Data extends PrimaryData> implements JsonEncodable {
   /// Create a document with primary data
-  Document(this.data, {Map<String, Object> meta, this.api})
-      : errors = null,
-        meta = (meta == null) ? null : Map.unmodifiable(meta);
+  Document(this.data, {Map<String, Object> meta, Api api})
+      : errors = const [],
+        meta = Map.unmodifiable(meta ?? const {}),
+        api = api ?? Api(),
+        isError = false,
+        isMeta = false {
+    ArgumentError.checkNotNull(data);
+  }
 
   /// Create a document with errors (no primary data)
   Document.error(Iterable<ErrorObject> errors,
-      {Map<String, Object> meta, this.api})
+      {Map<String, Object> meta, Api api})
       : data = null,
-        meta = (meta == null) ? null : Map.unmodifiable(meta),
-        errors = List.unmodifiable(errors);
+        meta = Map.unmodifiable(meta ?? const {}),
+        errors = List.unmodifiable(errors ?? const []),
+        api = api ?? Api(),
+        isError = true,
+        isMeta = false;
 
   /// Create an empty document (no primary data and no errors)
-  Document.empty(Map<String, Object> meta, {this.api})
+  Document.empty(Map<String, Object> meta, {Api api})
       : data = null,
-        meta = (meta == null) ? null : Map.unmodifiable(meta),
-        errors = null {
+        meta = Map.unmodifiable(meta ?? const {}),
+        errors = const [],
+        api = api ?? Api(),
+        isError = false,
+        isMeta = true {
     ArgumentError.checkNotNull(meta);
   }
+
+  /// The Primary Data. May be null.
+  final Data data;
+
+  /// List of errors. May be empty or null.
+  final List<ErrorObject> errors;
+
+  /// Meta data. May be empty.
+  final Map<String, Object> meta;
+
+  /// The `jsonapi` object.
+  final Api api;
+
+  /// True for error documents.
+  final bool isError;
+
+  /// True for non-error meta-only documents.
+  final bool isMeta;
 
   /// Reconstructs a document with the specified primary data
   static Document<Data> fromJson<Data extends PrimaryData>(
@@ -49,24 +78,10 @@ class Document<Data extends PrimaryData> implements JsonEncodable {
 
   static const contentType = 'application/vnd.api+json';
 
-  /// The Primary Data
-  final Data data;
-
-  /// The `jsonapi` object. May be null.
-  final Api api;
-
-  /// List of errors. May be null.
-  final List<ErrorObject> errors;
-
-  /// Meta data. May be empty or null.
-  final Map<String, Object> meta;
-
   @override
   Map<String, Object> toJson() => {
-        if (data != null)
-          ...data.toJson()
-        else if (errors != null) ...{'errors': errors},
-        if (meta != null) ...{'meta': meta},
-        if (api != null) ...{'jsonapi': api},
+        if (data != null) ...data.toJson() else if (isError) 'errors': errors,
+        if (isMeta || meta.isNotEmpty) 'meta': meta,
+        if (api.isNotEmpty) 'jsonapi': api,
       };
 }

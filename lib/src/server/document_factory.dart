@@ -24,7 +24,7 @@ class DocumentFactory {
           Iterable<Resource> included,
           Pagination pagination = const NoPagination()}) =>
       Document(
-          ResourceCollectionData(collection.map(_resourceObject),
+          ResourceCollectionData(collection.map(_resourceObject).toList(),
               links: _links.collection(total, pagination),
               included: included?.map(_resourceObject)),
           api: _api);

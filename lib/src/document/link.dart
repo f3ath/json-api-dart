@@ -27,8 +27,8 @@ class Link implements JsonEncodable {
   /// Details on the `links` member: https://jsonapi.org/format/#document-links
   static Map<String, Link> mapFromJson(Object json) {
     if (json is Map) {
-      return ({...json}..removeWhere((_, v) => v == null))
-          .map((k, v) => MapEntry(k.toString(), Link.fromJson(v)));
+      return Map.unmodifiable(({...json}..removeWhere((_, v) => v == null))
+          .map((k, v) => MapEntry(k.toString(), Link.fromJson(v))));
     }
     throw DocumentException('A JSON:API links object must be a JSON object');
   }
@@ -43,13 +43,15 @@ class Link implements JsonEncodable {
 /// A JSON:API link object
 /// https://jsonapi.org/format/#document-links
 class LinkObject extends Link {
-  LinkObject(Uri href, {this.meta}) : super(href);
+  LinkObject(Uri href, {Map<String, Object> meta})
+      : meta = Map.unmodifiable(meta ?? const {}),
+        super(href);
 
   final Map<String, Object> meta;
 
   @override
   Object toJson() => {
         'href': uri.toString(),
-        if (meta != null) ...{'meta': meta}
+        if (meta.isNotEmpty) 'meta': meta,
       };
 }

@@ -103,7 +103,7 @@ void main() async {
     });
   });
 
-  group('Generc', () {
+  group('Generic', () {
     test('200 OK to-one', () async {
       final r =
           await routingClient.fetchRelationship('books', '1', 'publisher');
