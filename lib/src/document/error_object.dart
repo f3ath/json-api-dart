@@ -40,7 +40,7 @@ class ErrorObject implements JsonEncodable {
           detail: json['detail'],
           source: json['source'],
           meta: json['meta'],
-          links: nullable(Link.mapFromJson)(json['links']) ?? const {});
+          links: nullable(Link.mapFromJson)(json['links']));
     }
     throw DocumentException('A JSON:API error must be a JSON object');
   }
@@ -50,7 +50,7 @@ class ErrorObject implements JsonEncodable {
   final String id;
 
   /// A link that leads to further details about this particular occurrence of the problem.
-  /// May be empty.
+  /// May be null.
   Link get about => links['about'];
 
   /// The HTTP status code applicable to this problem, expressed as a string value.
@@ -82,7 +82,7 @@ class ErrorObject implements JsonEncodable {
 
   /// The `source` object.
   /// An object containing references to the source of the error, optionally including any of the following members:
-  /// - pointer: a JSON Pointer [RFC6901] to the associated entity in the request document,
+  /// - pointer: a JSON Pointer (RFC6901) to the associated entity in the request document,
   ///   e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute.
   /// - parameter: a string indicating which URI query parameter caused the error.
   final Map<String, String> source;

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:json_api/document.dart';
 
 void main() {
@@ -89,6 +91,7 @@ void main() {
   for (var i = 0; i < count; i++) {
     j = Document.fromJson(json, ResourceCollectionData.fromJson).toJson();
   }
+  assert(jsonEncode(j) == jsonEncode(json));
   final stop = DateTime.now().millisecondsSinceEpoch;
   print('$count iterations took ${stop - start} ms');
 }

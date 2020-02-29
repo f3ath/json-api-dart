@@ -140,14 +140,14 @@ class JsonApiClient {
           QueryParameters queryParameters) =>
       HttpRequest('GET', (queryParameters ?? QueryParameters({})).addToUri(uri),
           headers: {
-            ...headers ?? {},
+            ...?headers,
             'Accept': Document.contentType,
           });
 
   HttpRequest _post(Uri uri, Map<String, String> headers, Document doc) =>
       HttpRequest('POST', uri,
           headers: {
-            ...headers ?? {},
+            ...?headers,
             'Accept': Document.contentType,
             'Content-Type': Document.contentType,
           },
@@ -155,7 +155,7 @@ class JsonApiClient {
 
   HttpRequest _delete(Uri uri, Map<String, String> headers) =>
       HttpRequest('DELETE', uri, headers: {
-        ...headers ?? {},
+        ...?headers,
         'Accept': Document.contentType,
       });
 
@@ -163,7 +163,7 @@ class JsonApiClient {
           Uri uri, Map<String, String> headers, Document doc) =>
       HttpRequest('DELETE', uri,
           headers: {
-            ...headers ?? {},
+            ...?headers,
             'Accept': Document.contentType,
             'Content-Type': Document.contentType,
           },
@@ -172,7 +172,7 @@ class JsonApiClient {
   HttpRequest _patch(uri, Map<String, String> headers, Document doc) =>
       HttpRequest('PATCH', uri,
           headers: {
-            ...headers ?? {},
+            ...?headers,
             'Accept': Document.contentType,
             'Content-Type': Document.contentType,
           },
