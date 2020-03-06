@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.3] - 2020-08-06
+### Fixed
+- Call toJson() on resourceObject when serializing ([#84](https://github.com/f3ath/json-api-dart/pull/84))
+
 ## [3.2.2] - 2020-01-07
 ### Fixed
 -  Can not decode related resource which is null ([#77](https://github.com/f3ath/json-api-dart/issues/77))
@@ -146,6 +150,7 @@ Most of the changes are **BC-BREAKING**.
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
+[3.2.3]: https://github.com/f3ath/json-api-dart/compare/3.2.2..3.2.3
 [3.2.2]: https://github.com/f3ath/json-api-dart/compare/3.2.1..3.2.2
 [3.2.1]: https://github.com/f3ath/json-api-dart/compare/3.2.0...3.2.1
 [3.2.0]: https://github.com/f3ath/json-api-dart/compare/3.1.0...3.2.0
