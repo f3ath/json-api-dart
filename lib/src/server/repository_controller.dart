@@ -6,7 +6,6 @@ import 'package:json_api/server.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/json_api_response.dart';
 import 'package:json_api/src/server/repository.dart';
-import 'package:json_api/src/server/resource_target.dart';
 
 /// An opinionated implementation of [Controller]. Translates JSON:API
 /// requests to [Repository] methods calls.
@@ -20,27 +19,27 @@ class RepositoryController<R> implements Controller {
   @override
   Future<void> addToRelationship(AddToRelationship request) {
     return _do(request, () async {
-      final original = await _repo.get(request.target.resource);
-      if (!original.toMany.containsKey(request.target.relationship)) {
-        request.respond(ErrorResponse.notFound([
+      final original = await _repo.get(request.type, request.id);
+      if (!original.toMany.containsKey(request.relationship)) {
+        request.sendErrorNotFound([
           ErrorObject(
               status: '404',
               title: 'Relationship not found',
               detail:
-                  "There is no to-many relationship '${request.target.relationship}' in this resource")
-        ]));
+                  "There is no to-many relationship '${request.relationship}' in this resource")
+        ]);
         return;
       }
       final updated = await _repo.update(
-          request.target.resource,
-          Resource(request.target.type, request.target.id, toMany: {
-            request.target.relationship: {
-              ...original.toMany[request.target.relationship],
+          request.type,
+          request.id,
+          Resource(request.type, request.id, toMany: {
+            request.relationship: {
+              ...original.toMany[request.relationship],
               ...request.identifiers
             }.toList()
           }));
-      request.respond(ToManyResponse(
-          request.target, updated.toMany[request.target.relationship]));
+      request.sendUpdatedRelationship(updated.toMany[request.relationship]);
     });
   }
 
@@ -48,32 +47,31 @@ class RepositoryController<R> implements Controller {
   Future<void> createResource(CreateResource request) => _do(request, () async {
         final modified = await _repo.create(request.type, request.resource);
         if (modified == null) {
-          request.respond(NoContentResponse());
-          return;
+          request.sendNoContent();
+        } else {
+          request.sendCreatedResource(modified);
         }
-        request.respond(ResourceCreatedResponse(modified));
       });
 
   @override
   Future<void> deleteFromRelationship(DeleteFromRelationship request) =>
       _do(request, () async {
-        final original = await _repo.get(request.target.resource);
+        final original = await _repo.get(request.type, request.id);
         final updated = await _repo.update(
-            request.target.resource,
-            Resource(request.target.type, request.target.id, toMany: {
-              request.target.relationship: ({
-                ...original.toMany[request.target.relationship]
-              }..removeAll(request.identifiers))
+            request.type,
+            request.id,
+            Resource(request.type, request.id, toMany: {
+              request.relationship: ({...original.toMany[request.relationship]}
+                    ..removeAll(request.identifiers))
                   .toList()
             }));
-        request.respond(ToManyResponse(
-            request.target, updated.toMany[request.target.relationship]));
+        request.sendUpdatedRelationship(updated.toMany[request.relationship]);
       });
 
   @override
   Future<void> deleteResource(DeleteResource request) => _do(request, () async {
-        await _repo.delete(request.target);
-        request.respond(NoContentResponse());
+        await _repo.delete(request.type, request.id);
+        request.sendNoContent();
       });
 
   @override
@@ -94,88 +92,83 @@ class RepositoryController<R> implements Controller {
             resources.addAll(await _getRelated(resource, path.split('.')));
           }
         }
-
-        request.respond(CollectionResponse(c.elements,
-            total: c.total, included: include.isEmpty ? null : resources));
+        request.sendCollection(c, include: resources);
       });
 
   @override
   Future<void> fetchRelated(FetchRelated request) => _do(request, () async {
-        final resource = await _repo.get(request.target.resource);
-        if (resource.toOne.containsKey(request.target.relationship)) {
-          request.respond(ResourceResponse(await _repo.get(
-              ResourceTarget.fromIdentifier(
-                  resource.toOne[request.target.relationship]))));
+        final resource = await _repo.get(request.type, request.id);
+        if (resource.toOne.containsKey(request.relationship)) {
+          final i = resource.toOne[request.relationship];
+          request.send(ResourceResponse(await _repo.get(i.type, i.id)));
           return;
         }
-        if (resource.toMany.containsKey(request.target.relationship)) {
+        if (resource.toMany.containsKey(request.relationship)) {
           final related = <Resource>[];
-          for (final identifier
-              in resource.toMany[request.target.relationship]) {
-            related.add(
-                await _repo.get(ResourceTarget.fromIdentifier(identifier)));
+          for (final identifier in resource.toMany[request.relationship]) {
+            related.add(await _repo.get(identifier.type, identifier.id));
           }
-          request.respond(CollectionResponse(related));
-          return;
+          request.sendCollection(related);
+        } else {
+          request
+              .sendErrorNotFound(_relationshipNotFound(request.relationship));
         }
-        request.respond(_relationshipNotFound(request.target.relationship));
       });
 
   @override
   Future<void> fetchRelationship(FetchRelationship request) =>
       _do(request, () async {
-        final resource = await _repo.get(request.target.resource);
-        if (resource.toOne.containsKey(request.target.relationship)) {
-          request.respond(ToOneResponse(
-              request.target, resource.toOne[request.target.relationship]));
-          return;
+        final resource = await _repo.get(request.type, request.id);
+        if (resource.toOne.containsKey(request.relationship)) {
+          request.sendToOneRelationship(resource.toOne[request.relationship]);
+        } else if (resource.toMany.containsKey(request.relationship)) {
+          request.sendToManyRelationship(resource.toMany[request.relationship]);
+        } else {
+          request
+              .sendErrorNotFound(_relationshipNotFound(request.relationship));
         }
-        if (resource.toMany.containsKey(request.target.relationship)) {
-          request.respond(ToManyResponse(
-              request.target, resource.toMany[request.target.relationship]));
-          return;
-        }
-        request.respond(_relationshipNotFound(request.target.relationship));
       });
 
   @override
   Future<void> fetchResource(FetchResource request) => _do(request, () async {
         final include = Include.fromQueryParameters(request.queryParameters);
-        final resource = await _repo.get(request.target);
+        final resource = await _repo.get(request.type, request.id);
         final resources = <Resource>[];
         for (final path in include) {
           resources.addAll(await _getRelated(resource, path.split('.')));
         }
-        request.respond(ResourceResponse(resource,
-            included: include.isEmpty ? null : resources));
+        request.sendResource(resource, include: resources);
       });
 
   @override
   Future<void> replaceToMany(ReplaceToMany request) => _do(request, () async {
         await _repo.update(
-            request.target.resource,
-            Resource(request.target.type, request.target.id,
-                toMany: {request.target.relationship: request.identifiers}));
-        request.respond(NoContentResponse());
+            request.type,
+            request.id,
+            Resource(request.type, request.id,
+                toMany: {request.relationship: request.identifiers}));
+        request.sendNoContent();
       });
 
   @override
   Future<void> updateResource(UpdateResource request) => _do(request, () async {
-        final modified = await _repo.update(request.target, request.resource);
+        final modified =
+            await _repo.update(request.type, request.id, request.resource);
         if (modified == null) {
-          request.respond(NoContentResponse());
-          return;
+          request.sendNoContent();
+        } else {
+          request.sendResource(modified);
         }
-        request.respond(ResourceResponse(modified));
       });
 
   @override
   Future<void> replaceToOne(ReplaceToOne request) => _do(request, () async {
         await _repo.update(
-            request.target.resource,
-            Resource(request.target.type, request.target.id,
-                toOne: {request.target.relationship: request.identifier}));
-        request.respond(NoContentResponse());
+            request.type,
+            request.id,
+            Resource(request.type, request.id,
+                toOne: {request.relationship: request.identifier}));
+        request.sendNoContent();
       });
 
   Future<Iterable<Resource>> _getRelated(
@@ -192,7 +185,7 @@ class RepositoryController<R> implements Controller {
       ids.addAll(resource.toMany[path.first]);
     }
     for (final id in ids) {
-      final r = await _repo.get(ResourceTarget.fromIdentifier(id));
+      final r = await _repo.get(id.type, id.id);
       if (path.length > 1) {
         resources.addAll(await _getRelated(r, path.skip(1)));
       } else {
@@ -211,39 +204,37 @@ class RepositoryController<R> implements Controller {
     try {
       await action();
     } on UnsupportedOperation catch (e) {
-      request.respond(ErrorResponse.forbidden([
+      request.sendErrorForbidden([
         ErrorObject(
             status: '403', title: 'Unsupported operation', detail: e.message)
-      ]));
+      ]);
     } on CollectionNotFound catch (e) {
-      request.respond(ErrorResponse.notFound([
+      request.sendErrorNotFound([
         ErrorObject(
             status: '404', title: 'Collection not found', detail: e.message)
-      ]));
+      ]);
     } on ResourceNotFound catch (e) {
-      request.respond(ErrorResponse.notFound([
+      request.sendErrorNotFound([
         ErrorObject(
             status: '404', title: 'Resource not found', detail: e.message)
-      ]));
+      ]);
     } on InvalidType catch (e) {
-      request.respond(ErrorResponse.conflict([
+      request.sendErrorConflict([
         ErrorObject(
             status: '409', title: 'Invalid resource type', detail: e.message)
-      ]));
+      ]);
     } on ResourceExists catch (e) {
-      request.respond(ErrorResponse.conflict([
+      request.sendErrorConflict([
         ErrorObject(status: '409', title: 'Resource exists', detail: e.message)
-      ]));
+      ]);
     }
   }
 
-  JsonApiResponse _relationshipNotFound(String relationship) {
-    return ErrorResponse.notFound([
-      ErrorObject(
-          status: '404',
-          title: 'Relationship not found',
-          detail:
-              "Relationship '$relationship' does not exist in this resource")
-    ]);
-  }
+  List<ErrorObject> _relationshipNotFound(String relationship) => [
+        ErrorObject(
+            status: '404',
+            title: 'Relationship not found',
+            detail:
+                "Relationship '$relationship' does not exist in this resource")
+      ];
 }

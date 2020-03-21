@@ -18,45 +18,42 @@ class JsonApiServer implements HttpHandler {
 
   @override
   Future<HttpResponse> call(HttpRequest httpRequest) async {
-    JsonApiRequest jsonApiRequest = InvalidRequest();
-    jsonApiRequest.routeFactory = _routing;
-    jsonApiRequest.uri = httpRequest.uri;
+    JsonApiRequest jsonApiRequest = InvalidRequest(httpRequest);
     try {
       jsonApiRequest = RequestConverter().convert(httpRequest);
       jsonApiRequest.routeFactory = _routing;
-      jsonApiRequest.uri = httpRequest.uri;
     } on FormatException catch (e) {
-      jsonApiRequest.respond(ErrorResponse.badRequest([
+      jsonApiRequest.sendErrorBadRequest([
         ErrorObject(
             status: '400',
             title: 'Bad request',
             detail: 'Invalid JSON. ${e.message}')
-      ]));
+      ]);
     } on DocumentException catch (e) {
-      jsonApiRequest.respond(ErrorResponse.badRequest([
+      jsonApiRequest.sendErrorBadRequest([
         ErrorObject(status: '400', title: 'Bad request', detail: e.message)
-      ]));
+      ]);
     } on MethodNotAllowedException catch (e) {
-      jsonApiRequest.respond(ErrorResponse.methodNotAllowed([
+      jsonApiRequest.sendErrorMethodNotAllowed([
         ErrorObject(
             status: '405',
             title: 'Method Not Allowed',
             detail: 'Allowed methods: ${e.allow.join(', ')}')
-      ], e.allow));
+      ], e.allow);
     } on UnmatchedUriException {
-      jsonApiRequest.respond(ErrorResponse.notFound([
+      jsonApiRequest.sendErrorNotFound([
         ErrorObject(
             status: '404',
             title: 'Not Found',
             detail: 'The requested URL does exist on the server')
-      ]));
+      ]);
     } on IncompleteRelationshipException {
-      jsonApiRequest.respond(ErrorResponse.badRequest([
+      jsonApiRequest.sendErrorBadRequest([
         ErrorObject(
             status: '400',
             title: 'Bad request',
             detail: 'Incomplete relationship object')
-      ]));
+      ]);
     }
 
     await jsonApiRequest.handleWith(_controller);

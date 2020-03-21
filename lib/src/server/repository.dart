@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/src/document/resource.dart';
-import 'package:json_api/src/server/resource_target.dart';
 
 /// The Repository translates CRUD operations on resources to actual data
 /// manipulation.
@@ -26,16 +25,16 @@ abstract class Repository {
   /// does not belong to the collection.
   FutureOr<Resource> create(String collection, Resource resource);
 
-  /// Returns the resource by [target].
-  FutureOr<Resource> get(ResourceTarget target);
+  /// Returns the resource by [type] and [id].
+  FutureOr<Resource> get(String type, String id);
 
   /// Updates the resource identified by [target].
   /// If the resource was modified during update, returns the modified resource.
   /// Otherwise returns null.
-  FutureOr<Resource> update(ResourceTarget target, Resource resource);
+  FutureOr<Resource> update(String type, String id, Resource resource);
 
   /// Deletes the resource identified by [target]
-  FutureOr<void> delete(ResourceTarget target);
+  FutureOr<void> delete(String type, String id);
 
   /// Returns a collection of resources
   FutureOr<Collection<Resource>> getCollection(String collection,

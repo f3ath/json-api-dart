@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/src/server/repository.dart';
-import 'package:json_api/src/server/resource_target.dart';
 
 typedef IdGenerator = String Function();
 typedef TypeAttributionCriteria = bool Function(String collection, String type);
@@ -26,7 +25,7 @@ class InMemoryRepository implements Repository {
     for (final relationship in resource.toOne.values
         .followedBy(resource.toMany.values.expand((_) => _))) {
       // Make sure the relationships exist
-      await get(ResourceTarget.fromIdentifier(relationship));
+      await get(relationship.type, relationship.id);
     }
     if (resource.id == null) {
       if (_nextId == null) {
@@ -48,28 +47,27 @@ class InMemoryRepository implements Repository {
   }
 
   @override
-  FutureOr<Resource> get(ResourceTarget target) async {
-    if (_collections.containsKey(target.type)) {
-      final resource = _collections[target.type][target.id];
+  FutureOr<Resource> get(String type, String id) async {
+    if (_collections.containsKey(type)) {
+      final resource = _collections[type][id];
       if (resource == null) {
-        throw ResourceNotFound(
-            "Resource '${target.id}' does not exist in '${target.type}'");
+        throw ResourceNotFound("Resource '${id}' does not exist in '${type}'");
       }
       return resource;
     }
-    throw CollectionNotFound("Collection '${target.type}' does not exist");
+    throw CollectionNotFound("Collection '${type}' does not exist");
   }
 
   @override
-  FutureOr<Resource> update(ResourceTarget target, Resource resource) async {
-    if (target.type != resource.type) {
-      throw _invalidType(resource, target.type);
+  FutureOr<Resource> update(String type, String id, Resource resource) async {
+    if (type != resource.type) {
+      throw _invalidType(resource, type);
     }
-    final original = await get(target);
+    final original = await get(type, id);
     if (resource.attributes.isEmpty &&
         resource.toOne.isEmpty &&
         resource.toMany.isEmpty &&
-        resource.id == target.id) {
+        resource.id == id) {
       return null;
     }
     final updated = Resource(
@@ -79,14 +77,14 @@ class InMemoryRepository implements Repository {
       toOne: {...original.toOne}..addAll(resource.toOne),
       toMany: {...original.toMany}..addAll(resource.toMany),
     );
-    _collections[target.type][target.id] = updated;
+    _collections[type][id] = updated;
     return updated;
   }
 
   @override
-  FutureOr<void> delete(ResourceTarget target) async {
-    await get(target);
-    _collections[target.type].remove(target.id);
+  FutureOr<void> delete(String type, String id) async {
+    await get(type, id);
+    _collections[type].remove(id);
     return null;
   }
 

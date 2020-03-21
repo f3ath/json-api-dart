@@ -1,7 +1,5 @@
 import 'package:json_api/server.dart';
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/server/relationship_target.dart';
-import 'package:json_api/src/server/resource_target.dart';
 
 class NoLinks implements LinksFactory {
   const NoLinks();
@@ -10,14 +8,17 @@ class NoLinks implements LinksFactory {
   Map<String, Link> collection(int total, Pagination pagination) => const {};
 
   @override
-  Map<String, Link> createdResource(ResourceTarget target) => const {};
+  Map<String, Link> createdResource(String type, String id) => const {};
 
   @override
-  Map<String, Link> relationship(RelationshipTarget target) => const {};
+  Map<String, Link> relationship(String type, String id, String relationship) =>
+      const {};
 
   @override
   Map<String, Link> resource(String type, String id) => const {};
 
   @override
-  Map<String, Link> resourceRelationship(RelationshipTarget target) => const {};
+  Map<String, Link> resourceRelationship(
+          String type, String id, String relationship) =>
+      const {};
 }
