@@ -64,9 +64,6 @@ class HttpResponseConverter implements ResponseConverter<HttpResponse> {
           {Iterable<Resource> included}) =>
       _ok(_doc.toOne(type, id, relationship, identifier, included: included));
 
-  @override
-  HttpResponse noContent() => HttpResponse(204);
-
   HttpResponse _ok(Document d,
           {int status = 200, Map<String, String> headers = const {}}) =>
       HttpResponse(status,

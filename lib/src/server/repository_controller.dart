@@ -4,7 +4,6 @@ import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/server.dart';
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/json_api_response.dart';
 import 'package:json_api/src/server/repository.dart';
 
 /// An opinionated implementation of [Controller]. Translates JSON:API
@@ -39,7 +38,7 @@ class RepositoryController<R> implements Controller {
               ...request.identifiers
             }.toList()
           }));
-      request.sendUpdatedRelationship(updated.toMany[request.relationship]);
+      request.sendToManyRelationship(updated.toMany[request.relationship]);
     });
   }
 
@@ -65,7 +64,7 @@ class RepositoryController<R> implements Controller {
                     ..removeAll(request.identifiers))
                   .toList()
             }));
-        request.sendUpdatedRelationship(updated.toMany[request.relationship]);
+        request.sendToManyRelationship(updated.toMany[request.relationship]);
       });
 
   @override
@@ -100,15 +99,13 @@ class RepositoryController<R> implements Controller {
         final resource = await _repo.get(request.type, request.id);
         if (resource.toOne.containsKey(request.relationship)) {
           final i = resource.toOne[request.relationship];
-          request.send(ResourceResponse(await _repo.get(i.type, i.id)));
-          return;
-        }
-        if (resource.toMany.containsKey(request.relationship)) {
+          request.sendResource(await _repo.get(i.type, i.id));
+        } else if (resource.toMany.containsKey(request.relationship)) {
           final related = <Resource>[];
           for (final identifier in resource.toMany[request.relationship]) {
             related.add(await _repo.get(identifier.type, identifier.id));
           }
-          request.sendCollection(related);
+          request.sendCollection(Collection(related));
         } else {
           request
               .sendErrorNotFound(_relationshipNotFound(request.relationship));

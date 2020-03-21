@@ -68,13 +68,4 @@ abstract class ResponseConverter<T> {
   /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
   T toOne(String type, String id, String relationship, Identifier identifier,
       {Iterable<Resource> included});
-
-  /// HTTP 204 No Content response.
-  ///
-  /// See:
-  /// - https://jsonapi.org/format/#crud-creating-responses-204
-  /// - https://jsonapi.org/format/#crud-updating-responses-204
-  /// - https://jsonapi.org/format/#crud-updating-relationship-responses-204
-  /// - https://jsonapi.org/format/#crud-deleting-responses-204
-  T noContent();
 }

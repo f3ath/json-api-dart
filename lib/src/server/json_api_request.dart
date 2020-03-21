@@ -5,29 +5,64 @@ import 'package:json_api/src/routing/route_factory.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/document_factory.dart';
 import 'package:json_api/src/server/http_response_converter.dart';
-import 'package:json_api/src/server/json_api_response.dart';
 import 'package:json_api/src/server/links/standard_links.dart';
 import 'package:json_api/src/server/repository.dart';
 
 /// The base interface for JSON:API requests.
 abstract class JsonApiRequest {
-  JsonApiRequest(this.httpRequest);
+  JsonApiRequest(this._httpRequest);
 
-  final HttpRequest httpRequest;
+  final HttpRequest _httpRequest;
   RouteFactory routeFactory;
-  JsonApiResponse _jsonApiResponse;
+  HttpResponse _httpResponse;
 
   /// Calls the appropriate method of [controller] and returns the response
   Future<void> handleWith(Controller controller);
 
-  void send(JsonApiResponse response) {
-    _jsonApiResponse = response;
+  /// HTTP 200 OK response containing an empty document.
+  ///
+  /// See:
+  /// - https://jsonapi.org/format/#crud-updating-responses-200
+  /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
+  /// - https://jsonapi.org/format/#crud-deleting-responses-200
+  void sendMeta() {
+    // TODO: implement me
   }
 
-  HttpResponse getHttpResponse() =>
-      _jsonApiResponse.convert(HttpResponseConverter(
-          DocumentFactory(links: StandardLinks(httpRequest.uri, routeFactory)),
-          routeFactory));
+  /// HTTP 303 See Other response.
+  ///
+  /// See: https://jsonapi.org/recommendations/#asynchronous-processing
+  void sendSeeOther() {
+    // TODO: implement me
+  }
+
+  /// HTTP 202 Accepted response.
+  ///
+  /// See: https://jsonapi.org/recommendations/#asynchronous-processing
+  void sendAccepted() {
+    // TODO: implement me
+  }
+
+  /// HTTP 204 No Content response.
+  ///
+  /// See:
+  /// - https://jsonapi.org/format/#crud-creating-responses-204
+  /// - https://jsonapi.org/format/#crud-updating-responses-204
+  /// - https://jsonapi.org/format/#crud-updating-relationship-responses-204
+  /// - https://jsonapi.org/format/#crud-deleting-responses-204
+  void sendNoContent() {
+    _httpResponse = HttpResponse(204);
+  }
+
+  /// URI query parameters
+  Map<String, List<String>> get queryParameters =>
+      _httpRequest.uri.queryParametersAll;
+
+  HttpResponseConverter get _converter => HttpResponseConverter(
+      DocumentFactory(links: StandardLinks(_httpRequest.uri, routeFactory)),
+      routeFactory);
+
+  HttpResponse getHttpResponse() => _httpResponse;
 
   /// HTTP 404 Not Found response.
   ///
@@ -38,7 +73,7 @@ abstract class JsonApiRequest {
   /// - https://jsonapi.org/format/#crud-updating-responses-404
   /// - https://jsonapi.org/format/#crud-deleting-responses-404
   void sendErrorNotFound(Iterable<ErrorObject> errors) =>
-      send(ErrorResponse(404, errors));
+      _httpResponse = _converter.error(errors, 404, {});
 
   /// HTTP 403 Forbidden response.
   ///
@@ -47,16 +82,18 @@ abstract class JsonApiRequest {
   /// - https://jsonapi.org/format/#crud-creating-responses-403
   /// - https://jsonapi.org/format/#crud-updating-resource-relationships
   /// - https://jsonapi.org/format/#crud-updating-relationship-responses-403
-  void sendErrorForbidden(Iterable<ErrorObject> errors) =>
-      send(ErrorResponse(403, errors));
+  void sendErrorForbidden(Iterable<ErrorObject> errors) {
+    _httpResponse = _converter.error(errors, 403, {});
+  }
 
   /// HTTP 409 Conflict response.
   ///
   /// See:
   /// - https://jsonapi.org/format/#crud-creating-responses-409
   /// - https://jsonapi.org/format/#crud-updating-responses-409
-  void sendErrorConflict(Iterable<ErrorObject> errors) =>
-      send(ErrorResponse(409, errors));
+  void sendErrorConflict(Iterable<ErrorObject> errors) {
+    _httpResponse = _converter.error(errors, 409, {});
+  }
 
   /// HTTP 400 Bad Request response.
   ///
@@ -64,14 +101,16 @@ abstract class JsonApiRequest {
   /// - https://jsonapi.org/format/#fetching-includes
   /// - https://jsonapi.org/format/#fetching-sorting
   /// - https://jsonapi.org/format/#query-parameters
-  void sendErrorBadRequest(Iterable<ErrorObject> errors) =>
-      send(ErrorResponse(400, errors));
+  void sendErrorBadRequest(Iterable<ErrorObject> errors) {
+    _httpResponse = _converter.error(errors, 400, {});
+  }
 
   /// HTTP 405 Method Not Allowed response.
   /// The allowed methods can be specified in [allow]
   void sendErrorMethodNotAllowed(
-          Iterable<ErrorObject> errors, Iterable<String> allow) =>
-      send(ErrorResponse(405, errors, headers: {'Allow': allow.join(', ')}));
+      Iterable<ErrorObject> errors, Iterable<String> allow) {
+    _httpResponse = _converter.error(errors, 405, {'Allow': allow.join(', ')});
+  }
 }
 
 class InvalidRequest extends JsonApiRequest {
@@ -90,20 +129,20 @@ class FetchCollection extends JsonApiRequest {
   /// Resource type
   final String type;
 
-  /// URI query parameters
-  Map<String, List<String>> get queryParameters =>
-      httpRequest.uri.queryParametersAll;
-
   @override
   Future<void> handleWith(Controller controller) =>
       controller.fetchCollection(this);
 
-  void sendCollection(Collection<Resource> c, {List<Resource> include}) =>
-      send(CollectionResponse(c.elements,
-          total: c.total,
-          included: Include.fromQueryParameters(queryParameters).isEmpty
-              ? null
-              : include));
+  /// HTTP 200 OK response with a resource collection.
+  ///
+  /// See: https://jsonapi.org/format/#fetching-resources-responses-200
+  void sendCollection(Collection<Resource> c, {List<Resource> include}) {
+    _httpResponse = _converter.collection(c.elements,
+        total: c.total,
+        included: Include.fromQueryParameters(queryParameters).isEmpty
+            ? null
+            : include);
+  }
 }
 
 /// A request to create a resource on the server
@@ -123,10 +162,12 @@ class CreateResource extends JsonApiRequest {
   Future<void> handleWith(Controller controller) =>
       controller.createResource(this);
 
-  void sendNoContent() => send(NoContentResponse());
-
-  void sendCreatedResource(Resource resource) =>
-      send(ResourceCreatedResponse(resource));
+  /// HTTP 201 Created response containing a newly created resource
+  ///
+  /// See: https://jsonapi.org/format/#crud-creating-responses-201
+  void sendCreatedResource(Resource resource) {
+    _httpResponse = _converter.resourceCreated(resource);
+  }
 }
 
 /// A request to update a resource on the server
@@ -146,9 +187,14 @@ class UpdateResource extends JsonApiRequest {
   Future<void> handleWith(Controller controller) =>
       controller.updateResource(this);
 
-  void sendNoContent() => send(NoContentResponse());
-
-  void sendResource(Resource resource) => send(ResourceResponse(resource));
+  /// A successful response containing a resource object.
+  ///
+  /// See:
+  /// - https://jsonapi.org/format/#fetching-resources-responses-200
+  /// - https://jsonapi.org/format/#crud-updating-responses-200
+  void sendResource(Resource resource) {
+    _httpResponse = _converter.resource(resource);
+  }
 }
 
 /// A request to delete a resource on the server
@@ -164,33 +210,33 @@ class DeleteResource extends JsonApiRequest {
   @override
   Future<void> handleWith(Controller controller) =>
       controller.deleteResource(this);
-
-  void sendNoContent() => send(NoContentResponse());
 }
 
 /// A request to fetch a resource
 ///
 /// See: https://jsonapi.org/format/#fetching-resources
 class FetchResource extends JsonApiRequest {
-  FetchResource(
-      HttpRequest httpRequest, this.type, this.id)
+  FetchResource(HttpRequest httpRequest, this.type, this.id)
       : super(httpRequest);
 
   final String type;
   final String id;
 
-  /// URI query parameters
-  Map<String, List<String>> get queryParameters => httpRequest.uri.queryParametersAll;
-
   @override
   Future<void> handleWith(Controller controller) =>
       controller.fetchResource(this);
 
-  void sendResource(Resource resource, {List<Resource> include}) =>
-      send(ResourceResponse(resource,
-          included: Include.fromQueryParameters(queryParameters).isEmpty
-              ? null
-              : include));
+  /// A successful response containing a resource object.
+  ///
+  /// See:
+  /// - https://jsonapi.org/format/#fetching-resources-responses-200
+  /// - https://jsonapi.org/format/#crud-updating-responses-200
+  void sendResource(Resource resource, {List<Resource> include}) {
+    _httpResponse = _converter.resource(resource,
+        included: Include.fromQueryParameters(queryParameters).isEmpty
+            ? null
+            : include);
+  }
 }
 
 /// A request to fetch a related resource or collection
@@ -204,16 +250,32 @@ class FetchRelated extends JsonApiRequest {
   final String id;
   final String relationship;
 
-  /// URI query parameters
-  Map<String, List<String>> get queryParameters =>
-      httpRequest.uri.queryParametersAll;
-
   @override
   Future<void> handleWith(Controller controller) =>
       controller.fetchRelated(this);
 
-  void sendCollection(Iterable<Resource> related) =>
-      send(CollectionResponse(related));
+  /// HTTP 200 OK response with a resource collection.
+  ///
+  /// See: https://jsonapi.org/format/#fetching-resources-responses-200
+  void sendCollection(Collection<Resource> c, {List<Resource> include}) {
+    _httpResponse = _converter.collection(c.elements,
+        total: c.total,
+        included: Include.fromQueryParameters(queryParameters).isEmpty
+            ? null
+            : include);
+  }
+
+  /// A successful response containing a resource object.
+  ///
+  /// See:
+  /// - https://jsonapi.org/format/#fetching-resources-responses-200
+  /// - https://jsonapi.org/format/#crud-updating-responses-200
+  void sendResource(Resource resource, {List<Resource> include}) {
+    _httpResponse = _converter.resource(resource,
+        included: Include.fromQueryParameters(queryParameters).isEmpty
+            ? null
+            : include);
+  }
 }
 
 /// A request to fetch a relationship
@@ -228,19 +290,27 @@ class FetchRelationship extends JsonApiRequest {
   final String id;
   final String relationship;
 
-  /// URI query parameters
-  Map<String, List<String>> get queryParameters =>
-      httpRequest.uri.queryParametersAll;
-
   @override
   Future<void> handleWith(Controller controller) =>
       controller.fetchRelationship(this);
 
-  void sendToOneRelationship(Identifier identifier) =>
-      send(ToOneResponse(type, id, relationship, identifier));
+  /// HTTP 200 OK response containing a to-one relationship
+  ///
+  /// See:
+  /// - https://jsonapi.org/format/#fetching-relationships-responses-200
+  /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
+  void sendToOneRelationship(Identifier identifier) {
+    _httpResponse = _converter.toOne(type, id, relationship, identifier);
+  }
 
-  void sendToManyRelationship(Iterable<Identifier> identifiers) =>
-      send(ToManyResponse(type, id, relationship, identifiers));
+  /// HTTP 200 OK response containing a to-may relationship.
+  ///
+  /// See:
+  /// - https://jsonapi.org/format/#fetching-relationships-responses-200
+  /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
+  void sendToManyRelationship(Iterable<Identifier> identifiers) {
+    _httpResponse = _converter.toMany(type, id, relationship, identifiers);
+  }
 }
 
 /// A request to delete identifiers from a relationship
@@ -263,8 +333,14 @@ class DeleteFromRelationship extends JsonApiRequest {
   Future<void> handleWith(Controller controller) =>
       controller.deleteFromRelationship(this);
 
-  void sendUpdatedRelationship(Iterable<Identifier> identifiers) =>
-      send(ToManyResponse(type, id, relationship, identifiers));
+  /// HTTP 200 OK response containing a to-may relationship.
+  ///
+  /// See:
+  /// - https://jsonapi.org/format/#fetching-relationships-responses-200
+  /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
+  void sendToManyRelationship(Iterable<Identifier> identifiers) {
+    _httpResponse = _converter.toMany(type, id, relationship, identifiers);
+  }
 }
 
 /// A request to replace a to-one relationship
@@ -285,8 +361,6 @@ class ReplaceToOne extends JsonApiRequest {
   @override
   Future<void> handleWith(Controller controller) =>
       controller.replaceToOne(this);
-
-  void sendNoContent() => send(NoContentResponse());
 }
 
 /// A request to completely replace a to-many relationship
@@ -308,8 +382,6 @@ class ReplaceToMany extends JsonApiRequest {
   @override
   Future<void> handleWith(Controller controller) =>
       controller.replaceToMany(this);
-
-  void sendNoContent() => send(NoContentResponse());
 }
 
 /// A request to add identifiers to a to-many relationship
@@ -328,8 +400,14 @@ class AddToRelationship extends JsonApiRequest {
   /// The identifiers to be added to the existing ones
   final List<Identifier> identifiers;
 
-  void sendUpdatedRelationship(Iterable<Identifier> identifiers) =>
-      send(ToManyResponse(type, id, relationship, identifiers));
+  /// HTTP 200 OK response containing a to-may relationship.
+  ///
+  /// See:
+  /// - https://jsonapi.org/format/#fetching-relationships-responses-200
+  /// - https://jsonapi.org/format/#crud-updating-relationship-responses-200
+  void sendToManyRelationship(Iterable<Identifier> identifiers) {
+    _httpResponse = _converter.toMany(type, id, relationship, identifiers);
+  }
 
   @override
   Future<void> handleWith(Controller controller) =>
