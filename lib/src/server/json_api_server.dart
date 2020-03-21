@@ -14,58 +14,52 @@ class JsonApiServer implements HttpHandler {
       : _routing = routing ?? StandardRouting();
 
   final RouteFactory _routing;
-  final Controller<FutureOr<JsonApiResponse>> _controller;
+  final Controller _controller;
 
   @override
   Future<HttpResponse> call(HttpRequest httpRequest) async {
-    JsonApiRequest jsonApiRequest;
-    JsonApiResponse jsonApiResponse;
+    JsonApiRequest jsonApiRequest = InvalidRequest();
+    jsonApiRequest.routeFactory = _routing;
+    jsonApiRequest.uri = httpRequest.uri;
     try {
       jsonApiRequest = RequestConverter().convert(httpRequest);
+      jsonApiRequest.routeFactory = _routing;
+      jsonApiRequest.uri = httpRequest.uri;
     } on FormatException catch (e) {
-      jsonApiResponse = ErrorResponse.badRequest([
+      jsonApiRequest.respond(ErrorResponse.badRequest([
         ErrorObject(
             status: '400',
             title: 'Bad request',
             detail: 'Invalid JSON. ${e.message}')
-      ]);
+      ]));
     } on DocumentException catch (e) {
-      jsonApiResponse = ErrorResponse.badRequest([
+      jsonApiRequest.respond(ErrorResponse.badRequest([
         ErrorObject(status: '400', title: 'Bad request', detail: e.message)
-      ]);
+      ]));
     } on MethodNotAllowedException catch (e) {
-      jsonApiResponse = ErrorResponse.methodNotAllowed([
+      jsonApiRequest.respond(ErrorResponse.methodNotAllowed([
         ErrorObject(
             status: '405',
             title: 'Method Not Allowed',
             detail: 'Allowed methods: ${e.allow.join(', ')}')
-      ], e.allow);
+      ], e.allow));
     } on UnmatchedUriException {
-      jsonApiResponse = ErrorResponse.notFound([
+      jsonApiRequest.respond(ErrorResponse.notFound([
         ErrorObject(
             status: '404',
             title: 'Not Found',
             detail: 'The requested URL does exist on the server')
-      ]);
+      ]));
     } on IncompleteRelationshipException {
-      jsonApiResponse = ErrorResponse.badRequest([
+      jsonApiRequest.respond(ErrorResponse.badRequest([
         ErrorObject(
             status: '400',
             title: 'Bad request',
             detail: 'Incomplete relationship object')
-      ]);
+      ]));
     }
-    jsonApiResponse ??= await jsonApiRequest.handleWith(_controller) ??
-        ErrorResponse.internalServerError([
-          ErrorObject(
-              status: '500',
-              title: 'Internal Server Error',
-              detail: 'Controller responded with null')
-        ]);
 
-    final links = StandardLinks(httpRequest.uri, _routing);
-    final documentFactory = DocumentFactory(links: links);
-    final responseFactory = HttpResponseConverter(documentFactory, _routing);
-    return jsonApiResponse.convert(responseFactory);
+    await jsonApiRequest.handleWith(_controller);
+    return jsonApiRequest.getHttpResponse();
   }
 }

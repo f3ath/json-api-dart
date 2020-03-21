@@ -38,7 +38,7 @@ class RequestConverter {
     if (_matcher.matchCollection(uri, setType)) {
       switch (httpRequest.method) {
         case 'GET':
-          return FetchCollection(uri.queryParametersAll, type);
+          return FetchCollection(httpRequest, type);
         case 'POST':
           return CreateResource(type,
               ResourceData.fromJson(jsonDecode(httpRequest.body)).unwrap());
@@ -78,10 +78,7 @@ class RequestConverter {
           final r = Relationship.fromJson(jsonDecode(httpRequest.body));
           if (r is ToOne) {
             final identifier = r.unwrap();
-            if (identifier != null) {
-              return ReplaceToOne(target, identifier);
-            }
-            return DeleteToOne(target);
+            return ReplaceToOne(target, identifier);
           }
           if (r is ToMany) {
             return ReplaceToMany(target, r.unwrap());

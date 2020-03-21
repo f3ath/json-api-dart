@@ -1,34 +1,62 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/http.dart';
+import 'package:json_api/src/routing/route_factory.dart';
 import 'package:json_api/src/server/controller.dart';
+import 'package:json_api/src/server/document_factory.dart';
+import 'package:json_api/src/server/http_response_converter.dart';
+import 'package:json_api/src/server/json_api_response.dart';
+import 'package:json_api/src/server/links/standard_links.dart';
 import 'package:json_api/src/server/relationship_target.dart';
 import 'package:json_api/src/server/resource_target.dart';
 
 /// The base interface for JSON:API requests.
 abstract class JsonApiRequest {
+  RouteFactory routeFactory;
+  JsonApiResponse _jsonApiResponse;
+  Uri uri;
+
   /// Calls the appropriate method of [controller] and returns the response
-  T handleWith<T>(Controller<T> controller);
+  Future<void> handleWith(Controller controller);
+
+  void respond(JsonApiResponse response) {
+    _jsonApiResponse = response;
+  }
+
+  HttpResponse getHttpResponse() =>
+      _jsonApiResponse.convert(HttpResponseConverter(
+          DocumentFactory(links: StandardLinks(uri, routeFactory)),
+          routeFactory));
+}
+
+class InvalidRequest extends JsonApiRequest {
+  @override
+  Future<void> handleWith(Controller controller) async {}
 }
 
 /// A request to fetch a collection of type [type].
 ///
 /// See: https://jsonapi.org/format/#fetching-resources
-class FetchCollection implements JsonApiRequest {
-  FetchCollection(this.queryParameters, this.type);
+class FetchCollection extends JsonApiRequest {
+  FetchCollection(this._httpRequest, this.type);
+
+  final HttpRequest _httpRequest;
 
   /// Resource type
   final String type;
 
   /// URI query parameters
-  final Map<String, List<String>> queryParameters;
+  Map<String, List<String>> get queryParameters =>
+      _httpRequest.uri.queryParametersAll;
 
   @override
-  T handleWith<T>(Controller<T> controller) => controller.fetchCollection(this);
+  Future<void> handleWith(Controller controller) =>
+      controller.fetchCollection(this);
 }
 
 /// A request to create a resource on the server
 ///
 /// See: https://jsonapi.org/format/#crud-creating
-class CreateResource implements JsonApiRequest {
+class CreateResource extends JsonApiRequest {
   CreateResource(this.type, this.resource);
 
   /// Resource type
@@ -38,13 +66,14 @@ class CreateResource implements JsonApiRequest {
   final Resource resource;
 
   @override
-  T handleWith<T>(Controller<T> controller) => controller.createResource(this);
+  Future<void> handleWith(Controller controller) =>
+      controller.createResource(this);
 }
 
 /// A request to update a resource on the server
 ///
 /// See: https://jsonapi.org/format/#crud-updating
-class UpdateResource implements JsonApiRequest {
+class UpdateResource extends JsonApiRequest {
   UpdateResource(this.target, this.resource);
 
   final ResourceTarget target;
@@ -53,25 +82,27 @@ class UpdateResource implements JsonApiRequest {
   final Resource resource;
 
   @override
-  T handleWith<T>(Controller<T> controller) => controller.updateResource(this);
+  Future<void> handleWith(Controller controller) =>
+      controller.updateResource(this);
 }
 
 /// A request to delete a resource on the server
 ///
 /// See: https://jsonapi.org/format/#crud-deleting
-class DeleteResource implements JsonApiRequest {
+class DeleteResource extends JsonApiRequest {
   DeleteResource(this.target);
 
   final ResourceTarget target;
 
   @override
-  T handleWith<T>(Controller<T> controller) => controller.deleteResource(this);
+  Future<void> handleWith(Controller controller) =>
+      controller.deleteResource(this);
 }
 
 /// A request to fetch a resource
 ///
 /// See: https://jsonapi.org/format/#fetching-resources
-class FetchResource implements JsonApiRequest {
+class FetchResource extends JsonApiRequest {
   FetchResource(this.target, this.queryParameters);
 
   final ResourceTarget target;
@@ -80,13 +111,14 @@ class FetchResource implements JsonApiRequest {
   final Map<String, List<String>> queryParameters;
 
   @override
-  T handleWith<T>(Controller<T> controller) => controller.fetchResource(this);
+  Future<void> handleWith(Controller controller) =>
+      controller.fetchResource(this);
 }
 
 /// A request to fetch a related resource or collection
 ///
 /// See: https://jsonapi.org/format/#fetching
-class FetchRelated implements JsonApiRequest {
+class FetchRelated extends JsonApiRequest {
   FetchRelated(this.target, this.queryParameters);
 
   final RelationshipTarget target;
@@ -95,13 +127,14 @@ class FetchRelated implements JsonApiRequest {
   final Map<String, List<String>> queryParameters;
 
   @override
-  T handleWith<T>(Controller<T> controller) => controller.fetchRelated(this);
+  Future<void> handleWith(Controller controller) =>
+      controller.fetchRelated(this);
 }
 
 /// A request to fetch a relationship
 ///
 /// See: https://jsonapi.org/format/#fetching-relationships
-class FetchRelationship implements JsonApiRequest {
+class FetchRelationship extends JsonApiRequest {
   FetchRelationship(this.target, this.queryParameters);
 
   final RelationshipTarget target;
@@ -110,14 +143,14 @@ class FetchRelationship implements JsonApiRequest {
   final Map<String, List<String>> queryParameters;
 
   @override
-  T handleWith<T>(Controller<T> controller) =>
+  Future<void> handleWith(Controller controller) =>
       controller.fetchRelationship(this);
 }
 
 /// A request to delete identifiers from a relationship
 ///
 /// See: https://jsonapi.org/format/#crud-updating-to-many-relationships
-class DeleteFromRelationship implements JsonApiRequest {
+class DeleteFromRelationship extends JsonApiRequest {
   DeleteFromRelationship(this.target, Iterable<Identifier> identifiers)
       : identifiers = List.unmodifiable(identifiers);
 
@@ -127,14 +160,14 @@ class DeleteFromRelationship implements JsonApiRequest {
   final List<Identifier> identifiers;
 
   @override
-  T handleWith<T>(Controller<T> controller) =>
+  Future<void> handleWith(Controller controller) =>
       controller.deleteFromRelationship(this);
 }
 
 /// A request to replace a to-one relationship
 ///
 /// See: https://jsonapi.org/format/#crud-updating-to-one-relationships
-class ReplaceToOne implements JsonApiRequest {
+class ReplaceToOne extends JsonApiRequest {
   ReplaceToOne(this.target, this.identifier);
 
   final RelationshipTarget target;
@@ -143,26 +176,14 @@ class ReplaceToOne implements JsonApiRequest {
   final Identifier identifier;
 
   @override
-  T handleWith<T>(Controller<T> controller) => controller.replaceToOne(this);
-}
-
-/// A request to delete a to-one relationship
-///
-/// See: https://jsonapi.org/format/#crud-updating-to-one-relationships
-class DeleteToOne implements JsonApiRequest {
-  DeleteToOne(this.target);
-
-  final RelationshipTarget target;
-
-  @override
-  T handleWith<T>(Controller<T> controller) =>
-      controller.replaceToOne(ReplaceToOne(target, null));
+  Future<void> handleWith(Controller controller) =>
+      controller.replaceToOne(this);
 }
 
 /// A request to completely replace a to-many relationship
 ///
 /// See: https://jsonapi.org/format/#crud-updating-to-many-relationships
-class ReplaceToMany implements JsonApiRequest {
+class ReplaceToMany extends JsonApiRequest {
   ReplaceToMany(this.target, Iterable<Identifier> identifiers)
       : identifiers = List.unmodifiable(identifiers);
 
@@ -172,13 +193,14 @@ class ReplaceToMany implements JsonApiRequest {
   final List<Identifier> identifiers;
 
   @override
-  T handleWith<T>(Controller<T> controller) => controller.replaceToMany(this);
+  Future<void> handleWith(Controller controller) =>
+      controller.replaceToMany(this);
 }
 
 /// A request to add identifiers to a to-many relationship
 ///
 /// See: https://jsonapi.org/format/#crud-updating-to-many-relationships
-class AddToRelationship implements JsonApiRequest {
+class AddToRelationship extends JsonApiRequest {
   AddToRelationship(this.target, Iterable<Identifier> identifiers)
       : identifiers = List.unmodifiable(identifiers);
 
@@ -188,6 +210,6 @@ class AddToRelationship implements JsonApiRequest {
   final List<Identifier> identifiers;
 
   @override
-  T handleWith<T>(Controller<T> controller) =>
+  Future<void> handleWith(Controller controller) =>
       controller.addToRelationship(this);
 }
