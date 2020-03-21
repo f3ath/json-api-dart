@@ -16,7 +16,7 @@ class NoLinks implements LinksFactory {
   Map<String, Link> relationship(RelationshipTarget target) => const {};
 
   @override
-  Map<String, Link> resource() => const {};
+  Map<String, Link> resource(String type, String id) => const {};
 
   @override
   Map<String, Link> resourceRelationship(RelationshipTarget target) => const {};

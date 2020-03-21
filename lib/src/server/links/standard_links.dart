@@ -13,7 +13,7 @@ class StandardLinks implements LinksFactory {
   final RouteFactory _route;
 
   @override
-  Map<String, Link> resource() => {'self': Link(_requested)};
+  Map<String, Link> resource(String type, String id) => {'self': Link(_requested)};
 
   @override
   Map<String, Link> collection(int total, Pagination pagination) =>

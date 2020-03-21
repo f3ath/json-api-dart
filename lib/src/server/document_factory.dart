@@ -36,7 +36,7 @@ class DocumentFactory {
           {Iterable<Resource> included}) =>
       Document(
           ResourceData(_resourceObject(resource),
-              links: _links.resource(),
+              links: _links.resource(resource.type, resource.id),
               included: included?.map(_resourceObject)),
           api: _api);
 

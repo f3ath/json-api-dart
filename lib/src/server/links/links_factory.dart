@@ -6,7 +6,7 @@ import 'package:json_api/src/server/resource_target.dart';
 /// Creates `links` objects for JSON:API documents
 abstract class LinksFactory {
   /// Links for a resource object (primary or related)
-  Map<String, Link> resource();
+  Map<String, Link> resource(String type, String id);
 
   /// Links for a collection (primary or related)
   Map<String, Link> collection(int total, Pagination pagination);

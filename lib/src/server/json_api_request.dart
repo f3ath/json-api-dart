@@ -22,8 +22,7 @@ class FetchCollection implements JsonApiRequest {
   final Map<String, List<String>> queryParameters;
 
   @override
-  T handleWith<T>(Controller<T> controller) =>
-      controller.fetchCollection(type, queryParameters);
+  T handleWith<T>(Controller<T> controller) => controller.fetchCollection(this);
 }
 
 /// A request to create a resource on the server
@@ -39,8 +38,7 @@ class CreateResource implements JsonApiRequest {
   final Resource resource;
 
   @override
-  T handleWith<T>(Controller<T> controller) =>
-      controller.createResource(type, resource);
+  T handleWith<T>(Controller<T> controller) => controller.createResource(this);
 }
 
 /// A request to update a resource on the server
@@ -55,8 +53,7 @@ class UpdateResource implements JsonApiRequest {
   final Resource resource;
 
   @override
-  T handleWith<T>(Controller<T> controller) =>
-      controller.updateResource(target, resource);
+  T handleWith<T>(Controller<T> controller) => controller.updateResource(this);
 }
 
 /// A request to delete a resource on the server
@@ -68,8 +65,7 @@ class DeleteResource implements JsonApiRequest {
   final ResourceTarget target;
 
   @override
-  T handleWith<T>(Controller<T> controller) =>
-      controller.deleteResource(target);
+  T handleWith<T>(Controller<T> controller) => controller.deleteResource(this);
 }
 
 /// A request to fetch a resource
@@ -84,8 +80,7 @@ class FetchResource implements JsonApiRequest {
   final Map<String, List<String>> queryParameters;
 
   @override
-  T handleWith<T>(Controller<T> controller) =>
-      controller.fetchResource(target, queryParameters);
+  T handleWith<T>(Controller<T> controller) => controller.fetchResource(this);
 }
 
 /// A request to fetch a related resource or collection
@@ -100,8 +95,7 @@ class FetchRelated implements JsonApiRequest {
   final Map<String, List<String>> queryParameters;
 
   @override
-  T handleWith<T>(Controller<T> controller) =>
-      controller.fetchRelated(target, queryParameters);
+  T handleWith<T>(Controller<T> controller) => controller.fetchRelated(this);
 }
 
 /// A request to fetch a relationship
@@ -117,7 +111,7 @@ class FetchRelationship implements JsonApiRequest {
 
   @override
   T handleWith<T>(Controller<T> controller) =>
-      controller.fetchRelationship(target, queryParameters);
+      controller.fetchRelationship(this);
 }
 
 /// A request to delete identifiers from a relationship
@@ -134,7 +128,7 @@ class DeleteFromRelationship implements JsonApiRequest {
 
   @override
   T handleWith<T>(Controller<T> controller) =>
-      controller.deleteFromRelationship(target, identifiers);
+      controller.deleteFromRelationship(this);
 }
 
 /// A request to replace a to-one relationship
@@ -149,8 +143,7 @@ class ReplaceToOne implements JsonApiRequest {
   final Identifier identifier;
 
   @override
-  T handleWith<T>(Controller<T> controller) =>
-      controller.replaceToOne(target, identifier);
+  T handleWith<T>(Controller<T> controller) => controller.replaceToOne(this);
 }
 
 /// A request to delete a to-one relationship
@@ -163,7 +156,7 @@ class DeleteToOne implements JsonApiRequest {
 
   @override
   T handleWith<T>(Controller<T> controller) =>
-      controller.replaceToOne(target, null);
+      controller.replaceToOne(ReplaceToOne(target, null));
 }
 
 /// A request to completely replace a to-many relationship
@@ -179,8 +172,7 @@ class ReplaceToMany implements JsonApiRequest {
   final List<Identifier> identifiers;
 
   @override
-  T handleWith<T>(Controller<T> controller) =>
-      controller.replaceToMany(target, identifiers);
+  T handleWith<T>(Controller<T> controller) => controller.replaceToMany(this);
 }
 
 /// A request to add identifiers to a to-many relationship
@@ -197,5 +189,5 @@ class AddToRelationship implements JsonApiRequest {
 
   @override
   T handleWith<T>(Controller<T> controller) =>
-      controller.addToRelationship(target, identifiers);
+      controller.addToRelationship(this);
 }
