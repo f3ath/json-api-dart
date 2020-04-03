@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/src/server/json_api_request.dart';
 
 /// Converts HTTP requests to JSON:API requests
 class RequestConverter {

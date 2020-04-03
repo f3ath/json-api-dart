@@ -18,4 +18,8 @@ class HttpRequest {
 
   /// Request headers. Unmodifiable. Lowercase keys
   final Map<String, String> headers;
+
+  bool get isGet => method == 'GET';
+
+  bool get isPost => method == 'POST';
 }

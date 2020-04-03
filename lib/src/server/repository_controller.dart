@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
-import 'package:json_api/server.dart';
 import 'package:json_api/src/server/controller.dart';
+import 'package:json_api/src/server/pagination.dart';
 import 'package:json_api/src/server/repository.dart';
 
 /// An opinionated implementation of [Controller]. Translates JSON:API
@@ -16,7 +16,8 @@ class RepositoryController<R> implements Controller {
   final Pagination _pagination;
 
   @override
-  Future<void> addToRelationship(AddToRelationship request) {
+  Future<void> addToRelationship(
+      RelationshipRequest request, Iterable<Identifier> identifiers) {
     return _do(request, () async {
       final original = await _repo.get(request.type, request.id);
       if (!original.toMany.containsKey(request.relationship)) {
@@ -35,7 +36,7 @@ class RepositoryController<R> implements Controller {
           Resource(request.type, request.id, toMany: {
             request.relationship: {
               ...original.toMany[request.relationship],
-              ...request.identifiers
+              ...identifiers
             }.toList()
           }));
       request.sendToManyRelationship(updated.toMany[request.relationship]);
@@ -43,8 +44,9 @@ class RepositoryController<R> implements Controller {
   }
 
   @override
-  Future<void> createResource(CreateResource request) => _do(request, () async {
-        final modified = await _repo.create(request.type, request.resource);
+  Future<void> createResource(CollectionRequest request, Resource resource) =>
+      _do(request, () async {
+        final modified = await _repo.create(request.type, resource);
         if (modified == null) {
           request.sendNoContent();
         } else {
@@ -53,7 +55,8 @@ class RepositoryController<R> implements Controller {
       });
 
   @override
-  Future<void> deleteFromRelationship(DeleteFromRelationship request) =>
+  Future<void> deleteFromRelationship(
+          RelationshipRequest request, Iterable<Identifier> identifiers) =>
       _do(request, () async {
         final original = await _repo.get(request.type, request.id);
         final updated = await _repo.update(
@@ -61,20 +64,21 @@ class RepositoryController<R> implements Controller {
             request.id,
             Resource(request.type, request.id, toMany: {
               request.relationship: ({...original.toMany[request.relationship]}
-                    ..removeAll(request.identifiers))
+                    ..removeAll(identifiers))
                   .toList()
             }));
         request.sendToManyRelationship(updated.toMany[request.relationship]);
       });
 
   @override
-  Future<void> deleteResource(DeleteResource request) => _do(request, () async {
+  Future<void> deleteResource(ResourceRequest request) =>
+      _do(request, () async {
         await _repo.delete(request.type, request.id);
         request.sendNoContent();
       });
 
   @override
-  Future<void> fetchCollection(FetchCollection request) =>
+  Future<void> fetchCollection(CollectionRequest request) =>
       _do(request, () async {
         final sort = Sort.fromQueryParameters(request.queryParameters);
         final include = Include.fromQueryParameters(request.queryParameters);
@@ -95,7 +99,8 @@ class RepositoryController<R> implements Controller {
       });
 
   @override
-  Future<void> fetchRelated(FetchRelated request) => _do(request, () async {
+  Future<void> fetchRelated(RelatedRequest request) =>
+      _do(request, () async {
         final resource = await _repo.get(request.type, request.id);
         if (resource.toOne.containsKey(request.relationship)) {
           final i = resource.toOne[request.relationship];
@@ -113,7 +118,7 @@ class RepositoryController<R> implements Controller {
       });
 
   @override
-  Future<void> fetchRelationship(FetchRelationship request) =>
+  Future<void> fetchRelationship(RelationshipRequest request) =>
       _do(request, () async {
         final resource = await _repo.get(request.type, request.id);
         if (resource.toOne.containsKey(request.relationship)) {
@@ -127,7 +132,7 @@ class RepositoryController<R> implements Controller {
       });
 
   @override
-  Future<void> fetchResource(FetchResource request) => _do(request, () async {
+  Future<void> fetchResource(ResourceRequest request) => _do(request, () async {
         final include = Include.fromQueryParameters(request.queryParameters);
         final resource = await _repo.get(request.type, request.id);
         final resources = <Resource>[];
@@ -138,19 +143,21 @@ class RepositoryController<R> implements Controller {
       });
 
   @override
-  Future<void> replaceToMany(ReplaceToMany request) => _do(request, () async {
+  Future<void> replaceToMany(
+          RelationshipRequest request, Iterable<Identifier> identifiers) =>
+      _do(request, () async {
         await _repo.update(
             request.type,
             request.id,
             Resource(request.type, request.id,
-                toMany: {request.relationship: request.identifiers}));
+                toMany: {request.relationship: identifiers}));
         request.sendNoContent();
       });
 
   @override
-  Future<void> updateResource(UpdateResource request) => _do(request, () async {
-        final modified =
-            await _repo.update(request.type, request.id, request.resource);
+  Future<void> updateResource(ResourceRequest request, Resource resource) =>
+      _do(request, () async {
+        final modified = await _repo.update(request.type, request.id, resource);
         if (modified == null) {
           request.sendNoContent();
         } else {
@@ -159,12 +166,14 @@ class RepositoryController<R> implements Controller {
       });
 
   @override
-  Future<void> replaceToOne(ReplaceToOne request) => _do(request, () async {
+  Future<void> replaceToOne(
+          RelationshipRequest request, Identifier identifier) =>
+      _do(request, () async {
         await _repo.update(
             request.type,
             request.id,
             Resource(request.type, request.id,
-                toOne: {request.relationship: request.identifier}));
+                toOne: {request.relationship: identifier}));
         request.sendNoContent();
       });
 
@@ -197,7 +206,7 @@ class RepositoryController<R> implements Controller {
           key: (_) => '${_.type}:${_.id}').values;
 
   Future<void> _do(
-      JsonApiRequest request, Future<void> Function() action) async {
+      ControllerRequest request, Future<void> Function() action) async {
     try {
       await action();
     } on UnsupportedOperation catch (e) {
