@@ -7,9 +7,9 @@ import 'package:json_api/src/document/resource_object.dart';
 /// Represents a resource collection or a collection of related resources of a to-many relationship
 class ResourceCollectionData extends PrimaryData {
   ResourceCollectionData(Iterable<ResourceObject> collection,
-      {Iterable<ResourceObject> included, Map<String, Link> links})
+      {Iterable<ResourceObject> include, Map<String, Link> links})
       : collection = List.unmodifiable(collection ?? const []),
-        super(included: included, links: links);
+        super(included: include, links: links);
 
   static ResourceCollectionData fromJson(Object json) {
     if (json is Map) {
@@ -18,7 +18,7 @@ class ResourceCollectionData extends PrimaryData {
         final included = json['included'];
         return ResourceCollectionData(data.map(ResourceObject.fromJson),
             links: Link.mapFromJson(json['links'] ?? {}),
-            included: included is List
+            include: included is List
                 ? included.map(ResourceObject.fromJson)
                 : null);
       }

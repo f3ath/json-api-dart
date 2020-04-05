@@ -2,25 +2,18 @@
 ///
 /// See https://jsonapi.org/recommendations/#urls
 abstract class RouteMatcher {
-  /// Matches the [uri] with a collection route pattern.
-  /// If the match is successful, calls the [onMatch] and returns true.
-  /// Otherwise returns false.
-  bool matchCollection(Uri uri, void Function(String type) onMatch);
+  /// Matches the [uri] with route patterns.
+  /// If there is a match, calls the corresponding method of the [handler].
+  /// Returns true if match was found.
+  bool match(Uri uri, MatchHandler handler);
+}
 
-  /// Matches the [uri] with a resource route pattern.
-  /// If the match is successful, calls the [onMatch] and returns true.
-  /// Otherwise returns false.
-  bool matchResource(Uri uri, void Function(String type, String id) onMatch);
+abstract class MatchHandler {
+  void collection(String type);
 
-  /// Matches the [uri] with a related route pattern.
-  /// If the match is successful, calls the [onMatch] and returns true.
-  /// Otherwise returns false.
-  bool matchRelated(Uri uri,
-      void Function(String type, String id, String relationship) onMatch);
+  void resource(String type, String id);
 
-  /// Matches the [uri] with a relationship route pattern.
-  /// If the match is successful, calls the [onMatch] and returns true.
-  /// Otherwise returns false.
-  bool matchRelationship(Uri uri,
-      void Function(String type, String id, String relationship) onMatch);
+  void related(String type, String id, String relationship);
+
+  void relationship(String type, String id, String relationship);
 }

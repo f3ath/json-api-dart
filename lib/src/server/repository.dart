@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/src/server/collection.dart';
 
 /// The Repository translates CRUD operations on resources to actual data
 /// manipulation.
@@ -23,33 +24,22 @@ abstract class Repository {
   ///
   /// Throws [InvalidType] if the [resource]
   /// does not belong to the collection.
-  FutureOr<Resource> create(String collection, Resource resource);
+  Future<Resource> create(String collection, Resource resource);
 
   /// Returns the resource by [type] and [id].
-  FutureOr<Resource> get(String type, String id);
+  Future<Resource> get(String type, String id);
 
   /// Updates the resource identified by [target].
   /// If the resource was modified during update, returns the modified resource.
   /// Otherwise returns null.
-  FutureOr<Resource> update(String type, String id, Resource resource);
+  Future<Resource> update(String type, String id, Resource resource);
 
   /// Deletes the resource identified by [target]
-  FutureOr<void> delete(String type, String id);
+  Future<void> delete(String type, String id);
 
   /// Returns a collection of resources
-  FutureOr<Collection<Resource>> getCollection(String collection,
+  Future<Collection<Resource>> getCollection(String collection,
       {int limit, int offset, List<SortField> sort});
-}
-
-/// A collection of elements (e.g. resources) returned by the server.
-class Collection<T> {
-  Collection(Iterable elements, [this.total])
-      : elements = List.unmodifiable(elements);
-
-  final List<T> elements;
-
-  /// Total count of the elements on the server. May be null.
-  final int total;
 }
 
 /// Thrown when the requested collection does not exist

@@ -22,4 +22,8 @@ class HttpRequest {
   bool get isGet => method == 'GET';
 
   bool get isPost => method == 'POST';
+
+  bool get isDelete => method == 'DELETE';
+
+  bool get isPatch => method == 'PATCH';
 }

@@ -1,9 +1,9 @@
-import 'package:json_api/src/routing/route_factory.dart';
 import 'package:json_api/src/routing/route_matcher.dart';
 import 'package:json_api/src/routing/routes.dart';
+import 'package:json_api/src/routing/routing.dart';
 
 /// URI design composed of independent routes.
-class CompositeRouting implements RouteFactory, RouteMatcher {
+class CompositeRouting implements Routing {
   CompositeRouting(this.collectionRoute, this.resourceRoute, this.relatedRoute,
       this.relationshipRoute);
 
@@ -27,20 +27,9 @@ class CompositeRouting implements RouteFactory, RouteMatcher {
   Uri resource(String type, String id) => resourceRoute.uri(type, id);
 
   @override
-  bool matchCollection(Uri uri, void Function(String type) onMatch) =>
-      collectionRoute.match(uri, onMatch);
-
-  @override
-  bool matchRelated(Uri uri,
-          void Function(String type, String id, String relationship) onMatch) =>
-      relatedRoute.match(uri, onMatch);
-
-  @override
-  bool matchRelationship(Uri uri,
-          void Function(String type, String id, String relationship) onMatch) =>
-      relationshipRoute.match(uri, onMatch);
-
-  @override
-  bool matchResource(Uri uri, void Function(String type, String id) onMatch) =>
-      resourceRoute.match(uri, onMatch);
+  bool match(Uri uri, MatchHandler handler) =>
+      collectionRoute.match(uri, handler.collection) ||
+      resourceRoute.match(uri, handler.resource) ||
+      relatedRoute.match(uri, handler.related) ||
+      relationshipRoute.match(uri, handler.relationship);
 }

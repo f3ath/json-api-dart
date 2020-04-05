@@ -19,7 +19,7 @@ void main() {
       expect(rs.statusCode, 400);
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
       expect(error.status, '400');
-      expect(error.title, 'Bad request');
+      expect(error.title, 'Bad Request');
       expect(error.detail, 'Incomplete relationship object');
     });
 
@@ -30,7 +30,7 @@ void main() {
       expect(rs.statusCode, 400);
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
       expect(error.status, '400');
-      expect(error.title, 'Bad request');
+      expect(error.title, 'Bad Request');
       expect(error.detail, startsWith('Invalid JSON. '));
     });
 
@@ -42,7 +42,7 @@ void main() {
       expect(rs.statusCode, 400);
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
       expect(error.status, '400');
-      expect(error.title, 'Bad request');
+      expect(error.title, 'Bad Request');
       expect(error.detail,
           "A JSON:API resource document must be a JSON object and contain the 'data' member");
     });
@@ -54,7 +54,7 @@ void main() {
       expect(rs.statusCode, 400);
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
       expect(error.status, '400');
-      expect(error.title, 'Bad request');
+      expect(error.title, 'Bad Request');
       expect(error.detail, 'Invalid JSON:API resource object');
     });
 

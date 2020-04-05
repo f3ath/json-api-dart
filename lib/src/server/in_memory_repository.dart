@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
+import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/repository.dart';
 
 typedef IdGenerator = String Function();
@@ -15,7 +16,7 @@ class InMemoryRepository implements Repository {
   final IdGenerator _nextId;
 
   @override
-  FutureOr<Resource> create(String collection, Resource resource) async {
+  Future<Resource> create(String collection, Resource resource) async {
     if (!_collections.containsKey(collection)) {
       throw CollectionNotFound("Collection '$collection' does not exist");
     }
@@ -47,7 +48,7 @@ class InMemoryRepository implements Repository {
   }
 
   @override
-  FutureOr<Resource> get(String type, String id) async {
+  Future<Resource> get(String type, String id) async {
     if (_collections.containsKey(type)) {
       final resource = _collections[type][id];
       if (resource == null) {
@@ -59,7 +60,7 @@ class InMemoryRepository implements Repository {
   }
 
   @override
-  FutureOr<Resource> update(String type, String id, Resource resource) async {
+  Future<Resource> update(String type, String id, Resource resource) async {
     if (type != resource.type) {
       throw _invalidType(resource, type);
     }
@@ -82,20 +83,19 @@ class InMemoryRepository implements Repository {
   }
 
   @override
-  FutureOr<void> delete(String type, String id) async {
+  Future<void> delete(String type, String id) async {
     await get(type, id);
     _collections[type].remove(id);
     return null;
   }
 
   @override
-  FutureOr<Collection<Resource>> getCollection(String collection,
+  Future<Collection<Resource>> getCollection(String type,
       {int limit, int offset, List<SortField> sort}) async {
-    if (_collections.containsKey(collection)) {
-      return Collection(
-          _collections[collection].values, _collections[collection].length);
+    if (_collections.containsKey(type)) {
+      return Collection(_collections[type].values, _collections[type].length);
     }
-    throw CollectionNotFound("Collection '$collection' does not exist");
+    throw CollectionNotFound("Collection '$type' does not exist");
   }
 
   InvalidType _invalidType(Resource resource, String collection) {
