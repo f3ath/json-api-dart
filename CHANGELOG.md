@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Everything. This is a major **BC-breaking** rework which affected pretty much all areas. Please refer to the documentation.
 
+## [3.2.3] - 2020-08-06
+### Fixed
+- Call toJson() on resourceObject when serializing ([#84](https://github.com/f3ath/json-api-dart/pull/84))
+
+
 ## [3.2.2] - 2020-01-07
 ### Fixed
 -  Can not decode related resource which is null ([#77](https://github.com/f3ath/json-api-dart/issues/77))
@@ -151,6 +156,7 @@ Most of the changes are **BC-BREAKING**.
 - Client: fetch resources, collections, related resources and relationships
 
 [4.0.0]: https://github.com/f3ath/json-api-dart/compare/3.2.2..4.0.0
+[3.2.3]: https://github.com/f3ath/json-api-dart/compare/3.2.2..3.2.3
 [3.2.2]: https://github.com/f3ath/json-api-dart/compare/3.2.1..3.2.2
 [3.2.1]: https://github.com/f3ath/json-api-dart/compare/3.2.0...3.2.1
 [3.2.0]: https://github.com/f3ath/json-api-dart/compare/3.1.0...3.2.0
