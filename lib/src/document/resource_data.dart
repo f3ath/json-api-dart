@@ -9,8 +9,7 @@ import 'package:json_api/src/nullable.dart';
 class ResourceData extends PrimaryData {
   ResourceData(this.resourceObject,
       {Iterable<ResourceObject> include, Map<String, Link> links})
-      : super(
-            included: include, links: {...?resourceObject?.links, ...?links});
+      : super(included: include, links: {...?resourceObject?.links, ...?links});
 
   static ResourceData fromResource(Resource resource) =>
       ResourceData(ResourceObject.fromResource(resource));
