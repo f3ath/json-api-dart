@@ -1,60 +1,57 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/src/server/relationship_target.dart';
-import 'package:json_api/src/server/resource_target.dart';
+import 'package:json_api/src/server/controller_request.dart';
+import 'package:json_api/src/server/controller_response.dart';
 
 /// This is a controller consolidating all possible requests a JSON:API server
 /// may handle.
-abstract class Controller<T> {
+abstract class Controller {
   /// Finds an returns a primary resource collection.
   /// See https://jsonapi.org/format/#fetching-resources
-  T fetchCollection(String type, Map<String, List<String>> queryParameters);
+  Future<ControllerResponse> fetchCollection(CollectionRequest request);
 
   /// Finds an returns a primary resource.
   /// See https://jsonapi.org/format/#fetching-resources
-  T fetchResource(
-      ResourceTarget target, Map<String, List<String>> queryParameters);
+  Future<ControllerResponse> fetchResource(ResourceRequest request);
 
   /// Finds an returns a related resource or a collection of related resources.
   /// See https://jsonapi.org/format/#fetching-resources
-  T fetchRelated(
-      RelationshipTarget target, Map<String, List<String>> queryParameters);
+  Future<ControllerResponse> fetchRelated(RelatedRequest request);
 
   /// Finds an returns a relationship of a primary resource.
   /// See https://jsonapi.org/format/#fetching-relationships
-  T fetchRelationship(
-      RelationshipTarget target, Map<String, List<String>> queryParameters);
+  Future<ControllerResponse> fetchRelationship(RelationshipRequest request);
 
   /// Deletes the resource.
   /// See https://jsonapi.org/format/#crud-deleting
-  T deleteResource(ResourceTarget target);
+  Future<ControllerResponse> deleteResource(ResourceRequest request);
 
   /// Creates a new resource in the collection.
   /// See https://jsonapi.org/format/#crud-creating
-  T createResource(String type, Resource resource);
+  Future<ControllerResponse> createResource(
+      CollectionRequest request, Resource resource);
 
   /// Updates the resource.
   /// See https://jsonapi.org/format/#crud-updating
-  T updateResource(ResourceTarget target, Resource resource);
+  Future<ControllerResponse> updateResource(
+      ResourceRequest request, Resource resource);
 
   /// Replaces the to-one relationship.
   /// See https://jsonapi.org/format/#crud-updating-to-one-relationships
-  T replaceToOne(RelationshipTarget target, Identifier identifier);
-
-  /// Deletes the to-one relationship.
-  /// See https://jsonapi.org/format/#crud-updating-to-one-relationships
-  T deleteToOne(RelationshipTarget target);
+  Future<ControllerResponse> replaceToOne(
+      RelationshipRequest request, Identifier identifier);
 
   /// Replaces the to-many relationship.
   /// See https://jsonapi.org/format/#crud-updating-to-many-relationships
-  T replaceToMany(RelationshipTarget target, Iterable<Identifier> identifiers);
+  Future<ControllerResponse> replaceToMany(
+      RelationshipRequest request, List<Identifier> identifiers);
 
   /// Removes the given identifiers from the to-many relationship.
   /// See https://jsonapi.org/format/#crud-updating-to-many-relationships
-  T deleteFromRelationship(
-      RelationshipTarget target, Iterable<Identifier> identifiers);
+  Future<ControllerResponse> deleteFromRelationship(
+      RelationshipRequest request, List<Identifier> identifiers);
 
   /// Adds the given identifiers to  the to-many relationship.
   /// See https://jsonapi.org/format/#crud-updating-to-many-relationships
-  T addToRelationship(
-      RelationshipTarget target, Iterable<Identifier> identifiers);
+  Future<ControllerResponse> addToRelationship(
+      RelationshipRequest request, List<Identifier> identifiers);
 }

@@ -1,71 +1,90 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/server.dart';
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/json_api_request.dart';
-import 'package:json_api/src/server/request_converter.dart';
+import 'package:json_api/src/server/controller_response.dart';
+import 'package:json_api/src/server/resolvable.dart';
+import 'package:json_api/src/server/target.dart';
 
 /// A simple implementation of JSON:API server
 class JsonApiServer implements HttpHandler {
-  JsonApiServer(this._controller, {RouteFactory routing})
-      : _routing = routing ?? StandardRouting();
+  JsonApiServer(this._controller,
+      {Routing routing, DocumentFactory documentFactory})
+      : _routing = routing ?? StandardRouting(),
+        _doc = documentFactory ?? DocumentFactory();
 
-  final RouteFactory _routing;
-  final Controller<FutureOr<JsonApiResponse>> _controller;
+  final Routing _routing;
+  final Controller _controller;
+  final DocumentFactory _doc;
 
   @override
   Future<HttpResponse> call(HttpRequest httpRequest) async {
-    JsonApiRequest jsonApiRequest;
-    JsonApiResponse jsonApiResponse;
-    try {
-      jsonApiRequest = RequestConverter().convert(httpRequest);
-    } on FormatException catch (e) {
-      jsonApiResponse = ErrorResponse.badRequest([
-        ErrorObject(
-            status: '400',
-            title: 'Bad request',
-            detail: 'Invalid JSON. ${e.message}')
-      ]);
-    } on DocumentException catch (e) {
-      jsonApiResponse = ErrorResponse.badRequest([
-        ErrorObject(status: '400', title: 'Bad request', detail: e.message)
-      ]);
-    } on MethodNotAllowedException catch (e) {
-      jsonApiResponse = ErrorResponse.methodNotAllowed([
-        ErrorObject(
-            status: '405',
-            title: 'Method Not Allowed',
-            detail: 'Allowed methods: ${e.allow.join(', ')}')
-      ], e.allow);
-    } on UnmatchedUriException {
-      jsonApiResponse = ErrorResponse.notFound([
-        ErrorObject(
-            status: '404',
-            title: 'Not Found',
-            detail: 'The requested URL does exist on the server')
-      ]);
-    } on IncompleteRelationshipException {
-      jsonApiResponse = ErrorResponse.badRequest([
-        ErrorObject(
-            status: '400',
-            title: 'Bad request',
-            detail: 'Incomplete relationship object')
-      ]);
-    }
-    jsonApiResponse ??= await jsonApiRequest.handleWith(_controller) ??
-        ErrorResponse.internalServerError([
-          ErrorObject(
-              status: '500',
-              title: 'Internal Server Error',
-              detail: 'Controller responded with null')
-        ]);
+    final targetFactory = TargetFactory();
+    _routing.match(httpRequest.uri, targetFactory);
+    final target = targetFactory.target;
 
-    final links = StandardLinks(httpRequest.uri, _routing);
-    final documentFactory = DocumentFactory(links: links);
-    final responseFactory = HttpResponseConverter(documentFactory, _routing);
-    return jsonApiResponse.convert(responseFactory);
+    if (target == null) {
+      return _convert(ErrorResponse(404, [
+        ErrorObject(
+          status: '404',
+          title: 'Not Found',
+          detail: 'The requested URL does exist on the server',
+        )
+      ]));
+    }
+
+    final allowed = (target.allowedMethods + ['OPTIONS']).join(', ');
+
+    if (httpRequest.isOptions) {
+      return HttpResponse(200, headers: {
+        'Access-Control-Allow-Methods': allowed,
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Max-Age': '3600',
+      });
+    }
+
+    if (!target.allowedMethods.contains(httpRequest.method)) {
+      return HttpResponse(405, headers: {'Allow': allowed});
+    }
+
+    try {
+      final controllerRequest = target.convertRequest(httpRequest);
+      return _convert(await controllerRequest.resolveBy(_controller));
+    } on FormatException catch (e) {
+      return _convert(ErrorResponse(400, [
+        ErrorObject(
+          status: '400',
+          title: 'Bad Request',
+          detail: 'Invalid JSON. ${e.message}',
+        )
+      ]));
+    } on DocumentException catch (e) {
+      return _convert(ErrorResponse(400, [
+        ErrorObject(
+          status: '400',
+          title: 'Bad Request',
+          detail: e.message,
+        )
+      ]));
+    } on IncompleteRelationshipException {
+      return _convert(ErrorResponse(400, [
+        ErrorObject(
+          status: '400',
+          title: 'Bad Request',
+          detail: 'Incomplete relationship object',
+        )
+      ]));
+    }
+  }
+
+  HttpResponse _convert(ControllerResponse r) {
+    return HttpResponse(r.status, body: jsonEncode(r.document(_doc)), headers: {
+      ...r.headers(_routing),
+      'Access-Control-Allow-Origin': '*',
+    });
   }
 }

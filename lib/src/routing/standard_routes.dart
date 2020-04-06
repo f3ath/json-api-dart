@@ -8,7 +8,7 @@ class StandardCollectionRoute extends _BaseRoute implements CollectionRoute {
   StandardCollectionRoute([Uri base]) : super(base);
 
   @override
-  bool match(Uri uri, void Function(String type) onMatch) {
+  bool match(Uri uri, Function(String type) onMatch) {
     final seg = _segments(uri);
     if (seg.length == 1) {
       onMatch(seg.first);
@@ -29,7 +29,7 @@ class StandardResourceRoute extends _BaseRoute implements ResourceRoute {
   StandardResourceRoute([Uri base]) : super(base);
 
   @override
-  bool match(Uri uri, void Function(String type, String id) onMatch) {
+  bool match(Uri uri, Function(String type, String id) onMatch) {
     final seg = _segments(uri);
     if (seg.length == 2) {
       onMatch(seg.first, seg.last);
@@ -50,8 +50,7 @@ class StandardRelatedRoute extends _BaseRoute implements RelatedRoute {
   StandardRelatedRoute([Uri base]) : super(base);
 
   @override
-  bool match(Uri uri,
-      void Function(String type, String id, String relationship) onMatch) {
+  bool match(Uri uri, Function(String type, String id, String rel) onMatch) {
     final seg = _segments(uri);
     if (seg.length == 3) {
       onMatch(seg.first, seg[1], seg.last);
@@ -74,8 +73,7 @@ class StandardRelationshipRoute extends _BaseRoute
   StandardRelationshipRoute([Uri base]) : super(base);
 
   @override
-  bool match(Uri uri,
-      void Function(String type, String id, String relationship) onMatch) {
+  bool match(Uri uri, Function(String type, String id, String rel) onMatch) {
     final seg = _segments(uri);
     if (seg.length == 4 && seg[2] == _rel) {
       onMatch(seg.first, seg[1], seg.last);

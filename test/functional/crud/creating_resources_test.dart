@@ -26,6 +26,7 @@ void main() async {
           NewResource('people', attributes: {'name': 'Martin Fowler'});
       final r = await routingClient.createResource(person);
       expect(r.statusCode, 201);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.location, isNotNull);
       expect(r.location, r.data.links['self'].uri);
       final created = r.data.unwrap();
@@ -89,6 +90,7 @@ void main() async {
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '404');
@@ -103,6 +105,7 @@ void main() async {
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '404');
@@ -118,6 +121,7 @@ void main() async {
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '404');
@@ -131,6 +135,7 @@ void main() async {
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);
       expect(r.statusCode, 409);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '409');
@@ -145,6 +150,7 @@ void main() async {
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);
       expect(r.statusCode, 409);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '409');
