@@ -1,12 +1,26 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
+import 'package:json_api/query.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/controller_response.dart';
 
-class RelatedRequest {
-  RelatedRequest(this.request, this.type, this.id, this.relationship);
+class _Base {
+  _Base(this.request)
+      : sort = Sort.fromQueryParameters(request.uri.queryParametersAll),
+        include = Include.fromQueryParameters(request.uri.queryParametersAll),
+        page = Page.fromQueryParameters(request.uri.queryParametersAll);
 
   final HttpRequest request;
+  final Include include;
+  final Page page;
+  final Sort sort;
+
+  bool get isCompound => include.isNotEmpty;
+}
+
+class RelatedRequest extends _Base {
+  RelatedRequest(HttpRequest request, this.type, this.id, this.relationship)
+      : super(request);
 
   final String type;
 
@@ -23,10 +37,8 @@ class RelatedRequest {
       CollectionResponse(collection);
 }
 
-class ResourceRequest {
-  ResourceRequest(this.request, this.type, this.id);
-
-  final HttpRequest request;
+class ResourceRequest extends _Base {
+  ResourceRequest(HttpRequest request, this.type, this.id) : super(request);
 
   final String type;
 
@@ -37,10 +49,10 @@ class ResourceRequest {
       ResourceResponse(resource, include: include);
 }
 
-class RelationshipRequest {
-  RelationshipRequest(this.request, this.type, this.id, this.relationship);
-
-  final HttpRequest request;
+class RelationshipRequest extends _Base {
+  RelationshipRequest(
+      HttpRequest request, this.type, this.id, this.relationship)
+      : super(request);
 
   final String type;
 
@@ -57,10 +69,8 @@ class RelationshipRequest {
       ToOneResponse(identifier);
 }
 
-class CollectionRequest {
-  CollectionRequest(this.request, this.type);
-
-  final HttpRequest request;
+class CollectionRequest extends _Base {
+  CollectionRequest(HttpRequest request, this.type) : super(request);
 
   final String type;
 

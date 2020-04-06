@@ -45,6 +45,7 @@ void main() async {
           'unicorns', '1', 'breed', Identifier('companies', '2'));
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '404');
@@ -57,6 +58,7 @@ void main() async {
           'books', '42', 'publisher', Identifier('companies', '2'));
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '404');
@@ -80,6 +82,7 @@ void main() async {
       final r = await routingClient.deleteToOne('unicorns', '1', 'breed');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '404');
@@ -91,6 +94,7 @@ void main() async {
       final r = await routingClient.deleteToOne('books', '42', 'publisher');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '404');
@@ -117,6 +121,7 @@ void main() async {
           'unicorns', '1', 'breed', [Identifier('companies', '2')]);
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '404');
@@ -129,6 +134,7 @@ void main() async {
           'books', '42', 'publisher', [Identifier('companies', '2')]);
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '404');
@@ -143,6 +149,7 @@ void main() async {
           'books', '1', 'authors', [Identifier('people', '3')]);
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data.unwrap().length, 3);
       expect(r.data.unwrap().first.id, '1');
       expect(r.data.unwrap().last.id, '3');
@@ -156,12 +163,14 @@ void main() async {
           'books', '1', 'authors', [Identifier('people', '2')]);
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data.unwrap().length, 2);
       expect(r.data.unwrap().first.id, '1');
       expect(r.data.unwrap().last.id, '2');
 
       final r1 = await routingClient.fetchResource('books', '1');
       expect(r1.data.unwrap().toMany['authors'].length, 2);
+      expect(r1.headers['content-type'], Document.contentType);
     });
 
     test('404 when collection not found', () async {
@@ -169,6 +178,7 @@ void main() async {
           'unicorns', '1', 'breed', [Identifier('companies', '3')]);
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '404');
@@ -181,6 +191,7 @@ void main() async {
           'books', '42', 'publisher', [Identifier('companies', '3')]);
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '404');
@@ -193,6 +204,7 @@ void main() async {
           'books', '1', 'sellers', [Identifier('companies', '3')]);
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '404');
@@ -208,6 +220,7 @@ void main() async {
           'books', '1', 'authors', [Identifier('people', '1')]);
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data.unwrap().length, 1);
       expect(r.data.unwrap().first.id, '2');
 
@@ -220,6 +233,7 @@ void main() async {
           'books', '1', 'authors', [Identifier('people', '3')]);
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data.unwrap().length, 2);
       expect(r.data.unwrap().first.id, '1');
       expect(r.data.unwrap().last.id, '2');
@@ -233,6 +247,7 @@ void main() async {
           'unicorns', '1', 'breed', [Identifier('companies', '1')]);
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '404');
@@ -245,6 +260,7 @@ void main() async {
           'books', '42', 'publisher', [Identifier('companies', '1')]);
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data, isNull);
       final error = r.errors.first;
       expect(error.status, '404');

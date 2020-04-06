@@ -26,4 +26,6 @@ class HttpRequest {
   bool get isDelete => method == 'DELETE';
 
   bool get isPatch => method == 'PATCH';
+
+  bool get isOptions => method == 'OPTIONS';
 }

@@ -1,4 +1,5 @@
 import 'package:json_api/client.dart';
+import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 import 'package:json_api/src/server/in_memory_repository.dart';
@@ -36,6 +37,7 @@ void main() async {
     final r1 = await routingClient.fetchResource('books', '1');
     expect(r1.isSuccessful, isFalse);
     expect(r1.statusCode, 404);
+    expect(r1.headers['content-type'], Document.contentType);
   });
 
   test('404 on collecton', () async {
@@ -43,6 +45,7 @@ void main() async {
     expect(r.isSuccessful, isFalse);
     expect(r.isFailed, isTrue);
     expect(r.statusCode, 404);
+    expect(r.headers['content-type'], Document.contentType);
     expect(r.data, isNull);
     final error = r.errors.first;
     expect(error.status, '404');
@@ -55,6 +58,7 @@ void main() async {
     expect(r.isSuccessful, isFalse);
     expect(r.isFailed, isTrue);
     expect(r.statusCode, 404);
+    expect(r.headers['content-type'], Document.contentType);
     expect(r.data, isNull);
     final error = r.errors.first;
     expect(error.status, '404');

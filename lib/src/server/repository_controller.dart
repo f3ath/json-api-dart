@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:json_api/document.dart';
-import 'package:json_api/query.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/controller_request.dart';
@@ -81,26 +80,20 @@ class RepositoryController implements Controller {
   @override
   Future<ControllerResponse> fetchCollection(CollectionRequest request) =>
       _do(() async {
-        final sort =
-            Sort.fromQueryParameters(request.request.uri.queryParametersAll);
-        final include =
-            Include.fromQueryParameters(request.request.uri.queryParametersAll);
-        final page =
-            Page.fromQueryParameters(request.request.uri.queryParametersAll);
-        final limit = _pagination.limit(page);
-        final offset = _pagination.offset(page);
+        final limit = _pagination.limit(request.page);
+        final offset = _pagination.offset(request.page);
 
         final collection = await _repo.getCollection(request.type,
-            sort: sort.toList(), limit: limit, offset: offset);
+            sort: request.sort.toList(), limit: limit, offset: offset);
 
         final resources = <Resource>[];
         for (final resource in collection.elements) {
-          for (final path in include) {
+          for (final path in request.include) {
             resources.addAll(await _getRelated(resource, path.split('.')));
           }
         }
         return request.collectionResponse(collection,
-            include: include.isEmpty ? null : resources);
+            include: request.isCompound ? resources : null);
       });
 
   @override
@@ -137,15 +130,13 @@ class RepositoryController implements Controller {
   @override
   Future<ControllerResponse> fetchResource(ResourceRequest request) =>
       _do(() async {
-        final include =
-            Include.fromQueryParameters(request.request.uri.queryParametersAll);
         final resource = await _repo.get(request.type, request.id);
         final resources = <Resource>[];
-        for (final path in include) {
+        for (final path in request.include) {
           resources.addAll(await _getRelated(resource, path.split('.')));
         }
         return request.resourceResponse(resource,
-            include: include.isEmpty ? null : resources);
+            include: request.isCompound ? resources : null);
       });
 
   @override

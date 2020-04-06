@@ -42,6 +42,7 @@ void main() async {
     }));
     expect(r.isSuccessful, isTrue);
     expect(r.statusCode, 200);
+    expect(r.headers['content-type'], Document.contentType);
     expect(r.data.unwrap().attributes['title'],
         'Refactoring. Improving the Design of Existing Code');
     expect(r.data.unwrap().attributes['pages'], 448);
@@ -67,6 +68,7 @@ void main() async {
     final r = await routingClient.updateResource(Resource('books', '42'));
     expect(r.isSuccessful, isFalse);
     expect(r.statusCode, 404);
+    expect(r.headers['content-type'], Document.contentType);
     expect(r.data, isNull);
     final error = r.errors.first;
     expect(error.status, '404');
@@ -79,6 +81,7 @@ void main() async {
         routing.resource('people', '1'), Resource('books', '1'));
     expect(r.isSuccessful, isFalse);
     expect(r.statusCode, 409);
+    expect(r.headers['content-type'], Document.contentType);
     expect(r.data, isNull);
     final error = r.errors.first;
     expect(error.status, '409');

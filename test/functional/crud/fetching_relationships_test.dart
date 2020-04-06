@@ -32,6 +32,7 @@ void main() async {
       final r = await routingClient.fetchToOne('books', '1', 'publisher');
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data.unwrap().type, 'companies');
       expect(r.data.unwrap().id, '1');
     });
@@ -40,6 +41,7 @@ void main() async {
       final r = await routingClient.fetchToOne('unicorns', '1', 'publisher');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.errors.first.status, '404');
       expect(r.errors.first.title, 'Collection not found');
       expect(r.errors.first.detail, "Collection 'unicorns' does not exist");
@@ -49,6 +51,7 @@ void main() async {
       final r = await routingClient.fetchToOne('books', '42', 'publisher');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.errors.first.status, '404');
       expect(r.errors.first.title, 'Resource not found');
       expect(r.errors.first.detail, "Resource '42' does not exist in 'books'");
@@ -58,6 +61,7 @@ void main() async {
       final r = await routingClient.fetchToOne('books', '1', 'owner');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.errors.first.status, '404');
       expect(r.errors.first.title, 'Relationship not found');
       expect(r.errors.first.detail,
@@ -70,6 +74,7 @@ void main() async {
       final r = await routingClient.fetchToMany('books', '1', 'authors');
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.data.unwrap().length, 2);
       expect(r.data.unwrap().first.type, 'people');
     });
@@ -78,6 +83,7 @@ void main() async {
       final r = await routingClient.fetchToMany('unicorns', '1', 'athors');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.errors.first.status, '404');
       expect(r.errors.first.title, 'Collection not found');
       expect(r.errors.first.detail, "Collection 'unicorns' does not exist");
@@ -87,6 +93,7 @@ void main() async {
       final r = await routingClient.fetchToMany('books', '42', 'authors');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.errors.first.status, '404');
       expect(r.errors.first.title, 'Resource not found');
       expect(r.errors.first.detail, "Resource '42' does not exist in 'books'");
@@ -96,6 +103,7 @@ void main() async {
       final r = await routingClient.fetchToMany('books', '1', 'readers');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.errors.first.status, '404');
       expect(r.errors.first.title, 'Relationship not found');
       expect(r.errors.first.detail,
@@ -109,6 +117,7 @@ void main() async {
           await routingClient.fetchRelationship('books', '1', 'publisher');
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
+      expect(r.headers['content-type'], Document.contentType);
       final rel = r.data;
       if (rel is ToOne) {
         expect(rel.unwrap().type, 'companies');
@@ -122,6 +131,7 @@ void main() async {
       final r = await routingClient.fetchRelationship('books', '1', 'authors');
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
+      expect(r.headers['content-type'], Document.contentType);
       final rel = r.data;
       if (rel is ToMany) {
         expect(rel.unwrap().length, 2);
@@ -139,6 +149,7 @@ void main() async {
           await routingClient.fetchRelationship('unicorns', '1', 'athors');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.errors.first.status, '404');
       expect(r.errors.first.title, 'Collection not found');
       expect(r.errors.first.detail, "Collection 'unicorns' does not exist");
@@ -148,6 +159,7 @@ void main() async {
       final r = await routingClient.fetchRelationship('books', '42', 'authors');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.errors.first.status, '404');
       expect(r.errors.first.title, 'Resource not found');
       expect(r.errors.first.detail, "Resource '42' does not exist in 'books'");
@@ -157,6 +169,7 @@ void main() async {
       final r = await routingClient.fetchRelationship('books', '1', 'readers');
       expect(r.isSuccessful, isFalse);
       expect(r.statusCode, 404);
+      expect(r.headers['content-type'], Document.contentType);
       expect(r.errors.first.status, '404');
       expect(r.errors.first.title, 'Relationship not found');
       expect(r.errors.first.detail,

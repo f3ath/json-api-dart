@@ -17,6 +17,7 @@ void main() {
           body: '{}');
       final rs = await server(rq);
       expect(rs.statusCode, 400);
+      expect(rs.headers['content-type'], Document.contentType);
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
       expect(error.status, '400');
       expect(error.title, 'Bad Request');
@@ -40,6 +41,7 @@ void main() {
           HttpRequest('POST', routing.collection('books'), body: '"oops"');
       final rs = await server(rq);
       expect(rs.statusCode, 400);
+      expect(rs.headers['content-type'], Document.contentType);
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
       expect(error.status, '400');
       expect(error.title, 'Bad Request');
@@ -52,6 +54,7 @@ void main() {
           body: '{"data": {}}');
       final rs = await server(rq);
       expect(rs.statusCode, 400);
+      expect(rs.headers['content-type'], Document.contentType);
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
       expect(error.status, '400');
       expect(error.title, 'Bad Request');
@@ -62,6 +65,7 @@ void main() {
       final rq = HttpRequest('GET', Uri.parse('http://localhost/a/b/c/d/e'));
       final rs = await server(rq);
       expect(rs.statusCode, 404);
+      expect(rs.headers['content-type'], Document.contentType);
       final error = Document.fromJson(json.decode(rs.body), null).errors.first;
       expect(error.status, '404');
       expect(error.title, 'Not Found');
@@ -72,33 +76,21 @@ void main() {
       final rq = HttpRequest('DELETE', routing.collection('books'));
       final rs = await server(rq);
       expect(rs.statusCode, 405);
-      expect(rs.headers['allow'], 'GET, POST');
-      final error = Document.fromJson(json.decode(rs.body), null).errors.first;
-      expect(error.status, '405');
-      expect(error.title, 'Method Not Allowed');
-      expect(error.detail, 'Allowed methods: GET, POST');
+      expect(rs.headers['allow'], 'GET, POST, OPTIONS');
     });
 
     test('returns `method not allowed` for resource', () async {
       final rq = HttpRequest('POST', routing.resource('books', '1'));
       final rs = await server(rq);
       expect(rs.statusCode, 405);
-      expect(rs.headers['allow'], 'DELETE, GET, PATCH');
-      final error = Document.fromJson(json.decode(rs.body), null).errors.first;
-      expect(error.status, '405');
-      expect(error.title, 'Method Not Allowed');
-      expect(error.detail, 'Allowed methods: DELETE, GET, PATCH');
+      expect(rs.headers['allow'], 'DELETE, GET, PATCH, OPTIONS');
     });
 
     test('returns `method not allowed` for related', () async {
       final rq = HttpRequest('POST', routing.related('books', '1', 'author'));
       final rs = await server(rq);
       expect(rs.statusCode, 405);
-      expect(rs.headers['allow'], 'GET');
-      final error = Document.fromJson(json.decode(rs.body), null).errors.first;
-      expect(error.status, '405');
-      expect(error.title, 'Method Not Allowed');
-      expect(error.detail, 'Allowed methods: GET');
+      expect(rs.headers['allow'], 'GET, OPTIONS');
     });
 
     test('returns `method not allowed` for relationship', () async {
@@ -106,11 +98,7 @@ void main() {
           HttpRequest('PUT', routing.relationship('books', '1', 'author'));
       final rs = await server(rq);
       expect(rs.statusCode, 405);
-      expect(rs.headers['allow'], 'DELETE, GET, PATCH, POST');
-      final error = Document.fromJson(json.decode(rs.body), null).errors.first;
-      expect(error.status, '405');
-      expect(error.title, 'Method Not Allowed');
-      expect(error.detail, 'Allowed methods: DELETE, GET, PATCH, POST');
+      expect(rs.headers['allow'], 'DELETE, GET, PATCH, POST, OPTIONS');
     });
   });
 }

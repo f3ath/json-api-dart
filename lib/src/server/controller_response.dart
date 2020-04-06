@@ -1,30 +1,42 @@
-import 'dart:convert';
-
 import 'package:json_api/document.dart';
-import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/server/collection.dart';
 
 abstract class ControllerResponse {
-  HttpResponse convert();
+  int get status;
+
+  Map<String, String> headers(RouteFactory route);
+
+  Document document(DocumentFactory doc);
 }
 
 class ErrorResponse implements ControllerResponse {
-  ErrorResponse(this.status, this.errors, {this.headers = const {}});
+  ErrorResponse(this.status, this.errors);
 
+  @override
   final int status;
-  final Map<String, String> headers;
   final List<ErrorObject> errors;
 
   @override
-  HttpResponse convert() => HttpResponse(status,
-      body: jsonEncode(Document.error(errors)), headers: headers);
+  Map<String, String> headers(RouteFactory route) =>
+      {'Content-Type': Document.contentType};
+
+  @override
+  Document document(DocumentFactory doc) => doc.error(errors);
 }
 
 class NoContentResponse implements ControllerResponse {
+  NoContentResponse();
+
   @override
-  HttpResponse convert() => HttpResponse(204);
+  int get status => 204;
+
+  @override
+  Map<String, String> headers(RouteFactory route) => {};
+
+  @override
+  Document document(DocumentFactory doc) => null;
 }
 
 class ResourceResponse implements ControllerResponse {
@@ -34,11 +46,15 @@ class ResourceResponse implements ControllerResponse {
   final List<Resource> include;
 
   @override
-  HttpResponse convert() {
-    return HttpResponse(200,
-        body: jsonEncode(Document(ResourceData(_resourceObject(resource),
-            include: include?.map(_resourceObject)))));
-  }
+  int get status => 200;
+
+  @override
+  Map<String, String> headers(RouteFactory route) =>
+      {'Content-Type': Document.contentType};
+
+  @override
+  Document<ResourceData> document(DocumentFactory doc) =>
+      doc.resource(resource, include: include);
 }
 
 class CreatedResourceResponse implements ControllerResponse {
@@ -47,16 +63,17 @@ class CreatedResourceResponse implements ControllerResponse {
   final Resource resource;
 
   @override
-  HttpResponse convert() {
-    return HttpResponse(201,
-        body: jsonEncode(Document(ResourceData(_resourceObject(resource,
-            self: Link(
-                StandardRouting().resource(resource.type, resource.id)))))),
-        headers: {
-          'Location':
-              StandardRouting().resource(resource.type, resource.id).toString()
-        });
-  }
+  int get status => 201;
+
+  @override
+  Map<String, String> headers(RouteFactory route) => {
+        'Content-Type': Document.contentType,
+        'Location': route.resource(resource.type, resource.id).toString()
+      };
+
+  @override
+  Document<ResourceData> document(DocumentFactory doc) =>
+      doc.createdResource(resource, StandardRouting());
 }
 
 class CollectionResponse implements ControllerResponse {
@@ -66,12 +83,15 @@ class CollectionResponse implements ControllerResponse {
   final List<Resource> include;
 
   @override
-  HttpResponse convert() {
-    return HttpResponse(200,
-        body: jsonEncode(Document(ResourceCollectionData(
-            collection.elements.map(_resourceObject),
-            include: include?.map(_resourceObject)))));
-  }
+  int get status => 200;
+
+  @override
+  Map<String, String> headers(RouteFactory route) =>
+      {'Content-Type': Document.contentType};
+
+  @override
+  Document<ResourceCollectionData> document(DocumentFactory doc) =>
+      doc.collection(collection, include: include);
 }
 
 class ToOneResponse implements ControllerResponse {
@@ -80,11 +100,14 @@ class ToOneResponse implements ControllerResponse {
   final Identifier identifier;
 
   @override
-  HttpResponse convert() {
-    return HttpResponse(200,
-        body: jsonEncode(
-            Document(ToOne(IdentifierObject.fromIdentifier(identifier)))));
-  }
+  int get status => 200;
+
+  @override
+  Map<String, String> headers(RouteFactory route) =>
+      {'Content-Type': Document.contentType};
+
+  @override
+  Document<ToOne> document(DocumentFactory doc) => doc.toOne(identifier);
 }
 
 class ToManyResponse implements ControllerResponse {
@@ -93,23 +116,51 @@ class ToManyResponse implements ControllerResponse {
   final List<Identifier> identifiers;
 
   @override
-  HttpResponse convert() {
-    return HttpResponse(200,
-        body: jsonEncode(Document(
-            ToMany(identifiers.map(IdentifierObject.fromIdentifier)))));
-  }
+  int get status => 200;
+
+  @override
+  Map<String, String> headers(RouteFactory route) =>
+      {'Content-Type': Document.contentType};
+
+  @override
+  Document<ToMany> document(DocumentFactory doc) => doc.toMany(identifiers);
 }
 
-ResourceObject _resourceObject(Resource resource, {Link self}) {
-  return ResourceObject(resource.type, resource.id,
-      attributes: resource.attributes,
-      relationships: {
-        ...resource.toOne.map((k, v) =>
-            MapEntry(k, ToOne(nullable(IdentifierObject.fromIdentifier)(v)))),
-        ...resource.toMany.map((k, v) =>
-            MapEntry(k, ToMany(v.map(IdentifierObject.fromIdentifier)))),
-      },
-      links: {
-        if (self != null) 'self': self
-      });
+class DocumentFactory {
+  Document error(List<ErrorObject> errors) => Document.error(errors);
+
+  Document<ResourceCollectionData> collection(Collection<Resource> collection,
+          {List<Resource> include}) =>
+      Document(ResourceCollectionData(collection.elements.map(resourceObject),
+          include: include?.map(resourceObject)));
+
+  Document<ResourceData> resource(Resource resource,
+          {List<Resource> include}) =>
+      Document(ResourceData(resourceObject(resource),
+          include: include?.map(resourceObject)));
+
+  Document<ResourceData> createdResource(
+          Resource resource, RouteFactory routeFactory) =>
+      Document(ResourceData(resourceObject(resource,
+          self: Link(routeFactory.resource(resource.type, resource.id)))));
+
+  Document<ToOne> toOne(Identifier identifier) =>
+      Document(ToOne(IdentifierObject.fromIdentifier(identifier)));
+
+  Document<ToMany> toMany(List<Identifier> identifiers) =>
+      Document(ToMany(identifiers.map(IdentifierObject.fromIdentifier)));
+
+  ResourceObject resourceObject(Resource resource, {Link self}) {
+    return ResourceObject(resource.type, resource.id,
+        attributes: resource.attributes,
+        relationships: {
+          ...resource.toOne.map((k, v) =>
+              MapEntry(k, ToOne(nullable(IdentifierObject.fromIdentifier)(v)))),
+          ...resource.toMany.map((k, v) =>
+              MapEntry(k, ToMany(v.map(IdentifierObject.fromIdentifier)))),
+        },
+        links: {
+          if (self != null) 'self': self
+        });
+  }
 }
