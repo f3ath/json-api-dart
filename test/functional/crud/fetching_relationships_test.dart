@@ -33,6 +33,8 @@ void main() async {
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
       expect(r.headers['content-type'], Document.contentType);
+      expect(r.data.self.uri.toString(), '/books/1/relationships/publisher');
+      expect(r.data.related.uri.toString(), '/books/1/publisher');
       expect(r.data.unwrap().type, 'companies');
       expect(r.data.unwrap().id, '1');
     });
@@ -77,6 +79,8 @@ void main() async {
       expect(r.headers['content-type'], Document.contentType);
       expect(r.data.unwrap().length, 2);
       expect(r.data.unwrap().first.type, 'people');
+      expect(r.data.self.uri.toString(), '/books/1/relationships/authors');
+      expect(r.data.related.uri.toString(), '/books/1/authors');
     });
 
     test('404 on collection', () async {

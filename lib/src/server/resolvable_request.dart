@@ -1,15 +1,13 @@
-import 'dart:convert';
-
 import 'package:json_api/document.dart';
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/controller_request.dart';
 import 'package:json_api/src/server/controller_response.dart';
+import 'package:json_api/src/server/request.dart';
 
-abstract class Resolvable {
+abstract class ResolvableRequest {
   Future<ControllerResponse> resolveBy(Controller controller);
 }
 
-class FetchCollection implements Resolvable {
+class FetchCollection implements ResolvableRequest {
   FetchCollection(this.request);
 
   final CollectionRequest request;
@@ -19,18 +17,18 @@ class FetchCollection implements Resolvable {
       controller.fetchCollection(request);
 }
 
-class CreateResource implements Resolvable {
+class CreateResource implements ResolvableRequest {
   CreateResource(this.request);
 
   final CollectionRequest request;
 
   @override
   Future<ControllerResponse> resolveBy(Controller controller) =>
-      controller.createResource(request,
-          ResourceData.fromJson(jsonDecode(request.request.body)).unwrap());
+      controller.createResource(
+          request, ResourceData.fromJson(request.decodePayload()).unwrap());
 }
 
-class FetchResource implements Resolvable {
+class FetchResource implements ResolvableRequest {
   FetchResource(this.request);
 
   final ResourceRequest request;
@@ -40,7 +38,7 @@ class FetchResource implements Resolvable {
       controller.fetchResource(request);
 }
 
-class DeleteResource implements Resolvable {
+class DeleteResource implements ResolvableRequest {
   DeleteResource(this.request);
 
   final ResourceRequest request;
@@ -50,18 +48,18 @@ class DeleteResource implements Resolvable {
       controller.deleteResource(request);
 }
 
-class UpdateResource implements Resolvable {
+class UpdateResource implements ResolvableRequest {
   UpdateResource(this.request);
 
   final ResourceRequest request;
 
   @override
   Future<ControllerResponse> resolveBy(Controller controller) =>
-      controller.updateResource(request,
-          ResourceData.fromJson(jsonDecode(request.request.body)).unwrap());
+      controller.updateResource(
+          request, ResourceData.fromJson(request.decodePayload()).unwrap());
 }
 
-class FetchRelated implements Resolvable {
+class FetchRelated implements ResolvableRequest {
   FetchRelated(this.request);
 
   final RelatedRequest request;
@@ -71,7 +69,7 @@ class FetchRelated implements Resolvable {
       controller.fetchRelated(request);
 }
 
-class FetchRelationship implements Resolvable {
+class FetchRelationship implements ResolvableRequest {
   FetchRelationship(this.request);
 
   final RelationshipRequest request;
@@ -81,7 +79,7 @@ class FetchRelationship implements Resolvable {
       controller.fetchRelationship(request);
 }
 
-class DeleteFromRelationship implements Resolvable {
+class DeleteFromRelationship implements ResolvableRequest {
   DeleteFromRelationship(this.request);
 
   final RelationshipRequest request;
@@ -89,10 +87,10 @@ class DeleteFromRelationship implements Resolvable {
   @override
   Future<ControllerResponse> resolveBy(Controller controller) =>
       controller.deleteFromRelationship(
-          request, ToMany.fromJson(jsonDecode(request.request.body)).unwrap());
+          request, ToMany.fromJson(request.decodePayload()).unwrap());
 }
 
-class AddToRelationship implements Resolvable {
+class AddToRelationship implements ResolvableRequest {
   AddToRelationship(this.request);
 
   final RelationshipRequest request;
@@ -100,17 +98,17 @@ class AddToRelationship implements Resolvable {
   @override
   Future<ControllerResponse> resolveBy(Controller controller) =>
       controller.addToRelationship(
-          request, ToMany.fromJson(jsonDecode(request.request.body)).unwrap());
+          request, ToMany.fromJson(request.decodePayload()).unwrap());
 }
 
-class ReplaceRelationship implements Resolvable {
+class ReplaceRelationship implements ResolvableRequest {
   ReplaceRelationship(this.request);
 
   final RelationshipRequest request;
 
   @override
   Future<ControllerResponse> resolveBy(Controller controller) async {
-    final r = Relationship.fromJson(jsonDecode(request.request.body));
+    final r = Relationship.fromJson(request.decodePayload());
     if (r is ToOne) {
       return controller.replaceToOne(request, r.unwrap());
     }

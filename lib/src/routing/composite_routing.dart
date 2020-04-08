@@ -1,35 +1,33 @@
-import 'package:json_api/src/routing/route_matcher.dart';
-import 'package:json_api/src/routing/routes.dart';
-import 'package:json_api/src/routing/routing.dart';
+import 'package:json_api/src/routing/contract.dart';
 
-/// URI design composed of independent routes.
+/// URI design composed of independent URI patterns.
 class CompositeRouting implements Routing {
-  CompositeRouting(this.collectionRoute, this.resourceRoute, this.relatedRoute,
-      this.relationshipRoute);
+  CompositeRouting(
+      this._collection, this._resource, this._related, this._relationship);
 
-  final CollectionRoute collectionRoute;
-  final ResourceRoute resourceRoute;
-  final RelatedRoute relatedRoute;
-  final RelationshipRoute relationshipRoute;
+  final CollectionUriPattern _collection;
+  final ResourceUriPattern _resource;
+  final RelatedUriPattern _related;
+  final RelationshipUriPattern _relationship;
 
   @override
-  Uri collection(String type) => collectionRoute.uri(type);
+  Uri collection(String type) => _collection.uri(type);
 
   @override
   Uri related(String type, String id, String relationship) =>
-      relatedRoute.uri(type, id, relationship);
+      _related.uri(type, id, relationship);
 
   @override
   Uri relationship(String type, String id, String relationship) =>
-      relationshipRoute.uri(type, id, relationship);
+      _relationship.uri(type, id, relationship);
 
   @override
-  Uri resource(String type, String id) => resourceRoute.uri(type, id);
+  Uri resource(String type, String id) => _resource.uri(type, id);
 
   @override
-  bool match(Uri uri, MatchHandler handler) =>
-      collectionRoute.match(uri, handler.collection) ||
-      resourceRoute.match(uri, handler.resource) ||
-      relatedRoute.match(uri, handler.related) ||
-      relationshipRoute.match(uri, handler.relationship);
+  bool match(Uri uri, UriMatchHandler handler) =>
+      _collection.match(uri, handler.collection) ||
+      _resource.match(uri, handler.resource) ||
+      _related.match(uri, handler.related) ||
+      _relationship.match(uri, handler.relationship);
 }

@@ -30,12 +30,20 @@ void main() async {
 
   group('Primary Resource', () {
     test('200 OK', () async {
-      final r = await routingClient.fetchResource('people', '1');
+      final r = await routingClient.fetchResource('books', '1');
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
       expect(r.headers['content-type'], Document.contentType);
       expect(r.data.unwrap().id, '1');
-      expect(r.data.unwrap().attributes['name'], 'Martin Fowler');
+      expect(r.data.unwrap().attributes['title'], 'Refactoring');
+      expect(r.data.self.uri.toString(), '/books/1');
+      expect(r.data.resourceObject.links['self'].uri.toString(), '/books/1');
+      final authors = r.data.resourceObject.relationships['authors'];
+      expect(authors.self.toString(), '/books/1/relationships/authors');
+      expect(authors.related.toString(), '/books/1/authors');
+      final publisher = r.data.resourceObject.relationships['publisher'];
+      expect(publisher.self.toString(), '/books/1/relationships/publisher');
+      expect(publisher.related.toString(), '/books/1/publisher');
     });
 
     test('404 on collection', () async {
@@ -65,8 +73,13 @@ void main() async {
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
       expect(r.headers['content-type'], Document.contentType);
+      expect(r.data.links['self'].uri.toString(), '/people');
+      expect(r.data.collection.length, 3);
+      expect(r.data.collection.first.self.uri.toString(), '/people/1');
+      expect(r.data.collection.last.self.uri.toString(), '/people/3');
       expect(r.data.unwrap().length, 3);
       expect(r.data.unwrap().first.attributes['name'], 'Martin Fowler');
+      expect(r.data.unwrap().last.attributes['name'], 'Robert Martin');
     });
 
     test('404', () async {
@@ -89,6 +102,9 @@ void main() async {
       expect(r.headers['content-type'], Document.contentType);
       expect(r.data.unwrap().type, 'companies');
       expect(r.data.unwrap().id, '1');
+      expect(r.data.links['self'].uri.toString(), '/books/1/publisher');
+      expect(
+          r.data.resourceObject.links['self'].uri.toString(), '/companies/1');
     });
 
     test('404 on collection', () async {
@@ -132,8 +148,13 @@ void main() async {
       expect(r.isSuccessful, isTrue);
       expect(r.statusCode, 200);
       expect(r.headers['content-type'], Document.contentType);
+      expect(r.data.links['self'].uri.toString(), '/books/1/authors');
+      expect(r.data.collection.length, 2);
+      expect(r.data.collection.first.self.uri.toString(), '/people/1');
+      expect(r.data.collection.last.self.uri.toString(), '/people/2');
       expect(r.data.unwrap().length, 2);
       expect(r.data.unwrap().first.attributes['name'], 'Martin Fowler');
+      expect(r.data.unwrap().last.attributes['name'], 'Kent Beck');
     });
 
     test('404 on collection', () async {

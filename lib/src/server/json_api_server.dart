@@ -6,8 +6,8 @@ import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/controller_response.dart';
-import 'package:json_api/src/server/resolvable.dart';
-import 'package:json_api/src/server/target.dart';
+import 'package:json_api/src/server/resolvable_request.dart';
+import 'package:json_api/src/server/route.dart';
 
 /// A simple implementation of JSON:API server
 class JsonApiServer implements HttpHandler {
@@ -22,11 +22,11 @@ class JsonApiServer implements HttpHandler {
 
   @override
   Future<HttpResponse> call(HttpRequest httpRequest) async {
-    final targetFactory = TargetFactory();
-    _routing.match(httpRequest.uri, targetFactory);
-    final target = targetFactory.target;
+    final routeFactory = RouteFactory();
+    _routing.match(httpRequest.uri, routeFactory);
+    final route = routeFactory.route;
 
-    if (target == null) {
+    if (route == null) {
       return _convert(ErrorResponse(404, [
         ErrorObject(
           status: '404',
@@ -36,7 +36,7 @@ class JsonApiServer implements HttpHandler {
       ]));
     }
 
-    final allowed = (target.allowedMethods + ['OPTIONS']).join(', ');
+    final allowed = (route.allowedMethods + ['OPTIONS']).join(', ');
 
     if (httpRequest.isOptions) {
       return HttpResponse(200, headers: {
@@ -47,12 +47,12 @@ class JsonApiServer implements HttpHandler {
       });
     }
 
-    if (!target.allowedMethods.contains(httpRequest.method)) {
+    if (!route.allowedMethods.contains(httpRequest.method)) {
       return HttpResponse(405, headers: {'Allow': allowed});
     }
 
     try {
-      final controllerRequest = target.convertRequest(httpRequest);
+      final controllerRequest = route.convertRequest(httpRequest);
       return _convert(await controllerRequest.resolveBy(_controller));
     } on FormatException catch (e) {
       return _convert(ErrorResponse(400, [
@@ -82,9 +82,11 @@ class JsonApiServer implements HttpHandler {
   }
 
   HttpResponse _convert(ControllerResponse r) {
-    return HttpResponse(r.status, body: jsonEncode(r.document(_doc)), headers: {
-      ...r.headers(_routing),
-      'Access-Control-Allow-Origin': '*',
-    });
+    return HttpResponse(r.status,
+        body: jsonEncode(r.document(_doc, _routing)),
+        headers: {
+          ...r.headers(_routing),
+          'Access-Control-Allow-Origin': '*',
+        });
   }
 }

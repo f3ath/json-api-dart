@@ -1,5 +1,5 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/src/server/controller_request.dart';
+import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/controller_response.dart';
 
 /// This is a controller consolidating all possible requests a JSON:API server

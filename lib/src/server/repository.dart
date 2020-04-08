@@ -29,12 +29,12 @@ abstract class Repository {
   /// Returns the resource by [type] and [id].
   Future<Resource> get(String type, String id);
 
-  /// Updates the resource identified by [target].
+  /// Updates the resource identified by [route].
   /// If the resource was modified during update, returns the modified resource.
   /// Otherwise returns null.
   Future<Resource> update(String type, String id, Resource resource);
 
-  /// Deletes the resource identified by [target]
+  /// Deletes the resource identified by [route]
   Future<void> delete(String type, String id);
 
   /// Returns a collection of resources

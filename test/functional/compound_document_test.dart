@@ -64,6 +64,7 @@ void main() async {
       expectResourcesEqual(r.data.unwrap(), post);
       expect(r.data.included, []);
       expect(r.data.isCompound, isTrue);
+      expect(r.data.self.toString(), '/posts/1?include=tags');
     });
 
     test('can include first-level relatives', () async {

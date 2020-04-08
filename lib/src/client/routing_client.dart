@@ -11,7 +11,7 @@ class RoutingClient {
   RoutingClient(this._client, this._routes);
 
   final JsonApiClient _client;
-  final RouteFactory _routes;
+  final UriFactory _routes;
 
   /// Fetches a primary resource collection by [type].
   Future<Response<ResourceCollectionData>> fetchCollection(String type,

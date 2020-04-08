@@ -1,11 +1,19 @@
-import 'package:json_api/src/routing/routes.dart';
+import 'package:json_api/src/routing/contract.dart';
+import 'package:json_api/src/routing/composite_routing.dart';
+
+/// The standard (recommended) URI design
+class StandardRouting extends CompositeRouting {
+  StandardRouting([Uri base])
+      : super(StandardCollection(base), StandardResource(base),
+            StandardRelated(base), StandardRelationship(base));
+}
 
 /// The recommended URI design for a primary resource collections.
 /// Example: `/photos`
 ///
 /// See: https://jsonapi.org/recommendations/#urls-resource-collections
-class StandardCollectionRoute extends _BaseRoute implements CollectionRoute {
-  StandardCollectionRoute([Uri base]) : super(base);
+class StandardCollection extends _BaseRoute implements CollectionUriPattern {
+  StandardCollection([Uri base]) : super(base);
 
   @override
   bool match(Uri uri, Function(String type) onMatch) {
@@ -25,8 +33,8 @@ class StandardCollectionRoute extends _BaseRoute implements CollectionRoute {
 /// Example: `/photos/1`
 ///
 /// See: https://jsonapi.org/recommendations/#urls-individual-resources
-class StandardResourceRoute extends _BaseRoute implements ResourceRoute {
-  StandardResourceRoute([Uri base]) : super(base);
+class StandardResource extends _BaseRoute implements ResourceUriPattern {
+  StandardResource([Uri base]) : super(base);
 
   @override
   bool match(Uri uri, Function(String type, String id) onMatch) {
@@ -46,8 +54,8 @@ class StandardResourceRoute extends _BaseRoute implements ResourceRoute {
 /// Example: `/photos/1/comments`
 ///
 /// See: https://jsonapi.org/recommendations/#urls-relationships
-class StandardRelatedRoute extends _BaseRoute implements RelatedRoute {
-  StandardRelatedRoute([Uri base]) : super(base);
+class StandardRelated extends _BaseRoute implements RelatedUriPattern {
+  StandardRelated([Uri base]) : super(base);
 
   @override
   bool match(Uri uri, Function(String type, String id, String rel) onMatch) {
@@ -68,9 +76,9 @@ class StandardRelatedRoute extends _BaseRoute implements RelatedRoute {
 /// Example: `/photos/1/relationships/comments`
 ///
 /// See: https://jsonapi.org/recommendations/#urls-relationships
-class StandardRelationshipRoute extends _BaseRoute
-    implements RelationshipRoute {
-  StandardRelationshipRoute([Uri base]) : super(base);
+class StandardRelationship extends _BaseRoute
+    implements RelationshipUriPattern {
+  StandardRelationship([Uri base]) : super(base);
 
   @override
   bool match(Uri uri, Function(String type, String id, String rel) onMatch) {
