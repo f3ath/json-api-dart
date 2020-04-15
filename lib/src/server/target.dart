@@ -1,11 +1,26 @@
-abstract class CollectionTarget {
-  String get type;
+class CollectionTarget {
+  CollectionTarget(this.type);
+
+  final String type;
 }
 
-abstract class ResourceTarget implements CollectionTarget {
-  String get id;
+class ResourceTarget implements CollectionTarget {
+  ResourceTarget(this.type, this.id);
+
+  @override
+  final String type;
+
+  final String id;
 }
 
-abstract class RelationshipTarget implements ResourceTarget {
-  String get relationship;
+class RelationshipTarget implements ResourceTarget {
+  RelationshipTarget(this.type, this.id, this.relationship);
+
+  @override
+  final String type;
+
+  @override
+  final String id;
+
+  final String relationship;
 }

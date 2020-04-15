@@ -1,13 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/controller_response.dart';
-import 'package:json_api/src/server/resolvable_request.dart';
+import 'package:json_api/src/server/request_context.dart';
+import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/route.dart';
+import 'package:json_api/src/server/route_matcher.dart';
 
 /// A simple implementation of JSON:API server
 class JsonApiServer implements HttpHandler {
@@ -22,12 +22,14 @@ class JsonApiServer implements HttpHandler {
 
   @override
   Future<HttpResponse> call(HttpRequest httpRequest) async {
-    final routeFactory = RouteFactory();
-    _routing.match(httpRequest.uri, routeFactory);
-    final route = routeFactory.route;
+    final context = RequestContext(_doc, _routing);
+
+    final matcher = RouteMatcher();
+    _routing.match(httpRequest.uri, matcher);
+    final route = matcher.route;
 
     if (route == null) {
-      return _convert(ErrorResponse(404, [
+      return context.convert(ErrorResponse(404, [
         ErrorObject(
           status: '404',
           title: 'Not Found',
@@ -36,26 +38,17 @@ class JsonApiServer implements HttpHandler {
       ]));
     }
 
-    final allowed = (route.allowedMethods + ['OPTIONS']).join(', ');
+    final route2 = CorsEnabled(route);
 
-    if (httpRequest.isOptions) {
-      return HttpResponse(200, headers: {
-        'Access-Control-Allow-Methods': allowed,
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Max-Age': '3600',
-      });
-    }
-
-    if (!route.allowedMethods.contains(httpRequest.method)) {
-      return HttpResponse(405, headers: {'Allow': allowed});
+    if (!route2.allowedMethods.contains(httpRequest.method)) {
+      return context.convert(ExtraHeaders(
+          ErrorResponse(405, []), {'Allow': route2.allowedMethods.join(', ')}));
     }
 
     try {
-      final controllerRequest = route.convertRequest(httpRequest);
-      return _convert(await controllerRequest.resolveBy(_controller));
+      return context.convert(await route2.dispatch(httpRequest, _controller));
     } on FormatException catch (e) {
-      return _convert(ErrorResponse(400, [
+      return context.convert(ErrorResponse(400, [
         ErrorObject(
           status: '400',
           title: 'Bad Request',
@@ -63,7 +56,7 @@ class JsonApiServer implements HttpHandler {
         )
       ]));
     } on DocumentException catch (e) {
-      return _convert(ErrorResponse(400, [
+      return context.convert(ErrorResponse(400, [
         ErrorObject(
           status: '400',
           title: 'Bad Request',
@@ -71,7 +64,7 @@ class JsonApiServer implements HttpHandler {
         )
       ]));
     } on IncompleteRelationshipException {
-      return _convert(ErrorResponse(400, [
+      return context.convert(ErrorResponse(400, [
         ErrorObject(
           status: '400',
           title: 'Bad Request',
@@ -79,14 +72,5 @@ class JsonApiServer implements HttpHandler {
         )
       ]));
     }
-  }
-
-  HttpResponse _convert(ControllerResponse r) {
-    return HttpResponse(r.status,
-        body: jsonEncode(r.document(_doc, _routing)),
-        headers: {
-          ...r.headers(_routing),
-          'Access-Control-Allow-Origin': '*',
-        });
   }
 }

@@ -3,8 +3,9 @@ import 'package:json_api/routing.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/request.dart';
+import 'package:json_api/src/server/target.dart';
 
-abstract class ControllerResponse {
+abstract class Response {
   int get status;
 
   Map<String, String> headers(UriFactory factory);
@@ -12,7 +13,7 @@ abstract class ControllerResponse {
   Document document(DocumentFactory doc, UriFactory factory);
 }
 
-class ErrorResponse implements ControllerResponse {
+class ErrorResponse implements Response {
   ErrorResponse(this.status, this.errors);
 
   @override
@@ -28,7 +29,26 @@ class ErrorResponse implements ControllerResponse {
       doc.error(errors);
 }
 
-class NoContentResponse implements ControllerResponse {
+class ExtraHeaders implements Response {
+  ExtraHeaders(this._response, this._headers);
+
+  final Response _response;
+
+  final Map<String, String> _headers;
+
+  @override
+  Document<PrimaryData> document(DocumentFactory doc, UriFactory factory) =>
+      _response.document(doc, factory);
+
+  @override
+  Map<String, String> headers(UriFactory factory) =>
+      {..._response.headers(factory), ..._headers};
+
+  @override
+  int get status => _response.status;
+}
+
+class NoContentResponse implements Response {
   NoContentResponse();
 
   @override
@@ -41,10 +61,10 @@ class NoContentResponse implements ControllerResponse {
   Document document(DocumentFactory doc, UriFactory factory) => null;
 }
 
-class PrimaryResourceResponse implements ControllerResponse {
+class PrimaryResourceResponse implements Response {
   PrimaryResourceResponse(this.request, this.resource, {this.include});
 
-  final ResourceRequest request;
+  final Request<ResourceTarget> request;
 
   final Resource resource;
   final List<Resource> include;
@@ -62,10 +82,10 @@ class PrimaryResourceResponse implements ControllerResponse {
           include: include, self: request.generateSelfUri(factory));
 }
 
-class RelatedResourceResponse implements ControllerResponse {
+class RelatedResourceResponse implements Response {
   RelatedResourceResponse(this.request, this.resource, {this.include});
 
-  final RelatedRequest request;
+  final Request<RelationshipTarget> request;
   final Resource resource;
   final List<Resource> include;
 
@@ -82,7 +102,7 @@ class RelatedResourceResponse implements ControllerResponse {
           include: include, self: request.generateSelfUri(factory));
 }
 
-class CreatedResourceResponse implements ControllerResponse {
+class CreatedResourceResponse implements Response {
   CreatedResourceResponse(this.resource);
 
   final Resource resource;
@@ -101,10 +121,10 @@ class CreatedResourceResponse implements ControllerResponse {
       doc.resource(factory, resource);
 }
 
-class PrimaryCollectionResponse implements ControllerResponse {
+class PrimaryCollectionResponse implements Response {
   PrimaryCollectionResponse(this.request, this.collection, {this.include});
 
-  final CollectionRequest request;
+  final Request<CollectionTarget> request;
   final Collection<Resource> collection;
   final List<Resource> include;
 
@@ -122,10 +142,10 @@ class PrimaryCollectionResponse implements ControllerResponse {
           include: include, self: request.generateSelfUri(factory));
 }
 
-class RelatedCollectionResponse implements ControllerResponse {
+class RelatedCollectionResponse implements Response {
   RelatedCollectionResponse(this.request, this.collection, {this.include});
 
-  final RelatedRequest request;
+  final Request<RelationshipTarget> request;
   final Collection<Resource> collection;
   final List<Resource> include;
 
@@ -143,10 +163,10 @@ class RelatedCollectionResponse implements ControllerResponse {
           include: include, self: request.generateSelfUri(factory));
 }
 
-class ToOneResponse implements ControllerResponse {
+class ToOneResponse implements Response {
   ToOneResponse(this.request, this.identifier);
 
-  final RelationshipRequest request;
+  final Request<RelationshipTarget> request;
 
   final Identifier identifier;
 
@@ -165,10 +185,10 @@ class ToOneResponse implements ControllerResponse {
               request.target.relationship));
 }
 
-class ToManyResponse implements ControllerResponse {
+class ToManyResponse implements Response {
   ToManyResponse(this.request, this.identifiers);
 
-  final RelationshipRequest request;
+  final Request<RelationshipTarget> request;
 
   final List<Identifier> identifiers;
 

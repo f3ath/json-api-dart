@@ -1,138 +1,169 @@
+import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
+import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/request.dart';
-import 'package:json_api/src/server/resolvable_request.dart';
+import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/target.dart';
 
-abstract class Route {
+abstract class Route<T extends CollectionTarget> {
   List<String> get allowedMethods;
 
-  ResolvableRequest convertRequest(HttpRequest request);
+  T get target;
+
+  Future<Response> dispatch(HttpRequest request, Controller controller);
+
+  Uri self(UriFactory uriFactory);
 }
 
-class RouteFactory implements UriMatchHandler {
-  Route route;
+
+class CorsEnabled<T extends CollectionTarget> implements Route<T> {
+  CorsEnabled(this._route);
+
+  final Route<T> _route;
 
   @override
-  void collection(String type) {
-    route = CollectionRoute(type);
+  List<String> get allowedMethods => _route.allowedMethods + ['OPTIONS'];
+
+  @override
+  Future<Response> dispatch(HttpRequest request, Controller controller) async {
+    if (request.isOptions) {
+      return ExtraHeaders(NoContentResponse(), {
+        'Access-Control-Allow-Methods': allowedMethods.join(', '),
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Max-Age': '3600',
+      });
+    }
+    return ExtraHeaders(await _route.dispatch(request, controller),
+        {'Access-Control-Allow-Origin': '*'});
   }
 
   @override
-  void related(String type, String id, String relationship) {
-    route = RelatedRoute(type, id, relationship);
-  }
+  Uri self(UriFactory uriFactory) => _route.self(uriFactory);
 
   @override
-  void relationship(String type, String id, String relationship) {
-    route = RelationshipRoute(type, id, relationship);
-  }
-
-  @override
-  void resource(String type, String id) {
-    route = ResourceRoute(type, id);
-  }
+  T get target => _route.target;
 }
 
-class CollectionRoute implements Route, CollectionTarget {
-  CollectionRoute(this.type);
+class CollectionRoute implements Route<CollectionTarget> {
+  CollectionRoute(this.target);
 
   @override
-  final String type;
+  final CollectionTarget target;
 
   @override
   final allowedMethods = ['GET', 'POST'];
 
   @override
-  ResolvableRequest convertRequest(HttpRequest request) {
-    final r = CollectionRequest(request, this);
+  Future<Response> dispatch(HttpRequest request, Controller controller) {
+    final r = Request(request, this);
     if (request.isGet) {
-      return FetchCollection(r);
+      return controller.fetchCollection(r);
     }
     if (request.isPost) {
-      return CreateResource(r);
+      return controller.createResource(
+          r, ResourceData.fromJson(r.decodePayload()).unwrap());
     }
     throw ArgumentError();
   }
+
+  @override
+  Uri self(UriFactory uriFactory) => uriFactory.collection(target.type);
 }
 
-class ResourceRoute implements Route, ResourceTarget {
-  ResourceRoute(this.type, this.id);
+class ResourceRoute implements Route<ResourceTarget> {
+  ResourceRoute(this.target);
 
   @override
-  final String type;
-  @override
-  final String id;
+  final ResourceTarget target;
 
   @override
   final allowedMethods = ['DELETE', 'GET', 'PATCH'];
 
   @override
-  ResolvableRequest convertRequest(HttpRequest request) {
-    final r = ResourceRequest(request, this);
+  Future<Response> dispatch(HttpRequest request, Controller controller) {
+    final r = Request(request, this);
     if (request.isDelete) {
-      return DeleteResource(r);
+      return controller.deleteResource(r);
     }
     if (request.isGet) {
-      return FetchResource(r);
+      return controller.fetchResource(r);
     }
     if (request.isPatch) {
-      return UpdateResource(r);
+      return controller.updateResource(
+          r, ResourceData.fromJson(r.decodePayload()).unwrap());
     }
     throw ArgumentError();
   }
+
+  @override
+  Uri self(UriFactory uriFactory) =>
+      uriFactory.resource(target.type, target.id);
 }
 
-class RelatedRoute implements Route, RelationshipTarget {
-  RelatedRoute(this.type, this.id, this.relationship);
+class RelatedRoute implements Route<RelationshipTarget> {
+  RelatedRoute(this.target);
 
   @override
-  final String type;
-  @override
-  final String id;
-  @override
-  final String relationship;
+  final RelationshipTarget target;
 
   @override
   final allowedMethods = ['GET'];
 
   @override
-  ResolvableRequest convertRequest(HttpRequest request) {
+  Future<Response> dispatch(HttpRequest request, Controller controller) {
     if (request.isGet) {
-      return FetchRelated(RelatedRequest(request, this));
+      return controller.fetchRelated(Request(request, this));
     }
     throw ArgumentError();
   }
+
+  @override
+  Uri self(UriFactory uriFactory) =>
+      uriFactory.related(target.type, target.id, target.relationship);
 }
 
-class RelationshipRoute implements Route, RelationshipTarget {
-  RelationshipRoute(this.type, this.id, this.relationship);
+class RelationshipRoute implements Route<RelationshipTarget> {
+  RelationshipRoute(this.target);
 
   @override
-  final String type;
-  @override
-  final String id;
-  @override
-  final String relationship;
+  final RelationshipTarget target;
 
   @override
   final allowedMethods = ['DELETE', 'GET', 'PATCH', 'POST'];
 
   @override
-  ResolvableRequest convertRequest(HttpRequest request) {
-    final r = RelationshipRequest(request, this);
+  Future<Response> dispatch(HttpRequest request, Controller controller) {
+    final r = Request(request, this);
     if (request.isDelete) {
-      return DeleteFromRelationship(r);
+      return controller.deleteFromRelationship(
+          r, ToMany.fromJson(r.decodePayload()).unwrap());
     }
     if (request.isGet) {
-      return FetchRelationship(r);
+      return controller.fetchRelationship(r);
     }
     if (request.isPatch) {
-      return ReplaceRelationship(r);
+      final rel = Relationship.fromJson(r.decodePayload());
+      if (rel is ToOne) {
+        return controller.replaceToOne(r, rel.unwrap());
+      }
+      if (rel is ToMany) {
+        return controller.replaceToMany(r, rel.unwrap());
+      }
+      throw IncompleteRelationshipException();
     }
     if (request.isPost) {
-      return AddToRelationship(r);
+      return controller.addToRelationship(
+          r, ToMany.fromJson(r.decodePayload()).unwrap());
     }
     throw ArgumentError();
   }
+
+  @override
+  Uri self(UriFactory uriFactory) =>
+      uriFactory.relationship(target.type, target.id, target.relationship);
 }
+
+/// Thrown if the relationship object has no data
+class IncompleteRelationshipException implements Exception {}

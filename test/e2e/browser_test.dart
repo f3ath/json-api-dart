@@ -19,7 +19,7 @@ void main() async {
     httpClient.close();
   });
 
-  test('can fetch collection', () async {
+  test('can create and fetch', () async {
     final channel = spawnHybridUri('hybrid_server.dart', message: port);
     await channel.stream.first;
 

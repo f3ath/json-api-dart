@@ -1,5 +1,5 @@
-import 'package:json_api/src/routing/contract.dart';
 import 'package:json_api/src/routing/composite_routing.dart';
+import 'package:json_api/src/routing/contract.dart';
 
 /// The standard (recommended) URI design
 class StandardRouting extends CompositeRouting {

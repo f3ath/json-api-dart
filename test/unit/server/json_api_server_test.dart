@@ -100,5 +100,18 @@ void main() {
       expect(rs.statusCode, 405);
       expect(rs.headers['allow'], 'DELETE, GET, PATCH, POST, OPTIONS');
     });
+
+    test('options request contains no body', () async {
+      final rq =
+          HttpRequest('OPTIONS', routing.relationship('books', '1', 'author'));
+      final rs = await server(rq);
+      expect(rs.headers['access-control-allow-methods'],
+          'DELETE, GET, PATCH, POST, OPTIONS');
+      expect(rs.headers['access-control-allow-headers'], 'Content-Type');
+      expect(rs.headers['access-control-allow-origin'], '*');
+      expect(rs.headers['access-control-allow-max-age'], '3600');
+      expect(rs.statusCode, 204);
+      expect(rs.body, '');
+    });
   });
 }
