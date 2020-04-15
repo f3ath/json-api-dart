@@ -13,7 +13,7 @@ class Api implements JsonEncodable {
   /// Meta data. May be empty or null.
   final Map<String, Object> meta;
 
-  bool get isNotEmpty => version.isEmpty && meta.isNotEmpty;
+  bool get isNotEmpty => version.isNotEmpty || meta.isNotEmpty;
 
   static Api fromJson(Object json) {
     if (json is Map) {
