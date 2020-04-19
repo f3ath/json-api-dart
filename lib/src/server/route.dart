@@ -16,6 +16,83 @@ abstract class Route<T extends CollectionTarget> {
   Uri self(UriFactory uriFactory);
 }
 
+class UnmatchedRoute implements Route {
+  UnmatchedRoute({this.allowedMethods = const []});
+
+  @override
+  final allowedMethods;
+
+  @override
+  Future<Response> dispatch(HttpRequest request, Controller controller) async =>
+      ErrorResponse(404, [
+        ErrorObject(
+          status: '404',
+          title: 'Not Found',
+          detail: 'The requested URL does exist on the server',
+        )
+      ]);
+
+  @override
+  Uri self(UriFactory uriFactory) {
+    // TODO: Remove this method
+    throw StateError('Fixme');
+  }
+
+  @override
+  // TODO: implement target
+  CollectionTarget get target => null;
+}
+
+class ErrorHandling implements Route {
+  ErrorHandling(this._route);
+
+  final Route _route;
+
+  @override
+  List<String> get allowedMethods => _route.allowedMethods;
+
+  @override
+  Future<Response> dispatch(HttpRequest request, Controller controller) async {
+    if (!_route.allowedMethods.contains(request.method)) {
+      return ExtraHeaders(
+          ErrorResponse(405, []), {'Allow': _route.allowedMethods.join(', ')});
+    }
+    try {
+      return await _route.dispatch(request, controller);
+    } on FormatException catch (e) {
+      return ErrorResponse(400, [
+        ErrorObject(
+          status: '400',
+          title: 'Bad Request',
+          detail: 'Invalid JSON. ${e.message}',
+        )
+      ]);
+    } on DocumentException catch (e) {
+      return ErrorResponse(400, [
+        ErrorObject(
+          status: '400',
+          title: 'Bad Request',
+          detail: e.message,
+        )
+      ]);
+    } on IncompleteRelationshipException {
+      return ErrorResponse(400, [
+        ErrorObject(
+          status: '400',
+          title: 'Bad Request',
+          detail: 'Incomplete relationship object',
+        )
+      ]);
+    }
+  }
+
+  @override
+  Uri self(UriFactory uriFactory) => _route.self(uriFactory);
+
+  @override
+// TODO: implement target
+  CollectionTarget get target => null;
+}
 
 class CorsEnabled<T extends CollectionTarget> implements Route<T> {
   CorsEnabled(this._route);
@@ -57,7 +134,7 @@ class CollectionRoute implements Route<CollectionTarget> {
 
   @override
   Future<Response> dispatch(HttpRequest request, Controller controller) {
-    final r = Request(request, this);
+    final r = Request(request, target, (_) => _.collection(target.type));
     if (request.isGet) {
       return controller.fetchCollection(r);
     }
@@ -83,7 +160,8 @@ class ResourceRoute implements Route<ResourceTarget> {
 
   @override
   Future<Response> dispatch(HttpRequest request, Controller controller) {
-    final r = Request(request, this);
+    final r =
+        Request(request, target, (_) => _.resource(target.type, target.id));
     if (request.isDelete) {
       return controller.deleteResource(r);
     }
@@ -114,7 +192,8 @@ class RelatedRoute implements Route<RelationshipTarget> {
   @override
   Future<Response> dispatch(HttpRequest request, Controller controller) {
     if (request.isGet) {
-      return controller.fetchRelated(Request(request, this));
+      return controller.fetchRelated(Request(request, target,
+          (_) => _.related(target.type, target.id, target.relationship)));
     }
     throw ArgumentError();
   }
@@ -135,7 +214,8 @@ class RelationshipRoute implements Route<RelationshipTarget> {
 
   @override
   Future<Response> dispatch(HttpRequest request, Controller controller) {
-    final r = Request(request, this);
+    final r = Request(request, target,
+        (_) => _.relationship(target.type, target.id, target.relationship));
     if (request.isDelete) {
       return controller.deleteFromRelationship(
           r, ToMany.fromJson(r.decodePayload()).unwrap());

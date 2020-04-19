@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:json_api/document.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/pagination.dart';
 import 'package:json_api/src/server/repository.dart';
 import 'package:json_api/src/server/request.dart';
+import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/target.dart';
 
 /// An opinionated implementation of [Controller]. Translates JSON:API
@@ -54,7 +54,7 @@ class RepositoryController implements Controller {
         if (modified == null) {
           return NoContentResponse();
         }
-        return CreatedResourceResponse(modified);
+        return CreatedResourceResponse(request, modified);
       });
 
   @override
@@ -84,8 +84,7 @@ class RepositoryController implements Controller {
       });
 
   @override
-  Future<Response> fetchCollection(
-          Request<CollectionTarget> request) =>
+  Future<Response> fetchCollection(Request<CollectionTarget> request) =>
       _do(() async {
         final limit = _pagination.limit(request.page);
         final offset = _pagination.offset(request.page);
@@ -104,8 +103,7 @@ class RepositoryController implements Controller {
       });
 
   @override
-  Future<Response> fetchRelated(
-          Request<RelationshipTarget> request) =>
+  Future<Response> fetchRelated(Request<RelationshipTarget> request) =>
       _do(() async {
         final resource =
             await _repo.get(request.target.type, request.target.id);
@@ -127,8 +125,7 @@ class RepositoryController implements Controller {
       });
 
   @override
-  Future<Response> fetchRelationship(
-          Request<RelationshipTarget> request) =>
+  Future<Response> fetchRelationship(Request<RelationshipTarget> request) =>
       _do(() async {
         final resource =
             await _repo.get(request.target.type, request.target.id);
@@ -221,8 +218,7 @@ class RepositoryController implements Controller {
       Map<String, Resource>.fromIterable(included,
           key: (_) => '${_.type}:${_.id}').values;
 
-  Future<Response> _do(
-      Future<Response> Function() action) async {
+  Future<Response> _do(Future<Response> Function() action) async {
     try {
       return await action();
     } on UnsupportedOperation catch (e) {
