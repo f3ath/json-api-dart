@@ -15,7 +15,7 @@ void main() async {
   /// Do not forget to call [Client.close] when you're done using it.
   final httpClient = Client();
 
-  /// We'll use a logging handler to how the requests and responses
+  /// We'll use a logging handler to show the requests and responses.
   final httpHandler = LoggingHttpHandler(DartHttp(httpClient),
       onRequest: (r) => print('${r.method} ${r.uri}'),
       onResponse: (r) => print('${r.statusCode}'));
@@ -23,25 +23,25 @@ void main() async {
   /// The JSON:API client
   final client = RoutingClient(JsonApiClient(httpHandler), routing);
 
-  /// Create the first resource
+  /// Create the first resource.
   await client.createResource(
       Resource('writers', '1', attributes: {'name': 'Martin Fowler'}));
 
-  /// Create the second resource
+  /// Create the second resource.
   await client.createResource(Resource('books', '2', attributes: {
     'title': 'Refactoring'
   }, toMany: {
     'authors': [Identifier('writers', '1')]
   }));
 
-  /// Fetch the book, including its authors
+  /// Fetch the book, including its authors.
   final response = await client.fetchResource('books', '2',
       parameters: Include(['authors']));
 
-  /// Extract the primary resource
+  /// Extract the primary resource.
   final book = response.data.unwrap();
 
-  /// Extract the included resource
+  /// Extract the included resource.
   final author = response.data.included.first.unwrap();
 
   print('Book: $book');
