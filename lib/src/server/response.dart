@@ -3,7 +3,7 @@ import 'package:json_api/http.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/response_factory.dart';
-import 'package:json_api/src/server/target.dart';
+import 'package:json_api/src/routing/target.dart';
 
 abstract class Response {
   HttpResponse convert(ResponseFactory f);
@@ -55,7 +55,7 @@ class PrimaryResourceResponse implements Response {
 class RelatedResourceResponse implements Response {
   RelatedResourceResponse(this.request, this.resource, {this.include});
 
-  final Request<RelationshipTarget> request;
+  final Request<RelatedTarget> request;
   final Resource resource;
   final Iterable<Resource> include;
 
@@ -90,7 +90,7 @@ class PrimaryCollectionResponse implements Response {
 class RelatedCollectionResponse implements Response {
   RelatedCollectionResponse(this.request, this.collection, {this.include});
 
-  final Request<RelationshipTarget> request;
+  final Request<RelatedTarget> request;
   final Collection<Resource> collection;
   final List<Resource> include;
 

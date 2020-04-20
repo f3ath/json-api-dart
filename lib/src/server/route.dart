@@ -1,19 +1,16 @@
+import 'dart:convert';
+
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/response.dart';
-import 'package:json_api/src/server/target.dart';
 
-abstract class Route<T extends CollectionTarget> {
+abstract class Route {
   List<String> get allowedMethods;
 
-  T get target;
-
   Future<Response> dispatch(HttpRequest request, Controller controller);
-
-  Uri self(UriFactory uriFactory);
 }
 
 class UnmatchedRoute implements Route {
@@ -31,16 +28,6 @@ class UnmatchedRoute implements Route {
           detail: 'The requested URL does exist on the server',
         )
       ]);
-
-  @override
-  Uri self(UriFactory uriFactory) {
-    // TODO: Remove this method
-    throw StateError('Fixme');
-  }
-
-  @override
-  // TODO: implement target
-  CollectionTarget get target => null;
 }
 
 class ErrorHandling implements Route {
@@ -85,19 +72,12 @@ class ErrorHandling implements Route {
       ]);
     }
   }
-
-  @override
-  Uri self(UriFactory uriFactory) => _route.self(uriFactory);
-
-  @override
-// TODO: implement target
-  CollectionTarget get target => null;
 }
 
-class CorsEnabled<T extends CollectionTarget> implements Route<T> {
+class CorsEnabled<T extends CollectionTarget> implements Route {
   CorsEnabled(this._route);
 
-  final Route<T> _route;
+  final Route _route;
 
   @override
   List<String> get allowedMethods => _route.allowedMethods + ['OPTIONS'];
@@ -115,53 +95,41 @@ class CorsEnabled<T extends CollectionTarget> implements Route<T> {
     return ExtraHeaders(await _route.dispatch(request, controller),
         {'Access-Control-Allow-Origin': '*'});
   }
-
-  @override
-  Uri self(UriFactory uriFactory) => _route.self(uriFactory);
-
-  @override
-  T get target => _route.target;
 }
 
-class CollectionRoute implements Route<CollectionTarget> {
-  CollectionRoute(this.target);
+class CollectionRoute implements Route {
+  CollectionRoute(this._target);
 
-  @override
-  final CollectionTarget target;
+  final CollectionTarget _target;
 
   @override
   final allowedMethods = ['GET', 'POST'];
 
   @override
   Future<Response> dispatch(HttpRequest request, Controller controller) {
-    final r = Request(request, target, (_) => _.collection(target.type));
+    final r = Request(request.uri, _target);
     if (request.isGet) {
       return controller.fetchCollection(r);
     }
     if (request.isPost) {
       return controller.createResource(
-          r, ResourceData.fromJson(r.decodePayload()).unwrap());
+          r, ResourceData.fromJson(jsonDecode(request.body)).unwrap());
     }
     throw ArgumentError();
   }
-
-  @override
-  Uri self(UriFactory uriFactory) => uriFactory.collection(target.type);
 }
 
-class ResourceRoute implements Route<ResourceTarget> {
-  ResourceRoute(this.target);
+class ResourceRoute implements Route {
+  ResourceRoute(this._target);
 
-  @override
-  final ResourceTarget target;
+  final ResourceTarget _target;
 
   @override
   final allowedMethods = ['DELETE', 'GET', 'PATCH'];
 
   @override
   Future<Response> dispatch(HttpRequest request, Controller controller) {
-    final r =
-        Request(request, target, (_) => _.resource(target.type, target.id));
+    final r = Request(request.uri, _target);
     if (request.isDelete) {
       return controller.deleteResource(r);
     }
@@ -170,21 +138,16 @@ class ResourceRoute implements Route<ResourceTarget> {
     }
     if (request.isPatch) {
       return controller.updateResource(
-          r, ResourceData.fromJson(r.decodePayload()).unwrap());
+          r, ResourceData.fromJson(jsonDecode(request.body)).unwrap());
     }
     throw ArgumentError();
   }
-
-  @override
-  Uri self(UriFactory uriFactory) =>
-      uriFactory.resource(target.type, target.id);
 }
 
-class RelatedRoute implements Route<RelationshipTarget> {
-  RelatedRoute(this.target);
+class RelatedRoute implements Route {
+  RelatedRoute(this._target);
 
-  @override
-  final RelationshipTarget target;
+  final RelatedTarget _target;
 
   @override
   final allowedMethods = ['GET'];
@@ -192,39 +155,32 @@ class RelatedRoute implements Route<RelationshipTarget> {
   @override
   Future<Response> dispatch(HttpRequest request, Controller controller) {
     if (request.isGet) {
-      return controller.fetchRelated(Request(request, target,
-          (_) => _.related(target.type, target.id, target.relationship)));
+      return controller.fetchRelated(Request(request.uri, _target));
     }
     throw ArgumentError();
   }
-
-  @override
-  Uri self(UriFactory uriFactory) =>
-      uriFactory.related(target.type, target.id, target.relationship);
 }
 
-class RelationshipRoute implements Route<RelationshipTarget> {
-  RelationshipRoute(this.target);
+class RelationshipRoute implements Route {
+  RelationshipRoute(this._target);
 
-  @override
-  final RelationshipTarget target;
+  final RelationshipTarget _target;
 
   @override
   final allowedMethods = ['DELETE', 'GET', 'PATCH', 'POST'];
 
   @override
   Future<Response> dispatch(HttpRequest request, Controller controller) {
-    final r = Request(request, target,
-        (_) => _.relationship(target.type, target.id, target.relationship));
+    final r = Request(request.uri, _target);
     if (request.isDelete) {
       return controller.deleteFromRelationship(
-          r, ToMany.fromJson(r.decodePayload()).unwrap());
+          r, ToMany.fromJson(jsonDecode(request.body)).unwrap());
     }
     if (request.isGet) {
       return controller.fetchRelationship(r);
     }
     if (request.isPatch) {
-      final rel = Relationship.fromJson(r.decodePayload());
+      final rel = Relationship.fromJson(jsonDecode(request.body));
       if (rel is ToOne) {
         return controller.replaceToOne(r, rel.unwrap());
       }
@@ -235,14 +191,10 @@ class RelationshipRoute implements Route<RelationshipTarget> {
     }
     if (request.isPost) {
       return controller.addToRelationship(
-          r, ToMany.fromJson(r.decodePayload()).unwrap());
+          r, ToMany.fromJson(jsonDecode(request.body)).unwrap());
     }
     throw ArgumentError();
   }
-
-  @override
-  Uri self(UriFactory uriFactory) =>
-      uriFactory.relationship(target.type, target.id, target.relationship);
 }
 
 /// Thrown if the relationship object has no data

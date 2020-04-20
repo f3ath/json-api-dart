@@ -51,7 +51,7 @@ void main() {
           parameters: Include(['authors']));
 
       expect(response.data.unwrap().attributes['title'], 'Refactoring');
-      expect(response.data.included.first.unwrap().attributes['name'],
+      expect(response.document.included.first.unwrap().attributes['name'],
           'Martin Fowler');
     });
   }, testOn: 'vm');

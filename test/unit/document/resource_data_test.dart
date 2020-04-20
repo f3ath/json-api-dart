@@ -41,41 +41,6 @@ void main() {
     expect(data.self.toString(), '/self');
   });
 
-  group('included resources decoding', () {
-    test('null decodes to null', () {
-      final data = ResourceData.fromJson(json.decode(json.encode({
-        'data': {'type': 'apples', 'id': '1'}
-      })));
-      expect(data.isCompound, isFalse);
-    });
-    test('[] decodes to []', () {
-      final data = ResourceData.fromJson(json.decode(json.encode({
-        'data': {'type': 'apples', 'id': '1'},
-        'included': []
-      })));
-      expect(data.included, equals([]));
-      expect(data.isCompound, isTrue);
-    });
-    test('non empty [] decodes to non-empty []', () {
-      final data = ResourceData.fromJson(json.decode(json.encode({
-        'data': {'type': 'apples', 'id': '1'},
-        'included': [
-          {'type': 'oranges', 'id': '1'}
-        ]
-      })));
-      expect(data.included, isNotEmpty);
-      expect(data.isCompound, isTrue);
-    });
-    test('invalid value throws DocumentException', () {
-      expect(
-          () => ResourceData.fromJson(json.decode(json.encode({
-                'data': {'type': 'apples', 'id': '1'},
-                'included': {}
-              }))),
-          throwsA(TypeMatcher<DocumentException>()));
-    });
-  });
-
   group('custom links', () {
     final res = ResourceObject('apples', '1');
     test('recognizes custom links', () {

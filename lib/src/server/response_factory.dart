@@ -6,7 +6,6 @@ import 'package:json_api/routing.dart';
 import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/request.dart';
-import 'package:json_api/src/server/target.dart';
 
 abstract class ResponseFactory {
   HttpResponse error(int status,
@@ -19,7 +18,7 @@ abstract class ResponseFactory {
       {Iterable<Resource> include});
 
   HttpResponse relatedResource(
-      Request<RelationshipTarget> request, Resource resource,
+      Request<RelatedTarget> request, Resource resource,
       {Iterable<Resource> include});
 
   HttpResponse createdResource(
@@ -30,7 +29,7 @@ abstract class ResponseFactory {
       {Iterable<Resource> include});
 
   HttpResponse relatedCollection(
-      Request<RelationshipTarget> request, Collection<Resource> collection,
+      Request<RelatedTarget> request, Collection<Resource> collection,
       {List<Resource> include});
 
   HttpResponse relationshipToOne(
@@ -61,11 +60,11 @@ class HttpResponseFactory implements ResponseFactory {
           {Iterable<Resource> include}) =>
       HttpResponse(200,
           headers: {'Content-Type': Document.contentType},
-          body: jsonEncode(Document(ResourceData(_resource(resource),
-              links: {'self': Link(request.generateSelfUri(_uri))},
-              include: request.isCompound
-                  ? (include ?? []).map(_resource)
-                  : null))));
+          body: jsonEncode(Document(
+              ResourceData(_resource(resource),
+                  links: {'self': Link(_self(request))}),
+              included:
+                  request.isCompound ? (include ?? []).map(_resource) : null)));
 
   @override
   HttpResponse createdResource(
@@ -85,45 +84,44 @@ class HttpResponseFactory implements ResponseFactory {
           {Iterable<Resource> include}) =>
       HttpResponse(200,
           headers: {'Content-Type': Document.contentType},
-          body: jsonEncode(Document(ResourceCollectionData(
-              collection.elements.map(_resource),
-              links: {'self': Link(request.generateSelfUri(_uri))},
-              include: request.isCompound
-                  ? (include ?? []).map(_resource)
-                  : null))));
+          body: jsonEncode(Document(
+              ResourceCollectionData(
+                collection.elements.map(_resource),
+                links: {'self': Link(_self(request))},
+              ),
+              included:
+                  request.isCompound ? (include ?? []).map(_resource) : null)));
 
   @override
   HttpResponse relatedCollection(
-          Request<RelationshipTarget> request, Collection<Resource> collection,
+          Request<RelatedTarget> request, Collection<Resource> collection,
           {List<Resource> include}) =>
       HttpResponse(200,
           headers: {'Content-Type': Document.contentType},
-          body: jsonEncode(Document(ResourceCollectionData(
-              collection.elements.map(_resource),
-              links: {
-                'self': Link(request.generateSelfUri(_uri)),
-                'related': Link(_uri.related(request.target.type,
-                    request.target.id, request.target.relationship))
-              },
-              include: request.isCompound
-                  ? (include ?? []).map(_resource)
-                  : null))));
+          body: jsonEncode(Document(
+              ResourceCollectionData(collection.elements.map(_resource),
+                  links: {
+                    'self': Link(_self(request)),
+                    'related': Link(_uri.related(request.target.type,
+                        request.target.id, request.target.relationship))
+                  }),
+              included:
+                  request.isCompound ? (include ?? []).map(_resource) : null)));
 
   @override
   HttpResponse relatedResource(
-          Request<RelationshipTarget> request, Resource resource,
+          Request<RelatedTarget> request, Resource resource,
           {Iterable<Resource> include}) =>
       HttpResponse(200,
           headers: {'Content-Type': Document.contentType},
-          body: jsonEncode(Document(ResourceData(_resource(resource),
-              links: {
-                'self': Link(request.generateSelfUri(_uri)),
+          body: jsonEncode(Document(
+              ResourceData(_resource(resource), links: {
+                'self': Link(_self(request)),
                 'related': Link(_uri.related(request.target.type,
                     request.target.id, request.target.relationship))
-              },
-              include: request.isCompound
-                  ? (include ?? []).map(_resource)
-                  : null))));
+              }),
+              included:
+                  request.isCompound ? (include ?? []).map(_resource) : null)));
 
   @override
   HttpResponse relationshipToMany(Request<RelationshipTarget> request,
@@ -133,7 +131,7 @@ class HttpResponseFactory implements ResponseFactory {
           body: jsonEncode(Document(ToMany(
             identifiers.map(IdentifierObject.fromIdentifier),
             links: {
-              'self': Link(request.generateSelfUri(_uri)),
+              'self': Link(_self(request)),
               'related': Link(_uri.related(request.target.type,
                   request.target.id, request.target.relationship))
             },
@@ -147,7 +145,7 @@ class HttpResponseFactory implements ResponseFactory {
           body: jsonEncode(Document(ToOne(
             IdentifierObject.fromIdentifier(identifier),
             links: {
-              'self': Link(request.generateSelfUri(_uri)),
+              'self': Link(_self(request)),
               'related': Link(_uri.related(request.target.type,
                   request.target.id, request.target.relationship))
             },
@@ -175,4 +173,8 @@ class HttpResponseFactory implements ResponseFactory {
           links: {
             'self': Link(_uri.resource(resource.type, resource.id))
           });
+
+  Uri _self(Request r) => r.uri.queryParametersAll.isNotEmpty
+      ? r.target.link(_uri).replace(queryParameters: r.uri.queryParametersAll)
+      : r.target.link(_uri);
 }

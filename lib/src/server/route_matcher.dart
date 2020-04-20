@@ -1,6 +1,5 @@
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/server/route.dart';
-import 'package:json_api/src/server/target.dart';
 
 class RouteMatcher implements UriMatchHandler {
   Route _match;
@@ -12,7 +11,7 @@ class RouteMatcher implements UriMatchHandler {
 
   @override
   void related(String type, String id, String relationship) {
-    _match = RelatedRoute(RelationshipTarget(type, id, relationship));
+    _match = RelatedRoute(RelatedTarget(type, id, relationship));
   }
 
   @override

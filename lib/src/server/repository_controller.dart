@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:json_api/document.dart';
+import 'package:json_api/routing.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/pagination.dart';
 import 'package:json_api/src/server/repository.dart';
 import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/response.dart';
-import 'package:json_api/src/server/target.dart';
 
 /// An opinionated implementation of [Controller]. Translates JSON:API
 /// requests to [Repository] methods calls.
@@ -103,7 +103,7 @@ class RepositoryController implements Controller {
       });
 
   @override
-  Future<Response> fetchRelated(Request<RelationshipTarget> request) =>
+  Future<Response> fetchRelated(Request<RelatedTarget> request) =>
       _do(() async {
         final resource =
             await _repo.get(request.target.type, request.target.id);

@@ -3,7 +3,7 @@ import 'package:json_api/src/client/status_code.dart';
 import 'package:json_api/src/nullable.dart';
 
 /// A response returned by JSON:API client
-class Response<Data extends PrimaryData> {
+class Response<D extends PrimaryData> {
   const Response(this.statusCode, this.headers,
       {this.document, this.asyncDocument});
 
@@ -12,7 +12,7 @@ class Response<Data extends PrimaryData> {
 
   /// Document parsed from the response body.
   /// May be null.
-  final Document<Data> document;
+  final Document<D> document;
 
   /// The document received with `202 Accepted` response (if any)
   /// https://jsonapi.org/recommendations/#asynchronous-processing
@@ -23,7 +23,7 @@ class Response<Data extends PrimaryData> {
 
   /// Primary Data from the document (if any). For unsuccessful operations
   /// this property will be null, the error details may be found in [Document.errors].
-  Data get data => document?.data;
+  D get data => document?.data;
 
   /// List of errors (if any) returned by the server in case of an unsuccessful
   /// operation. May be empty. Will be null if the operation was successful.

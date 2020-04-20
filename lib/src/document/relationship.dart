@@ -15,8 +15,7 @@ import 'package:json_api/src/nullable.dart';
 ///
 /// More on this: https://jsonapi.org/format/#document-resource-object-relationships
 class Relationship extends PrimaryData {
-  Relationship({Iterable<ResourceObject> included, Map<String, Link> links})
-      : super(included: included, links: links);
+  Relationship({Map<String, Link> links}) : super(links: links);
 
   /// Reconstructs a JSON:API Document or the `relationship` member of a Resource object.
   static Relationship fromJson(Object json) {
@@ -51,9 +50,7 @@ class Relationship extends PrimaryData {
 
 /// Relationship to-one
 class ToOne extends Relationship {
-  ToOne(this.linkage,
-      {Iterable<ResourceObject> included, Map<String, Link> links})
-      : super(included: included, links: links);
+  ToOne(this.linkage, {Map<String, Link> links}) : super(links: links);
 
   ToOne.empty({Link self, Map<String, Link> links})
       : linkage = null,
@@ -64,12 +61,9 @@ class ToOne extends Relationship {
 
   static ToOne fromJson(Object json) {
     if (json is Map && json.containsKey('data')) {
-      final included = json['included'];
       final links = json['links'];
       return ToOne(nullable(IdentifierObject.fromJson)(json['data']),
-          links: (links == null) ? null : Link.mapFromJson(links),
-          included:
-              included is List ? included.map(ResourceObject.fromJson) : null);
+          links: (links == null) ? null : Link.mapFromJson(links));
     }
     throw DocumentException(
         "A to-one relationship must be a JSON object and contain the 'data' member");
@@ -98,10 +92,9 @@ class ToOne extends Relationship {
 
 /// Relationship to-many
 class ToMany extends Relationship {
-  ToMany(Iterable<IdentifierObject> linkage,
-      {Iterable<ResourceObject> included, Map<String, Link> links})
+  ToMany(Iterable<IdentifierObject> linkage, {Map<String, Link> links})
       : linkage = List.unmodifiable(linkage),
-        super(included: included, links: links);
+        super(links: links);
 
   static ToMany fromIdentifiers(Iterable<Identifier> identifiers) =>
       ToMany(identifiers.map(IdentifierObject.fromIdentifier));
