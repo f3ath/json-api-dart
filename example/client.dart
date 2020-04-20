@@ -39,10 +39,10 @@ void main() async {
       parameters: Include(['authors']));
 
   /// Extract the primary resource.
-  final book = response.data.unwrap();
+  final book = response.document.data.unwrap();
 
   /// Extract the included resource.
-  final author = response.data.included.first.unwrap();
+  final author = response.document.included.first.unwrap();
 
   print('Book: $book');
   print('Author: $author');

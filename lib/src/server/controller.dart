@@ -1,7 +1,7 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/src/server/response.dart';
 import 'package:json_api/src/server/request.dart';
+import 'package:json_api/src/server/response.dart';
 
 /// This is a controller consolidating all possible requests a JSON:API server
 /// may handle.
@@ -20,8 +20,7 @@ abstract class Controller {
 
   /// Finds an returns a relationship of a primary resource.
   /// See https://jsonapi.org/format/#fetching-relationships
-  Future<Response> fetchRelationship(
-      Request<RelationshipTarget> request);
+  Future<Response> fetchRelationship(Request<RelationshipTarget> request);
 
   /// Deletes the resource.
   /// See https://jsonapi.org/format/#crud-deleting

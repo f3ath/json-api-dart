@@ -1,9 +1,9 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
+import 'package:json_api/src/routing/target.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/request.dart';
 import 'package:json_api/src/server/response_factory.dart';
-import 'package:json_api/src/routing/target.dart';
 
 abstract class Response {
   HttpResponse convert(ResponseFactory f);

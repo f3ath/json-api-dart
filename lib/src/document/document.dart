@@ -48,9 +48,10 @@ class Document<D extends PrimaryData> implements JsonEncodable {
   /// The Primary Data. May be null.
   final D data;
 
-  /// Included objects in a compound document
+  /// Included objects in a compound document.
   final List<ResourceObject> included;
 
+  /// True for non-error documents with included resources.
   final bool isCompound;
 
   /// List of errors. May be empty or null.
