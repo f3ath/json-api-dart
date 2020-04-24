@@ -12,7 +12,6 @@ import 'seed_resources.dart';
 void main() async {
   JsonApiServer server;
   JsonApiClient client;
-  RoutingClient routingClient;
   final host = 'localhost';
   final port = 80;
   final base = Uri(scheme: 'http', host: host, port: port);
@@ -22,45 +21,44 @@ void main() async {
     final repository =
         InMemoryRepository({'books': {}, 'people': {}, 'companies': {}});
     server = JsonApiServer(RepositoryController(repository));
-    client = JsonApiClient(server);
-    routingClient = RoutingClient(client, routing);
+    client = JsonApiClient(server, routing);
 
-    await seedResources(routingClient);
+    await seedResources(client);
   });
 
   test('successful', () async {
-    final r = await routingClient.deleteResource('books', '1');
+    final r = await client.deleteResource('books', '1');
     expect(r.isSuccessful, isTrue);
-    expect(r.statusCode, 204);
-    expect(r.data, isNull);
+    expect(r.isEmpty, isTrue);
+    expect(r.http.statusCode, 204);
 
-    final r1 = await routingClient.fetchResource('books', '1');
+    final r1 = await client.fetchResource('books', '1');
     expect(r1.isSuccessful, isFalse);
-    expect(r1.statusCode, 404);
-    expect(r1.headers['content-type'], Document.contentType);
+    expect(r1.http.statusCode, 404);
+    expect(r1.http.headers['content-type'], Document.contentType);
   });
 
-  test('404 on collecton', () async {
-    final r = await routingClient.deleteResource('unicorns', '42');
+  test('404 on collection', () async {
+    final r = await client.deleteResource('unicorns', '42');
     expect(r.isSuccessful, isFalse);
     expect(r.isFailed, isTrue);
-    expect(r.statusCode, 404);
-    expect(r.headers['content-type'], Document.contentType);
-    expect(r.data, isNull);
-    final error = r.errors.first;
+    expect(r.http.statusCode, 404);
+    expect(r.http.headers['content-type'], Document.contentType);
+    expect(r.decodeDocument().data, isNull);
+    final error = r.decodeDocument().errors.first;
     expect(error.status, '404');
     expect(error.title, 'Collection not found');
     expect(error.detail, "Collection 'unicorns' does not exist");
   });
 
   test('404 on resource', () async {
-    final r = await routingClient.deleteResource('books', '42');
+    final r = await client.deleteResource('books', '42');
     expect(r.isSuccessful, isFalse);
     expect(r.isFailed, isTrue);
-    expect(r.statusCode, 404);
-    expect(r.headers['content-type'], Document.contentType);
-    expect(r.data, isNull);
-    final error = r.errors.first;
+    expect(r.http.statusCode, 404);
+    expect(r.http.headers['content-type'], Document.contentType);
+    expect(r.decodeDocument().data, isNull);
+    final error = r.decodeDocument().errors.first;
     expect(error.status, '404');
     expect(error.title, 'Resource not found');
     expect(error.detail, "Resource '42' does not exist in 'books'");

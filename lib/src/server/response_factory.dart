@@ -13,6 +13,8 @@ abstract class ResponseFactory {
 
   HttpResponse noContent();
 
+  HttpResponse accepted(Resource resource);
+
   HttpResponse primaryResource(
       Request<ResourceTarget> request, Resource resource,
       {Iterable<Resource> include});
@@ -53,6 +55,15 @@ class HttpResponseFactory implements ResponseFactory {
 
   @override
   HttpResponse noContent() => HttpResponse(204);
+
+  @override
+  HttpResponse accepted(Resource resource) => HttpResponse(202,
+      headers: {
+        'Content-Type': Document.contentType,
+        'Content-Location': _uri.resource(resource.type, resource.id).toString()
+      },
+      body: jsonEncode(Document(ResourceData(_resource(resource),
+          links: {'self': Link(_uri.resource(resource.type, resource.id))}))));
 
   @override
   HttpResponse primaryResource(

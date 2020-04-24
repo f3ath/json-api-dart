@@ -1,7 +1,7 @@
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 
-Future<void> seedResources(RoutingClient client) async {
+Future<void> seedResources(JsonApiClient client) async {
   await client.createResource(
       Resource('people', '1', attributes: {'name': 'Martin Fowler'}));
   await client.createResource(

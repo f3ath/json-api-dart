@@ -11,7 +11,7 @@ void main() async {
   final host = 'localhost';
   final port = 80;
   final base = Uri(scheme: 'http', host: host, port: port);
-  final routing = StandardRouting(base);
+  final urls = StandardRouting(base);
 
   group('Server-genrated ID', () {
     test('201 Created', () async {
@@ -19,35 +19,35 @@ void main() async {
         'people': {},
       }, nextId: Uuid().v4);
       final server = JsonApiServer(RepositoryController(repository));
-      final client = JsonApiClient(server);
-      final routingClient = RoutingClient(client, routing);
+      final client = JsonApiClient(server, urls);
 
       final person =
           NewResource('people', attributes: {'name': 'Martin Fowler'});
-      final r = await routingClient.createResource(person);
-      expect(r.statusCode, 201);
-      expect(r.headers['content-type'], Document.contentType);
-      expect(r.location, isNotNull);
-      expect(r.location, r.data.links['self'].uri);
-      final created = r.data.unwrap();
+      final r = await client.createResource(person);
+      expect(r.http.statusCode, 201);
+      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['location'], isNotNull);
+      expect(r.http.headers['location'],
+          r.decodeDocument().data.links['self'].uri.toString());
+      final created = r.decodeDocument().data.unwrap();
       expect(created.type, person.type);
       expect(created.id, isNotNull);
       expect(created.attributes, equals(person.attributes));
-      final r1 = await client.fetchResourceAt(r.location);
-      expect(r1.statusCode, 200);
-      expectResourcesEqual(r1.data.unwrap(), created);
+      final r1 = await client.send(
+          Request.fetchResource(), Uri.parse(r.http.headers['location']));
+      expect(r1.http.statusCode, 200);
+      expectResourcesEqual(r1.decodeDocument().data.unwrap(), created);
     });
 
     test('403 when the id can not be generated', () async {
       final repository = InMemoryRepository({'people': {}});
       final server = JsonApiServer(RepositoryController(repository));
-      final client = JsonApiClient(server);
-      final routingClient = RoutingClient(client, routing);
+      final routingClient = JsonApiClient(server, urls);
 
       final r = await routingClient.createResource(Resource('people', null));
-      expect(r.statusCode, 403);
-      expect(r.data, isNull);
-      final error = r.errors.first;
+      expect(r.http.statusCode, 403);
+      expect(r.decodeDocument().data, isNull);
+      final error = r.decodeDocument().errors.first;
       expect(error.status, '403');
       expect(error.title, 'Unsupported operation');
       expect(error.detail, 'Id generation is not supported');
@@ -56,7 +56,6 @@ void main() async {
 
   group('Client-genrated ID', () {
     JsonApiClient client;
-    RoutingClient routingClient;
     setUp(() async {
       final repository = InMemoryRepository({
         'books': {},
@@ -67,32 +66,31 @@ void main() async {
         'apples': {}
       });
       final server = JsonApiServer(RepositoryController(repository));
-      client = JsonApiClient(server);
-      routingClient = RoutingClient(client, routing);
+      client = JsonApiClient(server, urls);
     });
 
     test('204 No Content', () async {
       final person =
           Resource('people', '123', attributes: {'name': 'Martin Fowler'});
-      final r = await routingClient.createResource(person);
+      final r = await client.createResource(person);
       expect(r.isSuccessful, isTrue);
-      expect(r.statusCode, 204);
-      expect(r.location, isNull);
-      expect(r.data, isNull);
-      final r1 = await routingClient.fetchResource(person.type, person.id);
+      expect(r.isEmpty, isTrue);
+      expect(r.http.statusCode, 204);
+      expect(r.http.headers['location'], isNull);
+      final r1 = await client.fetchResource(person.type, person.id);
       expect(r1.isSuccessful, isTrue);
-      expect(r1.statusCode, 200);
-      expectResourcesEqual(r1.data.unwrap(), person);
+      expect(r1.http.statusCode, 200);
+      expectResourcesEqual(r1.decodeDocument().data.unwrap(), person);
     });
 
     test('404 when the collection does not exist', () async {
-      final r = await routingClient.createResource(Resource('unicorns', null));
+      final r = await client.createResource(Resource('unicorns', null));
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);
-      expect(r.statusCode, 404);
-      expect(r.headers['content-type'], Document.contentType);
-      expect(r.data, isNull);
-      final error = r.errors.first;
+      expect(r.http.statusCode, 404);
+      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.decodeDocument().data, isNull);
+      final error = r.decodeDocument().errors.first;
       expect(error.status, '404');
       expect(error.title, 'Collection not found');
       expect(error.detail, "Collection 'unicorns' does not exist");
@@ -101,13 +99,13 @@ void main() async {
     test('404 when the related resource does not exist (to-one)', () async {
       final book = Resource('books', null,
           toOne: {'publisher': Identifier('companies', '123')});
-      final r = await routingClient.createResource(book);
+      final r = await client.createResource(book);
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);
-      expect(r.statusCode, 404);
-      expect(r.headers['content-type'], Document.contentType);
-      expect(r.data, isNull);
-      final error = r.errors.first;
+      expect(r.http.statusCode, 404);
+      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.decodeDocument().data, isNull);
+      final error = r.decodeDocument().errors.first;
       expect(error.status, '404');
       expect(error.title, 'Resource not found');
       expect(error.detail, "Resource '123' does not exist in 'companies'");
@@ -117,27 +115,29 @@ void main() async {
       final book = Resource('books', null, toMany: {
         'authors': [Identifier('people', '123')]
       });
-      final r = await routingClient.createResource(book);
+      final r = await client.createResource(book);
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);
-      expect(r.statusCode, 404);
-      expect(r.headers['content-type'], Document.contentType);
-      expect(r.data, isNull);
-      final error = r.errors.first;
+      expect(r.http.statusCode, 404);
+      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.decodeDocument().data, isNull);
+      final error = r.decodeDocument().errors.first;
       expect(error.status, '404');
       expect(error.title, 'Resource not found');
       expect(error.detail, "Resource '123' does not exist in 'people'");
     });
 
     test('409 when the resource type does not match collection', () async {
-      final r = await client.createResourceAt(
-          routing.collection('fruits'), Resource('cucumbers', null));
+      final r = await client.send(
+          Request.createResource(
+              Document(ResourceData.fromResource(Resource('cucumbers', null)))),
+          urls.collection('fruits'));
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);
-      expect(r.statusCode, 409);
-      expect(r.headers['content-type'], Document.contentType);
-      expect(r.data, isNull);
-      final error = r.errors.first;
+      expect(r.http.statusCode, 409);
+      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.decodeDocument().data, isNull);
+      final error = r.decodeDocument().errors.first;
       expect(error.status, '409');
       expect(error.title, 'Invalid resource type');
       expect(error.detail, "Type 'cucumbers' does not belong in 'fruits'");
@@ -145,14 +145,14 @@ void main() async {
 
     test('409 when the resource with this id already exists', () async {
       final apple = Resource('apples', '123');
-      await routingClient.createResource(apple);
-      final r = await routingClient.createResource(apple);
+      await client.createResource(apple);
+      final r = await client.createResource(apple);
       expect(r.isSuccessful, isFalse);
       expect(r.isFailed, isTrue);
-      expect(r.statusCode, 409);
-      expect(r.headers['content-type'], Document.contentType);
-      expect(r.data, isNull);
-      final error = r.errors.first;
+      expect(r.http.statusCode, 409);
+      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.decodeDocument().data, isNull);
+      final error = r.decodeDocument().errors.first;
       expect(error.status, '409');
       expect(error.title, 'Resource exists');
       expect(error.detail, 'Resource with this type and id already exists');

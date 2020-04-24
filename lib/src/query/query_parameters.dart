@@ -3,6 +3,9 @@
 class QueryParameters {
   QueryParameters(Map<String, String> parameters)
       : _parameters = {...parameters};
+
+  QueryParameters.empty() : this(const {});
+
   final Map<String, String> _parameters;
 
   bool get isEmpty => _parameters.isEmpty;

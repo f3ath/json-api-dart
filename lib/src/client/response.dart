@@ -1,67 +1,52 @@
+import 'dart:convert';
+
 import 'package:json_api/document.dart';
+import 'package:json_api/http.dart';
 import 'package:json_api/src/client/status_code.dart';
-import 'package:json_api/src/nullable.dart';
 
-/// A response returned by JSON:API client
+/// A JSON:API response
 class Response<D extends PrimaryData> {
-  const Response(this.statusCode, this.headers,
-      {this.document, this.asyncDocument});
+  Response(this.http, this._decoder);
 
-  /// HTTP status code
-  final int statusCode;
+  final PrimaryDataDecoder<D> _decoder;
 
-  /// Document parsed from the response body.
-  /// May be null.
-  final Document<D> document;
+  /// The HTTP response.
+  final HttpResponse http;
 
-  /// The document received with `202 Accepted` response (if any)
-  /// https://jsonapi.org/recommendations/#asynchronous-processing
-  final Document<ResourceData> asyncDocument;
+  /// Returns the Document parsed from the response body.
+  /// Throws a [StateError] if the HTTP response contains empty body.
+  /// Throws a [DocumentException] if the received document structure is invalid.
+  /// Throws a [FormatException] if the received JSON is invalid.
+  Document<D> decodeDocument() {
+    if (http.body.isEmpty) throw StateError('The HTTP response has empty body');
+    return Document.fromJson(jsonDecode(http.body), _decoder);
+  }
 
-  /// Headers returned by the server.
-  final Map<String, String> headers;
+  /// Returns the async Document parsed from the response body.
+  /// Throws a [StateError] if the HTTP response contains empty body.
+  /// Throws a [DocumentException] if the received document structure is invalid.
+  /// Throws a [FormatException] if the received JSON is invalid.
+  Document<ResourceData> decodeAsyncDocument() {
+    if (http.body.isEmpty) throw StateError('The HTTP response has empty body');
+    return Document.fromJson(jsonDecode(http.body), ResourceData.fromJson);
+  }
 
-  /// Primary Data from the document (if any). For unsuccessful operations
-  /// this property will be null, the error details may be found in [Document.errors].
-  D get data => document?.data;
+  bool get isEmpty => http.body.isEmpty;
 
-  /// List of errors (if any) returned by the server in case of an unsuccessful
-  /// operation. May be empty. Will be null if the operation was successful.
-  List<ErrorObject> get errors => document?.errors;
-
-  /// Primary Data from the async document (if any)
-  ResourceData get asyncData => asyncDocument?.data;
+  bool get isNotEmpty => http.body.isNotEmpty;
 
   /// Was the query successful?
   ///
   /// For pending (202 Accepted) requests both [isSuccessful] and [isFailed]
   /// are always false.
-  bool get isSuccessful => StatusCode(statusCode).isSuccessful;
+  bool get isSuccessful => StatusCode(http.statusCode).isSuccessful;
 
   /// This property is an equivalent of `202 Accepted` HTTP status.
   /// It indicates that the query is accepted but not finished yet (e.g. queued).
-  /// If the response is async, the [data] and [document] properties will be null
-  /// and the returned primary data (usually representing a job queue) will be
-  /// in [asyncData] and [asyncDocument].
-  /// The [contentLocation] will point to the job queue resource.
-  /// You can fetch the job queue resource periodically and check the type of
-  /// the returned resource. Once the operation is complete, the request will
-  /// return the created resource.
-  ///
   /// See: https://jsonapi.org/recommendations/#asynchronous-processing
-  bool get isAsync => StatusCode(statusCode).isPending;
+  bool get isAsync => StatusCode(http.statusCode).isPending;
 
   /// Any non 2** status code is considered a failed operation.
   /// For failed requests, [document] is expected to contain [ErrorDocument]
-  bool get isFailed => StatusCode(statusCode).isFailed;
-
-  /// The `Location` HTTP header value. For `201 Created` responses this property
-  /// contains the location of a newly created resource.
-  Uri get location => nullable(Uri.parse)(headers['location']);
-
-  /// The `Content-Location` HTTP header value. For `202 Accepted` responses
-  /// this property contains the location of the Job Queue resource.
-  ///
-  /// More details: https://jsonapi.org/recommendations/#asynchronous-processing
-  Uri get contentLocation => nullable(Uri.parse)(headers['content-location']);
+  bool get isFailed => StatusCode(http.statusCode).isFailed;
 }

@@ -1,4 +1,4 @@
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
@@ -13,15 +13,15 @@ void main() async {
 
   /// Create the HTTP client. We're using Dart's native client.
   /// Do not forget to call [Client.close] when you're done using it.
-  final httpClient = Client();
+  final httpClient = http.Client();
 
-  /// We'll use a logging handler to show the requests and responses.
+  /// We'll use a logging handler wrapper to show the requests and responses.
   final httpHandler = LoggingHttpHandler(DartHttp(httpClient),
       onRequest: (r) => print('${r.method} ${r.uri}'),
       onResponse: (r) => print('${r.statusCode}'));
 
   /// The JSON:API client
-  final client = RoutingClient(JsonApiClient(httpHandler), routing);
+  final client = JsonApiClient(httpHandler, routing);
 
   /// Create the first resource.
   await client.createResource(
@@ -38,11 +38,13 @@ void main() async {
   final response = await client.fetchResource('books', '2',
       parameters: Include(['authors']));
 
+  final document = response.decodeDocument();
+
   /// Extract the primary resource.
-  final book = response.document.data.unwrap();
+  final book = document.data.unwrap();
 
   /// Extract the included resource.
-  final author = response.document.included.first.unwrap();
+  final author = document.included.first.unwrap();
 
   print('Book: $book');
   print('Author: $author');

@@ -20,13 +20,13 @@ void main() {
     final jsonApiServer = JsonApiServer(RepositoryController(repo));
     final serverHandler = DartServer(jsonApiServer);
     Client httpClient;
-    RoutingClient client;
+    JsonApiClient client;
     HttpServer server;
 
     setUp(() async {
       server = await HttpServer.bind(host, port);
       httpClient = Client();
-      client = RoutingClient(JsonApiClient(DartHttp(httpClient)), routing);
+      client = JsonApiClient(DartHttp(httpClient), routing);
       unawaited(server.forEach(serverHandler));
     });
 
@@ -44,14 +44,16 @@ void main() {
       await client.createResource(book);
       await client
           .updateResource(Resource('books', '2', toMany: {'authors': []}));
-      await client.addToRelationship(
-          'books', '2', 'authors', [Identifier('writers', '1')]);
+      await client
+          .addToMany('books', '2', 'authors', [Identifier('writers', '1')]);
 
       final response = await client.fetchResource('books', '2',
           parameters: Include(['authors']));
 
-      expect(response.data.unwrap().attributes['title'], 'Refactoring');
-      expect(response.document.included.first.unwrap().attributes['name'],
+      expect(response.decodeDocument().data.unwrap().attributes['title'],
+          'Refactoring');
+      expect(
+          response.decodeDocument().included.first.unwrap().attributes['name'],
           'Martin Fowler');
     });
   }, testOn: 'vm');

@@ -54,7 +54,7 @@ class Document<D extends PrimaryData> implements JsonEncodable {
   /// True for non-error documents with included resources.
   final bool isCompound;
 
-  /// List of errors. May be empty or null.
+  /// List of errors. May be empty.
   final List<ErrorObject> errors;
 
   /// Meta data. May be empty.
@@ -70,8 +70,8 @@ class Document<D extends PrimaryData> implements JsonEncodable {
   final bool isMeta;
 
   /// Reconstructs a document with the specified primary data
-  static Document<Data> fromJson<Data extends PrimaryData>(
-      Object json, Data Function(Object json) primaryData) {
+  static Document<D> fromJson<D extends PrimaryData>(
+      Object json, D Function(Object _) decode) {
     if (json is Map) {
       final api = nullable(Api.fromJson)(json['jsonapi']);
       final meta = json['meta'];
@@ -83,11 +83,12 @@ class Document<D extends PrimaryData> implements JsonEncodable {
         }
       } else if (json.containsKey('data')) {
         final included = json['included'];
-        final doc = Document(primaryData(json), meta: meta, api: api);
-        if (included is List) {
-          return CompoundDocument(doc, included.map(ResourceObject.fromJson));
-        }
-        return doc;
+        return Document(decode(json),
+            meta: meta,
+            api: api,
+            included: included is List
+                ? included.map(ResourceObject.fromJson)
+                : null);
       } else if (json['meta'] != null) {
         return Document.empty(meta, api: api);
       }
@@ -105,37 +106,4 @@ class Document<D extends PrimaryData> implements JsonEncodable {
         if (api.isNotEmpty) 'jsonapi': api,
         if (isCompound) 'included': included,
       };
-}
-
-class CompoundDocument<D extends PrimaryData> implements Document<D> {
-  CompoundDocument(this._document, Iterable<ResourceObject> included)
-      : included = List.unmodifiable(included);
-
-  final Document<D> _document;
-  @override
-  final List<ResourceObject> included;
-
-  @override
-  Api get api => _document.api;
-
-  @override
-  D get data => _document.data;
-
-  @override
-  List<ErrorObject> get errors => _document.errors;
-
-  @override
-  bool get isCompound => true;
-
-  @override
-  bool get isError => false;
-
-  @override
-  bool get isMeta => false;
-
-  @override
-  Map<String, Object> get meta => _document.meta;
-
-  @override
-  Map<String, Object> toJson() => {..._document.toJson(), 'included': included};
 }

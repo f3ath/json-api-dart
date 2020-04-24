@@ -21,3 +21,5 @@ abstract class PrimaryData implements JsonEncodable {
         if (links.isNotEmpty) 'links': links,
       };
 }
+
+typedef PrimaryDataDecoder<D extends PrimaryData> = D Function(Object json);
