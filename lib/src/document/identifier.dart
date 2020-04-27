@@ -29,9 +29,6 @@ class Identifier {
       other.id == id;
 
   @override
-  String toString() => 'Identifier($type:$id)';
-
-  @override
   bool operator ==(other) => equals(other);
 
   @override

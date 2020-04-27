@@ -74,7 +74,6 @@ void main() async {
           Resource('people', '123', attributes: {'name': 'Martin Fowler'});
       final r = await client.createResource(person);
       expect(r.isSuccessful, isTrue);
-      expect(r.isEmpty, isTrue);
       expect(r.http.statusCode, 204);
       expect(r.http.headers['location'], isNull);
       final r1 = await client.fetchResource(person.type, person.id);

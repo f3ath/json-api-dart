@@ -31,10 +31,6 @@ class Response<D extends PrimaryData> {
     return Document.fromJson(jsonDecode(http.body), ResourceData.fromJson);
   }
 
-  bool get isEmpty => http.body.isEmpty;
-
-  bool get isNotEmpty => http.body.isNotEmpty;
-
   /// Was the query successful?
   ///
   /// For pending (202 Accepted) requests both [isSuccessful] and [isFailed]

@@ -31,7 +31,6 @@ void main() async {
       final r = await client.replaceToOne(
           'books', '1', 'publisher', Identifier('companies', '2'));
       expect(r.isSuccessful, isTrue);
-      expect(r.isEmpty, isTrue);
       expect(r.http.statusCode, 204);
 
       final r1 = await client.fetchResource('books', '1');
@@ -69,7 +68,6 @@ void main() async {
     test('204 No Content', () async {
       final r = await client.deleteToOne('books', '1', 'publisher');
       expect(r.isSuccessful, isTrue);
-      expect(r.isEmpty, isTrue);
       expect(r.http.statusCode, 204);
 
       final r1 = await client.fetchResource('books', '1');
@@ -106,7 +104,6 @@ void main() async {
       final r = await client
           .replaceToMany('books', '1', 'authors', [Identifier('people', '1')]);
       expect(r.isSuccessful, isTrue);
-      expect(r.isEmpty, isTrue);
       expect(r.http.statusCode, 204);
 
       final r1 = await client.fetchResource('books', '1');

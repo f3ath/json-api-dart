@@ -29,7 +29,6 @@ void main() async {
   test('successful', () async {
     final r = await client.deleteResource('books', '1');
     expect(r.isSuccessful, isTrue);
-    expect(r.isEmpty, isTrue);
     expect(r.http.statusCode, 204);
 
     final r1 = await client.fetchResource('books', '1');

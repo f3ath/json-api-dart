@@ -59,7 +59,6 @@ void main() async {
   test('204 No Content', () async {
     final r = await client.updateResource(Resource('books', '1'));
     expect(r.isSuccessful, isTrue);
-    expect(r.isEmpty, isTrue);
     expect(r.http.statusCode, 204);
   });
 
