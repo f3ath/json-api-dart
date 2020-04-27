@@ -10,7 +10,6 @@ void main() {
   });
 
   test('toString', () {
-    expect(Resource('appless', '42', attributes: {'color': 'red'}).toString(),
-        'Resource(appless:42 {color: red})');
+    expect(Resource('apples', '42').toString(), 'Resource(apples:42)');
   });
 }

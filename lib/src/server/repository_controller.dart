@@ -107,12 +107,12 @@ class RepositoryController implements Controller {
       _do(() async {
         final resource =
             await _repo.get(request.target.type, request.target.id);
-        if (resource.toOne.containsKey(request.target.relationship)) {
+        if (resource.hasOne(request.target.relationship)) {
           final i = resource.toOne[request.target.relationship];
           return RelatedResourceResponse(
               request, await _repo.get(i.type, i.id));
         }
-        if (resource.toMany.containsKey(request.target.relationship)) {
+        if (resource.hasMany(request.target.relationship)) {
           final related = <Resource>[];
           for (final identifier
               in resource.toMany[request.target.relationship]) {
@@ -129,11 +129,11 @@ class RepositoryController implements Controller {
       _do(() async {
         final resource =
             await _repo.get(request.target.type, request.target.id);
-        if (resource.toOne.containsKey(request.target.relationship)) {
+        if (resource.hasOne(request.target.relationship)) {
           return ToOneResponse(
               request, resource.toOne[request.target.relationship]);
         }
-        if (resource.toMany.containsKey(request.target.relationship)) {
+        if (resource.hasMany(request.target.relationship)) {
           return ToManyResponse(
               request, resource.toMany[request.target.relationship]);
         }
@@ -198,9 +198,9 @@ class RepositoryController implements Controller {
     final resources = <Resource>[];
     final ids = <Identifier>[];
 
-    if (resource.toOne.containsKey(path.first)) {
+    if (resource.hasOne(path.first)) {
       ids.add(resource.toOne[path.first]);
-    } else if (resource.toMany.containsKey(path.first)) {
+    } else if (resource.hasMany(path.first)) {
       ids.addAll(resource.toMany[path.first]);
     }
     for (final id in ids) {

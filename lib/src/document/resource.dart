@@ -1,11 +1,12 @@
 import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/identity.dart';
 
 /// Resource
 ///
 /// Together with [Identifier] forms the core of the Document model.
 /// Resources are passed between the server and the client in the form
 /// of [ResourceObject]s.
-class Resource {
+class Resource with Identity {
   /// Creates an instance of [Resource].
   /// The [type] can not be null.
   /// The [id] may be null for the resources to be created on the server.
@@ -13,23 +14,25 @@ class Resource {
       {Map<String, Object> attributes,
       Map<String, Identifier> toOne,
       Map<String, List<Identifier>> toMany})
-      : attributes = Map.unmodifiable(attributes ?? const {}),
-        toOne = Map.unmodifiable(toOne ?? const {}),
+      : toOne = Map.unmodifiable(toOne ?? const {}),
         toMany = Map.unmodifiable(
             (toMany ?? {}).map((k, v) => MapEntry(k, Set.of(v).toList()))) {
     ArgumentError.notNull(type);
+    this.attributes.addAll(attributes ?? {});
   }
 
   /// Resource type
+  @override
   final String type;
 
   /// Resource id
   ///
   /// May be null for resources to be created on the server
+  @override
   final String id;
 
-  /// Unmodifiable map of attributes
-  final Map<String, Object> attributes;
+  /// The map of attributes
+  final attributes = <String, Object>{};
 
   /// Unmodifiable map of to-one relationships
   final Map<String, Identifier> toOne;
@@ -37,11 +40,26 @@ class Resource {
   /// Unmodifiable map of to-many relationships
   final Map<String, List<Identifier>> toMany;
 
-  /// Resource type and id combined
-  String get key => '$type:$id';
+  /// All related resource identifiers.
+  Iterable<Identifier> get related =>
+      toOne.values.followedBy(toMany.values.expand((_) => _));
+
+  /// True for resources without attributes and relationships
+  bool get isEmpty => attributes.isEmpty && toOne.isEmpty && toMany.isEmpty;
+
+  bool hasOne(String key) => toOne.containsKey(key);
+
+  bool hasMany(String key) => toMany.containsKey(key);
+
+  Resource withId(String newId) {
+    // TODO: move to NewResource()
+    if (id != null) throw StateError('Should not change id');
+    return Resource(type, newId,
+        attributes: attributes, toOne: toOne, toMany: toMany);
+  }
 
   @override
-  String toString() => 'Resource($key $attributes)';
+  String toString() => 'Resource($key)';
 }
 
 /// Resource to be created on the server. Does not have the id yet

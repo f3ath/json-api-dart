@@ -23,8 +23,7 @@ class InMemoryRepository implements Repository {
     if (collection != resource.type) {
       throw _invalidType(resource, collection);
     }
-    for (final relationship in resource.toOne.values
-        .followedBy(resource.toMany.values.expand((_) => _))) {
+    for (final relationship in resource.related) {
       // Make sure the relationships exist
       await get(relationship.type, relationship.id);
     }
@@ -33,10 +32,7 @@ class InMemoryRepository implements Repository {
         throw UnsupportedOperation('Id generation is not supported');
       }
       final id = _nextId();
-      final created = Resource(resource.type, id ?? resource.id,
-          attributes: resource.attributes,
-          toOne: resource.toOne,
-          toMany: resource.toMany);
+      final created = resource.withId(id);
       _collections[collection][created.id] = created;
       return created;
     }
@@ -65,10 +61,7 @@ class InMemoryRepository implements Repository {
       throw _invalidType(resource, type);
     }
     final original = await get(type, id);
-    if (resource.attributes.isEmpty &&
-        resource.toOne.isEmpty &&
-        resource.toMany.isEmpty &&
-        resource.id == id) {
+    if (resource.isEmpty && resource.id == id) {
       return null;
     }
     final updated = Resource(

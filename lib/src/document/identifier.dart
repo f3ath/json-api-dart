@@ -1,11 +1,12 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/src/document/identity.dart';
 
 /// Resource identifier
 ///
 /// Together with [Resource] forms the core of the Document model.
 /// Identifiers are passed between the server and the client in the form
 /// of [IdentifierObject]s.
-class Identifier {
+class Identifier with Identity {
   /// Neither [type] nor [id] can be null or empty.
   Identifier(this.type, this.id) {
     ArgumentError.checkNotNull(type);
@@ -16,9 +17,11 @@ class Identifier {
       Identifier(resource.type, resource.id);
 
   /// Resource type
+  @override
   final String type;
 
   /// Resource id
+  @override
   final String id;
 
   /// Returns true if the two identifiers have the same [type] and [id]
