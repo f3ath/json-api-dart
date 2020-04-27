@@ -30,10 +30,7 @@ class ResourceObject with Meta, Links {
   static ResourceObject fromResource(Resource resource) =>
       ResourceObject(resource.type, resource.id,
           attributes: resource.attributes,
-          relationships: {
-            ...resource.toOne.map((k, v) => MapEntry(k, ToOneObject(v))),
-            ...resource.toMany.map((k, v) => MapEntry(k, ToManyObject(v)))
-          });
+          relationships: resource.relationships);
 
   /// Reconstructs the `data` member of a JSON:API Document.
   static ResourceObject fromJson(Object json) {

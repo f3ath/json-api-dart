@@ -6,6 +6,7 @@ import 'package:json_api/src/server/in_memory_repository.dart';
 import 'package:json_api/src/server/json_api_server.dart';
 import 'package:json_api/src/server/repository_controller.dart';
 import 'package:test/test.dart';
+import 'package:test/test.dart';
 
 import '../../helper/expect_resources_equal.dart';
 import 'seed_resources.dart';
@@ -45,10 +46,10 @@ void main() async {
     expect(r.decodeDocument().data.unwrap().attributes['pages'], 448);
     expect(
         r.decodeDocument().data.unwrap().attributes['ISBN-10'], '0134757599');
-    expect(r.decodeDocument().data.unwrap().toOne['publisher'], isNull);
-    expect(r.decodeDocument().data.unwrap().toMany['authors'],
+    expect(r.decodeDocument().data.unwrap().toOne['publisher'].isEmpty, true);
+    expect(r.decodeDocument().data.unwrap().toMany['authors'].toList(),
         equals([Identifier('people', '1')]));
-    expect(r.decodeDocument().data.unwrap().toMany['reviewers'],
+    expect(r.decodeDocument().data.unwrap().toMany['reviewers'].toList(),
         equals([Identifier('people', '2')]));
 
     final r1 = await client.fetchResource('books', '1');

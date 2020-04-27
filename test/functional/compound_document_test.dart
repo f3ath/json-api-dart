@@ -51,7 +51,7 @@ void main() async {
     client = JsonApiClient(server, routing);
   });
 
-  group('Single Resouces', () {
+  group('Single Resources', () {
     test('not compound by default', () async {
       final r = await client.fetchResource('posts', '1');
       final document = r.decodeDocument();

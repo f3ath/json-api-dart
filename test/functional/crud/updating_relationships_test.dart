@@ -34,7 +34,12 @@ void main() async {
       expect(r.http.statusCode, 204);
 
       final r1 = await client.fetchResource('books', '1');
-      expect(r1.decodeDocument().data.unwrap().toOne['publisher'].id, '2');
+      r1
+          .decodeDocument()
+          .data
+          .unwrap()
+          .toOne['publisher']
+          .mapIfExists((i) => expect(i.id, '2'), () => fail('No id'));
     });
 
     test('404 on collection', () async {
@@ -71,7 +76,8 @@ void main() async {
       expect(r.http.statusCode, 204);
 
       final r1 = await client.fetchResource('books', '1');
-      expect(r1.decodeDocument().data.unwrap().toOne['publisher'], isNull);
+      expect(
+          r1.decodeDocument().data.unwrap().toOne['publisher'].isEmpty, true);
     });
 
     test('404 on collection', () async {
@@ -107,8 +113,12 @@ void main() async {
       expect(r.http.statusCode, 204);
 
       final r1 = await client.fetchResource('books', '1');
-      expect(r1.decodeDocument().data.unwrap().toMany['authors'].length, 1);
-      expect(r1.decodeDocument().data.unwrap().toMany['authors'].first.id, '1');
+      expect(
+          r1.decodeDocument().data.unwrap().toMany['authors'].toList().length,
+          1);
+      expect(
+          r1.decodeDocument().data.unwrap().toMany['authors'].toList().first.id,
+          '1');
     });
 
     test('404 when collection not found', () async {

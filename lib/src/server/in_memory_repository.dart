@@ -64,15 +64,8 @@ class InMemoryRepository implements Repository {
     if (resource.isEmpty && resource.id == id) {
       return null;
     }
-    final updated = Resource(
-      original.type,
-      original.id,
-      attributes: {...original.attributes}..addAll(resource.attributes),
-      toOne: {...original.toOne}..addAll(resource.toOne),
-      toMany: {...original.toMany}..addAll(resource.toMany),
-    );
-    _collections[type][id] = updated;
-    return updated;
+    original.addAll(resource);
+    return original;
   }
 
   @override
