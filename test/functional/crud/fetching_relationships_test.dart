@@ -35,8 +35,8 @@ void main() async {
           '/books/1/relationships/publisher');
       expect(
           r.decodeDocument().data.related.uri.toString(), '/books/1/publisher');
-      expect(r.decodeDocument().data.unwrap().type, 'companies');
-      expect(r.decodeDocument().data.unwrap().id, '1');
+      expect(r.decodeDocument().data.linkage.type, 'companies');
+      expect(r.decodeDocument().data.linkage.id, '1');
     });
 
     test('404 on collection', () async {
@@ -79,8 +79,8 @@ void main() async {
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().data.unwrap().length, 2);
-      expect(r.decodeDocument().data.unwrap().first.type, 'people');
+      expect(r.decodeDocument().data.linkage.length, 2);
+      expect(r.decodeDocument().data.linkage.first.type, 'people');
       expect(r.decodeDocument().data.links['self'].uri.toString(),
           '/books/1/relationships/authors');
       expect(
@@ -129,8 +129,8 @@ void main() async {
       expect(r.http.headers['content-type'], Document.contentType);
       final rel = r.decodeDocument().data;
       if (rel is ToOneObject) {
-        expect(rel.unwrap().type, 'companies');
-        expect(rel.unwrap().id, '1');
+        expect(rel.linkage.type, 'companies');
+        expect(rel.linkage.id, '1');
       } else {
         fail('Not a ToOne relationship');
       }
@@ -143,11 +143,11 @@ void main() async {
       expect(r.http.headers['content-type'], Document.contentType);
       final rel = r.decodeDocument().data;
       if (rel is ToManyObject) {
-        expect(rel.unwrap().length, 2);
-        expect(rel.unwrap().first.id, '1');
-        expect(rel.unwrap().first.type, 'people');
-        expect(rel.unwrap().last.id, '2');
-        expect(rel.unwrap().last.type, 'people');
+        expect(rel.linkage.length, 2);
+        expect(rel.linkage.first.id, '1');
+        expect(rel.linkage.first.type, 'people');
+        expect(rel.linkage.last.id, '2');
+        expect(rel.linkage.last.type, 'people');
       } else {
         fail('Not a ToMany relationship');
       }

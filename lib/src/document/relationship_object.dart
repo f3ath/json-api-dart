@@ -1,6 +1,5 @@
 import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/identifier_object.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource_object.dart';
@@ -29,7 +28,8 @@ class RelationshipObject extends PrimaryData {
           return ToManyObject.fromJson(json);
         }
       }
-      return RelationshipObject(links: nullable(Link.mapFromJson)(json['links']));
+      return RelationshipObject(
+          links: nullable(Link.mapFromJson)(json['links']));
     }
     throw DocumentException(
         'A JSON:API relationship object must be a JSON object');
@@ -38,8 +38,8 @@ class RelationshipObject extends PrimaryData {
   /// Parses the `relationships` member of a Resource Object
   static Map<String, RelationshipObject> mapFromJson(Object json) {
     if (json is Map) {
-      return json
-          .map((k, v) => MapEntry(k.toString(), RelationshipObject.fromJson(v)));
+      return json.map(
+          (k, v) => MapEntry(k.toString(), RelationshipObject.fromJson(v)));
     }
     throw DocumentException("The 'relationships' member must be a JSON object");
   }
@@ -57,11 +57,11 @@ class ToOneObject extends RelationshipObject {
         super(links: links);
 
   static ToOneObject fromIdentifier(Identifier identifier) =>
-      ToOneObject(nullable(IdentifierObject.fromIdentifier)(identifier));
+      ToOneObject(identifier);
 
   static ToOneObject fromJson(Object json) {
     if (json is Map && json.containsKey('data')) {
-      return ToOneObject(nullable(IdentifierObject.fromJson)(json['data']),
+      return ToOneObject(nullable(Identifier.fromJson)(json['data']),
           links: nullable(Link.mapFromJson)(json['links']));
     }
     throw DocumentException(
@@ -73,37 +73,30 @@ class ToOneObject extends RelationshipObject {
   /// Can be null for empty relationships
   ///
   /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
-  final IdentifierObject linkage;
+  final Identifier linkage;
 
   @override
   Map<String, Object> toJson() => {
         ...super.toJson(),
         'data': linkage,
       };
-
-  /// Converts to [Identifier].
-  /// For empty relationships returns null.
-  Identifier unwrap() => linkage?.unwrap();
-
-  /// Same as [unwrap]
-  Identifier get identifier => unwrap();
 }
 
 /// Relationship to-many
 class ToManyObject extends RelationshipObject {
-  ToManyObject(Iterable<IdentifierObject> linkage, {Map<String, Link> links})
+  ToManyObject(Iterable<Identifier> linkage, {Map<String, Link> links})
       : linkage = List.unmodifiable(linkage),
         super(links: links);
 
   static ToManyObject fromIdentifiers(Iterable<Identifier> identifiers) =>
-      ToManyObject(identifiers.map(IdentifierObject.fromIdentifier));
+      ToManyObject(identifiers);
 
   static ToManyObject fromJson(Object json) {
     if (json is Map && json.containsKey('data')) {
       final data = json['data'];
       if (data is List) {
         return ToManyObject(
-          data.map(IdentifierObject.fromJson),
+          data.map(Identifier.fromJson),
           links: nullable(Link.mapFromJson)(json['links']),
         );
       }
@@ -117,15 +110,11 @@ class ToManyObject extends RelationshipObject {
   /// Can be empty for empty relationships
   ///
   /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
-  final List<IdentifierObject> linkage;
+  final List<Identifier> linkage;
 
   @override
   Map<String, Object> toJson() => {
         ...super.toJson(),
         'data': linkage,
       };
-
-  /// Converts to List<Identifier>.
-  /// For empty relationships returns an empty List.
-  List<Identifier> unwrap() => linkage.map((_) => _.unwrap()).toList();
 }

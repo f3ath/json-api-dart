@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('throws DocumentException when can not be decoded', () {
-    expect(() => IdentifierObject.fromJson([]),
+    expect(() => Identifier.fromJson([]),
         throwsA(TypeMatcher<DocumentException>()));
   });
 }

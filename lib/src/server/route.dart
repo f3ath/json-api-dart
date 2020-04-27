@@ -174,7 +174,7 @@ class RelationshipRoute implements Route {
     final r = Request(request.uri, _target);
     if (request.isDelete) {
       return controller.deleteFromRelationship(
-          r, ToManyObject.fromJson(jsonDecode(request.body)).unwrap());
+          r, ToManyObject.fromJson(jsonDecode(request.body)).linkage);
     }
     if (request.isGet) {
       return controller.fetchRelationship(r);
@@ -182,16 +182,16 @@ class RelationshipRoute implements Route {
     if (request.isPatch) {
       final rel = RelationshipObject.fromJson(jsonDecode(request.body));
       if (rel is ToOneObject) {
-        return controller.replaceToOne(r, rel.unwrap());
+        return controller.replaceToOne(r, rel.linkage);
       }
       if (rel is ToManyObject) {
-        return controller.replaceToMany(r, rel.unwrap());
+        return controller.replaceToMany(r, rel.linkage);
       }
       throw IncompleteRelationshipException();
     }
     if (request.isPost) {
       return controller.addToRelationship(
-          r, ToManyObject.fromJson(jsonDecode(request.body)).unwrap());
+          r, ToManyObject.fromJson(jsonDecode(request.body)).linkage);
     }
     throw ArgumentError();
   }

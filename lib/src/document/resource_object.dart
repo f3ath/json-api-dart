@@ -31,10 +31,8 @@ class ResourceObject with Meta, Links {
       ResourceObject(resource.type, resource.id,
           attributes: resource.attributes,
           relationships: {
-            ...resource.toOne.map((k, v) => MapEntry(
-                k, ToOneObject(nullable(IdentifierObject.fromIdentifier)(v)))),
-            ...resource.toMany.map((k, v) =>
-                MapEntry(k, ToManyObject(v.map(IdentifierObject.fromIdentifier))))
+            ...resource.toOne.map((k, v) => MapEntry(k, ToOneObject(v))),
+            ...resource.toMany.map((k, v) => MapEntry(k, ToManyObject(v)))
           });
 
   /// Reconstructs the `data` member of a JSON:API Document.
@@ -49,7 +47,8 @@ class ResourceObject with Meta, Links {
           type.isNotEmpty) {
         return ResourceObject(json['type'], json['id'],
             attributes: attributes,
-            relationships: nullable(RelationshipObject.mapFromJson)(relationships),
+            relationships:
+                nullable(RelationshipObject.mapFromJson)(relationships),
             links: Link.mapFromJson(json['links'] ?? {}),
             meta: json['meta']);
       }
@@ -87,9 +86,9 @@ class ResourceObject with Meta, Links {
     final incomplete = <String, RelationshipObject>{};
     relationships.forEach((name, rel) {
       if (rel is ToOneObject) {
-        toOne[name] = rel.unwrap();
+        toOne[name] = rel.linkage;
       } else if (rel is ToManyObject) {
-        toMany[name] = rel.unwrap();
+        toMany[name] = rel.linkage;
       } else {
         incomplete[name] = rel;
       }

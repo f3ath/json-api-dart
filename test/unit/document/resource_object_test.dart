@@ -13,7 +13,7 @@ void main() {
         'title': 'Ember Hamster',
         'src': 'http://example.com/images/productivity.png'
       }, relationships: {
-        'photographer': ToOneObject(IdentifierObject('people', '9'))
+        'photographer': ToOneObject(Identifier('people', '9'))
       });
 
       expect(

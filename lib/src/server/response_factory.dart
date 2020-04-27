@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/server/collection.dart';
 import 'package:json_api/src/server/request.dart';
 
@@ -140,7 +139,7 @@ class HttpResponseFactory implements ResponseFactory {
       HttpResponse(200,
           headers: {'Content-Type': Document.contentType},
           body: jsonEncode(Document(ToManyObject(
-            identifiers.map(IdentifierObject.fromIdentifier),
+            identifiers,
             links: {
               'self': Link(_self(request)),
               'related': Link(_uri.related(request.target.type,
@@ -154,7 +153,7 @@ class HttpResponseFactory implements ResponseFactory {
       HttpResponse(200,
           headers: {'Content-Type': Document.contentType},
           body: jsonEncode(Document(ToOneObject(
-            IdentifierObject.fromIdentifier(identifier),
+            identifier,
             links: {
               'self': Link(_self(request)),
               'related': Link(_uri.related(request.target.type,
@@ -168,14 +167,14 @@ class HttpResponseFactory implements ResponseFactory {
           relationships: {
             ...resource.toOne.map((k, v) => MapEntry(
                 k,
-                ToOneObject(nullable(IdentifierObject.fromIdentifier)(v), links: {
+                ToOneObject(v, links: {
                   'self':
                       Link(_uri.relationship(resource.type, resource.id, k)),
                   'related': Link(_uri.related(resource.type, resource.id, k)),
                 }))),
             ...resource.toMany.map((k, v) => MapEntry(
                 k,
-                ToManyObject(v.map(IdentifierObject.fromIdentifier), links: {
+                ToManyObject(v, links: {
                   'self':
                       Link(_uri.relationship(resource.type, resource.id, k)),
                   'related': Link(_uri.related(resource.type, resource.id, k)),

@@ -145,9 +145,9 @@ void main() async {
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().data.unwrap().length, 3);
-      expect(r.decodeDocument().data.unwrap().first.id, '1');
-      expect(r.decodeDocument().data.unwrap().last.id, '3');
+      expect(r.decodeDocument().data.linkage.length, 3);
+      expect(r.decodeDocument().data.linkage.first.id, '1');
+      expect(r.decodeDocument().data.linkage.last.id, '3');
 
       final r1 = await client.fetchResource('books', '1');
       expect(r1.decodeDocument().data.unwrap().toMany['authors'].length, 3);
@@ -159,9 +159,9 @@ void main() async {
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().data.unwrap().length, 2);
-      expect(r.decodeDocument().data.unwrap().first.id, '1');
-      expect(r.decodeDocument().data.unwrap().last.id, '2');
+      expect(r.decodeDocument().data.linkage.length, 2);
+      expect(r.decodeDocument().data.linkage.first.id, '1');
+      expect(r.decodeDocument().data.linkage.last.id, '2');
 
       final r1 = await client.fetchResource('books', '1');
       expect(r1.decodeDocument().data.unwrap().toMany['authors'].length, 2);
@@ -216,8 +216,8 @@ void main() async {
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().data.unwrap().length, 1);
-      expect(r.decodeDocument().data.unwrap().first.id, '2');
+      expect(r.decodeDocument().data.linkage.length, 1);
+      expect(r.decodeDocument().data.linkage.first.id, '2');
 
       final r1 = await client.fetchResource('books', '1');
       expect(r1.decodeDocument().data.unwrap().toMany['authors'].length, 1);
@@ -229,9 +229,9 @@ void main() async {
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().data.unwrap().length, 2);
-      expect(r.decodeDocument().data.unwrap().first.id, '1');
-      expect(r.decodeDocument().data.unwrap().last.id, '2');
+      expect(r.decodeDocument().data.linkage.length, 2);
+      expect(r.decodeDocument().data.linkage.first.id, '1');
+      expect(r.decodeDocument().data.linkage.last.id, '2');
 
       final r1 = await client.fetchResource('books', '1');
       expect(r1.decodeDocument().data.unwrap().toMany['authors'].length, 2);
