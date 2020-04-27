@@ -26,20 +26,6 @@ void main() {
     expect(data.unwrap(), null);
   });
 
-  test('Inherits links from ResourceObject', () {
-    final res = ResourceObject('apples', '1', links: {
-      'foo': Link(Uri.parse('/foo')),
-      'bar': Link(Uri.parse('/bar')),
-      'self': Link(Uri.parse('/self')),
-    });
-    final data = ResourceData(res, links: {
-      'bar': Link(Uri.parse('/bar-new')),
-    });
-    expect(data.links['foo'].toString(), '/foo');
-    expect(data.links['bar'].toString(), '/bar-new');
-    expect(data.self.toString(), '/self');
-  });
-
   group('custom links', () {
     final res = ResourceObject('apples', '1');
     test('recognizes custom links', () {
@@ -55,7 +41,7 @@ void main() {
       });
       expect(data.links['my-link'].toString(), '/my-link');
       expect(data.links['self'].toString(), '/self');
-      expect(data.self.toString(), '/self');
+      expect(data.links['self'].toString(), '/self');
     });
 
     test('survives json serialization', () {

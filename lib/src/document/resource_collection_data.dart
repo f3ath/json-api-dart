@@ -25,18 +25,6 @@ class ResourceCollectionData extends PrimaryData {
 
   final List<ResourceObject> collection;
 
-  /// The link to the last page. May be null.
-  Link get last => (links ?? {})['last'];
-
-  /// The link to the first page. May be null.
-  Link get first => (links ?? {})['first'];
-
-  /// The link to the next page. May be null.
-  Link get next => (links ?? {})['next'];
-
-  /// The link to the prev page. May be null.
-  Link get prev => (links ?? {})['prev'];
-
   /// Returns a list of resources contained in the collection
   List<Resource> unwrap() => collection.map((_) => _.unwrap()).toList();
 

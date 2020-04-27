@@ -26,7 +26,7 @@ void main() {
       });
       expect(r.links['my-link'].toString(), '/my-link');
       expect(r.links['self'].toString(), '/self');
-      expect(r.self.toString(), '/self');
+      expect(r.links['self'].toString(), '/self');
     });
 
     test('survives json serialization', () {

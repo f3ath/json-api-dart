@@ -2,6 +2,8 @@ import 'package:json_api/document.dart';
 import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/links.dart';
+import 'package:json_api/src/document/meta.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/nullable.dart';
@@ -13,16 +15,17 @@ import 'package:json_api/src/nullable.dart';
 /// resource collection.
 ///
 /// More on this: https://jsonapi.org/format/#document-resource-objects
-class ResourceObject {
+class ResourceObject with Meta, Links {
   ResourceObject(this.type, this.id,
       {Map<String, Object> attributes,
       Map<String, Relationship> relationships,
       Map<String, Object> meta,
       Map<String, Link> links})
-      : links = Map.unmodifiable(links ?? const {}),
-        attributes = Map.unmodifiable(attributes ?? const {}),
-        meta = Map.unmodifiable(meta ?? const {}),
-        relationships = Map.unmodifiable(relationships ?? const {});
+      : attributes = Map.unmodifiable(attributes ?? const {}),
+        relationships = Map.unmodifiable(relationships ?? const {}) {
+    this.meta.addAll(meta ?? {});
+    this.links.addAll(links ?? {});
+  }
 
   static ResourceObject fromResource(Resource resource) =>
       ResourceObject(resource.type, resource.id,
@@ -59,10 +62,6 @@ class ResourceObject {
   final String id;
   final Map<String, Object> attributes;
   final Map<String, Relationship> relationships;
-  final Map<String, Object> meta;
-
-  /// Read-only `links` object. May be empty.
-  final Map<String, Link> links;
 
   Link get self => links['self'];
 

@@ -1,16 +1,16 @@
 import 'package:json_api/src/document/document_exception.dart';
+import 'package:json_api/src/document/meta.dart';
 
 /// Details: https://jsonapi.org/format/#document-jsonapi-object
-class Api {
-  Api({String version, Map<String, Object> meta})
-      : meta = Map.unmodifiable(meta ?? const {}),
-        version = version ?? '';
+class Api with Meta {
+  Api({String version, Map<String, Object> meta}) : version = version ?? v1 {
+    this.meta.addAll(meta ?? {});
+  }
+
+  static const v1 = '1.0';
 
   /// The JSON:API version. May be null.
   final String version;
-
-  /// Meta data. May be empty or null.
-  final Map<String, Object> meta;
 
   bool get isNotEmpty => version.isNotEmpty || meta.isNotEmpty;
 
@@ -22,7 +22,7 @@ class Api {
   }
 
   Map<String, Object> toJson() => {
-        if (version.isNotEmpty) 'version': version,
+        if (version != v1) 'version': version,
         if (meta.isNotEmpty) 'meta': meta,
       };
 }

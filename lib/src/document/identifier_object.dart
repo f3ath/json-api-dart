@@ -1,15 +1,16 @@
 import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/meta.dart';
 
 /// [IdentifierObject] is a JSON representation of the [Identifier].
 /// It carries all JSON-related logic and the Meta-data.
-class IdentifierObject {
+class IdentifierObject with Meta {
   /// Creates an instance of [IdentifierObject].
   /// [type] and [id] can not be null.
-  IdentifierObject(this.type, this.id, {Map<String, Object> meta})
-      : meta = Map.unmodifiable(meta ?? const {}) {
+  IdentifierObject(this.type, this.id, {Map<String, Object> meta}) {
     ArgumentError.checkNotNull(type);
     ArgumentError.checkNotNull(id);
+    this.meta.addAll(meta ?? {});
   }
 
   /// Resource type
@@ -17,9 +18,6 @@ class IdentifierObject {
 
   /// Resource id
   final String id;
-
-  /// Meta data. May be empty or null.
-  final Map<String, Object> meta;
 
   static IdentifierObject fromIdentifier(Identifier identifier,
           {Map<String, Object> meta}) =>

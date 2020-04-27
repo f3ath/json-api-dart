@@ -65,7 +65,8 @@ void main() async {
       expectResourcesEqual(r.decodeDocument().data.unwrap(), post);
       expect(r.decodeDocument().included, []);
       expect(r.decodeDocument().isCompound, isTrue);
-      expect(r.decodeDocument().data.self.toString(), '/posts/1?include=tags');
+      expect(r.decodeDocument().data.links['self'].toString(),
+          '/posts/1?include=tags');
     });
 
     test('can include first-level relatives', () async {

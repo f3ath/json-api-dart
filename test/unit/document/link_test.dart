@@ -12,16 +12,11 @@ void main() {
   });
 
   test('link object can be parsed from JSON', () {
-    final link =
-        LinkObject(Uri.parse('http://example.com'), meta: {'foo': 'bar'});
+    final link = Link(Uri.parse('http://example.com'), meta: {'foo': 'bar'});
 
     final parsed = Link.fromJson(json.decode(json.encode(link)));
     expect(parsed.uri.toString(), 'http://example.com');
-    if (parsed is LinkObject) {
-      expect(parsed.meta['foo'], 'bar');
-    } else {
-      fail('LinkObject expected');
-    }
+    expect(parsed.meta['foo'], 'bar');
   });
 
   test('a map of link object can be parsed from JSON', () {

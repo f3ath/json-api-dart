@@ -35,17 +35,19 @@ void main() async {
       expect(r.decodeDocument().data.unwrap().id, '1');
       expect(
           r.decodeDocument().data.unwrap().attributes['title'], 'Refactoring');
-      expect(r.decodeDocument().data.self.uri.toString(), '/books/1');
+      expect(r.decodeDocument().data.links['self'].uri.toString(), '/books/1');
       expect(
           r.decodeDocument().data.resourceObject.links['self'].uri.toString(),
           '/books/1');
       final authors =
           r.decodeDocument().data.resourceObject.relationships['authors'];
-      expect(authors.self.toString(), '/books/1/relationships/authors');
+      expect(
+          authors.links['self'].toString(), '/books/1/relationships/authors');
       expect(authors.related.toString(), '/books/1/authors');
       final publisher =
           r.decodeDocument().data.resourceObject.relationships['publisher'];
-      expect(publisher.self.toString(), '/books/1/relationships/publisher');
+      expect(publisher.links['self'].toString(),
+          '/books/1/relationships/publisher');
       expect(publisher.related.toString(), '/books/1/publisher');
     });
 

@@ -31,7 +31,7 @@ void main() async {
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().data.self.uri.toString(),
+      expect(r.decodeDocument().data.links['self'].uri.toString(),
           '/books/1/relationships/publisher');
       expect(
           r.decodeDocument().data.related.uri.toString(), '/books/1/publisher');
@@ -81,7 +81,7 @@ void main() async {
       expect(r.http.headers['content-type'], Document.contentType);
       expect(r.decodeDocument().data.unwrap().length, 2);
       expect(r.decodeDocument().data.unwrap().first.type, 'people');
-      expect(r.decodeDocument().data.self.uri.toString(),
+      expect(r.decodeDocument().data.links['self'].uri.toString(),
           '/books/1/relationships/authors');
       expect(
           r.decodeDocument().data.related.uri.toString(), '/books/1/authors');

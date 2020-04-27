@@ -18,7 +18,7 @@ void main() {
       });
       expect(e.links['my-link'].toString(), 'http://example.com');
       expect(e.links['about'].toString(), '/about');
-      expect(e.about.toString(), '/about');
+      expect(e.links['about'].toString(), '/about');
     });
 
     test('custom "links" survives json serialization', () {

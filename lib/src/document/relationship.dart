@@ -61,9 +61,8 @@ class ToOne extends Relationship {
 
   static ToOne fromJson(Object json) {
     if (json is Map && json.containsKey('data')) {
-      final links = json['links'];
       return ToOne(nullable(IdentifierObject.fromJson)(json['data']),
-          links: (links == null) ? null : Link.mapFromJson(links));
+          links: nullable(Link.mapFromJson)(json['links']));
     }
     throw DocumentException(
         "A to-one relationship must be a JSON object and contain the 'data' member");
@@ -103,10 +102,9 @@ class ToMany extends Relationship {
     if (json is Map && json.containsKey('data')) {
       final data = json['data'];
       if (data is List) {
-        final links = json['links'];
         return ToMany(
           data.map(IdentifierObject.fromJson),
-          links: (links == null) ? null : Link.mapFromJson(links),
+          links: nullable(Link.mapFromJson)(json['links']),
         );
       }
     }

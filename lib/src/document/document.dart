@@ -2,21 +2,22 @@ import 'package:json_api/document.dart';
 import 'package:json_api/src/document/api.dart';
 import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/error_object.dart';
+import 'package:json_api/src/document/meta.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/nullable.dart';
 
-class Document<D extends PrimaryData> {
+class Document<D extends PrimaryData> with Meta {
   /// Create a document with primary data
   Document(this.data,
       {Map<String, Object> meta, Api api, Iterable<ResourceObject> included})
       : errors = const [],
         included = List.unmodifiable(included ?? []),
-        meta = Map.unmodifiable(meta ?? const {}),
         api = api ?? Api(),
         isError = false,
         isCompound = included != null,
         isMeta = false {
     ArgumentError.checkNotNull(data);
+    this.meta.addAll(meta ?? {});
   }
 
   /// Create a document with errors (no primary data)
@@ -24,17 +25,17 @@ class Document<D extends PrimaryData> {
       {Map<String, Object> meta, Api api})
       : data = null,
         included = const [],
-        meta = Map.unmodifiable(meta ?? const {}),
         errors = List.unmodifiable(errors ?? const []),
         api = api ?? Api(),
         isCompound = false,
         isError = true,
-        isMeta = false;
+        isMeta = false {
+    this.meta.addAll(meta ?? {});
+  }
 
   /// Create an empty document (no primary data and no errors)
   Document.empty(Map<String, Object> meta, {Api api})
       : data = null,
-        meta = Map.unmodifiable(meta ?? const {}),
         included = const [],
         errors = const [],
         api = api ?? Api(),
@@ -42,6 +43,7 @@ class Document<D extends PrimaryData> {
         isCompound = false,
         isMeta = true {
     ArgumentError.checkNotNull(meta);
+    this.meta.addAll(meta);
   }
 
   /// The Primary Data. May be null.
@@ -55,9 +57,6 @@ class Document<D extends PrimaryData> {
 
   /// List of errors. May be empty.
   final List<ErrorObject> errors;
-
-  /// Meta data. May be empty.
-  final Map<String, Object> meta;
 
   /// The `jsonapi` object.
   final Api api;
