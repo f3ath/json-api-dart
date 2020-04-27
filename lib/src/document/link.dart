@@ -1,9 +1,8 @@
 import 'package:json_api/src/document/document_exception.dart';
-import 'package:json_api/src/document/json_encodable.dart';
 
 /// A JSON:API link
 /// https://jsonapi.org/format/#document-links
-class Link implements JsonEncodable {
+class Link {
   Link(this.uri) {
     ArgumentError.checkNotNull(uri, 'uri');
   }
@@ -33,7 +32,6 @@ class Link implements JsonEncodable {
     throw DocumentException('A JSON:API links object must be a JSON object');
   }
 
-  @override
   Object toJson() => uri.toString();
 
   @override
@@ -50,7 +48,7 @@ class LinkObject extends Link {
   final Map<String, Object> meta;
 
   @override
-  Object toJson() => {
+  Map<String, Object> toJson() => {
         'href': uri.toString(),
         if (meta.isNotEmpty) 'meta': meta,
       };

@@ -1,8 +1,7 @@
 import 'package:json_api/src/document/document_exception.dart';
-import 'package:json_api/src/document/json_encodable.dart';
 
 /// Details: https://jsonapi.org/format/#document-jsonapi-object
-class Api implements JsonEncodable {
+class Api {
   Api({String version, Map<String, Object> meta})
       : meta = Map.unmodifiable(meta ?? const {}),
         version = version ?? '';
@@ -22,7 +21,6 @@ class Api implements JsonEncodable {
     throw DocumentException("The 'jsonapi' member must be a JSON object");
   }
 
-  @override
   Map<String, Object> toJson() => {
         if (version.isNotEmpty) 'version': version,
         if (meta.isNotEmpty) 'meta': meta,

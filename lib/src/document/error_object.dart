@@ -1,13 +1,12 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/document/document_exception.dart';
-import 'package:json_api/src/document/json_encodable.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/nullable.dart';
 
 /// [ErrorObject] represents an error occurred on the server.
 ///
 /// More on this: https://jsonapi.org/format/#errors
-class ErrorObject implements JsonEncodable {
+class ErrorObject {
   /// Creates an instance of a JSON:API Error.
   /// The [links] map may contain custom links. The about link
   /// passed through the [about] argument takes precedence and will overwrite
@@ -87,7 +86,6 @@ class ErrorObject implements JsonEncodable {
   /// - parameter: a string indicating which URI query parameter caused the error.
   final Map<String, String> source;
 
-  @override
   Map<String, Object> toJson() {
     return {
       if (id.isNotEmpty) 'id': id,

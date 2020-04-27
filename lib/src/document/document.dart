@@ -2,11 +2,10 @@ import 'package:json_api/document.dart';
 import 'package:json_api/src/document/api.dart';
 import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/error_object.dart';
-import 'package:json_api/src/document/json_encodable.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/nullable.dart';
 
-class Document<D extends PrimaryData> implements JsonEncodable {
+class Document<D extends PrimaryData> {
   /// Create a document with primary data
   Document(this.data,
       {Map<String, Object> meta, Api api, Iterable<ResourceObject> included})
@@ -99,7 +98,6 @@ class Document<D extends PrimaryData> implements JsonEncodable {
 
   static const contentType = 'application/vnd.api+json';
 
-  @override
   Map<String, Object> toJson() => {
         if (data != null) ...data.toJson() else if (isError) 'errors': errors,
         if (isMeta || meta.isNotEmpty) 'meta': meta,

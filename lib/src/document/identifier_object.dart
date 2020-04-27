@@ -1,10 +1,9 @@
 import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/json_encodable.dart';
 
 /// [IdentifierObject] is a JSON representation of the [Identifier].
 /// It carries all JSON-related logic and the Meta-data.
-class IdentifierObject implements JsonEncodable {
+class IdentifierObject {
   /// Creates an instance of [IdentifierObject].
   /// [type] and [id] can not be null.
   IdentifierObject(this.type, this.id, {Map<String, Object> meta})
@@ -35,7 +34,6 @@ class IdentifierObject implements JsonEncodable {
 
   Identifier unwrap() => Identifier(type, id);
 
-  @override
   Map<String, Object> toJson() => {
         'type': type,
         'id': id,

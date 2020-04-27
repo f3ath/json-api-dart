@@ -1,7 +1,6 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/json_encodable.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
@@ -14,7 +13,7 @@ import 'package:json_api/src/nullable.dart';
 /// resource collection.
 ///
 /// More on this: https://jsonapi.org/format/#document-resource-objects
-class ResourceObject implements JsonEncodable {
+class ResourceObject {
   ResourceObject(this.type, this.id,
       {Map<String, Object> attributes,
       Map<String, Relationship> relationships,
@@ -69,7 +68,6 @@ class ResourceObject implements JsonEncodable {
 
   /// Returns the JSON object to be used in the `data` or `included` members
   /// of a JSON:API Document
-  @override
   Map<String, Object> toJson() => {
         'type': type,
         if (id != null) 'id': id,
