@@ -128,7 +128,7 @@ void main() async {
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], Document.contentType);
       final rel = r.decodeDocument().data;
-      if (rel is ToOne) {
+      if (rel is ToOneObject) {
         expect(rel.unwrap().type, 'companies');
         expect(rel.unwrap().id, '1');
       } else {
@@ -142,7 +142,7 @@ void main() async {
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], Document.contentType);
       final rel = r.decodeDocument().data;
-      if (rel is ToMany) {
+      if (rel is ToManyObject) {
         expect(rel.unwrap().length, 2);
         expect(rel.unwrap().first.id, '1');
         expect(rel.unwrap().first.type, 'people');

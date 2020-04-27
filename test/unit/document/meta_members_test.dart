@@ -89,7 +89,7 @@ void main() {
       expect(doc.meta['bool'], true);
       expect(doc.data.collection.first.meta, meta);
       expect(
-          (doc.data.collection.first.relationships['comments'] as ToMany)
+          (doc.data.collection.first.relationships['comments'] as ToManyObject)
               .linkage
               .first
               .meta,

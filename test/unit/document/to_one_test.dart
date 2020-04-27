@@ -6,12 +6,12 @@ import 'package:test/test.dart';
 void main() {
   group('custom links', () {
     test('recognizes custom links', () {
-      final r = ToOne(null, links: {'my-link': Link(Uri.parse('/my-link'))});
+      final r = ToOneObject(null, links: {'my-link': Link(Uri.parse('/my-link'))});
       expect(r.links['my-link'].toString(), '/my-link');
     });
 
     test('"links" may contain the "related" and "self" keys', () {
-      final r = ToOne(null, links: {
+      final r = ToOneObject(null, links: {
         'my-link': Link(Uri.parse('/my-link')),
         'related': Link(Uri.parse('/related')),
         'self': Link(Uri.parse('/self'))
@@ -24,11 +24,11 @@ void main() {
     });
 
     test('custom "links" survives json serialization', () {
-      final r = ToOne(null, links: {
+      final r = ToOneObject(null, links: {
         'my-link': Link(Uri.parse('/my-link')),
       });
       expect(
-          ToOne.fromJson(json.decode(json.encode(r)))
+          ToOneObject.fromJson(json.decode(json.encode(r)))
               .links['my-link']
               .toString(),
           '/my-link');

@@ -44,7 +44,7 @@ class JsonApiClient {
           headers: headers);
 
   /// Fetches a to-one relationship by [type], [id], [relationship].
-  Future<Response<ToOne>> fetchToOne(
+  Future<Response<ToOneObject>> fetchToOne(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
       send(Request.fetchToOne(parameters: parameters),
@@ -52,7 +52,7 @@ class JsonApiClient {
           headers: headers);
 
   /// Fetches a to-many relationship by [type], [id], [relationship].
-  Future<Response<ToMany>> fetchToMany(
+  Future<Response<ToManyObject>> fetchToMany(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
       send(
@@ -62,7 +62,7 @@ class JsonApiClient {
       );
 
   /// Fetches a [relationship] of [type] : [id].
-  Future<Response<Relationship>> fetchRelationship(
+  Future<Response<RelationshipObject>> fetchRelationship(
           String type, String id, String relationship,
           {Map<String, String> headers, QueryParameters parameters}) =>
       send(Request.fetchRelationship(parameters: parameters),
@@ -89,7 +89,7 @@ class JsonApiClient {
           headers: headers);
 
   /// Replaces the to-one [relationship] of [type] : [id].
-  Future<Response<ToOne>> replaceToOne(
+  Future<Response<ToOneObject>> replaceToOne(
           String type, String id, String relationship, Identifier identifier,
           {Map<String, String> headers}) =>
       send(Request.replaceToOne(_toOneDoc(identifier)),
@@ -97,7 +97,7 @@ class JsonApiClient {
           headers: headers);
 
   /// Deletes the to-one [relationship] of [type] : [id].
-  Future<Response<ToOne>> deleteToOne(
+  Future<Response<ToOneObject>> deleteToOne(
           String type, String id, String relationship,
           {Map<String, String> headers}) =>
       send(Request.replaceToOne(_toOneDoc(null)),
@@ -105,7 +105,7 @@ class JsonApiClient {
           headers: headers);
 
   /// Deletes the [identifiers] from the to-many [relationship] of [type] : [id].
-  Future<Response<ToMany>> deleteFromToMany(String type, String id,
+  Future<Response<ToManyObject>> deleteFromToMany(String type, String id,
           String relationship, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       send(Request.deleteFromToMany(_toManyDoc(identifiers)),
@@ -113,7 +113,7 @@ class JsonApiClient {
           headers: headers);
 
   /// Replaces the to-many [relationship] of [type] : [id] with the [identifiers].
-  Future<Response<ToMany>> replaceToMany(String type, String id,
+  Future<Response<ToManyObject>> replaceToMany(String type, String id,
           String relationship, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       send(Request.replaceToMany(_toManyDoc(identifiers)),
@@ -121,7 +121,7 @@ class JsonApiClient {
           headers: headers);
 
   /// Adds the [identifiers] to the to-many [relationship] of [type] : [id].
-  Future<Response<ToMany>> addToMany(String type, String id,
+  Future<Response<ToManyObject>> addToMany(String type, String id,
           String relationship, Iterable<Identifier> identifiers,
           {Map<String, String> headers}) =>
       send(Request.addToMany(_toManyDoc(identifiers)),
@@ -141,9 +141,9 @@ class JsonApiClient {
   Document<ResourceData> _resourceDoc(Resource resource) =>
       Document(ResourceData.fromResource(resource));
 
-  Document<ToMany> _toManyDoc(Iterable<Identifier> identifiers) =>
-      Document(ToMany.fromIdentifiers(identifiers));
+  Document<ToManyObject> _toManyDoc(Iterable<Identifier> identifiers) =>
+      Document(ToManyObject.fromIdentifiers(identifiers));
 
-  Document<ToOne> _toOneDoc(Identifier identifier) =>
-      Document(ToOne.fromIdentifier(identifier));
+  Document<ToOneObject> _toOneDoc(Identifier identifier) =>
+      Document(ToOneObject.fromIdentifier(identifier));
 }

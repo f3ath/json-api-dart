@@ -6,12 +6,12 @@ import 'package:test/test.dart';
 void main() {
   group('custom links', () {
     test('recognizes custom links', () {
-      final r = Relationship(links: {'my-link': Link(Uri.parse('/my-link'))});
+      final r = RelationshipObject(links: {'my-link': Link(Uri.parse('/my-link'))});
       expect(r.links['my-link'].toString(), '/my-link');
     });
 
     test('"links" may contain the "related" and "self" keys', () {
-      final r = Relationship(links: {
+      final r = RelationshipObject(links: {
         'my-link': Link(Uri.parse('/my-link')),
         'related': Link(Uri.parse('/related')),
         'self': Link(Uri.parse('/self'))
@@ -24,11 +24,11 @@ void main() {
     });
 
     test('custom "links" survives json serialization', () {
-      final r = Relationship(links: {
+      final r = RelationshipObject(links: {
         'my-link': Link(Uri.parse('/my-link')),
       });
       expect(
-          Relationship.fromJson(json.decode(json.encode(r)))
+          RelationshipObject.fromJson(json.decode(json.encode(r)))
               .links['my-link']
               .toString(),
           '/my-link');

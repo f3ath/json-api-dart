@@ -139,7 +139,7 @@ class HttpResponseFactory implements ResponseFactory {
           Iterable<Identifier> identifiers) =>
       HttpResponse(200,
           headers: {'Content-Type': Document.contentType},
-          body: jsonEncode(Document(ToMany(
+          body: jsonEncode(Document(ToManyObject(
             identifiers.map(IdentifierObject.fromIdentifier),
             links: {
               'self': Link(_self(request)),
@@ -153,7 +153,7 @@ class HttpResponseFactory implements ResponseFactory {
           Request<RelationshipTarget> request, Identifier identifier) =>
       HttpResponse(200,
           headers: {'Content-Type': Document.contentType},
-          body: jsonEncode(Document(ToOne(
+          body: jsonEncode(Document(ToOneObject(
             IdentifierObject.fromIdentifier(identifier),
             links: {
               'self': Link(_self(request)),
@@ -168,14 +168,14 @@ class HttpResponseFactory implements ResponseFactory {
           relationships: {
             ...resource.toOne.map((k, v) => MapEntry(
                 k,
-                ToOne(nullable(IdentifierObject.fromIdentifier)(v), links: {
+                ToOneObject(nullable(IdentifierObject.fromIdentifier)(v), links: {
                   'self':
                       Link(_uri.relationship(resource.type, resource.id, k)),
                   'related': Link(_uri.related(resource.type, resource.id, k)),
                 }))),
             ...resource.toMany.map((k, v) => MapEntry(
                 k,
-                ToMany(v.map(IdentifierObject.fromIdentifier), links: {
+                ToManyObject(v.map(IdentifierObject.fromIdentifier), links: {
                   'self':
                       Link(_uri.relationship(resource.type, resource.id, k)),
                   'related': Link(_uri.related(resource.type, resource.id, k)),

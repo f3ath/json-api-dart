@@ -4,7 +4,7 @@ import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/links.dart';
 import 'package:json_api/src/document/meta.dart';
-import 'package:json_api/src/document/relationship.dart';
+import 'package:json_api/src/document/relationship_object.dart';
 import 'package:json_api/src/document/resource.dart';
 import 'package:json_api/src/nullable.dart';
 
@@ -18,7 +18,7 @@ import 'package:json_api/src/nullable.dart';
 class ResourceObject with Meta, Links {
   ResourceObject(this.type, this.id,
       {Map<String, Object> attributes,
-      Map<String, Relationship> relationships,
+      Map<String, RelationshipObject> relationships,
       Map<String, Object> meta,
       Map<String, Link> links})
       : attributes = Map.unmodifiable(attributes ?? const {}),
@@ -32,9 +32,9 @@ class ResourceObject with Meta, Links {
           attributes: resource.attributes,
           relationships: {
             ...resource.toOne.map((k, v) => MapEntry(
-                k, ToOne(nullable(IdentifierObject.fromIdentifier)(v)))),
+                k, ToOneObject(nullable(IdentifierObject.fromIdentifier)(v)))),
             ...resource.toMany.map((k, v) =>
-                MapEntry(k, ToMany(v.map(IdentifierObject.fromIdentifier))))
+                MapEntry(k, ToManyObject(v.map(IdentifierObject.fromIdentifier))))
           });
 
   /// Reconstructs the `data` member of a JSON:API Document.
@@ -49,7 +49,7 @@ class ResourceObject with Meta, Links {
           type.isNotEmpty) {
         return ResourceObject(json['type'], json['id'],
             attributes: attributes,
-            relationships: nullable(Relationship.mapFromJson)(relationships),
+            relationships: nullable(RelationshipObject.mapFromJson)(relationships),
             links: Link.mapFromJson(json['links'] ?? {}),
             meta: json['meta']);
       }
@@ -61,7 +61,7 @@ class ResourceObject with Meta, Links {
   final String type;
   final String id;
   final Map<String, Object> attributes;
-  final Map<String, Relationship> relationships;
+  final Map<String, RelationshipObject> relationships;
 
   Link get self => links['self'];
 
@@ -84,11 +84,11 @@ class ResourceObject with Meta, Links {
   Resource unwrap() {
     final toOne = <String, Identifier>{};
     final toMany = <String, List<Identifier>>{};
-    final incomplete = <String, Relationship>{};
+    final incomplete = <String, RelationshipObject>{};
     relationships.forEach((name, rel) {
-      if (rel is ToOne) {
+      if (rel is ToOneObject) {
         toOne[name] = rel.unwrap();
-      } else if (rel is ToMany) {
+      } else if (rel is ToManyObject) {
         toMany[name] = rel.unwrap();
       } else {
         incomplete[name] = rel;

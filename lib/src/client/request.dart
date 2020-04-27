@@ -28,15 +28,15 @@ class Request<D extends PrimaryData> {
   static Request<ResourceData> fetchResource({QueryParameters parameters}) =>
       Request(HttpMethod.GET, ResourceData.fromJson, parameters: parameters);
 
-  static Request<ToOne> fetchToOne({QueryParameters parameters}) =>
-      Request(HttpMethod.GET, ToOne.fromJson, parameters: parameters);
+  static Request<ToOneObject> fetchToOne({QueryParameters parameters}) =>
+      Request(HttpMethod.GET, ToOneObject.fromJson, parameters: parameters);
 
-  static Request<ToMany> fetchToMany({QueryParameters parameters}) =>
-      Request(HttpMethod.GET, ToMany.fromJson, parameters: parameters);
+  static Request<ToManyObject> fetchToMany({QueryParameters parameters}) =>
+      Request(HttpMethod.GET, ToManyObject.fromJson, parameters: parameters);
 
-  static Request<Relationship> fetchRelationship(
+  static Request<RelationshipObject> fetchRelationship(
           {QueryParameters parameters}) =>
-      Request(HttpMethod.GET, Relationship.fromJson, parameters: parameters);
+      Request(HttpMethod.GET, RelationshipObject.fromJson, parameters: parameters);
 
   static Request<ResourceData> createResource(
           Document<ResourceData> document) =>
@@ -49,17 +49,17 @@ class Request<D extends PrimaryData> {
   static Request<ResourceData> deleteResource() =>
       Request(HttpMethod.DELETE, ResourceData.fromJson);
 
-  static Request<ToOne> replaceToOne(Document<ToOne> document) =>
-      Request.withPayload(document, HttpMethod.PATCH, ToOne.fromJson);
+  static Request<ToOneObject> replaceToOne(Document<ToOneObject> document) =>
+      Request.withPayload(document, HttpMethod.PATCH, ToOneObject.fromJson);
 
-  static Request<ToMany> deleteFromToMany(Document<ToMany> document) =>
-      Request.withPayload(document, HttpMethod.DELETE, ToMany.fromJson);
+  static Request<ToManyObject> deleteFromToMany(Document<ToManyObject> document) =>
+      Request.withPayload(document, HttpMethod.DELETE, ToManyObject.fromJson);
 
-  static Request<ToMany> replaceToMany(Document<ToMany> document) =>
-      Request.withPayload(document, HttpMethod.PATCH, ToMany.fromJson);
+  static Request<ToManyObject> replaceToMany(Document<ToManyObject> document) =>
+      Request.withPayload(document, HttpMethod.PATCH, ToManyObject.fromJson);
 
-  static Request<ToMany> addToMany(Document<ToMany> document) =>
-      Request.withPayload(document, HttpMethod.POST, ToMany.fromJson);
+  static Request<ToManyObject> addToMany(Document<ToManyObject> document) =>
+      Request.withPayload(document, HttpMethod.POST, ToManyObject.fromJson);
 
   final PrimaryDataDecoder<D> decoder;
   final String method;
