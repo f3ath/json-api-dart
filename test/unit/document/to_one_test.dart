@@ -20,7 +20,7 @@ void main() {
       expect(r.links['self'].toString(), '/self');
       expect(r.links['related'].toString(), '/related');
       expect(r.links['self'].toString(), '/self');
-      expect(r.related.toString(), '/related');
+      expect(r.links['related'].toString(), '/related');
     });
 
     test('custom "links" survives json serialization', () {

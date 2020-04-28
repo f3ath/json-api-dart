@@ -1,7 +1,9 @@
 import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/meta.dart';
 import 'package:json_api/src/document/primary_data.dart';
+import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource_object.dart';
 import 'package:json_api/src/nullable.dart';
 
@@ -13,7 +15,7 @@ import 'package:json_api/src/nullable.dart';
 /// It can also be a part of [ResourceObject].relationships map.
 ///
 /// More on this: https://jsonapi.org/format/#document-resource-object-relationships
-class RelationshipObject extends PrimaryData {
+class RelationshipObject extends PrimaryData with Meta {
   RelationshipObject({Map<String, Link> links}) : super(links: links);
 
   /// Reconstructs a JSON:API Document or the `relationship` member of a Resource object.
@@ -44,8 +46,9 @@ class RelationshipObject extends PrimaryData {
     throw DocumentException("The 'relationships' member must be a JSON object");
   }
 
-  /// The "related" link. May be null.
-  Link get related => links['related'];
+  @override
+  Map<String, Object> toJson() =>
+      {...super.toJson(), if (meta.isNotEmpty) 'meta': meta};
 }
 
 /// Relationship to-one
@@ -74,6 +77,8 @@ class ToOneObject extends RelationshipObject {
   ///
   /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
   final Identifier linkage;
+
+  ToOne unwrap() => ToOne.fromNullable(linkage);
 
   @override
   Map<String, Object> toJson() => {

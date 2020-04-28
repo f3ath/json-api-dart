@@ -5,7 +5,7 @@ import 'package:json_api/server.dart';
 import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../helper/expect_resources_equal.dart';
+import '../../helper/expect_same_json.dart';
 
 void main() async {
   final host = 'localhost';
@@ -36,7 +36,7 @@ void main() async {
       final r1 = await client.send(
           Request.fetchResource(), Uri.parse(r.http.headers['location']));
       expect(r1.http.statusCode, 200);
-      expectResourcesEqual(r1.decodeDocument().data.unwrap(), created);
+      expectSameJson(r1.decodeDocument().data.unwrap(), created);
     });
 
     test('403 when the id can not be generated', () async {
@@ -79,7 +79,7 @@ void main() async {
       final r1 = await client.fetchResource(person.type, person.id);
       expect(r1.isSuccessful, isTrue);
       expect(r1.http.statusCode, 200);
-      expectResourcesEqual(r1.decodeDocument().data.unwrap(), person);
+      expectSameJson(r1.decodeDocument().data.unwrap(), person);
     });
 
     test('404 when the collection does not exist', () async {

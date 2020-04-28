@@ -38,7 +38,7 @@ void main() async {
           .decodeDocument()
           .data
           .unwrap()
-          .toOne['publisher']
+          .one('publisher')
           .mapIfExists((i) => expect(i.id, '2'), () => fail('No id'));
     });
 
@@ -77,7 +77,7 @@ void main() async {
 
       final r1 = await client.fetchResource('books', '1');
       expect(
-          r1.decodeDocument().data.unwrap().toOne['publisher'].isEmpty, true);
+          r1.decodeDocument().data.unwrap().one('publisher').isEmpty, true);
     });
 
     test('404 on collection', () async {
@@ -114,10 +114,10 @@ void main() async {
 
       final r1 = await client.fetchResource('books', '1');
       expect(
-          r1.decodeDocument().data.unwrap().toMany['authors'].toList().length,
+          r1.decodeDocument().data.unwrap().many('authors').toList().length,
           1);
       expect(
-          r1.decodeDocument().data.unwrap().toMany['authors'].toList().first.id,
+          r1.decodeDocument().data.unwrap().many('authors').toList().first.id,
           '1');
     });
 
@@ -160,7 +160,7 @@ void main() async {
       expect(r.decodeDocument().data.linkage.last.id, '3');
 
       final r1 = await client.fetchResource('books', '1');
-      expect(r1.decodeDocument().data.unwrap().toMany['authors'].length, 3);
+      expect(r1.decodeDocument().data.unwrap().many('authors').length, 3);
     });
 
     test('successfully adding an existing identifier', () async {
@@ -174,7 +174,7 @@ void main() async {
       expect(r.decodeDocument().data.linkage.last.id, '2');
 
       final r1 = await client.fetchResource('books', '1');
-      expect(r1.decodeDocument().data.unwrap().toMany['authors'].length, 2);
+      expect(r1.decodeDocument().data.unwrap().many('authors').length, 2);
       expect(r1.http.headers['content-type'], Document.contentType);
     });
 
@@ -230,7 +230,7 @@ void main() async {
       expect(r.decodeDocument().data.linkage.first.id, '2');
 
       final r1 = await client.fetchResource('books', '1');
-      expect(r1.decodeDocument().data.unwrap().toMany['authors'].length, 1);
+      expect(r1.decodeDocument().data.unwrap().many('authors').length, 1);
     });
 
     test('successfully deleting a non-present identifier', () async {
@@ -244,7 +244,7 @@ void main() async {
       expect(r.decodeDocument().data.linkage.last.id, '2');
 
       final r1 = await client.fetchResource('books', '1');
-      expect(r1.decodeDocument().data.unwrap().toMany['authors'].length, 2);
+      expect(r1.decodeDocument().data.unwrap().many('authors').length, 2);
     });
 
     test('404 when collection not found', () async {

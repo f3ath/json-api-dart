@@ -165,20 +165,13 @@ class HttpResponseFactory implements ResponseFactory {
       ResourceObject(resource.type, resource.id,
           attributes: resource.attributes,
           relationships: {
-            ...resource.toOne.map((k, v) => MapEntry(
+            ...resource.relationships.map((k, v) => MapEntry(
                 k,
-                ToOneObject(v.mapIfExists((i) => i, () => null), links: {
-                  'self':
-                      Link(_uri.relationship(resource.type, resource.id, k)),
-                  'related': Link(_uri.related(resource.type, resource.id, k)),
-                }))),
-            ...resource.toMany.map((k, v) => MapEntry(
-                k,
-                ToManyObject(v.toList(), links: {
-                  'self':
-                      Link(_uri.relationship(resource.type, resource.id, k)),
-                  'related': Link(_uri.related(resource.type, resource.id, k)),
-                }))),
+                v
+                  ..links['self'] =
+                      Link(_uri.relationship(resource.type, resource.id, k))
+                  ..links['related'] =
+                      Link(_uri.related(resource.type, resource.id, k))))
           },
           links: {
             'self': Link(_uri.resource(resource.type, resource.id))

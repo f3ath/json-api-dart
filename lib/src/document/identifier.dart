@@ -30,19 +30,6 @@ class Identifier with Meta, Identity {
   @override
   final String id;
 
-  /// Returns true if the two identifiers have the same [type] and [id]
-  bool equals(Identifier other) =>
-      other != null &&
-      other.runtimeType == Identifier &&
-      other.type == type &&
-      other.id == id;
-
-  @override
-  bool operator ==(other) => equals(other);
-
-  @override
-  int get hashCode => 0;
-
   Map<String, Object> toJson() => {
         'type': type,
         'id': id,

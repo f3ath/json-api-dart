@@ -34,7 +34,7 @@ void main() async {
       expect(r.decodeDocument().data.links['self'].uri.toString(),
           '/books/1/relationships/publisher');
       expect(
-          r.decodeDocument().data.related.uri.toString(), '/books/1/publisher');
+          r.decodeDocument().data.links['related'].uri.toString(), '/books/1/publisher');
       expect(r.decodeDocument().data.linkage.type, 'companies');
       expect(r.decodeDocument().data.linkage.id, '1');
     });
@@ -84,7 +84,7 @@ void main() async {
       expect(r.decodeDocument().data.links['self'].uri.toString(),
           '/books/1/relationships/authors');
       expect(
-          r.decodeDocument().data.related.uri.toString(), '/books/1/authors');
+          r.decodeDocument().data.links['related'].uri.toString(), '/books/1/authors');
     });
 
     test('404 on collection', () async {

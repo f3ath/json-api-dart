@@ -1,13 +1,12 @@
 import 'package:json_api/document.dart';
 
-class Relationship {}
-
-class ToOne implements Relationship {
-  ToOne(Identifier identifier) {
+class ToOne extends RelationshipObject {
+  ToOne(Identifier identifier, {Map<String, Link> links})
+      : super(links: links) {
     set(identifier);
   }
 
-  ToOne.empty();
+  ToOne.empty({Map<String, Link> links}) : super(links: links);
 
   final _values = <Identifier>{};
 
@@ -29,12 +28,16 @@ class ToOne implements Relationship {
     _values.clear();
   }
 
+  @override
+  Map<String, Object> toJson() => {...super.toJson(), 'data': _values.first};
+
   static ToOne fromNullable(Identifier identifier) =>
       identifier == null ? ToOne.empty() : ToOne(identifier);
 }
 
-class ToMany implements Relationship {
-  ToMany(Iterable<Identifier> identifiers) {
+class ToMany extends RelationshipObject {
+  ToMany(Iterable<Identifier> identifiers, {Map<String, Link> links})
+      : super(links: links) {
     set(identifiers);
   }
 
@@ -56,4 +59,7 @@ class ToMany implements Relationship {
   void addAll(Iterable<Identifier> identifiers) {
     identifiers.forEach((i) => _map[i.key] = i);
   }
+
+  @override
+  Map<String, Object> toJson() => {...super.toJson(), 'data': _map.values};
 }

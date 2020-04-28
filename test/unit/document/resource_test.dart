@@ -6,7 +6,7 @@ void main() {
     final r = Resource('type', 'id', toMany: {
       'rel': [Identifier('foo', '1'), Identifier('foo', '1')]
     });
-    expect(r.toMany['rel'].length, 1);
+    expect(r.many('rel').length, 1);
   });
 
   test('toString', () {

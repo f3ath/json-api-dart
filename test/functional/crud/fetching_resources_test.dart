@@ -43,12 +43,12 @@ void main() async {
           r.decodeDocument().data.resourceObject.relationships['authors'];
       expect(
           authors.links['self'].toString(), '/books/1/relationships/authors');
-      expect(authors.related.toString(), '/books/1/authors');
+      expect(authors.links['related'].toString(), '/books/1/authors');
       final publisher =
           r.decodeDocument().data.resourceObject.relationships['publisher'];
       expect(publisher.links['self'].toString(),
           '/books/1/relationships/publisher');
-      expect(publisher.related.toString(), '/books/1/publisher');
+      expect(publisher.links['related'].toString(), '/books/1/publisher');
     });
 
     test('404 on collection', () async {

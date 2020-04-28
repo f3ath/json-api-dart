@@ -24,8 +24,8 @@ class Resource with Meta, Links, Identity {
     this.attributes.addAll(attributes ?? {});
     this.meta.addAll(meta ?? {});
     this.links.addAll(links ?? {});
-    toOne?.forEach((k, v) => this.toOne[k] = ToOne.fromNullable(v));
-    toMany?.forEach((k, v) => this.toMany[k] = ToMany(v));
+    toOne?.forEach((k, v) => this._toOne[k] = ToOne.fromNullable(v));
+    toMany?.forEach((k, v) => this._toMany[k] = ToMany(v));
   }
 
   /// Resource type
@@ -42,57 +42,72 @@ class Resource with Meta, Links, Identity {
   final attributes = <String, Object>{};
 
   /// The map of to-one relationships
-  final toOne = <String, ToOne>{};
+  final _toOne = <String, ToOne>{};
 
   /// The map of to-many relationships
-  final toMany = <String, ToMany>{};
+  final _toMany = <String, ToMany>{};
 
   /// All related resource identifiers.
-  List<Identifier> get related => toOne.values
+  List<Identifier> get related => _toOne.values
       .map((_) => _.toList())
-      .followedBy(toMany.values.map((_) => _.toList()))
+      .followedBy(_toMany.values.map((_) => _.toList()))
       .expand((_) => _)
       .toList();
 
   List<Identifier> relatedByKey(String key) {
     if (hasOne(key)) {
-      return toOne[key].toList();
+      return _toOne[key].toList();
     }
     if (hasMany(key)) {
-      return toMany[key].toList();
+      return _toMany[key].toList();
     }
     return [];
   }
 
   /// True for resources without attributes and relationships
-  bool get isEmpty => attributes.isEmpty && toOne.isEmpty && toMany.isEmpty;
+  bool get isEmpty => attributes.isEmpty && _toOne.isEmpty && _toMany.isEmpty;
 
-  bool hasOne(String key) => toOne.containsKey(key);
+  bool hasOne(String key) => _toOne.containsKey(key);
 
-  bool hasMany(String key) => toMany.containsKey(key);
+  ToOne one(String key) =>
+      _toOne[key] ?? (throw StateError('No such relationship'));
+
+  ToMany many(String key) =>
+      _toMany[key] ?? (throw StateError('No such relationship'));
+
+  bool hasMany(String key) => _toMany.containsKey(key);
 
   void addAll(Resource other) {
     attributes.addAll(other.attributes);
-    toOne.addAll(other.toOne);
-    toMany.addAll(other.toMany);
+    _toOne.addAll(other._toOne);
+    _toMany.addAll(other._toMany);
   }
 
   Resource withId(String newId) {
     // TODO: move to NewResource()
     if (id != null) throw StateError('Should not change id');
     return Resource(type, newId, attributes: attributes)
-      ..toOne.addAll(toOne)
-      ..toMany.addAll(toMany);
+      .._toOne.addAll(_toOne)
+      .._toMany.addAll(_toMany);
   }
 
   Map<String, RelationshipObject> get relationships => {
-        ...toOne.map((k, v) => MapEntry(
+        ..._toOne.map((k, v) => MapEntry(
             k, v.mapIfExists((_) => ToOneObject(_), () => ToOneObject(null)))),
-        ...toMany.map((k, v) => MapEntry(k, ToManyObject(v.toList())))
+        ..._toMany.map((k, v) => MapEntry(k, ToManyObject(v.toList())))
       };
 
   @override
   String toString() => 'Resource($key)';
+
+  Map<String, Object> toJson() => {
+        'type': type,
+        'id': id,
+        if (meta.isNotEmpty) 'meta': meta,
+        if (attributes.isNotEmpty) 'attributes': attributes,
+        if (relationships.isNotEmpty) 'relationships': relationships,
+        if (links.isNotEmpty) 'links': links,
+      };
 }
 
 /// Resource to be created on the server. Does not have the id yet

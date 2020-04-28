@@ -24,7 +24,7 @@ class RepositoryController implements Controller {
       _do(() async {
         final resource =
             await _repo.get(request.target.type, request.target.id);
-        if (!resource.toMany.containsKey(request.target.relationship)) {
+        if (!resource.hasMany(request.target.relationship)) {
           return ErrorResponse(404, [
             ErrorObject(
                 status: '404',
@@ -33,9 +33,9 @@ class RepositoryController implements Controller {
                     "There is no to-many relationship '${request.target.relationship}' in this resource")
           ]);
         }
-        resource.toMany[request.target.relationship].addAll(identifiers);
+        resource.many(request.target.relationship).addAll(identifiers);
         return ToManyResponse(
-            request, resource.toMany[request.target.relationship].toList());
+            request, resource.many(request.target.relationship).toList());
       });
 
   @override
@@ -55,9 +55,9 @@ class RepositoryController implements Controller {
       _do(() async {
         final resource =
             await _repo.get(request.target.type, request.target.id);
-        resource.toMany[request.target.relationship].remove(identifiers);
+        resource.many(request.target.relationship).remove(identifiers);
         return ToManyResponse(
-            request, resource.toMany[request.target.relationship].toList());
+            request, resource.many(request.target.relationship).toList());
       });
 
   @override
@@ -94,13 +94,13 @@ class RepositoryController implements Controller {
         if (resource.hasOne(request.target.relationship)) {
           return RelatedResourceResponse(
               request,
-              await resource.toOne[request.target.relationship].mapIfExists(
+              await resource.one(request.target.relationship).mapIfExists(
                   (i) async => _repo.get(i.type, i.id), () async => null));
         }
         if (resource.hasMany(request.target.relationship)) {
           final related = <Resource>[];
           for (final identifier
-              in resource.toMany[request.target.relationship].toList()) {
+              in resource.many(request.target.relationship).toList()) {
             related.add(await _repo.get(identifier.type, identifier.id));
           }
           return RelatedCollectionResponse(request, Collection(related));
@@ -117,12 +117,13 @@ class RepositoryController implements Controller {
         if (resource.hasOne(request.target.relationship)) {
           return ToOneResponse(
               request,
-              resource.toOne[request.target.relationship]
+              resource
+                  .one(request.target.relationship)
                   .mapIfExists((i) => i, () => null));
         }
         if (resource.hasMany(request.target.relationship)) {
           return ToManyResponse(
-              request, resource.toMany[request.target.relationship].toList());
+              request, resource.many(request.target.relationship).toList());
         }
         return ErrorResponse(
             404, _relationshipNotFound(request.target.relationship));
