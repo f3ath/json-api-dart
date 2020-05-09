@@ -1,5 +1,5 @@
 import 'package:json_api/client.dart';
-import 'package:json_api/document.dart';
+import 'package:json_api/document.dart' as d;
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/server/response_factory.dart';
 import 'package:test/test.dart';
@@ -13,9 +13,9 @@ void main() {
   final responseFactory = HttpResponseFactory(routing);
 
   test('Client understands async responses', () async {
-    handler.response = responseFactory.accepted(Resource('jobs', '42'));
+    handler.response = responseFactory.accepted(d.Resource('jobs', '42'));
 
-    final r = await client.createResource(Resource('books', '1'));
+    final r = await client.createResource('books', '1');
     expect(r.isAsync, true);
     expect(r.isSuccessful, false);
     expect(r.isFailed, false);

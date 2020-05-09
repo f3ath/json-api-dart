@@ -2,8 +2,6 @@ import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:json_api/client.dart';
-import 'package:json_api/document.dart';
-import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 import 'package:json_api/src/client/dart_http.dart';
@@ -11,7 +9,7 @@ import 'package:pedantic/pedantic.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('Client-Server interation over HTTP', () {
+  group('Client-Server interaction over HTTP', () {
     final port = 8088;
     final host = 'localhost';
     final routing =
@@ -36,19 +34,17 @@ void main() {
     });
 
     test('Happy Path', () async {
-      final writer =
-          Resource('writers', '1', attributes: {'name': 'Martin Fowler'});
-      final book = Resource('books', '2', attributes: {'title': 'Refactoring'});
-
-      await client.createResource(writer);
-      await client.createResource(book);
+      await client.createResource('writers', '1',
+          attributes: {'name': 'Martin Fowler'});
       await client
-          .updateResource(Resource('books', '2', toMany: {'authors': []}));
+          .createResource('books', '2', attributes: {'title': 'Refactoring'});
+      await client
+          .updateResource('books', '2', relationships: {'authors': Many([])});
       await client
           .addToMany('books', '2', 'authors', [Identifier('writers', '1')]);
 
-      final response = await client.fetchResource('books', '2',
-          parameters: Include(['authors']));
+      final response =
+          await client.fetchResource('books', '2', include: ['authors']);
 
       expect(response.decodeDocument().data.unwrap().attributes['title'],
           'Refactoring');

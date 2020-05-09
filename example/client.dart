@@ -1,6 +1,5 @@
 import 'package:http/http.dart' as http;
 import 'package:json_api/client.dart';
-import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
@@ -24,19 +23,19 @@ void main() async {
   final client = JsonApiClient(httpHandler, routing);
 
   /// Create the first resource.
-  await client.createResource(
-      Resource('writers', '1', attributes: {'name': 'Martin Fowler'}));
+  await client
+      .createResource('writers', '1', attributes: {'name': 'Martin Fowler'});
 
   /// Create the second resource.
-  await client.createResource(Resource('books', '2', attributes: {
+  await client.createResource('books', '2', attributes: {
     'title': 'Refactoring'
-  }, toMany: {
-    'authors': [Identifier('writers', '1')]
-  }));
+  }, relationships: {
+    'authors': Many([Identifier('writers', '1')])
+  });
 
   /// Fetch the book, including its authors.
   final response = await client.fetchResource('books', '2',
-      parameters: Include(['authors']));
+      include: ['authors']);
 
   final document = response.decodeDocument();
 

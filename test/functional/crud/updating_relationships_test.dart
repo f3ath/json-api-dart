@@ -1,5 +1,4 @@
 import 'package:json_api/client.dart';
-import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 import 'package:json_api/src/server/in_memory_repository.dart';
@@ -26,7 +25,7 @@ void main() async {
     await seedResources(client);
   });
 
-  group('Updatng a to-one relationship', () {
+  group('Updating a to-one relationship', () {
     test('204 No Content', () async {
       final r = await client.replaceToOne(
           'books', '1', 'publisher', Identifier('companies', '2'));
@@ -47,7 +46,7 @@ void main() async {
           'unicorns', '1', 'breed', Identifier('companies', '2'));
       expect(r.isSuccessful, isFalse);
       expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data, isNull);
       final error = r.decodeDocument().errors.first;
       expect(error.status, '404');
@@ -60,7 +59,7 @@ void main() async {
           'books', '42', 'publisher', Identifier('companies', '2'));
       expect(r.isSuccessful, isFalse);
       expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data, isNull);
       final error = r.decodeDocument().errors.first;
       expect(error.status, '404');
@@ -84,7 +83,7 @@ void main() async {
       final r = await client.deleteToOne('unicorns', '1', 'breed');
       expect(r.isSuccessful, isFalse);
       expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data, isNull);
       final error = r.decodeDocument().errors.first;
       expect(error.status, '404');
@@ -96,7 +95,7 @@ void main() async {
       final r = await client.deleteToOne('books', '42', 'publisher');
       expect(r.isSuccessful, isFalse);
       expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data, isNull);
       final error = r.decodeDocument().errors.first;
       expect(error.status, '404');
@@ -126,7 +125,7 @@ void main() async {
           'unicorns', '1', 'breed', [Identifier('companies', '2')]);
       expect(r.isSuccessful, isFalse);
       expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data, isNull);
       final error = r.decodeDocument().errors.first;
       expect(error.status, '404');
@@ -139,7 +138,7 @@ void main() async {
           'books', '42', 'publisher', [Identifier('companies', '2')]);
       expect(r.isSuccessful, isFalse);
       expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data, isNull);
       final error = r.decodeDocument().errors.first;
       expect(error.status, '404');
@@ -154,7 +153,7 @@ void main() async {
           .addToMany('books', '1', 'authors', [Identifier('people', '3')]);
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data.linkage.length, 3);
       expect(r.decodeDocument().data.linkage.first.id, '1');
       expect(r.decodeDocument().data.linkage.last.id, '3');
@@ -168,14 +167,14 @@ void main() async {
           .addToMany('books', '1', 'authors', [Identifier('people', '2')]);
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data.linkage.length, 2);
       expect(r.decodeDocument().data.linkage.first.id, '1');
       expect(r.decodeDocument().data.linkage.last.id, '2');
 
       final r1 = await client.fetchResource('books', '1');
       expect(r1.decodeDocument().data.unwrap().many('authors').length, 2);
-      expect(r1.http.headers['content-type'], Document.contentType);
+      expect(r1.http.headers['content-type'], ContentType.jsonApi);
     });
 
     test('404 when collection not found', () async {
@@ -183,7 +182,7 @@ void main() async {
           .addToMany('unicorns', '1', 'breed', [Identifier('companies', '3')]);
       expect(r.isSuccessful, isFalse);
       expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data, isNull);
       final error = r.decodeDocument().errors.first;
       expect(error.status, '404');
@@ -196,7 +195,7 @@ void main() async {
           'books', '42', 'publisher', [Identifier('companies', '3')]);
       expect(r.isSuccessful, isFalse);
       expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data, isNull);
       final error = r.decodeDocument().errors.first;
       expect(error.status, '404');
@@ -209,7 +208,7 @@ void main() async {
           .addToMany('books', '1', 'sellers', [Identifier('companies', '3')]);
       expect(r.isSuccessful, isFalse);
       expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data, isNull);
       final error = r.decodeDocument().errors.first;
       expect(error.status, '404');
@@ -225,7 +224,7 @@ void main() async {
           'books', '1', 'authors', [Identifier('people', '1')]);
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data.linkage.length, 1);
       expect(r.decodeDocument().data.linkage.first.id, '2');
 
@@ -238,7 +237,7 @@ void main() async {
           'books', '1', 'authors', [Identifier('people', '3')]);
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data.linkage.length, 2);
       expect(r.decodeDocument().data.linkage.first.id, '1');
       expect(r.decodeDocument().data.linkage.last.id, '2');
@@ -252,7 +251,7 @@ void main() async {
           'unicorns', '1', 'breed', [Identifier('companies', '1')]);
       expect(r.isSuccessful, isFalse);
       expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data, isNull);
       final error = r.decodeDocument().errors.first;
       expect(error.status, '404');
@@ -265,7 +264,7 @@ void main() async {
           'books', '42', 'publisher', [Identifier('companies', '1')]);
       expect(r.isSuccessful, isFalse);
       expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data, isNull);
       final error = r.decodeDocument().errors.first;
       expect(error.status, '404');
