@@ -14,9 +14,9 @@ Future<void> seedResources(JsonApiClient client) async {
     'title': 'Refactoring',
     'ISBN-10': '0134757599'
   }, one: {
-    'publisher': Ref('companies', '1'),
+    'publisher': Identifier('companies', '1'),
     'reviewer': null,
   }, many: {
-    'authors': [Ref('people', '1'), Ref('people', '2')]
+    'authors': [Identifier('people', '1'), Identifier('people', '2')]
   });
 }

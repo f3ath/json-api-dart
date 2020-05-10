@@ -14,4 +14,6 @@ class StatusCode {
 
   /// True for failed requests
   bool get isFailed => !isSuccessful && !isPending;
+
+  bool get isNoContent => code == 204;
 }

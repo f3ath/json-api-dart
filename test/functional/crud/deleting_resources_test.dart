@@ -1,5 +1,4 @@
 import 'package:json_api/client.dart';
-import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 import 'package:json_api/src/server/in_memory_repository.dart';
@@ -28,7 +27,6 @@ void main() async {
 
   test('successful', () async {
     final r = await client.deleteResource('books', '1');
-    expect(r.isSuccessful, isTrue);
     expect(r.http.statusCode, 204);
     try {
       await client.fetchResource('books', '1');

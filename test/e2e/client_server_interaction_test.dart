@@ -39,7 +39,7 @@ void main() {
       await client
           .createResource('books', '2', attributes: {'title': 'Refactoring'});
       await client.updateResource('books', '2', many: {'authors': []});
-      await client.addMany('books', '2', 'authors', [Ref('writers', '1')]);
+      await client.addMany('books', '2', 'authors', [Identifier('writers', '1')]);
 
       final response =
           await client.fetchResource('books', '2', include: ['authors']);

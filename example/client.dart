@@ -29,7 +29,7 @@ void main() async {
   await client.createResource('books', '2', attributes: {
     'title': 'Refactoring'
   }, many: {
-    'authors': [Ref('writers', '1')]
+    'authors': [Identifier('writers', '1')]
   });
 
   /// Fetch the book, including its authors.

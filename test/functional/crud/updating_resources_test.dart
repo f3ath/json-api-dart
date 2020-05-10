@@ -6,7 +6,6 @@ import 'package:json_api/src/server/json_api_server.dart';
 import 'package:json_api/src/server/repository_controller.dart';
 import 'package:test/test.dart';
 
-import '../../helper/expect_same_json.dart';
 import 'seed_resources.dart';
 
 void main() async {
@@ -33,32 +32,26 @@ void main() async {
     }, one: {
       'publisher': null,
     }, many: {
-      'authors': [Ref('people', '1')],
-      'reviewers': [Ref('people', '2')]
+      'authors': [Identifier('people', '1')],
+      'reviewers': [Identifier('people', '2')]
     });
-    expect(r.isSuccessful, isTrue);
     expect(r.http.statusCode, 200);
     expect(r.http.headers['content-type'], ContentType.jsonApi);
-    expect(r.decodeDocument().data.unwrap().attributes['title'],
+    expect(r.resource().attributes['title'],
         'Refactoring. Improving the Design of Existing Code');
-    expect(r.decodeDocument().data.unwrap().attributes['pages'], 448);
+    expect(r.resource().attributes['pages'], 448);
+    expect(r.resource().attributes['ISBN-10'], '0134757599');
+    expect(r.resource().one('publisher').isEmpty, true);
+    expect(r.resource().many('authors').toList().first.key, equals('people:1'));
     expect(
-        r.decodeDocument().data.unwrap().attributes['ISBN-10'], '0134757599');
-    expect(r.decodeDocument().data.unwrap().one('publisher').isEmpty, true);
-    expect(r.decodeDocument().data.unwrap().many('authors').toList().first.key,
-        equals('people:1'));
-    expect(
-        r.decodeDocument().data.unwrap().many('reviewers').toList().first.key,
-        equals('people:2'));
+        r.resource().many('reviewers').toList().first.key, equals('people:2'));
 
     final r1 = await client.fetchResource('books', '1');
-    expect(
-        r1.resource.attributes, r.decodeDocument().data.unwrap().attributes);
+    expect(r1.resource.attributes, r.resource().attributes);
   });
 
   test('204 No Content', () async {
     final r = await client.updateResource('books', '1');
-    expect(r.isSuccessful, isTrue);
     expect(r.http.statusCode, 204);
   });
 

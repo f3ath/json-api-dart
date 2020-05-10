@@ -4,8 +4,6 @@ import 'package:json_api/server.dart';
 import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../helper/expect_same_json.dart';
-
 void main() async {
   final host = 'localhost';
   final port = 80;
@@ -25,16 +23,15 @@ void main() async {
       expect(r.http.statusCode, 201);
       expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.http.headers['location'], isNotNull);
-      expect(r.http.headers['location'],
-          r.decodeDocument().data.links['self'].uri.toString());
-      final created = r.decodeDocument().data.unwrap();
+      expect(r.http.headers['location'], r.links['self'].uri.toString());
+      final created = r.resource;
       expect(created.type, 'people');
       expect(created.id, isNotNull);
       expect(created.attributes, equals({'name': 'Martin Fowler'}));
-      final r1 = await client.send(
-          Request.fetchResource(), Uri.parse(r.http.headers['location']));
-      expect(r1.http.statusCode, 200);
-      expectSameJson(r1.decodeDocument().data.unwrap(), created);
+      final r1 = await client.fetchResource(created.type, created.id);
+      expect(r1.resource.type, 'people');
+      expect(r1.resource.id, isNotNull);
+      expect(r1.resource.attributes, equals({'name': 'Martin Fowler'}));
     });
 
     test('403 when the id can not be generated', () async {
@@ -72,7 +69,6 @@ void main() async {
     test('204 No Content', () async {
       final r = await client.createResource('people', '123',
           attributes: {'name': 'Martin Fowler'});
-      expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 204);
       expect(r.http.headers['location'], isNull);
       final r1 = await client.fetchResource('people', '123');
@@ -96,7 +92,7 @@ void main() async {
     test('404 when the related resource does not exist (to-one)', () async {
       try {
         await client.createNewResource('books',
-            one: {'publisher': Ref('companies', '123')});
+            one: {'publisher': Identifier('companies', '123')});
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
@@ -111,7 +107,7 @@ void main() async {
     test('404 when the related resource does not exist (to-many)', () async {
       try {
         await client.createNewResource('books', many: {
-          'authors': [Ref('people', '123')]
+          'authors': [Identifier('people', '123')]
         });
         fail('Exception expected');
       } on RequestFailure catch (e) {

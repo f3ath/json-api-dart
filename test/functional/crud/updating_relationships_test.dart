@@ -28,8 +28,7 @@ void main() async {
   group('Updating a to-one relationship', () {
     test('204 No Content', () async {
       final r = await client.replaceOne(
-          'books', '1', 'publisher', Ref('companies', '2'));
-      expect(r.isSuccessful, isTrue);
+          'books', '1', 'publisher', Identifier('companies', '2'));
       expect(r.http.statusCode, 204);
 
       final r1 = await client.fetchResource('books', '1');
@@ -39,7 +38,7 @@ void main() async {
     test('404 on collection', () async {
       try {
         await client.replaceOne(
-            'unicorns', '1', 'breed', Ref('companies', '2'));
+            'unicorns', '1', 'breed', Identifier('companies', '2'));
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
@@ -53,7 +52,7 @@ void main() async {
     test('404 on resource', () async {
       try {
         await client.replaceOne(
-            'books', '42', 'publisher', Ref('companies', '2'));
+            'books', '42', 'publisher', Identifier('companies', '2'));
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
@@ -69,7 +68,6 @@ void main() async {
   group('Deleting a to-one relationship', () {
     test('204 No Content', () async {
       final r = await client.deleteOne('books', '1', 'publisher');
-      expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 204);
 
       final r1 = await client.fetchResource('books', '1');
@@ -107,8 +105,7 @@ void main() async {
   group('Replacing a to-many relationship', () {
     test('204 No Content', () async {
       final r = await client
-          .replaceMany('books', '1', 'authors', [Ref('people', '1')]);
-      expect(r.isSuccessful, isTrue);
+          .replaceMany('books', '1', 'authors', [Identifier('people', '1')]);
       expect(r.http.statusCode, 204);
 
       final r1 = await client.fetchResource('books', '1');
@@ -147,13 +144,12 @@ void main() async {
   group('Adding to a to-many relationship', () {
     test('successfully adding a new identifier', () async {
       final r =
-          await client.addMany('books', '1', 'authors', [Ref('people', '3')]);
-      expect(r.isSuccessful, isTrue);
+          await client.addMany('books', '1', 'authors', [Identifier('people', '3')]);
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], ContentType.jsonApi);
-      expect(r.decodeDocument().data.linkage.length, 3);
-      expect(r.decodeDocument().data.linkage.first.id, '1');
-      expect(r.decodeDocument().data.linkage.last.id, '3');
+      expect(r.relationship().length, 3);
+      expect(r.relationship().first.id, '1');
+      expect(r.relationship().last.id, '3');
 
       final r1 = await client.fetchResource('books', '1');
       expect(r1.resource.many('authors').length, 3);
@@ -161,13 +157,12 @@ void main() async {
 
     test('successfully adding an existing identifier', () async {
       final r =
-          await client.addMany('books', '1', 'authors', [Ref('people', '2')]);
-      expect(r.isSuccessful, isTrue);
+          await client.addMany('books', '1', 'authors', [Identifier('people', '2')]);
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], ContentType.jsonApi);
-      expect(r.decodeDocument().data.linkage.length, 2);
-      expect(r.decodeDocument().data.linkage.first.id, '1');
-      expect(r.decodeDocument().data.linkage.last.id, '2');
+      expect(r.relationship().length, 2);
+      expect(r.relationship().first.id, '1');
+      expect(r.relationship().last.id, '2');
 
       final r1 = await client.fetchResource('books', '1');
       expect(r1.resource.many('authors').length, 2);
@@ -219,12 +214,11 @@ void main() async {
   group('Deleting from a to-many relationship', () {
     test('successfully deleting an identifier', () async {
       final r = await client
-          .deleteMany('books', '1', 'authors', [Ref('people', '1')]);
-      expect(r.isSuccessful, isTrue);
+          .deleteMany('books', '1', 'authors', [Identifier('people', '1')]);
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], ContentType.jsonApi);
-      expect(r.decodeDocument().data.linkage.length, 1);
-      expect(r.decodeDocument().data.linkage.first.id, '2');
+      expect(r.relationship().length, 1);
+      expect(r.relationship().first.id, '2');
 
       final r1 = await client.fetchResource('books', '1');
       expect(r1.resource.many('authors').length, 1);
