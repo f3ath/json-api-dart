@@ -8,12 +8,8 @@ class QueryParameters {
 
   final Map<String, String> _parameters;
 
-  bool get isEmpty => _parameters.isEmpty;
-
-  bool get isNotEmpty => _parameters.isNotEmpty;
-
   /// Adds (or replaces) this parameters to the [uri].
-  Uri addToUri(Uri uri) => isEmpty
+  Uri addToUri(Uri uri) => _parameters.isEmpty
       ? uri
       : uri.replace(queryParameters: {...uri.queryParameters, ..._parameters});
 

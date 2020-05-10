@@ -30,6 +30,10 @@ class Fields extends QueryParameters {
 
   List<String> operator [](String key) => _fields[key];
 
+  bool get isEmpty => _fields.isEmpty;
+
+  bool get isNotEmpty => _fields.isNotEmpty;
+
   static final _regex = RegExp(r'^fields\[(.+)\]$');
 
   final Map<String, List<String>> _fields;

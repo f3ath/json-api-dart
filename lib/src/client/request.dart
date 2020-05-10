@@ -1,76 +1,77 @@
 import 'dart:convert';
 
+import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/src/client/content_type.dart';
 import 'package:json_api/src/client/document.dart';
 import 'package:json_api/src/http/http_method.dart';
+import 'package:json_api/src/maybe.dart';
 
-/// A JSON:API request.
-class Request {
-  Request(this.method, {QueryParameters parameters})
-      : headers = const {'Accept': ContentType.jsonApi},
-        body = '',
-        parameters = parameters ?? QueryParameters.empty();
+class JsonApiRequest {
+  JsonApiRequest(this._method, {Object document})
+      : _body = Maybe(document).map(jsonEncode).or('');
 
-  Request.withDocument(Object document, this.method,
-      {QueryParameters parameters})
-      : headers = const {
-          'Accept': ContentType.jsonApi,
-          'Content-Type': ContentType.jsonApi
-        },
-        body = jsonEncode(document),
-        parameters = parameters ?? QueryParameters.empty();
+  JsonApiRequest.fetch() : this(HttpMethod.GET);
 
-  static Request fetch({Iterable<String> include = const []}) =>
-      Request(HttpMethod.GET, parameters: Include(include));
+  JsonApiRequest.createNewResource(String type,
+      {Map<String, Object> attributes = const {},
+      Map<String, Identifier> one = const {},
+      Map<String, Iterable<Identifier>> many = const {}})
+      : this(HttpMethod.POST,
+            document:
+                _Resource(type, attributes: attributes, one: one, many: many));
 
-  static Request createNewResource(String type,
-          {Map<String, Object> attributes = const {},
-          Map<String, Identifier> one = const {},
-          Map<String, Iterable<Identifier>> many = const {}}) =>
-      Request.withDocument(
-          _Resource(type, attributes: attributes, one: one, many: many),
-          HttpMethod.POST);
+  JsonApiRequest.createResource(String type, String id,
+      {Map<String, Object> attributes = const {},
+      Map<String, Identifier> one = const {},
+      Map<String, Iterable<Identifier>> many = const {}})
+      : this(HttpMethod.POST,
+            document: _Resource.withId(type, id,
+                attributes: attributes, one: one, many: many));
 
-  static Request createResource(String type, String id,
-          {Map<String, Object> attributes = const {},
-          Map<String, Identifier> one = const {},
-          Map<String, Iterable<Identifier>> many = const {}}) =>
-      Request.withDocument(
-          _Resource.withId(type, id,
-              attributes: attributes, one: one, many: many),
-          HttpMethod.POST);
+  JsonApiRequest.updateResource(String type, String id,
+      {Map<String, Object> attributes = const {},
+      Map<String, Identifier> one = const {},
+      Map<String, Iterable<Identifier>> many = const {}})
+      : this(HttpMethod.PATCH,
+            document: _Resource.withId(type, id,
+                attributes: attributes, one: one, many: many));
 
-  static Request updateResource(String type, String id,
-          {Map<String, Object> attributes = const {},
-          Map<String, Identifier> one = const {},
-          Map<String, Iterable<Identifier>> many = const {}}) =>
-      Request.withDocument(
-          _Resource.withId(type, id,
-              attributes: attributes, one: one, many: many),
-          HttpMethod.PATCH);
+  JsonApiRequest.deleteResource() : this(HttpMethod.DELETE);
 
-  static Request deleteResource() => Request(HttpMethod.DELETE);
+  JsonApiRequest.replaceOne(Identifier identifier)
+      : this(HttpMethod.PATCH, document: _One(identifier));
 
-  static Request replaceOne(Identifier identifier) =>
-      Request.withDocument(_One(identifier), HttpMethod.PATCH);
+  JsonApiRequest.deleteOne() : this(HttpMethod.PATCH, document: _One(null));
 
-  static Request deleteOne() =>
-      Request.withDocument(_One(null), HttpMethod.PATCH);
+  JsonApiRequest.deleteMany(Iterable<Identifier> identifiers)
+      : this(HttpMethod.DELETE, document: _Many(identifiers));
 
-  static Request deleteMany(Iterable<Identifier> identifiers) =>
-      Request.withDocument(_Many(identifiers), HttpMethod.DELETE);
+  JsonApiRequest.replaceMany(Iterable<Identifier> identifiers)
+      : this(HttpMethod.PATCH, document: _Many(identifiers));
 
-  static Request replaceMany(Iterable<Identifier> identifiers) =>
-      Request.withDocument(_Many(identifiers), HttpMethod.PATCH);
+  JsonApiRequest.addMany(Iterable<Identifier> identifiers)
+      : this(HttpMethod.POST, document: _Many(identifiers));
 
-  static Request addMany(Iterable<Identifier> identifiers) =>
-      Request.withDocument(_Many(identifiers), HttpMethod.POST);
+  final String _method;
+  final String _body;
+  final _headers = <String, String>{};
+  QueryParameters _parameters = QueryParameters.empty();
 
-  final String method;
-  final String body;
-  final Map<String, String> headers;
-  final QueryParameters parameters;
+  void headers(Map<String, String> headers) {
+    _headers.addAll(headers);
+  }
+
+  void include(Iterable<String> items) {
+    _parameters &= Include(items);
+  }
+
+  HttpRequest toHttp(Uri uri) =>
+      HttpRequest(_method, _parameters.addToUri(uri), body: _body, headers: {
+        ..._headers,
+        'Accept': ContentType.jsonApi,
+        if (_body.isNotEmpty) 'Content-Type': ContentType.jsonApi
+      });
 }
 
 class _Resource {

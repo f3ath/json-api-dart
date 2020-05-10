@@ -27,5 +27,8 @@ class Page extends QueryParameters {
 
   static final _regex = RegExp(r'^page\[(.+)\]$');
 
+  bool get isEmpty => _parameters.isEmpty;
+
+  bool get isNotEmpty => _parameters.isNotEmpty;
   final Map<String, String> _parameters;
 }
