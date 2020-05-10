@@ -13,8 +13,9 @@ Future<void> seedResources(JsonApiClient client) async {
   await client.createResource('books', '1', attributes: {
     'title': 'Refactoring',
     'ISBN-10': '0134757599'
-  }, relationships: {
-    'publisher': One(Identifier('companies', '1')),
-    'authors': Many([Identifier('people', '1'), Identifier('people', '2')])
+  }, one: {
+    'publisher': Identifier('companies', '1'),
+  }, many: {
+    'authors': [Identifier('people', '1'), Identifier('people', '2')]
   });
 }

@@ -33,43 +33,51 @@ void main() async {
       expect(r.http.headers['content-type'], Document.contentType);
       expect(r.decodeDocument().data.links['self'].uri.toString(),
           '/books/1/relationships/publisher');
-      expect(
-          r.decodeDocument().data.links['related'].uri.toString(), '/books/1/publisher');
+      expect(r.decodeDocument().data.links['related'].uri.toString(),
+          '/books/1/publisher');
       expect(r.decodeDocument().data.linkage.type, 'companies');
       expect(r.decodeDocument().data.linkage.id, '1');
     });
 
     test('404 on collection', () async {
-      final r = await client.fetchToOne('unicorns', '1', 'publisher');
-      expect(r.isSuccessful, isFalse);
-      expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().errors.first.status, '404');
-      expect(r.decodeDocument().errors.first.title, 'Collection not found');
-      expect(r.decodeDocument().errors.first.detail,
-          "Collection 'unicorns' does not exist");
+      try {
+        await client.fetchToOne('unicorns', '1', 'publisher');
+        fail('Exception expected');
+      } on RequestFailure catch (e) {
+        expect(e.http.statusCode, 404);
+        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.errors.first.status, '404');
+        expect(e.errors.first.title, 'Collection not found');
+        expect(e.errors.first.detail, "Collection 'unicorns' does not exist");
+      }
     });
 
     test('404 on resource', () async {
-      final r = await client.fetchToOne('books', '42', 'publisher');
-      expect(r.isSuccessful, isFalse);
-      expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().errors.first.status, '404');
-      expect(r.decodeDocument().errors.first.title, 'Resource not found');
-      expect(r.decodeDocument().errors.first.detail,
-          "Resource '42' does not exist in 'books'");
+      try {
+        await client.fetchToOne('books', '42', 'publisher');
+        fail('Exception expected');
+      } on RequestFailure catch (e) {
+        expect(e.http.statusCode, 404);
+        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.errors.first.status, '404');
+        expect(e.errors.first.title, 'Resource not found');
+        expect(
+            e.errors.first.detail, "Resource '42' does not exist in 'books'");
+      }
     });
 
     test('404 on relationship', () async {
-      final r = await client.fetchToOne('books', '1', 'owner');
-      expect(r.isSuccessful, isFalse);
-      expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().errors.first.status, '404');
-      expect(r.decodeDocument().errors.first.title, 'Relationship not found');
-      expect(r.decodeDocument().errors.first.detail,
-          "Relationship 'owner' does not exist in this resource");
+      try {
+        await client.fetchToOne('books', '1', 'owner');
+        fail('Exception expected');
+      } on RequestFailure catch (e) {
+        expect(e.http.statusCode, 404);
+        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.errors.first.status, '404');
+        expect(e.errors.first.title, 'Relationship not found');
+        expect(e.errors.first.detail,
+            "Relationship 'owner' does not exist in this resource");
+      }
     });
   });
 
@@ -83,41 +91,49 @@ void main() async {
       expect(r.decodeDocument().data.linkage.first.type, 'people');
       expect(r.decodeDocument().data.links['self'].uri.toString(),
           '/books/1/relationships/authors');
-      expect(
-          r.decodeDocument().data.links['related'].uri.toString(), '/books/1/authors');
+      expect(r.decodeDocument().data.links['related'].uri.toString(),
+          '/books/1/authors');
     });
 
     test('404 on collection', () async {
-      final r = await client.fetchToMany('unicorns', '1', 'athors');
-      expect(r.isSuccessful, isFalse);
-      expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().errors.first.status, '404');
-      expect(r.decodeDocument().errors.first.title, 'Collection not found');
-      expect(r.decodeDocument().errors.first.detail,
-          "Collection 'unicorns' does not exist");
+      try {
+        await client.fetchToMany('unicorns', '1', 'corns');
+        fail('Exception expected');
+      } on RequestFailure catch (e) {
+        expect(e.http.statusCode, 404);
+        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.errors.first.status, '404');
+        expect(e.errors.first.title, 'Collection not found');
+        expect(e.errors.first.detail, "Collection 'unicorns' does not exist");
+      }
     });
 
     test('404 on resource', () async {
-      final r = await client.fetchToMany('books', '42', 'authors');
-      expect(r.isSuccessful, isFalse);
-      expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().errors.first.status, '404');
-      expect(r.decodeDocument().errors.first.title, 'Resource not found');
-      expect(r.decodeDocument().errors.first.detail,
-          "Resource '42' does not exist in 'books'");
+      try {
+        await client.fetchToMany('books', '42', 'authors');
+        fail('Exception expected');
+      } on RequestFailure catch (e) {
+        expect(e.http.statusCode, 404);
+        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.errors.first.status, '404');
+        expect(e.errors.first.title, 'Resource not found');
+        expect(
+            e.errors.first.detail, "Resource '42' does not exist in 'books'");
+      }
     });
 
     test('404 on relationship', () async {
-      final r = await client.fetchToMany('books', '1', 'readers');
-      expect(r.isSuccessful, isFalse);
-      expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().errors.first.status, '404');
-      expect(r.decodeDocument().errors.first.title, 'Relationship not found');
-      expect(r.decodeDocument().errors.first.detail,
-          "Relationship 'readers' does not exist in this resource");
+      try {
+        await client.fetchToMany('books', '1', 'readers');
+        fail('Exception expected');
+      } on RequestFailure catch (e) {
+        expect(e.http.statusCode, 404);
+        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.errors.first.status, '404');
+        expect(e.errors.first.title, 'Relationship not found');
+        expect(e.errors.first.detail,
+            "Relationship 'readers' does not exist in this resource");
+      }
     });
   });
 
@@ -154,36 +170,44 @@ void main() async {
     });
 
     test('404 on collection', () async {
-      final r = await client.fetchRelationship('unicorns', '1', 'athors');
-      expect(r.isSuccessful, isFalse);
-      expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().errors.first.status, '404');
-      expect(r.decodeDocument().errors.first.title, 'Collection not found');
-      expect(r.decodeDocument().errors.first.detail,
-          "Collection 'unicorns' does not exist");
+      try {
+        await client.fetchRelationship('unicorns', '1', 'corns');
+        fail('Exception expected');
+      } on RequestFailure catch (e) {
+        expect(e.http.statusCode, 404);
+        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.errors.first.status, '404');
+        expect(e.errors.first.title, 'Collection not found');
+        expect(e.errors.first.detail, "Collection 'unicorns' does not exist");
+      }
     });
 
     test('404 on resource', () async {
-      final r = await client.fetchRelationship('books', '42', 'authors');
-      expect(r.isSuccessful, isFalse);
-      expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().errors.first.status, '404');
-      expect(r.decodeDocument().errors.first.title, 'Resource not found');
-      expect(r.decodeDocument().errors.first.detail,
-          "Resource '42' does not exist in 'books'");
+      try {
+        await client.fetchRelationship('books', '42', 'authors');
+        fail('Exception expected');
+      } on RequestFailure catch (e) {
+        expect(e.http.statusCode, 404);
+        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.errors.first.status, '404');
+        expect(e.errors.first.title, 'Resource not found');
+        expect(
+            e.errors.first.detail, "Resource '42' does not exist in 'books'");
+      }
     });
 
     test('404 on relationship', () async {
-      final r = await client.fetchRelationship('books', '1', 'readers');
-      expect(r.isSuccessful, isFalse);
-      expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], Document.contentType);
-      expect(r.decodeDocument().errors.first.status, '404');
-      expect(r.decodeDocument().errors.first.title, 'Relationship not found');
-      expect(r.decodeDocument().errors.first.detail,
-          "Relationship 'readers' does not exist in this resource");
+      try {
+        await client.fetchRelationship('books', '1', 'readers');
+        fail('Exception expected');
+      } on RequestFailure catch (e) {
+        expect(e.http.statusCode, 404);
+        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.errors.first.status, '404');
+        expect(e.errors.first.title, 'Relationship not found');
+        expect(e.errors.first.detail,
+            "Relationship 'readers' does not exist in this resource");
+      }
     });
   });
 }

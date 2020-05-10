@@ -1,14 +1,12 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/links.dart';
-import 'package:json_api/src/document/meta.dart';
 import 'package:json_api/src/nullable.dart';
 
 /// [ErrorObject] represents an error occurred on the server.
 ///
 /// More on this: https://jsonapi.org/format/#errors
-class ErrorObject with Meta, Links {
+class ErrorObject {
   /// Creates an instance of a JSON:API Error.
   /// The [links] map may contain custom links. The about link
   /// passed through the [links['about']] argument takes precedence and will overwrite
@@ -20,17 +18,16 @@ class ErrorObject with Meta, Links {
     String title,
     String detail,
     Map<String, Object> meta,
-    Map<String, Object> source,
+    ErrorSource source,
     Map<String, Link> links,
   })  : id = id ?? '',
         status = status ?? '',
         code = code ?? '',
         title = title ?? '',
         detail = detail ?? '',
-        source = Map.unmodifiable(source ?? const {}) {
-    this.meta.addAll(meta ?? {});
-    this.links.addAll(links ?? {});
-  }
+        source = source ?? ErrorSource(),
+        meta = Map.unmodifiable(meta ?? {}),
+        links = Map.unmodifiable(links ?? {});
 
   static ErrorObject fromJson(Object json) {
     if (json is Map) {
@@ -40,7 +37,7 @@ class ErrorObject with Meta, Links {
           code: json['code'],
           title: json['title'],
           detail: json['detail'],
-          source: json['source'],
+          source: nullable(ErrorSource.fromJson)(json['source']),
           meta: json['meta'],
           links: nullable(Link.mapFromJson)(json['links']));
     }
@@ -70,11 +67,10 @@ class ErrorObject with Meta, Links {
   final String detail;
 
   /// The `source` object.
-  /// An object containing references to the source of the error, optionally including any of the following members:
-  /// - pointer: a JSON Pointer (RFC6901) to the associated entity in the request document,
-  ///   e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute.
-  /// - parameter: a string indicating which URI query parameter caused the error.
-  final Map<String, String> source;
+  final ErrorSource source;
+
+  final Map<String, Object> meta;
+  final Map<String, Link> links;
 
   Map<String, Object> toJson() {
     return {
@@ -88,4 +84,33 @@ class ErrorObject with Meta, Links {
       if (source.isNotEmpty) 'source': source,
     };
   }
+}
+
+/// An object containing references to the source of the error, optionally including any of the following members:
+/// - pointer: a JSON Pointer (RFC6901) to the associated entity in the request document,
+///   e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute.
+/// - parameter: a string indicating which URI query parameter caused the error.
+class ErrorSource {
+  ErrorSource({String pointer, String parameter})
+      : pointer = pointer ?? '',
+        parameter = parameter ?? '';
+
+  static ErrorSource fromJson(Object json) {
+    if (json is Map) {
+      return ErrorSource(
+          pointer: json['pointer'], parameter: json['parameter']);
+    }
+    throw DocumentException('Can not parse ErrorSource');
+  }
+
+  final String pointer;
+
+  final String parameter;
+
+  bool get isNotEmpty => pointer.isNotEmpty || parameter.isNotEmpty;
+
+  Map<String, Object> toJson() => {
+        if (pointer.isNotEmpty) 'pointer': pointer,
+        if (parameter.isNotEmpty) 'parameter': parameter
+      };
 }

@@ -62,15 +62,16 @@ void main() async {
   });
 
   test('404 on the target resource', () async {
-    final r = await client.updateResource('books', '42');
-    expect(r.isSuccessful, isFalse);
-    expect(r.http.statusCode, 404);
-    expect(r.http.headers['content-type'], ContentType.jsonApi);
-    expect(r.decodeDocument().data, isNull);
-    final error = r.decodeDocument().errors.first;
-    expect(error.status, '404');
-    expect(error.title, 'Resource not found');
-    expect(error.detail, "Resource '42' does not exist in 'books'");
+    try {
+      await client.updateResource('books', '42');
+      fail('Exception expected');
+    } on RequestFailure catch (e) {
+      expect(e.http.statusCode, 404);
+      expect(e.http.headers['content-type'], ContentType.jsonApi);
+      expect(e.errors.first.status, '404');
+      expect(e.errors.first.title, 'Resource not found');
+      expect(e.errors.first.detail, "Resource '42' does not exist in 'books'");
+    }
   });
 //
 //  test('409 when the resource type does not match the collection', () async {

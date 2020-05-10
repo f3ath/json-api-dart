@@ -1,7 +1,6 @@
 import 'dart:convert';
 
-import 'package:json_api/document.dart';
 import 'package:test/test.dart';
 
-void expectSameJson(Object a, Object b) =>
-    expect(jsonEncode(a), jsonEncode(b));
+void expectSameJson(Object actual, Object expected) =>
+    expect(jsonDecode(jsonEncode(actual)), jsonDecode(jsonEncode(expected)));

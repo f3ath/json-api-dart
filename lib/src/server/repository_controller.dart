@@ -55,9 +55,18 @@ class RepositoryController implements Controller {
       _do(() async {
         final resource =
             await _repo.get(request.target.type, request.target.id);
-        resource.many(request.target.relationship).remove(identifiers);
-        return ToManyResponse(
-            request, resource.many(request.target.relationship).toList());
+        if (resource.hasMany(request.target.relationship)) {
+          resource.many(request.target.relationship).remove(identifiers);
+          return ToManyResponse(
+              request, resource.many(request.target.relationship).toList());
+        }
+        return ErrorResponse(404, [
+          ErrorObject(
+              status: '404',
+              title: 'Relationship not found',
+              detail:
+                  "There is no to-many relationship '${request.target.relationship}' in this resource")
+        ]);
       });
 
   @override

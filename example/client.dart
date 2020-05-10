@@ -29,8 +29,8 @@ void main() async {
   /// Create the second resource.
   await client.createResource('books', '2', attributes: {
     'title': 'Refactoring'
-  }, relationships: {
-    'authors': Many([Identifier('writers', '1')])
+  }, many: {
+    'authors': [Identifier('writers', '1')]
   });
 
   /// Fetch the book, including its authors.

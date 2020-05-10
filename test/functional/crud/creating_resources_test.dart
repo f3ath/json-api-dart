@@ -42,13 +42,15 @@ void main() async {
       final server = JsonApiServer(RepositoryController(repository));
       final client = JsonApiClient(server, urls);
 
-      final r = await client.createNewResource('people');
-      expect(r.http.statusCode, 403);
-      expect(r.decodeDocument().data, isNull);
-      final error = r.decodeDocument().errors.first;
-      expect(error.status, '403');
-      expect(error.title, 'Unsupported operation');
-      expect(error.detail, 'Id generation is not supported');
+      try {
+        await client.createNewResource('people');
+        fail('Exception expected');
+      } on RequestFailure catch (e) {
+        expect(e.http.statusCode, 403);
+        expect(e.errors.first.status, '403');
+        expect(e.errors.first.title, 'Unsupported operation');
+        expect(e.errors.first.detail, 'Id generation is not supported');
+      }
     });
   });
 
@@ -81,45 +83,47 @@ void main() async {
     });
 
     test('404 when the collection does not exist', () async {
-      final r = await client.createNewResource('unicorns');
-      expect(r.isSuccessful, isFalse);
-      expect(r.isFailed, isTrue);
-      expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], ContentType.jsonApi);
-      expect(r.decodeDocument().data, isNull);
-      final error = r.decodeDocument().errors.first;
-      expect(error.status, '404');
-      expect(error.title, 'Collection not found');
-      expect(error.detail, "Collection 'unicorns' does not exist");
+      try {
+        await client.createNewResource('unicorns');
+        fail('Exception expected');
+      } on RequestFailure catch (e) {
+        expect(e.http.statusCode, 404);
+        expect(e.http.headers['content-type'], ContentType.jsonApi);
+        expect(e.errors.first.status, '404');
+        expect(e.errors.first.title, 'Collection not found');
+        expect(e.errors.first.detail, "Collection 'unicorns' does not exist");
+      }
     });
 
     test('404 when the related resource does not exist (to-one)', () async {
-      final r = await client.createNewResource('books',
-          relationships: {'publisher': One(Identifier('companies', '123'))});
-      expect(r.isSuccessful, isFalse);
-      expect(r.isFailed, isTrue);
-      expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], ContentType.jsonApi);
-      expect(r.decodeDocument().data, isNull);
-      final error = r.decodeDocument().errors.first;
-      expect(error.status, '404');
-      expect(error.title, 'Resource not found');
-      expect(error.detail, "Resource '123' does not exist in 'companies'");
+      try {
+        await client.createNewResource('books',
+            one: {'publisher': Identifier('companies', '123')});
+        fail('Exception expected');
+      } on RequestFailure catch (e) {
+        expect(e.http.statusCode, 404);
+        expect(e.http.headers['content-type'], ContentType.jsonApi);
+        expect(e.errors.first.status, '404');
+        expect(e.errors.first.title, 'Resource not found');
+        expect(e.errors.first.detail,
+            "Resource '123' does not exist in 'companies'");
+      }
     });
 
     test('404 when the related resource does not exist (to-many)', () async {
-      final r = await client.createNewResource('books', relationships: {
-        'authors': Many([Identifier('people', '123')])
-      });
-      expect(r.isSuccessful, isFalse);
-      expect(r.isFailed, isTrue);
-      expect(r.http.statusCode, 404);
-      expect(r.http.headers['content-type'], ContentType.jsonApi);
-      expect(r.decodeDocument().data, isNull);
-      final error = r.decodeDocument().errors.first;
-      expect(error.status, '404');
-      expect(error.title, 'Resource not found');
-      expect(error.detail, "Resource '123' does not exist in 'people'");
+      try {
+        await client.createNewResource('books', many: {
+          'authors': [Identifier('people', '123')]
+        });
+        fail('Exception expected');
+      } on RequestFailure catch (e) {
+        expect(e.http.statusCode, 404);
+        expect(e.http.headers['content-type'], ContentType.jsonApi);
+        expect(e.errors.first.status, '404');
+        expect(e.errors.first.title, 'Resource not found');
+        expect(e.errors.first.detail,
+            "Resource '123' does not exist in 'people'");
+      }
     });
 //
 //    test('409 when the resource type does not match collection', () async {
@@ -140,16 +144,17 @@ void main() async {
 
     test('409 when the resource with this id already exists', () async {
       await client.createResource('apples', '123');
-      final r = await client.createResource('apples', '123');
-      expect(r.isSuccessful, isFalse);
-      expect(r.isFailed, isTrue);
-      expect(r.http.statusCode, 409);
-      expect(r.http.headers['content-type'], ContentType.jsonApi);
-      expect(r.decodeDocument().data, isNull);
-      final error = r.decodeDocument().errors.first;
-      expect(error.status, '409');
-      expect(error.title, 'Resource exists');
-      expect(error.detail, 'Resource with this type and id already exists');
+      try {
+        await client.createResource('apples', '123');
+        fail('Exception expected');
+      } on RequestFailure catch (e) {
+        expect(e.http.statusCode, 409);
+        expect(e.http.headers['content-type'], ContentType.jsonApi);
+        expect(e.errors.first.status, '409');
+        expect(e.errors.first.title, 'Resource exists');
+        expect(e.errors.first.detail,
+            'Resource with this type and id already exists');
+      }
     });
   });
 }

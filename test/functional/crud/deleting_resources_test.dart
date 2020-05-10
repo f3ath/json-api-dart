@@ -30,36 +30,38 @@ void main() async {
     final r = await client.deleteResource('books', '1');
     expect(r.isSuccessful, isTrue);
     expect(r.http.statusCode, 204);
-
-    final r1 = await client.fetchResource('books', '1');
-    expect(r1.isSuccessful, isFalse);
-    expect(r1.http.statusCode, 404);
-    expect(r1.http.headers['content-type'], Document.contentType);
+    try {
+      await client.fetchResource('books', '1');
+      fail('Exception expected');
+    } on RequestFailure catch (e) {
+      expect(e.http.statusCode, 404);
+      expect(e.http.headers['content-type'], Document.contentType);
+    }
   });
 
   test('404 on collection', () async {
-    final r = await client.deleteResource('unicorns', '42');
-    expect(r.isSuccessful, isFalse);
-    expect(r.isFailed, isTrue);
-    expect(r.http.statusCode, 404);
-    expect(r.http.headers['content-type'], Document.contentType);
-    expect(r.decodeDocument().data, isNull);
-    final error = r.decodeDocument().errors.first;
-    expect(error.status, '404');
-    expect(error.title, 'Collection not found');
-    expect(error.detail, "Collection 'unicorns' does not exist");
+    try {
+      await client.deleteResource('unicorns', '42');
+      fail('Exception expected');
+    } on RequestFailure catch (e) {
+      expect(e.http.statusCode, 404);
+      expect(e.http.headers['content-type'], Document.contentType);
+      expect(e.errors.first.status, '404');
+      expect(e.errors.first.title, 'Collection not found');
+      expect(e.errors.first.detail, "Collection 'unicorns' does not exist");
+    }
   });
 
   test('404 on resource', () async {
-    final r = await client.deleteResource('books', '42');
-    expect(r.isSuccessful, isFalse);
-    expect(r.isFailed, isTrue);
-    expect(r.http.statusCode, 404);
-    expect(r.http.headers['content-type'], Document.contentType);
-    expect(r.decodeDocument().data, isNull);
-    final error = r.decodeDocument().errors.first;
-    expect(error.status, '404');
-    expect(error.title, 'Resource not found');
-    expect(error.detail, "Resource '42' does not exist in 'books'");
+    try {
+      await client.deleteResource('books', '42');
+      fail('Exception expected');
+    } on RequestFailure catch (e) {
+      expect(e.http.statusCode, 404);
+      expect(e.http.headers['content-type'], Document.contentType);
+      expect(e.errors.first.status, '404');
+      expect(e.errors.first.title, 'Resource not found');
+      expect(e.errors.first.detail, "Resource '42' does not exist in 'books'");
+    }
   });
 }

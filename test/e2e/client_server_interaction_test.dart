@@ -41,7 +41,7 @@ void main() {
       await client
           .updateResource('books', '2', relationships: {'authors': Many([])});
       await client
-          .addToMany('books', '2', 'authors', [Identifier('writers', '1')]);
+          .addMany('books', '2', 'authors', [Identifier('writers', '1')]);
 
       final response =
           await client.fetchResource('books', '2', include: ['authors']);
