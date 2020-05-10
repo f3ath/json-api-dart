@@ -28,7 +28,7 @@ void main() async {
     await client
         .createResource('books', '2', attributes: {'title': 'Refactoring'});
     await client
-        .updateResource('books', '2', relationships: {'authors': Many([])});
+        .updateResource('books', '2', many: {'authors': []});
     await client
         .addMany('books', '2', 'authors', [Identifier('writers', '1')]);
 

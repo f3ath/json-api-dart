@@ -78,8 +78,11 @@ void main() async {
       final r1 = await client.fetchResource('people', '123');
       expect(r1.isSuccessful, isTrue);
       expect(r1.http.statusCode, 200);
-      expectSameJson(r1.decodeDocument().data.unwrap(),
-          Resource('people', '123', attributes: {'name': 'Martin Fowler'}));
+      expectSameJson(r1.decodeDocument().data.unwrap(), {
+        'type': 'people',
+        'id': '123',
+        'attributes': {'name': 'Martin Fowler'}
+      });
     });
 
     test('404 when the collection does not exist', () async {
@@ -121,8 +124,8 @@ void main() async {
         expect(e.http.headers['content-type'], ContentType.jsonApi);
         expect(e.errors.first.status, '404');
         expect(e.errors.first.title, 'Resource not found');
-        expect(e.errors.first.detail,
-            "Resource '123' does not exist in 'people'");
+        expect(
+            e.errors.first.detail, "Resource '123' does not exist in 'people'");
       }
     });
 //

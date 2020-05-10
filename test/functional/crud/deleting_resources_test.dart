@@ -35,7 +35,7 @@ void main() async {
       fail('Exception expected');
     } on RequestFailure catch (e) {
       expect(e.http.statusCode, 404);
-      expect(e.http.headers['content-type'], Document.contentType);
+      expect(e.http.headers['content-type'], ContentType.jsonApi);
     }
   });
 
@@ -45,7 +45,7 @@ void main() async {
       fail('Exception expected');
     } on RequestFailure catch (e) {
       expect(e.http.statusCode, 404);
-      expect(e.http.headers['content-type'], Document.contentType);
+      expect(e.http.headers['content-type'], ContentType.jsonApi);
       expect(e.errors.first.status, '404');
       expect(e.errors.first.title, 'Collection not found');
       expect(e.errors.first.detail, "Collection 'unicorns' does not exist");
@@ -58,7 +58,7 @@ void main() async {
       fail('Exception expected');
     } on RequestFailure catch (e) {
       expect(e.http.statusCode, 404);
-      expect(e.http.headers['content-type'], Document.contentType);
+      expect(e.http.headers['content-type'], ContentType.jsonApi);
       expect(e.errors.first.status, '404');
       expect(e.errors.first.title, 'Resource not found');
       expect(e.errors.first.detail, "Resource '42' does not exist in 'books'");

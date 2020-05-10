@@ -1,6 +1,6 @@
 /// A variation of the Maybe monad with eager execution.
 abstract class Maybe<T> {
-  factory Maybe(T t) => t == null ? Nothing() : Just(t);
+  factory Maybe(T t) => t == null ? Nothing<T>() : Just(t);
 
   Maybe<P> map<P>(P Function(T t) f);
 
@@ -34,24 +34,24 @@ class Just<T> implements Maybe<T> {
   @override
   Maybe<T> where(bool Function(T t) f) {
     try {
-      return f(value) ? this : const Nothing();
+      return f(value) ? this : Nothing<T>();
     } catch (e) {
-      return Failure(e);
+      return Failure<T>(e);
     }
   }
 
   @override
-  Maybe<P> whereType<P>() => value is P ? Just(value as P) : const Nothing();
+  Maybe<P> whereType<P>() => value is P ? Just(value as P) : Nothing<P>();
 
   @override
   Maybe<T> recover<E>(T Function(E _) f) => this;
 }
 
 class Nothing<T> implements Maybe<T> {
-  const Nothing();
+  Nothing();
 
   @override
-  Maybe<P> map<P>(P Function(T t) map) => const Nothing();
+  Maybe<P> map<P>(P Function(T t) map) => Nothing<P>();
 
   @override
   T or(T Function() f) => f();
@@ -63,7 +63,7 @@ class Nothing<T> implements Maybe<T> {
   Maybe<T> where(bool Function(T t) f) => this;
 
   @override
-  Maybe<P> whereType<P>() => const Nothing();
+  Maybe<P> whereType<P>() => Nothing<P>();
 
   @override
   Maybe<T> recover<E>(T Function(E _) f) => this;

@@ -30,10 +30,11 @@ void main() async {
     final r = await client.updateResource('books', '1', attributes: {
       'title': 'Refactoring. Improving the Design of Existing Code',
       'pages': 448
-    }, relationships: {
-      'publisher': One.empty(),
-      'authors': Many([Identifier('people', '1')]),
-      'reviewers': Many([Identifier('people', '2')])
+    }, one: {
+      'publisher': null,
+    }, many: {
+      'authors': [Identifier('people', '1')],
+      'reviewers': [Identifier('people', '2')]
     });
     expect(r.isSuccessful, isTrue);
     expect(r.http.statusCode, 200);

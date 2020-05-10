@@ -31,7 +31,7 @@ void main() async {
       final r = await client.fetchResource('books', '1');
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data.unwrap().id, '1');
       expect(
           r.decodeDocument().data.unwrap().attributes['title'], 'Refactoring');
@@ -57,7 +57,7 @@ void main() async {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
-        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.http.headers['content-type'], ContentType.jsonApi);
         expect(e.errors.first.status, '404');
         expect(e.errors.first.title, 'Collection not found');
         expect(e.errors.first.detail, "Collection 'unicorns' does not exist");
@@ -70,7 +70,7 @@ void main() async {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
-        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.http.headers['content-type'], ContentType.jsonApi);
         expect(e.errors.first.status, '404');
         expect(e.errors.first.title, 'Resource not found');
         expect(
@@ -84,7 +84,7 @@ void main() async {
       final r = await client.fetchCollection('people');
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data.links['self'].uri.toString(), '/people');
       expect(r.decodeDocument().data.collection.length, 3);
       expect(r.decodeDocument().data.collection.first.self.uri.toString(),
@@ -104,7 +104,7 @@ void main() async {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
-        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.http.headers['content-type'], ContentType.jsonApi);
         expect(e.errors.first.status, '404');
         expect(e.errors.first.title, 'Collection not found');
         expect(e.errors.first.detail, "Collection 'unicorns' does not exist");
@@ -117,7 +117,7 @@ void main() async {
       final r = await client.fetchRelatedResource('books', '1', 'publisher');
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data.unwrap().type, 'companies');
       expect(r.decodeDocument().data.unwrap().id, '1');
       expect(r.decodeDocument().data.links['self'].uri.toString(),
@@ -133,7 +133,7 @@ void main() async {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
-        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.http.headers['content-type'], ContentType.jsonApi);
         expect(e.errors.first.status, '404');
         expect(e.errors.first.title, 'Collection not found');
         expect(e.errors.first.detail, "Collection 'unicorns' does not exist");
@@ -146,7 +146,7 @@ void main() async {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
-        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.http.headers['content-type'], ContentType.jsonApi);
         expect(e.errors.first.status, '404');
         expect(e.errors.first.title, 'Resource not found');
         expect(
@@ -160,7 +160,7 @@ void main() async {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
-        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.http.headers['content-type'], ContentType.jsonApi);
         expect(e.errors.first.status, '404');
         expect(e.errors.first.title, 'Relationship not found');
         expect(e.errors.first.detail,
@@ -174,7 +174,7 @@ void main() async {
       final r = await client.fetchRelatedCollection('books', '1', 'authors');
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
-      expect(r.http.headers['content-type'], Document.contentType);
+      expect(r.http.headers['content-type'], ContentType.jsonApi);
       expect(r.decodeDocument().data.links['self'].uri.toString(),
           '/books/1/authors');
       expect(r.decodeDocument().data.collection.length, 2);
@@ -195,7 +195,7 @@ void main() async {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
-        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.http.headers['content-type'], ContentType.jsonApi);
         expect(e.errors.first.status, '404');
         expect(e.errors.first.title, 'Collection not found');
         expect(e.errors.first.detail, "Collection 'unicorns' does not exist");
@@ -208,7 +208,7 @@ void main() async {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
-        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.http.headers['content-type'], ContentType.jsonApi);
         expect(e.errors.first.status, '404');
         expect(e.errors.first.title, 'Resource not found');
         expect(
@@ -222,7 +222,7 @@ void main() async {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
-        expect(e.http.headers['content-type'], Document.contentType);
+        expect(e.http.headers['content-type'], ContentType.jsonApi);
         expect(e.errors.first.status, '404');
         expect(e.errors.first.title, 'Relationship not found');
         expect(e.errors.first.detail,
