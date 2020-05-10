@@ -27,7 +27,7 @@ class ResourceData extends PrimaryData {
   @override
   Map<String, Object> toJson() => {
         ...super.toJson(),
-        'data': resourceObject.toJson(),
+        'data': resourceObject?.toJson(),
       };
 
   Resource unwrap() => resourceObject?.unwrap();

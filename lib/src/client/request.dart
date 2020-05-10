@@ -48,8 +48,8 @@ class Request<D extends d.PrimaryData> {
 
   static Request<d.ResourceData> createNewResource(String type,
           {Map<String, Object> attributes = const {},
-          Map<String, Identifier> one = const {},
-          Map<String, Iterable<Identifier>> many = const {}}) =>
+          Map<String, Ref> one = const {},
+          Map<String, Iterable<Ref>> many = const {}}) =>
       Request.withDocument(
           _Resource(type, attributes: attributes, one: one, many: many),
           HttpMethod.POST,
@@ -57,8 +57,8 @@ class Request<D extends d.PrimaryData> {
 
   static Request<d.ResourceData> createResource(String type, String id,
           {Map<String, Object> attributes = const {},
-          Map<String, Identifier> one = const {},
-          Map<String, Iterable<Identifier>> many = const {}}) =>
+          Map<String, Ref> one = const {},
+          Map<String, Iterable<Ref>> many = const {}}) =>
       Request.withDocument(
           _Resource.withId(type, id,
               attributes: attributes, one: one, many: many),
@@ -67,8 +67,8 @@ class Request<D extends d.PrimaryData> {
 
   static Request<d.ResourceData> updateResource(String type, String id,
           {Map<String, Object> attributes = const {},
-          Map<String, Identifier> one = const {},
-          Map<String, Iterable<Identifier>> many = const {}}) =>
+          Map<String, Ref> one = const {},
+          Map<String, Iterable<Ref>> many = const {}}) =>
       Request.withDocument(
           _Resource.withId(type, id,
               attributes: attributes, one: one, many: many),
@@ -78,23 +78,22 @@ class Request<D extends d.PrimaryData> {
   static Request<d.ResourceData> deleteResource() =>
       Request(HttpMethod.DELETE, d.ResourceData.fromJson);
 
-  static Request<d.ToOneObject> replaceOne(Identifier identifier) =>
+  static Request<d.ToOneObject> replaceOne(Ref identifier) =>
       Request.withDocument(
           _One(identifier), HttpMethod.PATCH, d.ToOneObject.fromJson);
 
   static Request<d.ToOneObject> deleteOne() => Request.withDocument(
       _One(null), HttpMethod.PATCH, d.ToOneObject.fromJson);
 
-  static Request<d.ToManyObject> deleteMany(Iterable<Identifier> identifiers) =>
+  static Request<d.ToManyObject> deleteMany(Iterable<Ref> identifiers) =>
       Request.withDocument(
           _Many(identifiers), HttpMethod.DELETE, d.ToManyObject.fromJson);
 
-  static Request<d.ToManyObject> replaceMany(
-          Iterable<Identifier> identifiers) =>
+  static Request<d.ToManyObject> replaceMany(Iterable<Ref> identifiers) =>
       Request.withDocument(
           _Many(identifiers), HttpMethod.PATCH, d.ToManyObject.fromJson);
 
-  static Request<d.ToManyObject> addMany(Iterable<Identifier> identifiers) =>
+  static Request<d.ToManyObject> addMany(Iterable<Ref> identifiers) =>
       Request.withDocument(
           _Many(identifiers), HttpMethod.POST, d.ToManyObject.fromJson);
 
@@ -108,9 +107,9 @@ class Request<D extends d.PrimaryData> {
 class _Resource {
   _Resource(String type,
       {Map<String, Object> attributes = const {},
-      Map<String, Identifier> one = const {},
-      Map<String, Iterable<Identifier>> many = const {}})
-      : _data = {
+      Map<String, Ref> one = const {},
+      Map<String, Iterable<Ref>> many = const {}})
+      : _resource = {
           'type': type,
           if (attributes.isNotEmpty) 'attributes': attributes,
           ...relationship(one, many)
@@ -118,17 +117,17 @@ class _Resource {
 
   _Resource.withId(String type, String id,
       {Map<String, Object> attributes = const {},
-      Map<String, Identifier> one = const {},
-      Map<String, Iterable<Identifier>> many = const {}})
-      : _data = {
+      Map<String, Ref> one = const {},
+      Map<String, Iterable<Ref>> many = const {}})
+      : _resource = {
           'type': type,
           'id': id,
           if (attributes.isNotEmpty) 'attributes': attributes,
           ...relationship(one, many)
         };
 
-  static Map<String, Object> relationship(Map<String, Identifier> one,
-          Map<String, Iterable<Identifier>> many) =>
+  static Map<String, Object> relationship(
+          Map<String, Ref> one, Map<String, Iterable<Ref>> many) =>
       {
         if (one.isNotEmpty || many.isNotEmpty)
           'relationships': {
@@ -137,31 +136,31 @@ class _Resource {
           }
       };
 
-  final Object _data;
+  final Object _resource;
 
-  Map<String, Object> toJson() => {'data': _data};
+  Map<String, Object> toJson() => {'data': _resource};
 }
 
 class _One {
-  _One(this._identifier);
+  _One(this._ref);
 
-  final Identifier _identifier;
+  final Ref _ref;
 
-  Map<String, Object> toJson() => {'data': _identifier};
+  Map<String, Object> toJson() => {'data': _ref};
 }
 
 class _Many {
-  _Many(this._identifiers);
+  _Many(this._refs);
 
-  final Iterable<Identifier> _identifiers;
+  final Iterable<Ref> _refs;
 
   Map<String, Object> toJson() => {
-        'data': _identifiers.toList(),
+        'data': _refs.toList(),
       };
 }
 
-class Identifier {
-  Identifier(this.type, this.id) {
+class Ref {
+  Ref(this.type, this.id) {
     ArgumentError.checkNotNull(type, 'type');
     ArgumentError.checkNotNull(id, 'id');
   }

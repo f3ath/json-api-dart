@@ -27,7 +27,7 @@ void main() async {
   });
   group('To-one', () {
     test('200 OK', () async {
-      final r = await client.fetchToOne('books', '1', 'publisher');
+      final r = await client.fetchOne('books', '1', 'publisher');
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], ContentType.jsonApi);
@@ -41,7 +41,7 @@ void main() async {
 
     test('404 on collection', () async {
       try {
-        await client.fetchToOne('unicorns', '1', 'publisher');
+        await client.fetchOne('unicorns', '1', 'publisher');
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
@@ -54,7 +54,7 @@ void main() async {
 
     test('404 on resource', () async {
       try {
-        await client.fetchToOne('books', '42', 'publisher');
+        await client.fetchOne('books', '42', 'publisher');
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
@@ -68,7 +68,7 @@ void main() async {
 
     test('404 on relationship', () async {
       try {
-        await client.fetchToOne('books', '1', 'owner');
+        await client.fetchOne('books', '1', 'owner');
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
@@ -83,7 +83,7 @@ void main() async {
 
   group('To-many', () {
     test('200 OK', () async {
-      final r = await client.fetchToMany('books', '1', 'authors');
+      final r = await client.fetchMany('books', '1', 'authors');
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], ContentType.jsonApi);
@@ -97,7 +97,7 @@ void main() async {
 
     test('404 on collection', () async {
       try {
-        await client.fetchToMany('unicorns', '1', 'corns');
+        await client.fetchMany('unicorns', '1', 'corns');
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
@@ -110,7 +110,7 @@ void main() async {
 
     test('404 on resource', () async {
       try {
-        await client.fetchToMany('books', '42', 'authors');
+        await client.fetchMany('books', '42', 'authors');
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
@@ -124,7 +124,7 @@ void main() async {
 
     test('404 on relationship', () async {
       try {
-        await client.fetchToMany('books', '1', 'readers');
+        await client.fetchMany('books', '1', 'readers');
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);

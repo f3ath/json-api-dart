@@ -6,8 +6,6 @@ import 'package:json_api/src/server/in_memory_repository.dart';
 import 'package:json_api/src/server/repository_controller.dart';
 import 'package:test/test.dart';
 
-import '../helper/expect_same_json.dart';
-
 void main() async {
   JsonApiClient client;
   JsonApiServer server;
@@ -54,116 +52,98 @@ void main() async {
   });
 
   group('Single Resources', () {
-    test('not compound by default', () async {
-      final r = await client.fetchResource('posts', '1');
-      final document = r.decodeDocument();
-      expectSameJson(document.data.unwrap(), post);
-      expect(document.isCompound, isFalse);
-    });
-
     test('included == [] when requested but nothing to include', () async {
       final r = await client.fetchResource('posts', '1', include: ['tags']);
-      expectSameJson(r.decodeDocument().data.unwrap(), post);
-      expect(r.decodeDocument().included, []);
-      expect(r.decodeDocument().isCompound, isTrue);
-      expect(r.decodeDocument().data.links['self'].toString(),
-          '/posts/1?include=tags');
+      expect(r.resource.key, 'posts:1');
+      expect(r.included, []);
+      expect(r.links['self'].toString(), '/posts/1?include=tags');
     });
 
     test('can include first-level relatives', () async {
       final r = await client.fetchResource('posts', '1', include: ['comments']);
-      expectSameJson(r.decodeDocument().data.unwrap(), post);
-      expect(r.decodeDocument().isCompound, isTrue);
-      expect(r.decodeDocument().included.length, 2);
-      expectSameJson(r.decodeDocument().included[0].unwrap(), comment1);
-      expectSameJson(r.decodeDocument().included[1].unwrap(), comment2);
+      expect(r.resource.key, 'posts:1');
+      expect(r.included.length, 2);
+      expect(r.included.first.key, 'comments:1');
+      expect(r.included.last.key, 'comments:2');
     });
 
     test('can include second-level relatives', () async {
       final r = await client
           .fetchResource('posts', '1', include: ['comments.author']);
-      expectSameJson(r.decodeDocument().data.unwrap(), post);
-      expect(r.decodeDocument().isCompound, isTrue);
-      expect(r.decodeDocument().included.length, 2);
-      expectSameJson(r.decodeDocument().included.first.unwrap(), bob);
-      expectSameJson(r.decodeDocument().included.last.unwrap(), alice);
+      expect(r.resource.key, 'posts:1');
+      expect(r.included.length, 2);
+      expect(r.included.first.attributes['name'], 'Bob');
+      expect(r.included.last.attributes['name'], 'Alice');
     });
 
     test('can include third-level relatives', () async {
       final r = await client
           .fetchResource('posts', '1', include: ['comments.author.birthplace']);
-      expectSameJson(r.decodeDocument().data.unwrap(), post);
-      expect(r.decodeDocument().isCompound, isTrue);
-      expect(r.decodeDocument().included.length, 1);
-      expectSameJson(r.decodeDocument().included.first.unwrap(), wonderland);
+      expect(r.resource.key, 'posts:1');
+      expect(r.included.length, 1);
+      expect(r.included.first.attributes['name'], 'Wonderland');
     });
 
     test('can include first- and second-level relatives', () async {
       final r = await client.fetchResource('posts', '1',
           include: ['comments', 'comments.author']);
-      expectSameJson(r.decodeDocument().data.unwrap(), post);
-      expect(r.decodeDocument().included.length, 4);
-      expectSameJson(r.decodeDocument().included[0].unwrap(), comment1);
-      expectSameJson(r.decodeDocument().included[1].unwrap(), comment2);
-      expectSameJson(r.decodeDocument().included[2].unwrap(), bob);
-      expectSameJson(r.decodeDocument().included[3].unwrap(), alice);
-      expect(r.decodeDocument().isCompound, isTrue);
+      expect(r.resource.key, 'posts:1');
+      expect(r.included.length, 4);
+      expect(r.included.toList()[0].key, 'comments:1');
+      expect(r.included.toList()[1].key, 'comments:2');
+      expect(r.included.toList()[2].attributes['name'], 'Bob');
+      expect(r.included.toList()[3].attributes['name'], 'Alice');
     });
   });
 
   group('Resource Collection', () {
     test('not compound by default', () async {
       final r = await client.fetchCollection('posts');
-      expectSameJson(r.decodeDocument().data.unwrap().first, post);
-      expect(r.decodeDocument().isCompound, isFalse);
+      expect(r.first.key, 'posts:1');
+      expect(r.included.isEmpty, true);
     });
 
     test('document is compound when requested but nothing to include',
         () async {
       final r = await client.fetchCollection('posts', include: ['tags']);
-      expectSameJson(r.decodeDocument().data.unwrap().first, post);
-      expect(r.decodeDocument().included, []);
-      expect(r.decodeDocument().isCompound, isTrue);
+      expect(r.first.key, 'posts:1');
+      expect(r.included.isEmpty, true);
     });
 
     test('can include first-level relatives', () async {
       final r = await client.fetchCollection('posts', include: ['comments']);
-      expectSameJson(r.decodeDocument().data.unwrap().first, post);
-      expect(r.decodeDocument().isCompound, isTrue);
-      expect(r.decodeDocument().included.length, 2);
-      expectSameJson(r.decodeDocument().included[0].unwrap(), comment1);
-      expectSameJson(r.decodeDocument().included[1].unwrap(), comment2);
+      expect(r.first.type, 'posts');
+      expect(r.included.length, 2);
+      expect(r.included.first.key, 'comments:1');
+      expect(r.included.last.key, 'comments:2');
     });
 
     test('can include second-level relatives', () async {
       final r =
           await client.fetchCollection('posts', include: ['comments.author']);
-      expectSameJson(r.decodeDocument().data.unwrap().first, post);
-      expect(r.decodeDocument().included.length, 2);
-      expectSameJson(r.decodeDocument().included.first.unwrap(), bob);
-      expectSameJson(r.decodeDocument().included.last.unwrap(), alice);
-      expect(r.decodeDocument().isCompound, isTrue);
+      expect(r.first.type, 'posts');
+      expect(r.included.length, 2);
+      expect(r.included.first.attributes['name'], 'Bob');
+      expect(r.included.last.attributes['name'], 'Alice');
     });
 
     test('can include third-level relatives', () async {
       final r = await client
           .fetchCollection('posts', include: ['comments.author.birthplace']);
-      expectSameJson(r.decodeDocument().data.unwrap().first, post);
-      expect(r.decodeDocument().isCompound, isTrue);
-      expect(r.decodeDocument().included.length, 1);
-      expectSameJson(r.decodeDocument().included.first.unwrap(), wonderland);
+      expect(r.first.key, 'posts:1');
+      expect(r.included.length, 1);
+      expect(r.included.first.attributes['name'], 'Wonderland');
     });
 
     test('can include first- and second-level relatives', () async {
       final r = await client
           .fetchCollection('posts', include: ['comments', 'comments.author']);
-      expectSameJson(r.decodeDocument().data.unwrap().first, post);
-      expect(r.decodeDocument().isCompound, isTrue);
-      expect(r.decodeDocument().included.length, 4);
-      expectSameJson(r.decodeDocument().included[0].unwrap(), comment1);
-      expectSameJson(r.decodeDocument().included[1].unwrap(), comment2);
-      expectSameJson(r.decodeDocument().included[2].unwrap(), bob);
-      expectSameJson(r.decodeDocument().included[3].unwrap(), alice);
+      expect(r.first.key, 'posts:1');
+      expect(r.included.length, 4);
+      expect(r.included.toList()[0].key, 'comments:1');
+      expect(r.included.toList()[1].key, 'comments:2');
+      expect(r.included.toList()[2].attributes['name'], 'Bob');
+      expect(r.included.toList()[3].attributes['name'], 'Alice');
     });
   });
 }

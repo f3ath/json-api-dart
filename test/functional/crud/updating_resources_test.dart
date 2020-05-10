@@ -33,8 +33,8 @@ void main() async {
     }, one: {
       'publisher': null,
     }, many: {
-      'authors': [Identifier('people', '1')],
-      'reviewers': [Identifier('people', '2')]
+      'authors': [Ref('people', '1')],
+      'reviewers': [Ref('people', '2')]
     });
     expect(r.isSuccessful, isTrue);
     expect(r.http.statusCode, 200);
@@ -52,8 +52,8 @@ void main() async {
         equals('people:2'));
 
     final r1 = await client.fetchResource('books', '1');
-    expectSameJson(
-        r1.decodeDocument().data.unwrap(), r.decodeDocument().data.unwrap());
+    expect(
+        r1.resource.attributes, r.decodeDocument().data.unwrap().attributes);
   });
 
   test('204 No Content', () async {

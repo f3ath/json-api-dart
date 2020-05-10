@@ -76,13 +76,8 @@ void main() async {
       expect(r.http.statusCode, 204);
       expect(r.http.headers['location'], isNull);
       final r1 = await client.fetchResource('people', '123');
-      expect(r1.isSuccessful, isTrue);
       expect(r1.http.statusCode, 200);
-      expectSameJson(r1.decodeDocument().data.unwrap(), {
-        'type': 'people',
-        'id': '123',
-        'attributes': {'name': 'Martin Fowler'}
-      });
+      expect(r1.resource.attributes['name'], 'Martin Fowler');
     });
 
     test('404 when the collection does not exist', () async {
@@ -101,7 +96,7 @@ void main() async {
     test('404 when the related resource does not exist (to-one)', () async {
       try {
         await client.createNewResource('books',
-            one: {'publisher': Identifier('companies', '123')});
+            one: {'publisher': Ref('companies', '123')});
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
@@ -116,7 +111,7 @@ void main() async {
     test('404 when the related resource does not exist (to-many)', () async {
       try {
         await client.createNewResource('books', many: {
-          'authors': [Identifier('people', '123')]
+          'authors': [Ref('people', '123')]
         });
         fail('Exception expected');
       } on RequestFailure catch (e) {

@@ -28,23 +28,18 @@ void main() async {
   group('Updating a to-one relationship', () {
     test('204 No Content', () async {
       final r = await client.replaceOne(
-          'books', '1', 'publisher', Identifier('companies', '2'));
+          'books', '1', 'publisher', Ref('companies', '2'));
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 204);
 
       final r1 = await client.fetchResource('books', '1');
-      r1
-          .decodeDocument()
-          .data
-          .unwrap()
-          .one('publisher')
-          .mapIfExists((i) => expect(i.id, '2'), () => fail('No id'));
+      expect(r1.resource.one('publisher').identifier().id, '2');
     });
 
     test('404 on collection', () async {
       try {
         await client.replaceOne(
-            'unicorns', '1', 'breed', Identifier('companies', '2'));
+            'unicorns', '1', 'breed', Ref('companies', '2'));
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
@@ -58,7 +53,7 @@ void main() async {
     test('404 on resource', () async {
       try {
         await client.replaceOne(
-            'books', '42', 'publisher', Identifier('companies', '2'));
+            'books', '42', 'publisher', Ref('companies', '2'));
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
@@ -78,7 +73,7 @@ void main() async {
       expect(r.http.statusCode, 204);
 
       final r1 = await client.fetchResource('books', '1');
-      expect(r1.decodeDocument().data.unwrap().one('publisher').isEmpty, true);
+      expect(r1.resource.one('publisher').isEmpty, true);
     });
 
     test('404 on collection', () async {
@@ -112,16 +107,13 @@ void main() async {
   group('Replacing a to-many relationship', () {
     test('204 No Content', () async {
       final r = await client
-          .replaceMany('books', '1', 'authors', [Identifier('people', '1')]);
+          .replaceMany('books', '1', 'authors', [Ref('people', '1')]);
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 204);
 
       final r1 = await client.fetchResource('books', '1');
-      expect(
-          r1.decodeDocument().data.unwrap().many('authors').toList().length, 1);
-      expect(
-          r1.decodeDocument().data.unwrap().many('authors').toList().first.id,
-          '1');
+      expect(r1.resource.many('authors').length, 1);
+      expect(r1.resource.many('authors').first.id, '1');
     });
 
     test('404 on collection', () async {
@@ -154,8 +146,8 @@ void main() async {
 
   group('Adding to a to-many relationship', () {
     test('successfully adding a new identifier', () async {
-      final r = await client
-          .addMany('books', '1', 'authors', [Identifier('people', '3')]);
+      final r =
+          await client.addMany('books', '1', 'authors', [Ref('people', '3')]);
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], ContentType.jsonApi);
@@ -164,12 +156,12 @@ void main() async {
       expect(r.decodeDocument().data.linkage.last.id, '3');
 
       final r1 = await client.fetchResource('books', '1');
-      expect(r1.decodeDocument().data.unwrap().many('authors').length, 3);
+      expect(r1.resource.many('authors').length, 3);
     });
 
     test('successfully adding an existing identifier', () async {
-      final r = await client
-          .addMany('books', '1', 'authors', [Identifier('people', '2')]);
+      final r =
+          await client.addMany('books', '1', 'authors', [Ref('people', '2')]);
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], ContentType.jsonApi);
@@ -178,7 +170,7 @@ void main() async {
       expect(r.decodeDocument().data.linkage.last.id, '2');
 
       final r1 = await client.fetchResource('books', '1');
-      expect(r1.decodeDocument().data.unwrap().many('authors').length, 2);
+      expect(r1.resource.many('authors').length, 2);
       expect(r1.http.headers['content-type'], ContentType.jsonApi);
     });
 
@@ -227,7 +219,7 @@ void main() async {
   group('Deleting from a to-many relationship', () {
     test('successfully deleting an identifier', () async {
       final r = await client
-          .deleteMany('books', '1', 'authors', [Identifier('people', '1')]);
+          .deleteMany('books', '1', 'authors', [Ref('people', '1')]);
       expect(r.isSuccessful, isTrue);
       expect(r.http.statusCode, 200);
       expect(r.http.headers['content-type'], ContentType.jsonApi);
@@ -235,7 +227,7 @@ void main() async {
       expect(r.decodeDocument().data.linkage.first.id, '2');
 
       final r1 = await client.fetchResource('books', '1');
-      expect(r1.decodeDocument().data.unwrap().many('authors').length, 1);
+      expect(r1.resource.many('authors').length, 1);
     });
 
     test('404 on collection', () async {

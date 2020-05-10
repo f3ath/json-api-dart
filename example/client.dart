@@ -1,7 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:json_api/client.dart';
 import 'package:json_api/http.dart';
-import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
 
 /// This example shows how to use the JSON:API client.
@@ -30,20 +29,18 @@ void main() async {
   await client.createResource('books', '2', attributes: {
     'title': 'Refactoring'
   }, many: {
-    'authors': [Identifier('writers', '1')]
+    'authors': [Ref('writers', '1')]
   });
 
   /// Fetch the book, including its authors.
-  final response = await client.fetchResource('books', '2',
-      include: ['authors']);
-
-  final document = response.decodeDocument();
+  final response =
+      await client.fetchResource('books', '2', include: ['authors']);
 
   /// Extract the primary resource.
-  final book = document.data.unwrap();
+  final book = response.resource;
 
   /// Extract the included resource.
-  final author = document.included.first.unwrap();
+  final author = response.included.first;
 
   print('Book: $book');
   print('Author: $author');

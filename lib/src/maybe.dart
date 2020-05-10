@@ -8,7 +8,11 @@ abstract class Maybe<T> {
 
   Maybe<T> where(bool Function(T t) f);
 
-  T or(T Function() f);
+  T or(T t);
+
+  T orGet(T Function() f);
+
+  T orThrow(Object Function() f);
 
   void ifPresent(Function(T t) f);
 
@@ -26,19 +30,19 @@ class Just<T> implements Maybe<T> {
   Maybe<P> map<P>(P Function(T t) f) => Maybe(f(value));
 
   @override
-  T or(T Function() f) => value;
+  T or(T t) => value;
+
+  @override
+  T orGet(T Function() f) => value;
+
+  @override
+  T orThrow(Object Function() f) => value;
 
   @override
   void ifPresent(Function(T t) f) => f(value);
 
   @override
-  Maybe<T> where(bool Function(T t) f) {
-    try {
-      return f(value) ? this : Nothing<T>();
-    } catch (e) {
-      return Failure<T>(e);
-    }
-  }
+  Maybe<T> where(bool Function(T t) f) => f(value) ? this : Nothing<T>();
 
   @override
   Maybe<P> whereType<P>() => value is P ? Just(value as P) : Nothing<P>();
@@ -54,7 +58,13 @@ class Nothing<T> implements Maybe<T> {
   Maybe<P> map<P>(P Function(T t) map) => Nothing<P>();
 
   @override
-  T or(T Function() f) => f();
+  T or(T t) => t;
+
+  @override
+  T orGet(T Function() f) => f();
+
+  @override
+  T orThrow(Object Function() f) => throw f();
 
   @override
   void ifPresent(Function(T t) f) {}
@@ -67,29 +77,4 @@ class Nothing<T> implements Maybe<T> {
 
   @override
   Maybe<T> recover<E>(T Function(E _) f) => this;
-}
-
-class Failure<T> implements Maybe<T> {
-  const Failure(this.exception);
-
-  final Object exception;
-
-  @override
-  void ifPresent(Function(T t) f) {}
-
-  @override
-  Maybe<P> map<P>(P Function(T t) f) => this as Failure<P>;
-
-  @override
-  T or(T Function() f) => f();
-
-  @override
-  Maybe<T> where(bool Function(T t) f) => this;
-
-  @override
-  Maybe<P> whereType<P>() => this as Failure<P>;
-
-  @override
-  Maybe<T> recover<E>(T Function(E _) f) =>
-      exception is E ? Maybe(f(exception as E)) : this;
 }
