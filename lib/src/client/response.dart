@@ -110,6 +110,26 @@ class FetchPrimaryResourceResponse {
   final Map<String, Link> links;
 }
 
+class FetchRelationshipResponse {
+  FetchRelationshipResponse(this.http, this.relationship);
+
+  static FetchRelationshipResponse fromHttp(HttpResponse http) {
+    final json = jsonDecode(http.body);
+    if (json is Map) {
+      return FetchRelationshipResponse(
+        http,
+        Relationship.fromJson(json),
+      );
+    }
+    throw ArgumentError('Can not parse Relationship response');
+  }
+
+  final HttpResponse http;
+  final Relationship relationship;
+
+  Map<String, Link> get links => relationship.links;
+}
+
 class FetchRelatedResourceResponse {
   FetchRelatedResourceResponse(this.http, Resource resource,
       {ResourceCollection included, Map<String, Link> links = const {}})
@@ -127,11 +147,11 @@ class FetchRelatedResourceResponse {
     final json = jsonDecode(http.body);
     if (json is Map) {
       final included = ResourceCollection(Maybe(json['included'])
-          .whereType<List>()
+          .map((t) => t is List ? t : throw ArgumentError('List expected'))
           .map((t) => t.map(Resource.fromJson))
           .or(const []));
       final links = Maybe(json['links'])
-          .whereType<Map>()
+          .map((_) => _ is Map ? _ : throw ArgumentError('Map expected'))
           .map(Link.mapFromJson)
           .or(const {});
       return Maybe(json['data'])
@@ -159,11 +179,11 @@ class RequestFailure {
   final List<ErrorObject> errors;
 
   static RequestFailure decode(HttpResponse http) => Maybe(http.body)
-      .where((_) => _.isNotEmpty)
+      .filter((_) => _.isNotEmpty)
       .map(jsonDecode)
-      .whereType<Map>()
+      .map((_) => _ is Map ? _ : throw ArgumentError('Map expected'))
       .map((_) => _['errors'])
-      .whereType<List>()
+      .map((_) => _ is List ? _ : throw ArgumentError('List expected'))
       .map((_) => _.map(ErrorObject.fromJson))
       .map((_) => RequestFailure(http, errors: _))
       .orGet(() => RequestFailure(http));
@@ -354,7 +374,7 @@ class Resource with Identity {
         return Resource(json['type'], json['id'],
             attributes: attributes,
             relationships: Maybe(relationships)
-                .whereType<Map>()
+                .map((_) => _ is Map ? _ : throw ArgumentError('Map expected'))
                 .map((t) => t.map((key, value) =>
                     MapEntry(key.toString(), Relationship.fromJson(value))))
                 .orGet(() => {}),
@@ -376,15 +396,15 @@ class Resource with Identity {
   final Map<String, Relationship> relationships;
 
   Many many(String key, {Many Function() orElse}) => Maybe(relationships[key])
-      .whereType<Many>()
+      .filter((_) => _ is Many)
       .orGet(() => Maybe(orElse).orThrow(() => StateError('No element'))());
 
   One one(String key, {One Function() orElse}) => Maybe(relationships[key])
-      .whereType<One>()
+      .filter((_) => _ is One)
       .orGet(() => Maybe(orElse).orThrow(() => StateError('No element'))());
 }
 
-class Relationship {
+class Relationship with IterableMixin<Identifier> {
   Relationship({Map<String, Link> links, Map<String, Object> meta})
       : links = Map.unmodifiable(links ?? {}),
         meta = Map.unmodifiable(meta ?? {});
@@ -413,14 +433,20 @@ class Relationship {
 
   final Map<String, Link> links;
   final Map<String, Object> meta;
+  final isSingular = false;
+  final isPlural = false;
+  final hasData = false;
 
   Map<String, Object> toJson() => {
         if (links.isNotEmpty) 'links': links,
         if (meta.isNotEmpty) 'meta': meta,
       };
+
+  @override
+  Iterator<Identifier> get iterator => const [].iterator;
 }
 
-class One extends Relationship with IterableMixin<Identifier> {
+class One extends Relationship {
   One(Identifier identifier,
       {Map<String, Link> links, Map<String, Object> meta})
       : _id = Just(identifier),
@@ -433,6 +459,9 @@ class One extends Relationship with IterableMixin<Identifier> {
   final Maybe<Identifier> _id;
 
   @override
+  final isSingular = true;
+
+  @override
   Map<String, Object> toJson() => {...super.toJson(), 'data': _id.or(null)};
 
   Identifier identifier({Identifier Function() ifEmpty}) => _id.orGet(
@@ -443,7 +472,7 @@ class One extends Relationship with IterableMixin<Identifier> {
       _id.map((_) => [_]).or(const []).iterator;
 }
 
-class Many extends Relationship with IterableMixin<Identifier> {
+class Many extends Relationship {
   Many(Iterable<Identifier> identifiers,
       {Map<String, Link> links, Map<String, Object> meta})
       : super(links: links, meta: meta) {
@@ -451,6 +480,9 @@ class Many extends Relationship with IterableMixin<Identifier> {
   }
 
   final _map = <String, Identifier>{};
+
+  @override
+  final isPlural = true;
 
   @override
   Map<String, Object> toJson() => {...super.toJson(), 'data': _map.values};

@@ -48,32 +48,14 @@ class JsonApiClient {
           _uri.related(type, id, relationship),
           headers));
 
-  /// Fetches a to-one relationship by [type], [id], [relationship].
-  Future<Response<d.ToOneObject>> fetchOne(
+  /// Fetches a relationship by [type], [id], [relationship].
+  Future<FetchRelationshipResponse> fetchRelationship(
           String type, String id, String relationship,
-          {Map<String, String> headers, Iterable<String> include = const []}) =>
-      send(Request.fetchOne(include: include),
+          {Map<String, String> headers = const {}}) async =>
+      FetchRelationshipResponse.fromHttp(await _call(
+          Request.fetchRelationship(),
           _uri.relationship(type, id, relationship),
-          headers: headers);
-
-  /// Fetches a to-many relationship by [type], [id], [relationship].
-  Future<Response<d.ToManyObject>> fetchMany(
-          String type, String id, String relationship,
-          {Map<String, String> headers, Iterable<String> include = const []}) =>
-      send(
-        Request.fetchMany(include: include),
-        _uri.relationship(type, id, relationship),
-        headers: headers,
-      );
-
-  /// Fetches a [relationship] of [type] : [id].
-  Future<Response<d.RelationshipObject>> fetchRelationship(
-          String type, String id, String relationship,
-          {Map<String, String> headers = const {},
-          Iterable<String> include = const []}) =>
-      send(Request.fetchRelationship(include: include),
-          _uri.relationship(type, id, relationship),
-          headers: headers);
+          headers));
 
   /// Creates a new [resource] on the server.
   /// The server is expected to assign the resource id.

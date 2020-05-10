@@ -31,20 +31,14 @@ class Request<D extends d.PrimaryData> {
       Request(HttpMethod.GET, d.ResourceData.fromJson,
           parameters: Include(include));
 
-  static Request<d.ToOneObject> fetchOne(
-          {Iterable<String> include = const []}) =>
-      Request(HttpMethod.GET, d.ToOneObject.fromJson,
-          parameters: Include(include));
+  static Request<d.ToOneObject> fetchOne() =>
+      Request(HttpMethod.GET, d.ToOneObject.fromJson);
 
-  static Request<d.ToManyObject> fetchMany(
-          {Iterable<String> include = const []}) =>
-      Request(HttpMethod.GET, d.ToManyObject.fromJson,
-          parameters: Include(include));
+  static Request<d.ToManyObject> fetchMany() =>
+      Request(HttpMethod.GET, d.ToManyObject.fromJson);
 
-  static Request<d.RelationshipObject> fetchRelationship(
-          {Iterable<String> include = const []}) =>
-      Request(HttpMethod.GET, d.RelationshipObject.fromJson,
-          parameters: Include(include));
+  static Request<d.RelationshipObject> fetchRelationship() =>
+      Request(HttpMethod.GET, d.RelationshipObject.fromJson);
 
   static Request<d.ResourceData> createNewResource(String type,
           {Map<String, Object> attributes = const {},

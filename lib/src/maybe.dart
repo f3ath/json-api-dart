@@ -2,11 +2,10 @@
 abstract class Maybe<T> {
   factory Maybe(T t) => t == null ? Nothing<T>() : Just(t);
 
+  /// Maps the value
   Maybe<P> map<P>(P Function(T t) f);
 
-  Maybe<P> whereType<P>();
-
-  Maybe<T> where(bool Function(T t) f);
+  Maybe<T> filter(bool Function(T t) f);
 
   T or(T t);
 
@@ -14,7 +13,7 @@ abstract class Maybe<T> {
 
   T orThrow(Object Function() f);
 
-  void ifPresent(Function(T t) f);
+  void ifPresent(void Function(T t) f);
 
   Maybe<T> recover<E>(T Function(E _) f);
 }
@@ -39,13 +38,10 @@ class Just<T> implements Maybe<T> {
   T orThrow(Object Function() f) => value;
 
   @override
-  void ifPresent(Function(T t) f) => f(value);
+  void ifPresent(void Function(T t) f) => f(value);
 
   @override
-  Maybe<T> where(bool Function(T t) f) => f(value) ? this : Nothing<T>();
-
-  @override
-  Maybe<P> whereType<P>() => value is P ? Just(value as P) : Nothing<P>();
+  Maybe<T> filter(bool Function(T t) f) => f(value) ? this : Nothing<T>();
 
   @override
   Maybe<T> recover<E>(T Function(E _) f) => this;
@@ -67,13 +63,10 @@ class Nothing<T> implements Maybe<T> {
   T orThrow(Object Function() f) => throw f();
 
   @override
-  void ifPresent(Function(T t) f) {}
+  void ifPresent(void Function(T t) f) {}
 
   @override
-  Maybe<T> where(bool Function(T t) f) => this;
-
-  @override
-  Maybe<P> whereType<P>() => Nothing<P>();
+  Maybe<T> filter(bool Function(T t) f) => this;
 
   @override
   Maybe<T> recover<E>(T Function(E _) f) => this;
