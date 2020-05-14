@@ -14,7 +14,7 @@ class JsonApiClient {
   /// Fetches a primary resource collection by [type].
   Future<FetchCollectionResponse> fetchCollection(String type,
       {Map<String, String> headers, Iterable<String> include}) async {
-    final request = JsonApiRequest.fetch();
+    final request = JsonApiRequest.get();
     Maybe(headers).ifPresent(request.headers);
     Maybe(include).ifPresent(request.include);
     return FetchCollectionResponse.fromHttp(
@@ -25,7 +25,7 @@ class JsonApiClient {
   Future<FetchCollectionResponse> fetchRelatedCollection(
       String type, String id, String relationship,
       {Map<String, String> headers, Iterable<String> include}) async {
-    final request = JsonApiRequest.fetch();
+    final request = JsonApiRequest.get();
     Maybe(headers).ifPresent(request.headers);
     Maybe(include).ifPresent(request.include);
     return FetchCollectionResponse.fromHttp(
@@ -35,7 +35,7 @@ class JsonApiClient {
   /// Fetches a primary resource by [type] and [id].
   Future<FetchPrimaryResourceResponse> fetchResource(String type, String id,
       {Map<String, String> headers, Iterable<String> include}) async {
-    final request = JsonApiRequest.fetch();
+    final request = JsonApiRequest.get();
     Maybe(headers).ifPresent(request.headers);
     Maybe(include).ifPresent(request.include);
     return FetchPrimaryResourceResponse.fromHttp(
@@ -46,7 +46,7 @@ class JsonApiClient {
   Future<FetchRelatedResourceResponse> fetchRelatedResource(
       String type, String id, String relationship,
       {Map<String, String> headers, Iterable<String> include}) async {
-    final request = JsonApiRequest.fetch();
+    final request = JsonApiRequest.get();
     Maybe(headers).ifPresent(request.headers);
     Maybe(include).ifPresent(request.include);
     return FetchRelatedResourceResponse.fromHttp(
@@ -57,36 +57,37 @@ class JsonApiClient {
   Future<FetchRelationshipResponse<R>>
       fetchRelationship<R extends Relationship>(
           String type, String id, String relationship,
-          {Map<String, String> headers = const {}}) async {
-    final request = JsonApiRequest.fetch();
+          {Map<String, String> headers}) async {
+    final request = JsonApiRequest.get();
     Maybe(headers).ifPresent(request.headers);
     return FetchRelationshipResponse.fromHttp<R>(
         await call(request, _uri.relationship(type, id, relationship)));
   }
 
-  /// Creates a new [resource] on the server.
+  /// Creates a new [_resource] on the server.
   /// The server is expected to assign the resource id.
   Future<CreateResourceResponse> createNewResource(String type,
       {Map<String, Object> attributes = const {},
       Map<String, Identifier> one = const {},
       Map<String, Iterable<Identifier>> many = const {},
       Map<String, String> headers}) async {
-    final request = JsonApiRequest.createNewResource(type,
-        attributes: attributes, one: one, many: many);
+    final request = JsonApiRequest.post(ResourceDocument(Resource(type,
+        attributes: attributes, relationships: _relationships(one, many))));
     Maybe(headers).ifPresent(request.headers);
     return CreateResourceResponse.fromHttp(
         await call(request, _uri.collection(type)));
   }
 
-  /// Creates a new [resource] on the server.
+  /// Creates a new [_resource] on the server.
   /// The server is expected to accept the provided resource id.
   Future<ResourceResponse> createResource(String type, String id,
       {Map<String, Object> attributes = const {},
       Map<String, Identifier> one = const {},
       Map<String, Iterable<Identifier>> many = const {},
       Map<String, String> headers}) async {
-    final request = JsonApiRequest.createResource(type, id,
-        attributes: attributes, one: one, many: many);
+    final request = JsonApiRequest.post(ResourceDocument(ResourceWithIdentity(
+        type, id,
+        attributes: attributes, relationships: _relationships(one, many))));
     Maybe(headers).ifPresent(request.headers);
     return ResourceResponse.fromHttp(
         await call(request, _uri.collection(type)));
@@ -95,20 +96,21 @@ class JsonApiClient {
   /// Deletes the resource by [type] and [id].
   Future<DeleteResourceResponse> deleteResource(String type, String id,
       {Map<String, String> headers}) async {
-    final request = JsonApiRequest.deleteResource();
+    final request = JsonApiRequest.delete();
     Maybe(headers).ifPresent(request.headers);
     return DeleteResourceResponse.fromHttp(
         await call(request, _uri.resource(type, id)));
   }
 
-  /// Updates the [resource].
+  /// Updates the [_resource].
   Future<ResourceResponse> updateResource(String type, String id,
       {Map<String, Object> attributes = const {},
       Map<String, Identifier> one = const {},
       Map<String, Iterable<Identifier>> many = const {},
       Map<String, String> headers}) async {
-    final request = JsonApiRequest.updateResource(type, id,
-        attributes: attributes, one: one, many: many);
+    final request = JsonApiRequest.patch(ResourceDocument(ResourceWithIdentity(
+        type, id,
+        attributes: attributes, relationships: _relationships(one, many))));
     Maybe(headers).ifPresent(request.headers);
     return ResourceResponse.fromHttp(
         await call(request, _uri.resource(type, id)));
@@ -118,7 +120,7 @@ class JsonApiClient {
   Future<RelationshipResponse<One>> replaceOne(
       String type, String id, String relationship, Identifier identifier,
       {Map<String, String> headers}) async {
-    final request = JsonApiRequest.replaceOne(identifier);
+    final request = JsonApiRequest.patch(One(identifier));
     Maybe(headers).ifPresent(request.headers);
     return RelationshipResponse.fromHttp<One>(
         await call(request, _uri.relationship(type, id, relationship)));
@@ -128,7 +130,7 @@ class JsonApiClient {
   Future<RelationshipResponse<One>> deleteOne(
       String type, String id, String relationship,
       {Map<String, String> headers}) async {
-    final request = JsonApiRequest.deleteOne();
+    final request = JsonApiRequest.patch(One.empty());
     Maybe(headers).ifPresent(request.headers);
     return RelationshipResponse.fromHttp<One>(
         await call(request, _uri.relationship(type, id, relationship)));
@@ -138,7 +140,7 @@ class JsonApiClient {
   Future<RelationshipResponse<Many>> deleteMany(String type, String id,
       String relationship, Iterable<Identifier> identifiers,
       {Map<String, String> headers}) async {
-    final request = JsonApiRequest.deleteMany(identifiers);
+    final request = JsonApiRequest.delete(Many(identifiers));
     Maybe(headers).ifPresent(request.headers);
     return RelationshipResponse.fromHttp<Many>(
         await call(request, _uri.relationship(type, id, relationship)));
@@ -148,7 +150,7 @@ class JsonApiClient {
   Future<RelationshipResponse<Many>> replaceMany(String type, String id,
       String relationship, Iterable<Identifier> identifiers,
       {Map<String, String> headers}) async {
-    final request = JsonApiRequest.replaceMany(identifiers);
+    final request = JsonApiRequest.patch(Many(identifiers));
     Maybe(headers).ifPresent(request.headers);
     return RelationshipResponse.fromHttp<Many>(
         await call(request, _uri.relationship(type, id, relationship)));
@@ -158,7 +160,7 @@ class JsonApiClient {
   Future<RelationshipResponse<Many>> addMany(String type, String id,
       String relationship, Iterable<Identifier> identifiers,
       {Map<String, String> headers = const {}}) async {
-    final request = JsonApiRequest.addMany(identifiers);
+    final request = JsonApiRequest.post(Many(identifiers));
     Maybe(headers).ifPresent(request.headers);
     return RelationshipResponse.fromHttp<Many>(
         await call(request, _uri.relationship(type, id, relationship)));
@@ -175,3 +177,19 @@ class JsonApiClient {
     return response;
   }
 }
+
+class ResourceDocument {
+  ResourceDocument(this._resource);
+
+  final Resource _resource;
+
+  Map<String, Object> toJson() => {'data': _resource.toJson()};
+}
+
+Map<String, Relationship> _relationships(
+        Map<String, Identifier> one, Map<String, Iterable<Identifier>> many) =>
+    {
+      ...one.map((key, value) => MapEntry(
+          key, Maybe(value).map((t) => One(value)).orGet(() => One.empty()))),
+      ...many.map((key, value) => MapEntry(key, Many(value)))
+    };

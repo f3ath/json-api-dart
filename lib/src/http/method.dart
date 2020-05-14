@@ -1,4 +1,4 @@
-class HttpMethod {
+class Method {
   static final DELETE = 'DELETE';
   static final GET = 'GET';
   static final OPTIONS = 'OPTIONS';

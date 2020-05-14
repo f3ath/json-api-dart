@@ -6,7 +6,7 @@ import 'package:json_api/src/client/document.dart';
 import 'package:json_api/src/client/status_code.dart';
 import 'package:json_api/src/maybe.dart';
 
-class FetchCollectionResponse with IterableMixin<Resource> {
+class FetchCollectionResponse with IterableMixin<ResourceWithIdentity> {
   FetchCollectionResponse(this.http,
       {ResourceCollection resources,
       ResourceCollection included,
@@ -29,7 +29,7 @@ class FetchCollectionResponse with IterableMixin<Resource> {
   final Map<String, Link> links;
 
   @override
-  Iterator<Resource> get iterator => resources.iterator;
+  Iterator<ResourceWithIdentity> get iterator => resources.iterator;
 }
 
 class FetchPrimaryResourceResponse {
@@ -45,7 +45,7 @@ class FetchPrimaryResourceResponse {
   }
 
   final HttpResponse http;
-  final Resource resource;
+  final ResourceWithIdentity resource;
   final ResourceCollection included;
   final Map<String, Link> links;
 }
@@ -63,17 +63,17 @@ class CreateResourceResponse {
 
   final HttpResponse http;
   final Map<String, Link> links;
-  final Resource resource;
+  final ResourceWithIdentity resource;
 }
 
 class ResourceResponse {
-  ResourceResponse(this.http, Resource resource,
+  ResourceResponse(this.http, ResourceWithIdentity resource,
       {Map<String, Link> links = const {}})
       : _resource = Just(resource),
         links = Map.unmodifiable(links ?? const {});
 
   ResourceResponse.empty(this.http)
-      : _resource = Nothing<Resource>(),
+      : _resource = Nothing<ResourceWithIdentity>(),
         links = const {};
 
   static ResourceResponse fromHttp(HttpResponse http) {
@@ -86,9 +86,9 @@ class ResourceResponse {
 
   final HttpResponse http;
   final Map<String, Link> links;
-  final Maybe<Resource> _resource;
+  final Maybe<ResourceWithIdentity> _resource;
 
-  Resource resource({Resource Function() orElse}) => _resource.orGet(
+  ResourceWithIdentity resource({ResourceWithIdentity Function() orElse}) => _resource.orGet(
       () => Maybe(orElse).orThrow(() => StateError('No content returned'))());
 }
 
@@ -143,7 +143,7 @@ class RelationshipResponse<R extends Relationship> {
 }
 
 class FetchRelatedResourceResponse {
-  FetchRelatedResourceResponse(this.http, Resource resource,
+  FetchRelatedResourceResponse(this.http, ResourceWithIdentity resource,
       {ResourceCollection included, Map<String, Link> links = const {}})
       : _resource = Just(resource),
         links = Map.unmodifiable(links ?? const {}),
@@ -151,7 +151,7 @@ class FetchRelatedResourceResponse {
 
   FetchRelatedResourceResponse.empty(this.http,
       {ResourceCollection included, Map<String, Link> links = const {}})
-      : _resource = Nothing<Resource>(),
+      : _resource = Nothing<ResourceWithIdentity>(),
         links = Map.unmodifiable(links ?? const {}),
         included = included ?? ResourceCollection(const []);
 
@@ -166,9 +166,9 @@ class FetchRelatedResourceResponse {
   }
 
   final HttpResponse http;
-  final Maybe<Resource> _resource;
+  final Maybe<ResourceWithIdentity> _resource;
 
-  Resource resource({Resource Function() orElse}) => _resource.orGet(() =>
+  ResourceWithIdentity resource({ResourceWithIdentity Function() orElse}) => _resource.orGet(() =>
       Maybe(orElse).orThrow(() => StateError('Related resource is empty'))());
   final ResourceCollection included;
   final Map<String, Link> links;

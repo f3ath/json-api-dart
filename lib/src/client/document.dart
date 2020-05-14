@@ -25,15 +25,16 @@ class ResponseDocument {
 
   ResourceCollection get included => ResourceCollection(Maybe(_json['included'])
       .map((t) => t is List ? t : throw ArgumentError('List expected'))
-      .map((t) => t.map(Resource.fromJson))
+      .map((t) => t.map(ResourceWithIdentity.fromJson))
       .or(const []));
 
   ResourceCollection get resources => ResourceCollection(Maybe(_json['data'])
       .map((t) => t is List ? t : throw ArgumentError('List expected'))
-      .map((t) => t.map(Resource.fromJson))
+      .map((t) => t.map(ResourceWithIdentity.fromJson))
       .or(const []));
 
-  Resource get resource => Resource.fromJson(_json['data']);
+  ResourceWithIdentity get resource =>
+      ResourceWithIdentity.fromJson(_json['data']);
 
   Relationship get relationship => Relationship.fromJson(_json);
 
@@ -199,28 +200,49 @@ class Link {
   String toString() => uri.toString();
 }
 
-class ResourceCollection with IterableMixin<Resource> {
-  ResourceCollection(Iterable<Resource> resources)
+class ResourceCollection with IterableMixin<ResourceWithIdentity> {
+  ResourceCollection(Iterable<ResourceWithIdentity> resources)
       : _map = Map.fromEntries(resources.map((_) => MapEntry(_.key, _)));
 
-  final Map<String, Resource> _map;
+  final Map<String, ResourceWithIdentity> _map;
 
   @override
-  Iterator<Resource> get iterator => _map.values.iterator;
+  Iterator<ResourceWithIdentity> get iterator => _map.values.iterator;
 }
 
-class Resource with Identity {
-  Resource(this.type, this.id,
+class Resource {
+  Resource(this.type,
+      {Map<String, Object> meta,
+      Map<String, Object> attributes,
+      Map<String, Relationship> relationships})
+      : meta = Map.unmodifiable(meta ?? {}),
+        relationships = Map.unmodifiable(relationships ?? {}),
+        attributes = Map.unmodifiable(attributes ?? {});
+
+  final String type;
+  final Map<String, Object> meta;
+  final Map<String, Object> attributes;
+  final Map<String, Relationship> relationships;
+
+  Map<String, Object> toJson() => {
+        'type': type,
+        if (attributes.isNotEmpty) 'attributes': attributes,
+        if (relationships.isNotEmpty) 'relationships': relationships,
+        if (meta.isNotEmpty) 'meta': meta,
+      };
+}
+
+class ResourceWithIdentity extends Resource with Identity {
+  ResourceWithIdentity(this.type, this.id,
       {Map<String, Link> links,
       Map<String, Object> meta,
       Map<String, Object> attributes,
       Map<String, Relationship> relationships})
       : links = Map.unmodifiable(links ?? {}),
-        meta = Map.unmodifiable(meta ?? {}),
-        relationships = Map.unmodifiable(relationships ?? {}),
-        attributes = Map.unmodifiable(attributes ?? {});
+        super(type,
+            attributes: attributes, relationships: relationships, meta: meta);
 
-  static Resource fromJson(Object json) {
+  static ResourceWithIdentity fromJson(Object json) {
     if (json is Map) {
       final relationships = json['relationships'];
       final attributes = json['attributes'];
@@ -229,7 +251,7 @@ class Resource with Identity {
           (attributes == null || attributes is Map) &&
           type is String &&
           type.isNotEmpty) {
-        return Resource(json['type'], json['id'],
+        return ResourceWithIdentity(json['type'], json['id'],
             attributes: attributes,
             relationships: Maybe(relationships)
                 .map((_) => _ is Map ? _ : throw ArgumentError('Map expected'))
@@ -249,9 +271,6 @@ class Resource with Identity {
   @override
   final String id;
   final Map<String, Link> links;
-  final Map<String, Object> meta;
-  final Map<String, Object> attributes;
-  final Map<String, Relationship> relationships;
 
   Many many(String key, {Many Function() orElse}) => Maybe(relationships[key])
       .filter((_) => _ is Many)
@@ -260,6 +279,13 @@ class Resource with Identity {
   One one(String key, {One Function() orElse}) => Maybe(relationships[key])
       .filter((_) => _ is One)
       .orGet(() => Maybe(orElse).orThrow(() => StateError('No element'))());
+
+  @override
+  Map<String, Object> toJson() => {
+        'id': id,
+        ...super.toJson(),
+        if (links.isNotEmpty) 'links': links,
+      };
 }
 
 abstract class Relationship with IterableMixin<Identifier> {
@@ -351,7 +377,8 @@ class Many extends Relationship {
   final isPlural = true;
 
   @override
-  Map<String, Object> toJson() => {...super.toJson(), 'data': _map.values};
+  Map<String, Object> toJson() =>
+      {...super.toJson(), 'data': _map.values.toList()};
 
   @override
   Iterator<Identifier> get iterator => _map.values.iterator;
