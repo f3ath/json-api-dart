@@ -1,53 +1,70 @@
 import 'dart:collection';
-import 'dart:convert';
 
 import 'package:json_api/src/maybe.dart';
 
-/// Generic response document parser
-class ResponseDocument {
-  ResponseDocument(this._json);
+class ResourceDocument {
+  ResourceDocument(this._resource);
 
-  static ResponseDocument decode(String body) => Just(body)
-      .filter((t) => t.isNotEmpty)
-      .map(jsonDecode)
-      .map((t) => t is Map
-          ? t
-          : throw ArgumentError('Response document must be a JSON map'))
-      .map((t) => ResponseDocument(t))
-      .orThrow(() => ArgumentError('Empty response body'));
+  final Resource _resource;
 
-  final Map _json;
+  Map<String, Object> toJson() => {'data': _resource.toJson()};
+}
 
-  Map<String, Link> get links => Maybe(_json['links'])
-      .map((_) => _ is Map ? _ : throw ArgumentError('Map expected'))
-      .map(Link.mapFromJson)
-      .or(const {});
+class Document {
+  Document({Map<String, Object> meta}) {
+    Maybe(meta).ifPresent(this.meta.addAll);
+  }
 
-  ResourceCollection get included => ResourceCollection(Maybe(_json['included'])
-      .map((t) => t is List ? t : throw ArgumentError('List expected'))
-      .map((t) => t.map(ResourceWithIdentity.fromJson))
-      .or(const []));
+  static Document fromJson(Object json) {
+    if (json is Map) {
+      return Document(meta: json.containsKey('meta') ? json['meta'] : null);
+    }
+    throw ArgumentError('Map expected');
+  }
 
-  ResourceCollection get resources => ResourceCollection(Maybe(_json['data'])
-      .map((t) => t is List ? t : throw ArgumentError('List expected'))
-      .map((t) => t.map(ResourceWithIdentity.fromJson))
-      .or(const []));
+  final meta = <String, Object>{};
+}
 
-  ResourceWithIdentity get resource =>
-      ResourceWithIdentity.fromJson(_json['data']);
+/// Generic JSON:API document with data
+class DataDocument extends Document {
+  DataDocument(this.data,
+      {Map<String, Object> meta,
+      Map<String, Link> links,
+      Iterable<ResourceWithIdentity> included})
+      : _included = Maybe(included),
+        super(meta: meta) {
+    Maybe(links).ifPresent(this.links.addAll);
+  }
 
-  Relationship get relationship => Relationship.fromJson(_json);
+  static DataDocument fromJson(Object json) {
+    if (json is Map) {
+      if (!json.containsKey('data')) throw ArgumentError('No "data" key found');
+      final meta = json.containsKey('meta') ? json['meta'] : null;
+      final links =
+          json.containsKey('links') ? Link.mapFromJson(json['links']) : null;
 
-  bool get hasData => _json['data'] != null;
+      if (json.containsKey('included')) {
+        final error = ArgumentError('Invalid "included" value');
+        final included = Maybe(json['included'])
+            .map((_) => _ is List ? _ : throw error)
+            .map((_) => _.map(ResourceWithIdentity.fromJson))
+            .orThrow(() => error);
+        return DataDocument(json['data'],
+            meta: meta, links: links, included: included);
+      }
+      return DataDocument(json['data'], meta: meta, links: links);
+    }
+    throw ArgumentError('Map expected');
+  }
 
-  Iterable<ErrorObject> get errors => Maybe(_json['errors'])
-      .map((_) => _ is List ? _ : throw ArgumentError('List expected'))
-      .map((_) => _.map(ErrorObject.fromJson))
-      .or(const []);
+  final Object data;
+  final Maybe<Iterable<ResourceWithIdentity>> _included;
+  final links = <String, Link>{};
 
-  Map<String, Object> get meta => Maybe(_json['meta'])
-      .map((_) => _ is Map ? _ : throw ArgumentError('Map expected'))
-      .or(const {});
+  Iterable<ResourceWithIdentity> included(
+          {Iterable<ResourceWithIdentity> Function() orElse}) =>
+      _included.orGet(() =>
+          Maybe(orElse).orThrow(() => StateError('No "included" key found'))());
 }
 
 /// [ErrorObject] represents an error occurred on the server.
@@ -203,6 +220,12 @@ class Link {
 class ResourceCollection with IterableMixin<ResourceWithIdentity> {
   ResourceCollection(Iterable<ResourceWithIdentity> resources)
       : _map = Map.fromEntries(resources.map((_) => MapEntry(_.key, _)));
+
+  static ResourceCollection fromJson(Object json) =>
+      ResourceCollection(Maybe(json)
+          .map((_) => _ is List ? _ : throw ArgumentError('List expected'))
+          .map((_) => _.map(ResourceWithIdentity.fromJson))
+          .orThrow(() => ArgumentError('Invalid json')));
 
   final Map<String, ResourceWithIdentity> _map;
 
@@ -395,6 +418,12 @@ class Identifier with Identity {
     throw ArgumentError('A JSON:API identifier must be a JSON object');
   }
 
+  static Identifier fromKey(String key) {
+    final i = key.indexOf(Identity.delimiter);
+    if (i < 1) throw ArgumentError('Invalid key');
+    return Identifier(key.substring(0, i), key.substring(i + 1));
+  }
+
   @override
   final String type;
 
@@ -408,9 +437,14 @@ class Identifier with Identity {
 }
 
 mixin Identity {
+  static final delimiter = ':';
+
   String get type;
 
   String get id;
 
-  String get key => '$type:$id';
+  String get key => '$type$delimiter$id';
+
+  @override
+  String toString() => key;
 }

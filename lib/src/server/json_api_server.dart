@@ -12,8 +12,7 @@ class JsonApiServer implements HttpHandler {
   JsonApiServer(this._controller,
       {Routing routing, ResponseFactory responseFactory})
       : _routing = routing ?? StandardRouting(),
-        _rf = responseFactory ??
-            HttpResponseFactory(routing ?? StandardRouting());
+        _rf = responseFactory ?? ResponseFactory(routing ?? StandardRouting());
 
   final Routing _routing;
   final ResponseFactory _rf;

@@ -13,7 +13,7 @@ class Fields extends QueryParameters {
   /// ```
   /// ?fields[articles]=title,body&fields[people]=name
   /// ```
-  Fields(Map<String, List<String>> fields)
+  Fields(Map<String, Iterable<String>> fields)
       : _fields = {...fields},
         super(fields.map((k, v) => MapEntry('fields[$k]', v.join(','))));
 
@@ -22,7 +22,7 @@ class Fields extends QueryParameters {
 
   /// Extracts the requested fields from [queryParameters].
   static Fields fromQueryParameters(
-          Map<String, List<String>> queryParameters) =>
+          Map<String, Iterable<String>> queryParameters) =>
       Fields(queryParameters.map((k, v) => MapEntry(
           _regex.firstMatch(k)?.group(1),
           v.expand((_) => _.split(',')).toList()))

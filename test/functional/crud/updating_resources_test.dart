@@ -32,8 +32,8 @@ void main() async {
     }, one: {
       'publisher': null,
     }, many: {
-      'authors': [Identifier('people', '1')],
-      'reviewers': [Identifier('people', '2')]
+      'authors': ['people:1'],
+      'reviewers': ['people:2']
     });
     expect(r.http.statusCode, 200);
     expect(r.http.headers['content-type'], ContentType.jsonApi);

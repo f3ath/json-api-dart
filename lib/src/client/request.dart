@@ -32,9 +32,37 @@ class JsonApiRequest {
     _headers.addAll(headers);
   }
 
-  /// Adds the "include" query parameter
+  /// Requests inclusion of related resources.
+  ///
+  /// See https://jsonapi.org/format/#fetching-includes
   void include(Iterable<String> items) {
     _parameters &= Include(items);
+  }
+
+  /// Requests collection sorting.
+  ///
+  /// See https://jsonapi.org/format/#fetching-sorting
+  void sort(Iterable<String> sort) {
+    _parameters &= Sort(sort.map(SortField.parse));
+  }
+
+  /// Requests a specific page.
+  ///
+  /// See https://jsonapi.org/format/#fetching-pagination
+  void page(Map<String, String> page){
+    _parameters &= Page(page);
+  }
+
+  /// Requests sparse fieldsets.
+  ///
+  /// See https://jsonapi.org/format/#fetching-sparse-fieldsets
+  void fields(Map<String, Iterable<String>> fields) {
+    _parameters &= Fields(fields);
+  }
+
+  /// Sets arbitrary query parameters.
+  void parameters(Map<String, String> parameters) {
+    _parameters &= QueryParameters(parameters);
   }
 
   /// Converts to an HTTP request

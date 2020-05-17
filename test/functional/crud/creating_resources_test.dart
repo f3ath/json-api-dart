@@ -91,8 +91,8 @@ void main() async {
 
     test('404 when the related resource does not exist (to-one)', () async {
       try {
-        await client.createNewResource('books',
-            one: {'publisher': Identifier('companies', '123')});
+        await client
+            .createNewResource('books', one: {'publisher': 'companies:123'});
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 404);
@@ -107,7 +107,7 @@ void main() async {
     test('404 when the related resource does not exist (to-many)', () async {
       try {
         await client.createNewResource('books', many: {
-          'authors': [Identifier('people', '123')]
+          'authors': ['people:123']
         });
         fail('Exception expected');
       } on RequestFailure catch (e) {
