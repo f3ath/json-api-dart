@@ -5,6 +5,8 @@ dart:
   - "2.6.0"
   - "2.6.1"
   - "2.7.0"
+  - "2.8.0"
+  - "2.8.1"
 dart_task:
   - test: --platform vm
   - test: --platform chrome
