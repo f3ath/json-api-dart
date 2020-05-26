@@ -31,4 +31,18 @@ void main() {
           'http://example.com');
     });
   });
+
+  group('parsing', () {
+    // see https://github.com/f3ath/json-api-dart/issues/91
+    test('non-standard keys/values in the source object casted to string', () {
+      final e = ErrorObject.fromJson({
+        'detail': 'Oops',
+        'source': {'file': '/some/file.php', 'line': 42, 'parameter': 'foo'}
+      });
+      expect(e.detail, 'Oops');
+      expect(e.source['parameter'], 'foo');
+      expect(e.source['file'], '/some/file.php');
+      expect(e.source['line'], '42');
+    });
+  });
 }
