@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:json_api/document.dart';
+import 'package:json_api/src/document/document_exception.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -38,6 +39,41 @@ void main() {
     expect(data.links['foo'].toString(), '/foo');
     expect(data.links['bar'].toString(), '/bar-new');
     expect(data.self.toString(), '/self');
+  });
+
+  group('included resources decoding', () {
+    test('null decodes to null', () {
+      final data = ResourceData.fromJson(json.decode(json.encode({
+        'data': {'type': 'apples', 'id': '1'}
+      })));
+      expect(data.isCompound, isFalse);
+    });
+    test('[] decodes to []', () {
+      final data = ResourceData.fromJson(json.decode(json.encode({
+        'data': {'type': 'apples', 'id': '1'},
+        'included': []
+      })));
+      expect(data.included, equals([]));
+      expect(data.isCompound, isTrue);
+    });
+    test('non empty [] decodes to non-empty []', () {
+      final data = ResourceData.fromJson(json.decode(json.encode({
+        'data': {'type': 'apples', 'id': '1'},
+        'included': [
+          {'type': 'oranges', 'id': '1'}
+        ]
+      })));
+      expect(data.included, isNotEmpty);
+      expect(data.isCompound, isTrue);
+    });
+    test('invalid value throws DocumentException', () {
+      expect(
+          () => ResourceData.fromJson(json.decode(json.encode({
+                'data': {'type': 'apples', 'id': '1'},
+                'included': {}
+              }))),
+          throwsA(TypeMatcher<DocumentException>()));
+    });
   });
 
   group('custom links', () {

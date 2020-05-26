@@ -3,6 +3,7 @@
 class QueryParameters {
   QueryParameters(Map<String, String> parameters)
       : _parameters = {...parameters};
+  final Map<String, String> _parameters;
 
   bool get isEmpty => _parameters.isEmpty;
 
@@ -20,6 +21,4 @@ class QueryParameters {
   /// A shortcut for [merge]
   QueryParameters operator &(QueryParameters moreParameters) =>
       merge(moreParameters);
-
-  final Map<String, String> _parameters;
 }

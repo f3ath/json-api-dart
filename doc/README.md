@@ -1,0 +1,1 @@
+The JSON schema file is downloaded from http://jsonapi.org/schema

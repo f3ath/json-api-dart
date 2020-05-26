@@ -60,11 +60,5 @@ void main() {
               .toString(),
           '/my-link');
     });
-
-    test('link shortcuts return null is not "links" is set', () {
-      final r = ResourceObject('apples', '1');
-      expect(r.self, null);
-      expect(r.links, null);
-    });
   });
 }
