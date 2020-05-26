@@ -32,13 +32,17 @@ class ErrorObject implements JsonEncodable {
 
   static ErrorObject fromJson(Object json) {
     if (json is Map) {
+      final source = json['source'];
       return ErrorObject(
           id: json['id'],
           status: json['status'],
           code: json['code'],
           title: json['title'],
           detail: json['detail'],
-          source: json['source'],
+          source: source is Map
+              ? source.map(
+                  (key, value) => MapEntry(key.toString(), value.toString()))
+              : {},
           meta: json['meta'],
           links: nullable(Link.mapFromJson)(json['links']) ?? const {});
     }
