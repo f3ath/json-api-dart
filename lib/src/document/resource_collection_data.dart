@@ -1,4 +1,4 @@
-import 'package:json_api/src/document/decoding_exception.dart';
+import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/primary_data.dart';
 import 'package:json_api/src/document/resource.dart';
@@ -6,11 +6,9 @@ import 'package:json_api/src/document/resource_object.dart';
 
 /// Represents a resource collection or a collection of related resources of a to-many relationship
 class ResourceCollectionData extends PrimaryData {
-  final List<ResourceObject> collection;
-
   ResourceCollectionData(Iterable<ResourceObject> collection,
-      {Iterable<ResourceObject> included, Map<String, Link> links = const {}})
-      : collection = List.unmodifiable(collection),
+      {Iterable<ResourceObject> included, Map<String, Link> links})
+      : collection = List.unmodifiable(collection ?? const []),
         super(included: included, links: links);
 
   static ResourceCollectionData fromJson(Object json) {
@@ -21,13 +19,15 @@ class ResourceCollectionData extends PrimaryData {
         return ResourceCollectionData(data.map(ResourceObject.fromJson),
             links: Link.mapFromJson(json['links'] ?? {}),
             included: included is List
-                ? ResourceObject.fromJsonList(included)
+                ? included.map(ResourceObject.fromJson)
                 : null);
       }
     }
-    throw DecodingException(
-        'Can not decode ResourceObjectCollection from $json');
+    throw DocumentException(
+        "A JSON:API resource collection document must be a JSON object with a JSON array in the 'data' member");
   }
+
+  final List<ResourceObject> collection;
 
   /// The link to the last page. May be null.
   Link get last => (links ?? {})['last'];
@@ -46,7 +46,7 @@ class ResourceCollectionData extends PrimaryData {
 
   /// Returns a map of resources indexed by ids
   Map<String, Resource> unwrapToMap() =>
-      Map.fromIterable(unwrap(), key: (r) => r.id);
+      Map<String, Resource>.fromIterable(unwrap(), key: (r) => r.id);
 
   @override
   Map<String, Object> toJson() => {

@@ -34,13 +34,4 @@ void main() {
           '/my-link');
     });
   });
-
-  group('fromJson()', () {
-    test('if no links is present, the "links" property is null', () {
-      final r =
-          Relationship.fromJson(json.decode(json.encode((Relationship()))));
-      expect(r.links, null);
-      expect(r.self, null);
-    });
-  });
 }

@@ -1,9 +1,18 @@
-import 'package:json_api/src/document/decoding_exception.dart';
+import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/json_encodable.dart';
 
 /// [IdentifierObject] is a JSON representation of the [Identifier].
 /// It carries all JSON-related logic and the Meta-data.
-class IdentifierObject {
+class IdentifierObject implements JsonEncodable {
+  /// Creates an instance of [IdentifierObject].
+  /// [type] and [id] can not be null.
+  IdentifierObject(this.type, this.id, {Map<String, Object> meta})
+      : meta = Map.unmodifiable(meta ?? const {}) {
+    ArgumentError.checkNotNull(type);
+    ArgumentError.checkNotNull(id);
+  }
+
   /// Resource type
   final String type;
 
@@ -13,14 +22,6 @@ class IdentifierObject {
   /// Meta data. May be empty or null.
   final Map<String, Object> meta;
 
-  /// Creates an instance of [IdentifierObject].
-  /// [type] and [id] can not be null.
-  IdentifierObject(this.type, this.id, {Map<String, Object> meta})
-      : meta = (meta == null) ? null : Map.unmodifiable(meta) {
-    ArgumentError.checkNotNull(type);
-    ArgumentError.checkNotNull(id);
-  }
-
   static IdentifierObject fromIdentifier(Identifier identifier,
           {Map<String, Object> meta}) =>
       IdentifierObject(identifier.type, identifier.id, meta: meta);
@@ -29,14 +30,15 @@ class IdentifierObject {
     if (json is Map) {
       return IdentifierObject(json['type'], json['id'], meta: json['meta']);
     }
-    throw DecodingException('Can not decode IdentifierObject from $json');
+    throw DocumentException('A JSON:API identifier must be a JSON object');
   }
 
   Identifier unwrap() => Identifier(type, id);
 
+  @override
   Map<String, Object> toJson() => {
         'type': type,
         'id': id,
-        if (meta != null) ...{'meta': meta},
+        if (meta.isNotEmpty) 'meta': meta,
       };
 }

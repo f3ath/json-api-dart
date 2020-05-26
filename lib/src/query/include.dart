@@ -18,7 +18,10 @@ class Include extends QueryParameters with IterableMixin<String> {
         super({'include': resources.join(',')});
 
   static Include fromUri(Uri uri) =>
-      Include((uri.queryParameters['include'] ?? '').split(','));
+      fromQueryParameters(uri.queryParametersAll);
+
+  static Include fromQueryParameters(Map<String, List<String>> parameters) =>
+      Include((parameters['include']?.expand((_) => _.split(',')) ?? []));
 
   @override
   Iterator<String> get iterator => _resources.iterator;
