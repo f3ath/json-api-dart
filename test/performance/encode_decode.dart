@@ -82,12 +82,10 @@ void main() {
     'jsonapi': {'version': '1.0', 'meta': meta}
   };
 
-  Object j;
-
   final count = 100000;
   final start = DateTime.now().millisecondsSinceEpoch;
   for (var i = 0; i < count; i++) {
-    j = Document.fromJson(json, ResourceCollectionData.fromJson).toJson();
+    Document.fromJson(json, ResourceCollectionData.fromJson).toJson();
   }
   final stop = DateTime.now().millisecondsSinceEpoch;
   print('$count iterations took ${stop - start} ms');
