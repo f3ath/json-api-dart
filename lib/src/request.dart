@@ -8,14 +8,14 @@ import 'package:maybe_just_nothing/maybe_just_nothing.dart';
 class JsonApiRequest {
   /// Created an instance of JSON:API HTTP request.
   ///
-  /// - [method] the HTTP method
-  /// - [document] if passed, will be JSON-encoded and sent in the HTTP body
-  /// - [headers] any arbitrary HTTP headers
-  /// - [include] related resources to include (for GET requests)
-  /// - [fields] sparse fieldsets (for GET requests)
-  /// - [sort] sorting options (for GET collection requests)
-  /// - [page] pagination options (for GET collection requests)
-  /// - [query] any arbitrary query parameters (for GET requests)
+  /// - [method] - the HTTP method
+  /// - [document] - if passed, will be JSON-encoded and sent in the HTTP body
+  /// - [headers] - any arbitrary HTTP headers
+  /// - [include] - related resources to include (for GET requests)
+  /// - [fields] - sparse fieldsets (for GET requests)
+  /// - [sort] - sorting options (for GET collection requests)
+  /// - [page] - pagination options (for GET collection requests)
+  /// - [query] - any arbitrary query parameters (for GET requests)
   JsonApiRequest(String method,
       {Object document,
       Map<String, String> headers,
@@ -34,8 +34,8 @@ class JsonApiRequest {
           ...?query,
         }),
         headers = Map.unmodifiable({
-          'Accept': ContentType.jsonApi,
-          if (document != null) 'Content-Type': ContentType.jsonApi,
+          'accept': ContentType.jsonApi,
+          if (document != null) 'content-type': ContentType.jsonApi,
           ...?headers,
         });
 

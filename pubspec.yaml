@@ -5,7 +5,7 @@ description: Framework-agnostic implementations of JSON:API Client. Supports JSO
 environment:
   sdk: '>=2.8.0 <3.0.0'
 dependencies:
-  json_api_common: ^0.0.2
+  json_api_common: ^0.0.3
   maybe_just_nothing: ^0.1.0
 dev_dependencies:
   json_api_server:

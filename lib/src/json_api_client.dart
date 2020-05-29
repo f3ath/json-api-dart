@@ -87,11 +87,12 @@ class JsonApiClient {
           Map<String, Iterable<String>> many = const {},
           Map<String, String> headers}) async =>
       CreateResource(await call(
-          JsonApiRequest('POST',
-              headers: headers,
-              document: ResourceDocument(Resource(type,
-                  attributes: attributes,
-                  relationships: _relationships(one, many)))),
+          JsonApiRequest('POST', headers: headers, document: {
+            'data': Resource(type,
+                    attributes: attributes,
+                    relationships: _relationships(one, many))
+                .toJson()
+          }),
           _url.collection(type)));
 
   /// Creates a resource on the server.
@@ -127,10 +128,11 @@ class JsonApiClient {
 
   /// Replaces the to-one [relationship] of [type] : [id].
   Future<UpdateRelationship<One>> replaceOne(
-          String type, String id, String relationship, Identifier identifier,
+          String type, String id, String relationship, String identifier,
           {Map<String, String> headers}) async =>
       UpdateRelationship<One>(await call(
-          JsonApiRequest('PATCH', headers: headers, document: One(identifier)),
+          JsonApiRequest('PATCH',
+              headers: headers, document: One(Identifier.fromKey(identifier))),
           _url.relationship(type, id, relationship)));
 
   /// Deletes the to-one [relationship] of [type] : [id].
@@ -143,28 +145,32 @@ class JsonApiClient {
 
   /// Deletes the [identifiers] from the to-many [relationship] of [type] : [id].
   Future<UpdateRelationship<Many>> deleteMany(String type, String id,
-          String relationship, Iterable<Identifier> identifiers,
+          String relationship, Iterable<String> identifiers,
           {Map<String, String> headers}) async =>
       UpdateRelationship<Many>(await call(
           JsonApiRequest('DELETE',
-              headers: headers, document: Many(identifiers)),
+              headers: headers,
+              document: Many(identifiers.map(Identifier.fromKey))),
           _url.relationship(type, id, relationship)));
 
   /// Replaces the to-many [relationship] of [type] : [id] with the [identifiers].
   Future<UpdateRelationship<Many>> replaceMany(String type, String id,
-          String relationship, Iterable<Identifier> identifiers,
+          String relationship, Iterable<String> identifiers,
           {Map<String, String> headers}) async =>
       UpdateRelationship<Many>(await call(
           JsonApiRequest('PATCH',
-              headers: headers, document: Many(identifiers)),
+              headers: headers,
+              document: Many(identifiers.map(Identifier.fromKey))),
           _url.relationship(type, id, relationship)));
 
   /// Adds the [identifiers] to the to-many [relationship] of [type] : [id].
   Future<UpdateRelationship<Many>> addMany(String type, String id,
-          String relationship, Iterable<Identifier> identifiers,
+          String relationship, Iterable<String> identifiers,
           {Map<String, String> headers = const {}}) async =>
       UpdateRelationship<Many>(await call(
-          JsonApiRequest('POST', headers: headers, document: Many(identifiers)),
+          JsonApiRequest('POST',
+              headers: headers,
+              document: Many(identifiers.map(Identifier.fromKey))),
           _url.relationship(type, id, relationship)));
 
   /// Sends the [request] to [uri].
@@ -184,14 +190,14 @@ class JsonApiClient {
     return response;
   }
 
-  ResourceDocument _resource(
-          String type,
-          String id,
-          Map<String, Object> attributes,
-          Map<String, String> one,
-          Map<String, Iterable<String>> many) =>
-      ResourceDocument(ResourceWithIdentity(type, id,
-          attributes: attributes, relationships: _relationships(one, many)));
+  Object _resource(String type, String id, Map<String, Object> attributes,
+          Map<String, String> one, Map<String, Iterable<String>> many) =>
+      {
+        'data': ResourceWithIdentity(type, id,
+                attributes: attributes,
+                relationships: _relationships(one, many))
+            .toJson()
+      };
 
   Map<String, Relationship> _relationships(
           Map<String, String> one, Map<String, Iterable<String>> many) =>

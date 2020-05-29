@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:json_api/json_api.dart';
 import 'package:json_api_common/http.dart';
 
-final fetchCollection200 = HttpResponse(200,
+final collection = HttpResponse(200,
     headers: {'Content-Type': ContentType.jsonApi},
     body: jsonEncode({
       'links': {
@@ -74,7 +74,7 @@ final fetchCollection200 = HttpResponse(200,
       ]
     }));
 
-final fetchResource200 = HttpResponse(200,
+final primaryResource = HttpResponse(200,
     headers: {'Content-Type': ContentType.jsonApi},
     body: jsonEncode({
       'links': {'self': 'http://example.com/articles/1'},
@@ -89,11 +89,30 @@ final fetchResource200 = HttpResponse(200,
         }
       }
     }));
-final fetchRelatedResourceNull200 = HttpResponse(200,
+final relatedResourceNull = HttpResponse(200,
     headers: {'Content-Type': ContentType.jsonApi},
     body: jsonEncode({
       'links': {'self': 'http://example.com/articles/1/author'},
       'data': null
+    }));
+final one = HttpResponse(200,
+    headers: {'Content-Type': ContentType.jsonApi},
+    body: jsonEncode({
+      'links': {
+        'self': '/articles/1/relationships/author',
+        'related': '/articles/1/author'
+      },
+      'data': {'type': 'people', 'id': '12'}
+    }));
+
+final many = HttpResponse(200,
+    headers: {'Content-Type': ContentType.jsonApi},
+    body: jsonEncode({
+      'links': {
+        'self': '/articles/1/relationships/tags',
+        'related': '/articles/1/tags'
+      },
+      'data': [{'type': 'tags', 'id': '12'}]
     }));
 final error422 = HttpResponse(422,
     headers: {'Content-Type': ContentType.jsonApi},
