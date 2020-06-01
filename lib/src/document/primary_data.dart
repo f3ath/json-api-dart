@@ -1,3 +1,4 @@
+import 'package:json_api/src/document/json_encodable.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/resource_object.dart';
 
@@ -6,28 +7,27 @@ import 'package:json_api/src/document/resource_object.dart';
 /// [PrimaryData] may be considered a Document itself with two limitations:
 /// - it always has the `data` key (could be `null` for an empty to-one relationship)
 /// - it can not have `meta` and `jsonapi` keys
-abstract class PrimaryData {
-  /// In a Compound document this member contains the included resources.
-  /// May be empty or null.
+abstract class PrimaryData implements JsonEncodable {
+  PrimaryData({Iterable<ResourceObject> included, Map<String, Link> links})
+      : isCompound = included != null,
+        included = List.unmodifiable(included ?? const []),
+        links = Map.unmodifiable(links ?? const {});
+
+  /// In a Compound document, this member contains the included resources.
   final List<ResourceObject> included;
+
+  /// True for compound documents.
+  final bool isCompound;
 
   /// The top-level `links` object. May be empty or null.
   final Map<String, Link> links;
 
-  PrimaryData({Iterable<ResourceObject> included, Map<String, Link> links})
-      : included = (included == null) ? null : List.unmodifiable(included),
-        links = (links == null) ? null : Map.unmodifiable(links);
-
   /// The `self` link. May be null.
-  Link get self => (links ?? {})['self'];
+  Link get self => links['self'];
 
-  /// Documents with included resources are called compound
-  /// Details: http://jsonapi.org/format/#document-compound-documents
-  bool get isCompound => included != null && included.isNotEmpty;
-
-  /// Top-level JSON object
+  @override
   Map<String, Object> toJson() => {
-        if (links != null) ...{'links': links},
-        if (included != null) ...{'included': included}
+        if (links.isNotEmpty) 'links': links,
+        if (isCompound) 'included': included,
       };
 }

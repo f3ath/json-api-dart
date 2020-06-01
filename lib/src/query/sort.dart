@@ -19,56 +19,47 @@ class Sort extends QueryParameters with IterableMixin<SortField> {
   Sort(Iterable<SortField> fields)
       : _fields = [...fields],
         super({'sort': fields.join(',')});
+  final List<SortField> _fields;
 
-  static Sort fromUri(Uri uri) =>
-      Sort((uri.queryParameters['sort'] ?? '').split(',').map(SortField.parse));
+  static Sort fromUri(Uri uri) => fromQueryParameters(uri.queryParametersAll);
+
+  static Sort fromQueryParameters(Map<String, List<String>> queryParameters) =>
+      Sort((queryParameters['sort']?.expand((_) => _.split(',')) ?? [])
+          .map(SortField.parse));
 
   @override
   Iterator<SortField> get iterator => _fields.iterator;
-
-  final List<SortField> _fields;
 }
 
-abstract class SortField {
-  bool get isAsc;
+class SortField {
+  SortField.Asc(this.name)
+      : isAsc = true,
+        isDesc = false;
 
-  bool get isDesc;
-
-  String get name;
+  SortField.Desc(this.name)
+      : isAsc = false,
+        isDesc = true;
 
   static SortField parse(String queryParam) => queryParam.startsWith('-')
       ? Desc(queryParam.substring(1))
       : Asc(queryParam);
-}
+  final bool isAsc;
 
-class Asc implements SortField {
-  Asc(this.name);
+  final bool isDesc;
 
-  @override
-  bool get isAsc => true;
-
-  @override
-  bool get isDesc => false;
-
-  @override
   final String name;
 
+  /// Returns 1 for Ascending fields, -1 for Descending
+  int get comparisonFactor => isAsc ? 1 : -1;
+
   @override
-  String toString() => name;
+  String toString() => isAsc ? name : '-$name';
 }
 
-class Desc implements SortField {
-  Desc(this.name);
+class Asc extends SortField {
+  Asc(String name) : super.Asc(name);
+}
 
-  @override
-  bool get isAsc => false;
-
-  @override
-  bool get isDesc => true;
-
-  @override
-  final String name;
-
-  @override
-  String toString() => '-${name}';
+class Desc extends SortField {
+  Desc(String name) : super.Desc(name);
 }

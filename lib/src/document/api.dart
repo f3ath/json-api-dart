@@ -1,25 +1,30 @@
-import 'package:json_api/src/document/decoding_exception.dart';
+import 'package:json_api/src/document/document_exception.dart';
+import 'package:json_api/src/document/json_encodable.dart';
 
 /// Details: https://jsonapi.org/format/#document-jsonapi-object
-class Api {
+class Api implements JsonEncodable {
+  Api({String version, Map<String, Object> meta})
+      : meta = Map.unmodifiable(meta ?? const {}),
+        version = version ?? '';
+
   /// The JSON:API version. May be null.
   final String version;
 
   /// Meta data. May be empty or null.
   final Map<String, Object> meta;
 
-  Api({this.version, Map<String, Object> meta})
-      : meta = meta == null ? null : Map.unmodifiable(meta);
+  bool get isNotEmpty => version.isEmpty && meta.isNotEmpty;
 
   static Api fromJson(Object json) {
     if (json is Map) {
       return Api(version: json['version'], meta: json['meta']);
     }
-    throw DecodingException('Can not decode JsonApi from $json');
+    throw DocumentException("The 'jsonapi' member must be a JSON object");
   }
 
+  @override
   Map<String, Object> toJson() => {
-        if (version != null) ...{'version': version},
-        if (meta != null) ...{'meta': meta},
+        if (version.isNotEmpty) 'version': version,
+        if (meta.isNotEmpty) 'meta': meta,
       };
 }

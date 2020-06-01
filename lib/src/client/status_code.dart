@@ -1,9 +1,9 @@
 /// The status code in the HTTP response
 class StatusCode {
+  const StatusCode(this.code);
+
   /// The code
   final int code;
-
-  const StatusCode(this.code);
 
   /// True for the requests processed asynchronously.
   /// @see https://jsonapi.org/recommendations/#asynchronous-processing).

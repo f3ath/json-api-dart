@@ -2,6 +2,13 @@ import 'package:json_api/query.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('emptiness', () {
+    expect(Page({}).isEmpty, isTrue);
+    expect(Page({}).isNotEmpty, isFalse);
+    expect(Page({'foo': 'bar'}).isEmpty, isFalse);
+    expect(Page({'foo': 'bar'}).isNotEmpty, isTrue);
+  });
+
   test('Can decode url', () {
     final uri = Uri.parse('/articles?page[limit]=10&page[offset]=20');
     final page = Page.fromUri(uri);

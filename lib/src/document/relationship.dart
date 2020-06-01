@@ -1,4 +1,4 @@
-import 'package:json_api/src/document/decoding_exception.dart';
+import 'package:json_api/src/document/document_exception.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/identifier_object.dart';
 import 'package:json_api/src/document/link.dart';
@@ -15,9 +15,6 @@ import 'package:json_api/src/nullable.dart';
 ///
 /// More on this: https://jsonapi.org/format/#document-resource-object-relationships
 class Relationship extends PrimaryData {
-  /// The "related" link. May be null.
-  Link get related => (links ?? {})['related'];
-
   Relationship({Iterable<ResourceObject> included, Map<String, Link> links})
       : super(included: included, links: links);
 
@@ -33,11 +30,10 @@ class Relationship extends PrimaryData {
           return ToMany.fromJson(json);
         }
       }
-      final links = json['links'];
-      return Relationship(
-          links: (links == null) ? null : Link.mapFromJson(links));
+      return Relationship(links: nullable(Link.mapFromJson)(json['links']));
     }
-    throw DecodingException('Can not decode Relationship from $json');
+    throw DocumentException(
+        'A JSON:API relationship object must be a JSON object');
   }
 
   /// Parses the `relationships` member of a Resource Object
@@ -46,26 +42,15 @@ class Relationship extends PrimaryData {
       return json
           .map((k, v) => MapEntry(k.toString(), Relationship.fromJson(v)));
     }
-    throw DecodingException('Can not decode Relationship map from $json');
+    throw DocumentException("The 'relationships' member must be a JSON object");
   }
 
-  /// Top-level JSON object
-  @override
-  Map<String, Object> toJson() => {
-        ...super.toJson(),
-        if (links != null) ...{'links': links}
-      };
+  /// The "related" link. May be null.
+  Link get related => links['related'];
 }
 
 /// Relationship to-one
 class ToOne extends Relationship {
-  /// Resource Linkage
-  ///
-  /// Can be null for empty relationships
-  ///
-  /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
-  final IdentifierObject linkage;
-
   ToOne(this.linkage,
       {Iterable<ResourceObject> included, Map<String, Link> links})
       : super(included: included, links: links);
@@ -74,6 +59,9 @@ class ToOne extends Relationship {
       : linkage = null,
         super(links: links);
 
+  static ToOne fromIdentifier(Identifier identifier) =>
+      ToOne(nullable(IdentifierObject.fromIdentifier)(identifier));
+
   static ToOne fromJson(Object json) {
     if (json is Map && json.containsKey('data')) {
       final included = json['included'];
@@ -81,39 +69,42 @@ class ToOne extends Relationship {
       return ToOne(nullable(IdentifierObject.fromJson)(json['data']),
           links: (links == null) ? null : Link.mapFromJson(links),
           included:
-              included is List ? ResourceObject.fromJsonList(included) : null);
+              included is List ? included.map(ResourceObject.fromJson) : null);
     }
-    throw DecodingException('Can not decode ToOne from $json');
+    throw DocumentException(
+        "A to-one relationship must be a JSON object and contain the 'data' member");
   }
+
+  /// Resource Linkage
+  ///
+  /// Can be null for empty relationships
+  ///
+  /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
+  final IdentifierObject linkage;
 
   @override
   Map<String, Object> toJson() => {
         ...super.toJson(),
-        ...{'data': linkage}
+        'data': linkage,
       };
 
   /// Converts to [Identifier].
   /// For empty relationships returns null.
   Identifier unwrap() => linkage?.unwrap();
 
-  /// Same as [unwrap()]
+  /// Same as [unwrap]
   Identifier get identifier => unwrap();
 }
 
 /// Relationship to-many
 class ToMany extends Relationship {
-  /// Resource Linkage
-  ///
-  /// Can be empty for empty relationships
-  ///
-  /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
-  final linkage = <IdentifierObject>[];
-
   ToMany(Iterable<IdentifierObject> linkage,
       {Iterable<ResourceObject> included, Map<String, Link> links})
-      : super(included: included, links: links) {
-    this.linkage.addAll(linkage);
-  }
+      : linkage = List.unmodifiable(linkage),
+        super(included: included, links: links);
+
+  static ToMany fromIdentifiers(Iterable<Identifier> identifiers) =>
+      ToMany(identifiers.map(IdentifierObject.fromIdentifier));
 
   static ToMany fromJson(Object json) {
     if (json is Map && json.containsKey('data')) {
@@ -126,8 +117,16 @@ class ToMany extends Relationship {
         );
       }
     }
-    throw DecodingException('Can not decode ToMany from $json');
+    throw DocumentException(
+        "A to-many relationship must be a JSON object and contain the 'data' member");
   }
+
+  /// Resource Linkage
+  ///
+  /// Can be empty for empty relationships
+  ///
+  /// More on this: https://jsonapi.org/format/#document-resource-object-linkage
+  final List<IdentifierObject> linkage;
 
   @override
   Map<String, Object> toJson() => {
@@ -138,7 +137,4 @@ class ToMany extends Relationship {
   /// Converts to List<Identifier>.
   /// For empty relationships returns an empty List.
   List<Identifier> unwrap() => linkage.map((_) => _.unwrap()).toList();
-
-  /// Same as [unwrap()]
-  List<Identifier> get identifiers => unwrap();
 }

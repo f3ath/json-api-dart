@@ -1,69 +1,71 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
-import 'package:json_api/src/server/json_api_controller.dart';
+import 'package:json_api/document.dart';
+import 'package:json_api/http.dart';
+import 'package:json_api/routing.dart';
+import 'package:json_api/server.dart';
+import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/json_api_request.dart';
-import 'package:json_api/src/server/response/error_response.dart';
-import 'package:json_api/src/server/response/json_api_response.dart';
-import 'package:json_api/src/server/routing/route_factory.dart';
-import 'package:json_api/src/server/server_document_factory.dart';
-import 'package:json_api/url_design.dart';
+import 'package:json_api/src/server/request_converter.dart';
 
-class JsonApiServer {
-  final UrlDesign urlDesign;
-  final JsonApiController controller;
-  final ServerDocumentFactory documentFactory;
-  final String allowOrigin;
-  final RouteFactory routeMapper;
+/// A simple implementation of JSON:API server
+class JsonApiServer implements HttpHandler {
+  JsonApiServer(this._controller, {RouteFactory routing})
+      : _routing = routing ?? StandardRouting();
 
-  JsonApiServer(this.urlDesign, this.controller,
-      {this.allowOrigin = '*', ServerDocumentFactory documentFactory})
-      : routeMapper = RouteFactory(),
-        documentFactory = documentFactory ?? ServerDocumentFactory(urlDesign);
+  final RouteFactory _routing;
+  final Controller<FutureOr<JsonApiResponse>> _controller;
 
-  Future serve(HttpRequest request) async {
-    final response = await _call(controller, request);
-
-    _setStatus(request, response);
-    _setHeaders(request, response);
-    _writeBody(request, response);
-
-    return request.response.close();
-  }
-
-  Future<JsonApiResponse> _call(
-      JsonApiController controller, HttpRequest request) async {
-    final body = await _getBody(request);
-    final jsonApiRequest =
-        JsonApiRequest(request.method, request.requestedUri, body);
+  @override
+  Future<HttpResponse> call(HttpRequest httpRequest) async {
+    JsonApiRequest jsonApiRequest;
+    JsonApiResponse jsonApiResponse;
     try {
-      return await urlDesign
-          .match(request.requestedUri, routeMapper)
-          .call(controller, jsonApiRequest);
-    } on ErrorResponse catch (error) {
-      return error;
+      jsonApiRequest = RequestConverter().convert(httpRequest);
+    } on FormatException catch (e) {
+      jsonApiResponse = ErrorResponse.badRequest([
+        ErrorObject(
+            status: '400',
+            title: 'Bad request',
+            detail: 'Invalid JSON. ${e.message}')
+      ]);
+    } on DocumentException catch (e) {
+      jsonApiResponse = ErrorResponse.badRequest([
+        ErrorObject(status: '400', title: 'Bad request', detail: e.message)
+      ]);
+    } on MethodNotAllowedException catch (e) {
+      jsonApiResponse = ErrorResponse.methodNotAllowed([
+        ErrorObject(
+            status: '405',
+            title: 'Method Not Allowed',
+            detail: 'Allowed methods: ${e.allow.join(', ')}')
+      ], e.allow);
+    } on UnmatchedUriException {
+      jsonApiResponse = ErrorResponse.notFound([
+        ErrorObject(
+            status: '404',
+            title: 'Not Found',
+            detail: 'The requested URL does exist on the server')
+      ]);
+    } on IncompleteRelationshipException {
+      jsonApiResponse = ErrorResponse.badRequest([
+        ErrorObject(
+            status: '400',
+            title: 'Bad request',
+            detail: 'Incomplete relationship object')
+      ]);
     }
-  }
+    jsonApiResponse ??= await jsonApiRequest.handleWith(_controller) ??
+        ErrorResponse.internalServerError([
+          ErrorObject(
+              status: '500',
+              title: 'Internal Server Error',
+              detail: 'Controller responded with null')
+        ]);
 
-  void _writeBody(HttpRequest request, JsonApiResponse response) {
-    final doc = response.buildDocument(documentFactory, request.requestedUri);
-    if (doc != null) request.response.write(json.encode(doc));
-  }
-
-  void _setStatus(HttpRequest request, JsonApiResponse response) {
-    request.response.statusCode = response.status;
-  }
-
-  void _setHeaders(HttpRequest request, JsonApiResponse response) {
-    final add = request.response.headers.add;
-    response.getHeaders(urlDesign).forEach(add);
-    if (allowOrigin != null) add('Access-Control-Allow-Origin', allowOrigin);
-  }
-
-  Future<Object> _getBody(HttpRequest request) async {
-    // https://github.com/dart-lang/sdk/issues/36900
-    final body = await request.cast<List<int>>().transform(utf8.decoder).join();
-    return (body.isNotEmpty) ? json.decode(body) : null;
+    final links = StandardLinks(httpRequest.uri, _routing);
+    final documentFactory = DocumentFactory(links: links);
+    final responseFactory = HttpResponseConverter(documentFactory, _routing);
+    return jsonApiResponse.convert(responseFactory);
   }
 }

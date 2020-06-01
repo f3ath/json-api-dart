@@ -1,15 +1,30 @@
-# JSON:API examples
-
-## [Cars Server](./cars_server)
-This is a simple JSON:API server which is used in the tests. It provides an API to a collection to car companies and models.
-You can run it locally to play around.
-
-- In you console run `dart example/cars_server.dart`, this will start the server at port 8080.
-- Open http://localhost:8080/companies in the browser.
-
-## [Fetch example](./fetch_collection.dart)
-With the server running, call
+# Client-server interaction example
+Run the server:
 ```
-dart example/fetch_collection.dart
+$ dart example/server.dart 
+Listening on http://localhost:8080
+
 ```
-This will make a `fetchCollection()` call and print the response.
+This will start a simple JSON:API server at localhost:8080. It supports 2 resource types:
+- [writers](http://localhost:8080/writers)
+- [books](http://localhost:8080/books)
+
+Try opening these links in your browser, you should see empty collections.
+
+While the server is running, try the client script:
+```
+$ dart example/client.dart 
+POST http://localhost:8080/writers
+204
+POST http://localhost:8080/books
+204
+GET http://localhost:8080/books/2?include=authors
+200
+Book: Resource(books:2 {title: Refactoring})
+Author: Resource(writers:1 {name: Martin Fowler})
+```
+This will create resources in those collections. Try the the following links:
+
+- [writer](http://localhost:8080/writers/1)
+- [book](http://localhost:8080/books/2)
+- [book and its author](http://localhost:8080/books/2?include=authors)
