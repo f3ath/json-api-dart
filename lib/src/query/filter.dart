@@ -1,24 +1,24 @@
 import 'package:json_api/src/query/query_parameters.dart';
 
-/// Query parameters defining Filters
+/// Query parameters defining Filter
 /// @see https://jsonapi.org/recommendations/#filtering
-class Filters extends QueryParameters {
+class Filter extends QueryParameters {
   /// The [filter] argument maps the resource type to a list of filters.
   ///
   /// Example:
   /// ```dart
-  /// Filters({'articles': ['title', 'body'], 'people': ['name']}).addTo(url);
+  /// Filter({'articles': ['title', 'body'], 'people': ['name']}).addTo(url);
   /// ```
   /// encodes to
   /// ```
   /// ?filter[articles]=title,body&filter[people]=name
   /// ```
-  Filters(Map<String, List<String>> filter)
+  Filter(Map<String, List<String>> filter)
       : _filter = {...filter},
         super(filter.map((k, v) => MapEntry('filter[$k]', v.join(','))));
 
   /// Extracts the requested filter from the [uri].
-  static Filters fromUri(Uri uri) => Filters(uri.queryParameters
+  static Filter fromUri(Uri uri) => Filter(uri.queryParameters
       .map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1), v.split(',')))
         ..removeWhere((k, v) => k == null));
 
