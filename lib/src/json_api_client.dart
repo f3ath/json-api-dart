@@ -1,5 +1,19 @@
 import 'package:json_api/json_api.dart';
-import 'package:json_api/src/document.dart';
+import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/many.dart';
+import 'package:json_api/src/document/one.dart';
+import 'package:json_api/src/document/relationship.dart';
+import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/src/document/resource_with_identity.dart';
+import 'package:json_api/src/response/create_resource.dart';
+import 'package:json_api/src/response/delete_resource.dart';
+import 'package:json_api/src/response/fetch_collection.dart';
+import 'package:json_api/src/response/fetch_primary_resource.dart';
+import 'package:json_api/src/response/fetch_related_resource.dart';
+import 'package:json_api/src/response/fetch_relationship.dart';
+import 'package:json_api/src/response/request_failure.dart';
+import 'package:json_api/src/response/update_relationship.dart';
+import 'package:json_api/src/response/update_resource.dart';
 import 'package:json_api_common/http.dart';
 import 'package:json_api_common/url_design.dart';
 import 'package:maybe_just_nothing/maybe_just_nothing.dart';
@@ -19,7 +33,7 @@ class JsonApiClient {
           Iterable<String> sort,
           Map<String, String> page,
           Map<String, String> query}) async =>
-      FetchCollection(await call(
+      FetchCollection.decode(await call(
           JsonApiRequest('GET',
               headers: headers,
               include: include,
@@ -38,7 +52,7 @@ class JsonApiClient {
           Iterable<String> sort,
           Map<String, String> page,
           Map<String, String> query}) async =>
-      FetchCollection(await call(
+      FetchCollection.decode(await call(
           JsonApiRequest('GET',
               headers: headers,
               include: include,
@@ -54,7 +68,7 @@ class JsonApiClient {
           Iterable<String> include,
           Map<String, List<String>> fields,
           Map<String, String> query}) async =>
-      FetchPrimaryResource(await call(
+      FetchPrimaryResource.decode(await call(
           JsonApiRequest('GET',
               headers: headers, include: include, fields: fields, query: query),
           _url.resource(type, id)));
@@ -66,7 +80,7 @@ class JsonApiClient {
           Iterable<String> include,
           Map<String, List<String>> fields,
           Map<String, String> query}) async =>
-      FetchRelatedResource(await call(
+      FetchRelatedResource.decode(await call(
           JsonApiRequest('GET',
               headers: headers, include: include, fields: fields, query: query),
           _url.related(type, id, relationship)));
@@ -75,7 +89,7 @@ class JsonApiClient {
   Future<FetchRelationship<R>> fetchRelationship<R extends Relationship>(
           String type, String id, String relationship,
           {Map<String, String> headers, Map<String, String> query}) async =>
-      FetchRelationship(await call(
+      FetchRelationship.decode(await call(
           JsonApiRequest('GET', headers: headers, query: query),
           _url.relationship(type, id, relationship)));
 
@@ -86,7 +100,7 @@ class JsonApiClient {
           Map<String, String> one = const {},
           Map<String, Iterable<String>> many = const {},
           Map<String, String> headers}) async =>
-      CreateResource(await call(
+      CreateResource.decode(await call(
           JsonApiRequest('POST', headers: headers, document: {
             'data': Resource(type,
                     attributes: attributes,
@@ -102,7 +116,7 @@ class JsonApiClient {
           Map<String, String> one = const {},
           Map<String, Iterable<String>> many = const {},
           Map<String, String> headers}) async =>
-      UpdateResource(await call(
+      UpdateResource.decode(await call(
           JsonApiRequest('POST',
               headers: headers,
               document: _resource(type, id, attributes, one, many)),
@@ -111,7 +125,7 @@ class JsonApiClient {
   /// Deletes the resource by [type] and [id].
   Future<DeleteResource> deleteResource(String type, String id,
           {Map<String, String> headers}) async =>
-      DeleteResource(await call(
+      DeleteResource.decode(await call(
           JsonApiRequest('DELETE', headers: headers), _url.resource(type, id)));
 
   /// Updates the resource by [type] and [id].
@@ -120,7 +134,7 @@ class JsonApiClient {
           Map<String, String> one = const {},
           Map<String, Iterable<String>> many = const {},
           Map<String, String> headers}) async =>
-      UpdateResource(await call(
+      UpdateResource.decode(await call(
           JsonApiRequest('PATCH',
               headers: headers,
               document: _resource(type, id, attributes, one, many)),
@@ -130,7 +144,7 @@ class JsonApiClient {
   Future<UpdateRelationship<One>> replaceOne(
           String type, String id, String relationship, String identifier,
           {Map<String, String> headers}) async =>
-      UpdateRelationship<One>(await call(
+      UpdateRelationship.decode<One>(await call(
           JsonApiRequest('PATCH',
               headers: headers, document: One(Identifier.fromKey(identifier))),
           _url.relationship(type, id, relationship)));
@@ -139,7 +153,7 @@ class JsonApiClient {
   Future<UpdateRelationship<One>> deleteOne(
           String type, String id, String relationship,
           {Map<String, String> headers}) async =>
-      UpdateRelationship<One>(await call(
+      UpdateRelationship.decode<One>(await call(
           JsonApiRequest('PATCH', headers: headers, document: One.empty()),
           _url.relationship(type, id, relationship)));
 
@@ -147,7 +161,7 @@ class JsonApiClient {
   Future<UpdateRelationship<Many>> deleteMany(String type, String id,
           String relationship, Iterable<String> identifiers,
           {Map<String, String> headers}) async =>
-      UpdateRelationship<Many>(await call(
+      UpdateRelationship.decode<Many>(await call(
           JsonApiRequest('DELETE',
               headers: headers,
               document: Many(identifiers.map(Identifier.fromKey))),
@@ -157,7 +171,7 @@ class JsonApiClient {
   Future<UpdateRelationship<Many>> replaceMany(String type, String id,
           String relationship, Iterable<String> identifiers,
           {Map<String, String> headers}) async =>
-      UpdateRelationship<Many>(await call(
+      UpdateRelationship.decode<Many>(await call(
           JsonApiRequest('PATCH',
               headers: headers,
               document: Many(identifiers.map(Identifier.fromKey))),
@@ -167,7 +181,7 @@ class JsonApiClient {
   Future<UpdateRelationship<Many>> addMany(String type, String id,
           String relationship, Iterable<String> identifiers,
           {Map<String, String> headers = const {}}) async =>
-      UpdateRelationship<Many>(await call(
+      UpdateRelationship.decode<Many>(await call(
           JsonApiRequest('POST',
               headers: headers,
               document: Many(identifiers.map(Identifier.fromKey))),
@@ -185,7 +199,7 @@ class JsonApiClient {
         body: request.body,
         headers: request.headers));
     if (StatusCode(response.statusCode).isFailed) {
-      throw RequestFailure.fromHttp(response);
+      throw RequestFailure.decode(response);
     }
     return response;
   }
