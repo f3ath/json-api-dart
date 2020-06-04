@@ -181,10 +181,14 @@ class JsonApiClient {
   Future<Response<D>> _call<D extends PrimaryData>(
       HttpRequest request, D Function(Object _) decodePrimaryData) async {
     final response = await _httpHandler(request);
-    final document = response.body.isEmpty ? null : jsonDecode(response.body);
-    if (document == null) {
+    final status = StatusCode(response.statusCode);
+    if (response.body.isEmpty ||
+        (status.isFailed &&
+            response.headers['content-type']?.contains(Document.contentType) !=
+                true)) {
       return Response(response.statusCode, response.headers);
     }
+    final document = response.body.isEmpty ? null : jsonDecode(response.body);
     if (StatusCode(response.statusCode).isPending) {
       return Response(response.statusCode, response.headers,
           asyncDocument: document == null

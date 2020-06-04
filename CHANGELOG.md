@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Filtering support for collections ([#97](https://github.com/f3ath/json-api-dart/pull/97))
+### Changed
+- The client will not attempt to decode the body of the HTTP response with error status if the correct Content-Type 
+is missing 
 
 ## [4.1.0] - 2020-05-28
 ### Changed
