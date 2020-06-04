@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - The client will not attempt to decode the body of the HTTP response with error status if the correct Content-Type 
-is missing. Before in such cases a `FormatException` would be thrown.
+is missing. Before in such cases a `FormatException` would be thrown ([#98](https://github.com/f3ath/json-api-dart/pull/98))
 
 ## [4.1.0] - 2020-05-28
 ### Changed
@@ -162,7 +162,8 @@ Most of the changes are **BC-BREAKING**.
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
-[Unreleased]: https://github.com/f3ath/json-api-dart/compare/4.1.0...HEADER
+[Unreleased]: https://github.com/f3ath/json-api-dart/compare/4.2.0...HEADER
+[4.2.0]: https://github.com/f3ath/json-api-dart/compare/4.1.0...4.2.0
 [4.1.0]: https://github.com/f3ath/json-api-dart/compare/4.0.0...4.1.0
 [4.0.0]: https://github.com/f3ath/json-api-dart/compare/3.2.2...4.0.0
 [3.2.2]: https://github.com/f3ath/json-api-dart/compare/3.2.1...3.2.2
