@@ -11,7 +11,7 @@ import 'package:pedantic/pedantic.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('Client-Server interation over HTTP', () {
+  group('Client-Server interaction over HTTP', () {
     final port = 8088;
     final host = 'localhost';
     final routing =

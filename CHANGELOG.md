@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [4.2.1] - 2020-06-04
+### Fixed
+- The server library was not exporting `Controller`.
+- `ResourceData.toJson()` was not calling the underlying `ResourceObject.toJson()`.
+
+## [4.2.0] - 2020-06-03
 ### Added
 - Filtering support for collections ([#97](https://github.com/f3ath/json-api-dart/pull/97))
 
@@ -162,7 +169,8 @@ Most of the changes are **BC-BREAKING**.
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
-[Unreleased]: https://github.com/f3ath/json-api-dart/compare/4.2.0...HEADER
+[Unreleased]: https://github.com/f3ath/json-api-dart/compare/4.2.1...HEAD
+[4.2.1]: https://github.com/f3ath/json-api-dart/compare/4.2.0...4.2.1
 [4.2.0]: https://github.com/f3ath/json-api-dart/compare/4.1.0...4.2.0
 [4.1.0]: https://github.com/f3ath/json-api-dart/compare/4.0.0...4.1.0
 [4.0.0]: https://github.com/f3ath/json-api-dart/compare/3.2.2...4.0.0

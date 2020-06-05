@@ -1,5 +1,6 @@
 library server;
 
+export 'package:json_api/src/server/controller.dart';
 export 'package:json_api/src/server/dart_server.dart';
 export 'package:json_api/src/server/document_factory.dart';
 export 'package:json_api/src/server/http_response_converter.dart';
