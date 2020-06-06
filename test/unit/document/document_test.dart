@@ -3,7 +3,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('Unrecognized structure', () {
-    expect(() => Document.fromJson({}, ResourceData.fromJson),
+    expect(() => Document.fromJson({}, ResourceCollectionData.fromJson),
         throwsA(TypeMatcher<DocumentException>()));
   });
 }
