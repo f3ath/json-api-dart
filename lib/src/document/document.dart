@@ -66,7 +66,7 @@ class Document<Data extends PrimaryData> implements JsonEncodable {
           return Document.error(errors.map(ErrorObject.fromJson),
               meta: json['meta'], api: api);
         }
-      } else if (json.containsKey('data')) {
+      } else if (primaryData != null) {
         return Document(primaryData(json), meta: json['meta'], api: api);
       } else if (json['meta'] != null) {
         return Document.empty(json['meta'], api: api);
