@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:json_api/src/document/identity.dart';
+import 'package:json_api_common/document.dart';
 import 'package:maybe_just_nothing/maybe_just_nothing.dart';
 
 class IdentityCollection<T extends Identity> with IterableMixin<T> {

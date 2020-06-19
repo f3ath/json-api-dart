@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:json_api/json_api.dart';
-import 'package:json_api/src/document/error_object.dart';
 import 'package:json_api_common/http.dart';
 import 'package:maybe_just_nothing/maybe_just_nothing.dart';
 

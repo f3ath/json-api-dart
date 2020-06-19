@@ -1,5 +1,4 @@
-import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/resource_with_identity.dart';
+import 'package:json_api_common/document.dart';
 import 'package:maybe_just_nothing/maybe_just_nothing.dart';
 
 /// A generic response document
@@ -21,8 +20,8 @@ class Document {
   Maybe<Map<String, Link>> links() => readPath<Map>(['links']).map((_) =>
       _.map((key, value) => MapEntry(key.toString(), Link.fromJson(value))));
 
-  Maybe<List<ResourceWithIdentity>> included() => readPath<List>(['included'])
-      .map((_) => _.map(ResourceWithIdentity.fromJson).toList());
+  Maybe<List<Resource>> included() => readPath<List>(['included'])
+      .map((_) => _.map(Resource.fromJson).toList());
 
   /// Returns the value at the [path] if both are true:
   /// - the path exists

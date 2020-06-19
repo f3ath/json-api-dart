@@ -112,7 +112,9 @@ final many = HttpResponse(200,
         'self': '/articles/1/relationships/tags',
         'related': '/articles/1/tags'
       },
-      'data': [{'type': 'tags', 'id': '12'}]
+      'data': [
+        {'type': 'tags', 'id': '12'}
+      ]
     }));
 final error422 = HttpResponse(422,
     headers: {'Content-Type': ContentType.jsonApi},

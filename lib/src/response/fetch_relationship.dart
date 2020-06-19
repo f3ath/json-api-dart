@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:json_api/src/document/relationship.dart';
+import 'package:json_api_common/document.dart';
 import 'package:json_api_common/http.dart';
 
 class FetchRelationship<R extends Relationship> {

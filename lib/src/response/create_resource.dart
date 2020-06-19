@@ -1,10 +1,8 @@
 import 'dart:convert';
 
 import 'package:json_api/json_api.dart';
-import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/document/identity.dart';
-import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/resource_with_identity.dart';
+import 'package:json_api/src/document.dart';
+import 'package:json_api_common/document.dart';
 import 'package:json_api_common/http.dart';
 
 class CreateResource {
@@ -16,11 +14,11 @@ class CreateResource {
     return CreateResource(
         document
             .get('data')
-            .map(ResourceWithIdentity.fromJson)
+            .map(Resource.fromJson)
             .orThrow(() => FormatException('Invalid response')),
         links: document.links().or(const {}));
   }
 
   final Map<String, Link> links;
-  final ResourceWithIdentity resource;
+  final Resource resource;
 }

@@ -1,14 +1,13 @@
 import 'dart:convert';
 
-import 'package:json_api/src/document/document.dart';
-import 'package:json_api/src/document/identity_collection.dart';
-import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/resource_with_identity.dart';
+import 'package:json_api/src/document.dart';
+import 'package:json_api/src/identity_collection.dart';
+import 'package:json_api_common/document.dart';
 import 'package:json_api_common/http.dart';
 
 class FetchPrimaryResource {
   FetchPrimaryResource(this.resource,
-      {Iterable<ResourceWithIdentity> included = const [],
+      {Iterable<Resource> included = const [],
       Map<String, Link> links = const {}})
       : links = Map.unmodifiable(links ?? const {}),
         included = IdentityCollection(included ?? const []);
@@ -18,13 +17,13 @@ class FetchPrimaryResource {
     return FetchPrimaryResource(
         document
             .get('data')
-            .map(ResourceWithIdentity.fromJson)
+            .map(Resource.fromJson)
             .orThrow(() => ArgumentError('Invalid response')),
         included: IdentityCollection(document.included().or([])),
         links: document.links().or(const {}));
   }
 
-  final ResourceWithIdentity resource;
+  final Resource resource;
   final IdentityCollection included;
   final Map<String, Link> links;
 }

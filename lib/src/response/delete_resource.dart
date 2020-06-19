@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:json_api/src/document/document.dart';
+import 'package:json_api/src/document.dart';
 import 'package:json_api_common/http.dart';
 
 class DeleteResource {

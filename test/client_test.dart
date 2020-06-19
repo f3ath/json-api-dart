@@ -1,8 +1,6 @@
 import 'dart:convert';
 
 import 'package:json_api/json_api.dart';
-import 'package:json_api_common/http.dart';
-import 'package:json_api_common/url_design.dart';
 import 'package:maybe_just_nothing/maybe_just_nothing.dart';
 import 'package:test/test.dart';
 
@@ -156,7 +154,7 @@ void main() {
       http.response = mock.relatedResourceNull;
       final response =
           await client.fetchRelatedResource('articles', '1', 'author');
-      expect(response.resource, isA<Nothing<ResourceWithIdentity>>());
+      expect(response.resource, isA<Nothing<Resource>>());
       expect(http.request.method, 'get');
       expect(http.request.uri.toString(), '/articles/1/author');
       expect(http.request.headers, {'accept': 'application/vnd.api+json'});
@@ -174,7 +172,7 @@ void main() {
       }, query: {
         'foo': 'bar'
       });
-      expect(response.resource, isA<Nothing<ResourceWithIdentity>>());
+      expect(response.resource, isA<Nothing<Resource>>());
       expect(http.request.method, 'get');
       expect(http.request.uri.toString(),
           r'/articles/1/author?include=author&fields%5Bauthor%5D=name&foo=bar');
@@ -300,7 +298,7 @@ void main() {
     test('Sends correct request when given minimum arguments', () async {
       http.response = mock.primaryResource;
       final response = await client.createResource('articles', '1');
-      expect(response.resource, isA<Just<ResourceWithIdentity>>());
+      expect(response.resource, isA<Just<Resource>>());
       expect(http.request.method, 'post');
       expect(http.request.uri.toString(), '/articles');
       expect(http.request.headers, {
@@ -324,7 +322,7 @@ void main() {
       }, headers: {
         'foo': 'bar'
       });
-      expect(response.resource, isA<Just<ResourceWithIdentity>>());
+      expect(response.resource, isA<Just<Resource>>());
       expect(http.request.method, 'post');
       expect(http.request.uri.toString(), '/articles');
       expect(http.request.headers, {
@@ -407,7 +405,7 @@ void main() {
     test('Sends correct request when given minimum arguments', () async {
       http.response = mock.primaryResource;
       final response = await client.updateResource('articles', '1');
-      expect(response.resource, isA<Just<ResourceWithIdentity>>());
+      expect(response.resource, isA<Just<Resource>>());
       expect(http.request.method, 'patch');
       expect(http.request.uri.toString(), '/articles/1');
       expect(http.request.headers, {
@@ -431,7 +429,7 @@ void main() {
       }, headers: {
         'foo': 'bar'
       });
-      expect(response.resource, isA<Just<ResourceWithIdentity>>());
+      expect(response.resource, isA<Just<Resource>>());
       expect(http.request.method, 'patch');
       expect(http.request.uri.toString(), '/articles/1');
       expect(http.request.headers, {
