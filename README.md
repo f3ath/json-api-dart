@@ -92,7 +92,7 @@ Defines the logic for constructing and matching URLs for resources, collections 
 The URL construction is used by both the Client (See [RoutingClient] for instance) and the Server libraries.
 The [StandardRouting] implements the [Recommended URL design].
 
-[JSON:API]: http://jsonapi.org
+[JSON:API]: https://jsonapi.org
 [Sparse fieldsets]: https://jsonapi.org/format/#fetching-sparse-fieldsets
 [Inclusion of Related Resources]: https://jsonapi.org/format/#fetching-includes
 [Collection Pagination]: https://jsonapi.org/format/#fetching-pagination
