@@ -67,7 +67,7 @@ class JsonApiClient {
   /// https://jsonapi.org/format/#crud-creating
   Future<Response<ResourceData>> createResourceAt(Uri uri, Resource resource,
           {Map<String, String> headers, Map<String, Object> meta}) =>
-      _call(_post(uri, headers, _resourceDoc(resource)), ResourceData.fromJson);
+      _call(_post(uri, headers, _resourceDoc(resource, meta: meta)), ResourceData.fromJson);
 
   /// Deletes the resource.
   ///
