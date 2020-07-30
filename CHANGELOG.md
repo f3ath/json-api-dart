@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Removed
+- Dropped support for Dart 2.6
 
 ## [4.2.2] - 2020-06-05
 ### Fixed
@@ -69,7 +71,6 @@ is missing. Before in such cases a `FormatException` would be thrown ([pr](https
 - `IdentifierObject.fromIdentifier` factory method
 
 ### Changed
-Most of the changes are **BC-BREAKING**.
 - `URLBuilder` was renamed to `UrlFactory`.
 - `DocumentBuilder` was split into `ServerDocumentFactory` and `ClientDocumentFactory`. Some methods were renamed.
 - Static `decodeJson` methods were renamed to `fromJson`.
@@ -79,7 +80,7 @@ Most of the changes are **BC-BREAKING**.
 - The signature of `Controller`.
 - `Server` was renamed to `JsonApiServer`.
 - `Pagination` was renamed to `PaginationStrategy`.
- 
+
 ### Removed
 - (Server) `ResourceTarget`, `CollectionTarget`, `RelationshipTarget`  classes.
 - `QueryParameters` interface.
@@ -103,21 +104,19 @@ Most of the changes are **BC-BREAKING**.
 - Readme example was outdated.
 
 ## [2.0.0] - 2019-07-12
-
 ### Changed
 - This package now consolidates the Client, the Server and the Document in one single library. 
-    It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages 
-    from your `pubspec.yaml`.
+  It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages 
+  from your `pubspec.yaml`.
 - The min Dart SDK version bumped to `2.3.0`
 - The Client requires an instance of HttpClient to be passed to the constructor explicitly.
 - Both the Document and the Server have been refactored with lots of **BREAKING CHANGES**. 
-    See the examples and the functional tests for details.
+  See the examples and the functional tests for details.
 - Meta properties are not defensively copied, but set directly. Meta property behavior is unified across 
-    the Document model.
+  the Document model.
 
 ### Removed
 - `JsonApiParser` is removed. Use the static `decodeJson` methods in the corresponding classes instead.
-
 
 ## [1.0.1] - 2019-04-05
 ### Fixed
@@ -133,35 +132,35 @@ Most of the changes are **BC-BREAKING**.
 - Renamed `client.removeToOne(...)` to `client.deleteToOne(...)`
 
 ## [0.5.0] - 2019-03-21
+### Added
+- Related collection pagination
+- Async operations support
+
 ### Changed
 - More BC-breaking changes in the Server
 
 ### Fixed
 - Location headers generated incorrectly
 
-### Added
-- Related collection pagination
-- Async operations support
-
 ## [0.4.0] - 2019-03-17
+### Added
+- Compound documents support in Client (Server-side support is still very limited)
+
 ### Changed
 - Parsing logic moved out
 - Some other BC-breaking changes in the Document
 - Huge changes in the Server
 
-### Added
-- Compound documents support in Client (Server-side support is still very limited)
-
 ### Fixed
 - Server was not setting links for resources and relationships
 
 ## [0.3.0] - 2019-03-16
-### Changed
-- Huge BC-breaking refactoring in the Document model which propagated everywhere
-
 ### Added
 - Resource attributes update
 - Resource relationships update
+
+### Changed
+- Huge BC-breaking refactoring in the Document model which propagated everywhere
 
 ## [0.2.0] - 2019-03-01
 ### Added
