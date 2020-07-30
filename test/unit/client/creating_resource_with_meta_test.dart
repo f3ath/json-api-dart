@@ -15,7 +15,7 @@ void main() async {
         Resource('people', '123', attributes: {'name': 'Te Cheng Hung'});
     final meta = {'friend': 'Martin Fowler'};
 
-    handler.nextResponse = HttpResponse(500, body: 'Something went wrong');
+    handler.nextResponse = HttpResponse(201);
     await client.createResourceAt(uri, person, meta: meta);
 
     final request = handler.requestLog.first;
