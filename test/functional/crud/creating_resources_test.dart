@@ -13,7 +13,7 @@ void main() async {
   final base = Uri(scheme: 'http', host: host, port: port);
   final routing = StandardRouting(base);
 
-  group('Server-genrated ID', () {
+  group('Server-generated ID', () {
     test('201 Created', () async {
       final repository = InMemoryRepository({
         'people': {},
@@ -53,7 +53,7 @@ void main() async {
     });
   });
 
-  group('Client-genrated ID', () {
+  group('Client-generated ID', () {
     JsonApiClient client;
     RoutingClient routingClient;
     setUp(() async {
