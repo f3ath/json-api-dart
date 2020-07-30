@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: pub get
     - name: Formatting
-      run: dartfmt -n .
+      run: dartfmt -n --set-exit-if-changed .
     - name: Analyzer
       run: dartanalyzer --fatal-infos --fatal-warnings lib test example
     - name: Run tests
