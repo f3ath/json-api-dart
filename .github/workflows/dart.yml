@@ -18,6 +18,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install dependencies
       run: pub get
+    - name: Formatting
+      run: dartfmt -n .
     - name: Analyzer
       run: dartanalyzer --fatal-infos --fatal-warnings lib test example
     - name: Run tests
