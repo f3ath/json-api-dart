@@ -19,9 +19,6 @@ void main() async {
     await client.createResourceAt(uri, person, meta: meta);
 
     final request = handler.requestLog.first;
-    expect(request, isNotNull);
-    expect(request.uri, uri);
-    expect(request.method, 'POST');
     expect(request.body,
         '{"data":{"type":"people","id":"123","attributes":{"name":"Te Cheng Hung"}},"meta":{"friend":"Martin Fowler"}}');
   });
