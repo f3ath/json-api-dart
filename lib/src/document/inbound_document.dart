@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:json_api/document.dart';
 import 'package:json_api/src/document/error_source.dart';
-import 'package:json_api/src/document/relationship/many.dart';
-import 'package:json_api/src/document/relationship/one.dart';
+import 'package:json_api/src/document/many.dart';
+import 'package:json_api/src/document/one.dart';
 import 'package:json_api/src/extensions.dart';
 import 'package:json_api/src/nullable.dart';
 

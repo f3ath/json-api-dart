@@ -2,7 +2,7 @@ import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 
-abstract class ClientRequest<T> {
+abstract class JsonApiRequest<T> {
   /// HTTP method
   String get method;
 

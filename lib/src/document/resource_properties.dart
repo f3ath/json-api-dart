@@ -1,4 +1,4 @@
-import 'package:json_api/src/document/relationship/relationship.dart';
+import 'package:json_api/src/document/relationship.dart';
 
 mixin ResourceProperties {
   /// Resource meta data.

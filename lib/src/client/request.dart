@@ -1,15 +1,14 @@
-import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/src/client/client_request.dart';
+import 'package:json_api/src/client/json_api_request.dart';
 import 'package:json_api/src/client/response/collection_response.dart';
 import 'package:json_api/src/client/response/new_resource_response.dart';
 import 'package:json_api/src/client/response/relationship_response.dart';
 import 'package:json_api/src/client/response/resource_response.dart';
 
-class Request<T> implements ClientRequest<T> {
+class Request<T> implements JsonApiRequest<T> {
   Request(this.method, this.target, this.convert, [this.document]);
 
   /// Adds identifiers to a to-many relationship
@@ -142,7 +141,7 @@ class Request<T> implements ClientRequest<T> {
   @override
   final OutboundDocument document;
 
-  final ResponseConverter<T> convert;
+  final T Function(HttpResponse response) convert;
 
   @override
   final headers = <String, String>{};
@@ -186,5 +185,3 @@ class Request<T> implements ClientRequest<T> {
   @override
   T response(HttpResponse response) => convert(response);
 }
-
-typedef ResponseConverter<T> = T Function(HttpResponse response);

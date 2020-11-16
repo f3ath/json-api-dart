@@ -1,5 +1,5 @@
 import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/relationship/relationship.dart';
+import 'package:json_api/src/document/relationship.dart';
 
 class One extends Relationship {
   One(Identifier /*!*/ identifier) : identifier = identifier;
