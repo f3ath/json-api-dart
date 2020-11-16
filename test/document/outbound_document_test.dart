@@ -18,11 +18,11 @@ void main() {
 
     group('Error', () {
       test('minimal', () {
-        expect(toObject(OutboundDocument.error([])), {'errors': []});
+        expect(toObject(OutboundErrorDocument([])), {'errors': []});
       });
       test('full', () {
         expect(
-            toObject(OutboundDocument.error([ErrorObject(detail: 'Some issue')])
+            toObject(OutboundErrorDocument([ErrorObject(detail: 'Some issue')])
               ..meta['foo'] = 42),
             {
               'errors': [
@@ -39,13 +39,13 @@ void main() {
     final author = Resource('people', '2');
     group('Resource', () {
       test('minimal', () {
-        expect(toObject(OutboundDocument.resource(book)), {
+        expect(toObject(OutboundDataDocument.resource(book)), {
           'data': {'type': 'books', 'id': '1'}
         });
       });
       test('full', () {
         expect(
-            toObject(OutboundDocument.resource(book)
+            toObject(OutboundDataDocument.resource(book)
               ..meta['foo'] = 42
               ..included.add(author)
               ..links['self'] = Link(Uri.parse('/books/1'))),
@@ -62,11 +62,11 @@ void main() {
 
     group('Collection', () {
       test('minimal', () {
-        expect(toObject(OutboundDocument.collection([])), {'data': []});
+        expect(toObject(OutboundDataDocument.collection([])), {'data': []});
       });
       test('full', () {
         expect(
-            toObject(OutboundDocument.collection([book])
+            toObject(OutboundDataDocument.collection([book])
               ..meta['foo'] = 42
               ..included.add(author)
               ..links['self'] = Link(Uri.parse('/books/1'))),
@@ -85,11 +85,11 @@ void main() {
 
     group('One', () {
       test('minimal', () {
-        expect(toObject(OutboundDocument.one(One.empty())), {'data': null});
+        expect(toObject(OutboundDataDocument.one(One.empty())), {'data': null});
       });
       test('full', () {
         expect(
-            toObject(OutboundDocument.one(One(book.identifier)
+            toObject(OutboundDataDocument.one(One(book.identifier)
               ..meta['foo'] = 42
               ..links['self'] = Link(Uri.parse('/books/1')))
               ..included.add(author)),
@@ -106,11 +106,11 @@ void main() {
 
     group('Many', () {
       test('minimal', () {
-        expect(toObject(OutboundDocument.many(Many([]))), {'data': []});
+        expect(toObject(OutboundDataDocument.many(Many([]))), {'data': []});
       });
       test('full', () {
         expect(
-            toObject(OutboundDocument.many(Many([book.identifier])
+            toObject(OutboundDataDocument.many(Many([book.identifier])
               ..meta['foo'] = 42
               ..links['self'] = Link(Uri.parse('/books/1')))
               ..included.add(author)),

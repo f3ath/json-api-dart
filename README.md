@@ -19,7 +19,7 @@ This package consists of several libraries:
 - direct modification of relationships (both to-one and to-many)
 - [async processing](https://jsonapi.org/recommendations/#asynchronous-processing)
 
-The client returns back a [Response] which contains the HTTP status code, headers and the JSON:API [Document].
+The client returns a [Response] which contains the HTTP status code, headers and the JSON:API [Document].
 
 Sometimes the request URIs can be inferred from the context. 
 For such cases you may use the [RoutingClient] which is a wrapper over the [JsonApiClient] capable of inferring the URIs.

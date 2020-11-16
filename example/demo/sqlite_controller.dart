@@ -28,7 +28,7 @@ class SqliteController implements JsonApiController<Future<HttpResponse>> {
     final collection = db
         .select('SELECT * FROM ${_sanitize(target.type)}')
         .map(_resourceFromRow(target.type));
-    final doc = OutboundDocument.collection(collection)
+    final doc = OutboundDataDocument.collection(collection)
       ..links['self'] = Link(target.map(urlDesign));
     return HttpResponse(200, body: jsonEncode(doc), headers: {
       'content-type': MediaType.jsonApi,
@@ -40,7 +40,7 @@ class SqliteController implements JsonApiController<Future<HttpResponse>> {
       HttpRequest request, ResourceTarget target) async {
     final resource = _fetchResource(target.type, target.id);
     final self = Link(target.map(urlDesign));
-    final doc = OutboundDocument.resource(resource)..links['self'] = self;
+    final doc = OutboundDataDocument.resource(resource)..links['self'] = self;
     return HttpResponse(200,
         body: jsonEncode(doc), headers: {'content-type': MediaType.jsonApi});
   }
@@ -59,7 +59,7 @@ class SqliteController implements JsonApiController<Future<HttpResponse>> {
       final self =
           Link(ResourceTarget(resource.type, resource.id).map(urlDesign));
       resource.links['self'] = self;
-      final doc = OutboundDocument.resource(resource)..links['self'] = self;
+      final doc = OutboundDataDocument.resource(resource)..links['self'] = self;
       return HttpResponse(201, body: jsonEncode(doc), headers: {
         'content-type': MediaType.jsonApi,
         'location': self.uri.toString()

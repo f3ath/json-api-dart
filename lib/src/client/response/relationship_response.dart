@@ -7,6 +7,12 @@ class RelationshipResponse<T extends Relationship> {
       {Iterable<Resource> included = const []})
       : included = IdentityCollection(included);
 
+  static RelationshipResponse<Many> decodeMany(HttpResponse response) =>
+      decode<Many>(response);
+
+  static RelationshipResponse<One> decodeOne(HttpResponse response) =>
+      decode<One>(response);
+
   static RelationshipResponse<T> decode<T extends Relationship>(
       HttpResponse response) {
     final doc = InboundDocument.decode(response.body);

@@ -10,6 +10,7 @@ class Identifier with Identity {
   @override
   final String id;
 
+  /// Identifier meta-data.
   final meta = <String, Object /*?*/ >{};
 
   Map<String, Object> toJson() =>

@@ -1,5 +1,7 @@
 /// Resource identity.
 mixin Identity {
+  static const separator = ':';
+
   /// Resource type
   String get type;
 
@@ -7,5 +9,5 @@ mixin Identity {
   String get id;
 
   /// Compound key, uniquely identifying the resource
-  String get key => '$type:$id';
+  String get key => '$type$separator$id';
 }

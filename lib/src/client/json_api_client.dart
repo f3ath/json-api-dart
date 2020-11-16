@@ -1,7 +1,9 @@
+import 'dart:convert';
+
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/src/client/json_api_request.dart';
+import 'package:json_api/src/client/client_request.dart';
 import 'package:json_api/src/client/request_failure.dart';
 import 'package:json_api/src/http/media_type.dart';
 
@@ -16,7 +18,7 @@ class JsonApiClient {
   /// Returns the response when the server responds with a JSON:API document.
   /// Throws a [RequestFailure] if the server responds with a JSON:API error.
   /// Throws a [ServerError] if the server responds with a non-JSON:API error.
-  Future<T> call<T>(JsonApiRequest<T> request) async {
+  Future<T> call<T>(ClientRequest<T> request) async {
     final response = await _http.call(_toHttp(request));
     if (!response.isSuccessful && !response.isPending) {
       throw RequestFailure(response,
@@ -27,13 +29,15 @@ class JsonApiClient {
     return request.response(response);
   }
 
-  HttpRequest _toHttp(JsonApiRequest request) {
+  HttpRequest _toHttp(ClientRequest request) {
     final headers = {'accept': MediaType.jsonApi};
-    if (request.body.isNotEmpty) {
+    var body = '';
+    if (request.document != null) {
       headers['content-type'] = MediaType.jsonApi;
+      body = jsonEncode(request.document);
     }
     headers.addAll(request.headers);
     return HttpRequest(request.method, request.uri(_uriFactory),
-        body: request.body, headers: headers);
+        body: body, headers: headers);
   }
 }

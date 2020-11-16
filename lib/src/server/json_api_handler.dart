@@ -34,7 +34,7 @@ class JsonApiHandler implements HttpHandler {
         if (e is Error) {
           error.meta['stackTrace'] = e.stackTrace.toString().trim().split('\n');
         }
-        body = jsonEncode(OutboundDocument.error([error]));
+        body = jsonEncode(OutboundErrorDocument([error]));
       }
       return HttpResponse(500, body: body);
     }
