@@ -1,0 +1,26 @@
+name: Dart CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image:  google/dart:latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: dart pub get
+      - name: Format
+        run: dartfmt --dry-run --set-exit-if-changed lib test
+      - name: Analyzer
+        run: dart analyze --fatal-infos --fatal-warnings
+      - name: Tests
+        run: dart pub run test_coverage --no-badge --print-test-output --min-coverage 100

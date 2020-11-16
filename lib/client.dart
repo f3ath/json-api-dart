@@ -1,0 +1,21 @@
+library json_api;
+
+export 'package:json_api/src/client/json_api_client.dart';
+export 'package:json_api/src/client/request_failure.dart';
+export 'package:json_api/src/client/dart_http.dart';
+export 'package:json_api/src/client/request/add_many.dart';
+export 'package:json_api/src/client/request/create_new_resource.dart';
+export 'package:json_api/src/client/request/create_resource.dart';
+export 'package:json_api/src/client/request/delete_many.dart';
+export 'package:json_api/src/client/request/delete_one.dart';
+export 'package:json_api/src/client/request/fetch_collection.dart';
+export 'package:json_api/src/client/request/fetch_related_collection.dart';
+export 'package:json_api/src/client/request/fetch_related_resource.dart';
+export 'package:json_api/src/client/request/fetch_relationship.dart';
+export 'package:json_api/src/client/request/fetch_resource.dart';
+export 'package:json_api/src/client/request/replace_many.dart';
+export 'package:json_api/src/client/request/replace_one.dart';
+export 'package:json_api/src/client/request/update_resource.dart';
+export 'package:json_api/src/client/response/collection_response.dart';
+export 'package:json_api/src/client/response/relationship_response.dart';
+export 'package:json_api/src/client/response/resource_response.dart';
