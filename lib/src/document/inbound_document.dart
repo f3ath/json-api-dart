@@ -4,7 +4,6 @@ import 'package:json_api/document.dart';
 import 'package:json_api/src/document/error_source.dart';
 import 'package:json_api/src/document/many.dart';
 import 'package:json_api/src/document/one.dart';
-import 'package:json_api/src/extensions.dart';
 import 'package:json_api/src/nullable.dart';
 
 /// A generic inbound JSON:API document
@@ -58,7 +57,11 @@ class InboundDocument {
     return nullable(_resource)(_json.getNullable<Map>('data'));
   }
 
-  Relationship dataAsRelationship() => _relationship(_json);
+  R dataAsRelationship<R extends Relationship>() {
+    final rel = _relationship(_json);
+    if (rel is R) return rel;
+    throw FormatException('Invalid relationship type');
+  }
 
   static Map<String /*!*/, Link> _links(Map json) => json
       .get<Map>('links', orGet: () => {})
@@ -140,4 +143,28 @@ class InboundDocument {
   static Map<String, Relationship> _getRelationships(Map json) => json
       .get<Map>('relationships', orGet: () => {})
       .map((key, value) => MapEntry(key, _relationship(value)));
+}
+
+extension _TypedGetter on Map {
+  T get<T>(String key, {T Function() /*?*/ orGet}) {
+    if (containsKey(key)) {
+      final val = this[key];
+      if (val is T) return val;
+      throw FormatException(
+          'Key "$key": expected $T, found ${val.runtimeType}');
+    }
+    if (orGet != null) return orGet();
+    throw FormatException('Key "$key" does not exist');
+  }
+
+  T /*?*/ getNullable<T>(String key, {T /*?*/ Function() /*?*/ orGet}) {
+    if (containsKey(key)) {
+      final val = this[key];
+      if (val is T || val == null) return val;
+      throw FormatException(
+          'Key "$key": expected $T, found ${val.runtimeType}');
+    }
+    if (orGet != null) return orGet();
+    throw FormatException('Key "$key" does not exist');
+  }
 }

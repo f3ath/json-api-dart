@@ -1,3 +1,5 @@
+import 'package:json_api/src/document/many.dart';
+import 'package:json_api/src/document/one.dart';
 import 'package:json_api/src/document/relationship.dart';
 
 mixin ResourceProperties {
@@ -13,4 +15,5 @@ mixin ResourceProperties {
   ///
   /// See https://jsonapi.org/format/#document-resource-object-relationships
   final relationships = <String, Relationship>{};
+
 }

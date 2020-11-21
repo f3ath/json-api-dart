@@ -3,8 +3,8 @@ import 'dart:io' as io;
 
 import 'package:json_api/http.dart';
 
-class DartHttpHandler {
-  DartHttpHandler(this._handler);
+class DartIOHttpHandler {
+  DartIOHttpHandler(this._handler);
 
   final HttpHandler _handler;
 

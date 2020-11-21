@@ -11,16 +11,17 @@ class CorsHandler implements HttpHandler {
   Future<HttpResponse> call(HttpRequest request) async {
     if (request.method == 'options') {
       return HttpResponse(204, headers: {
-        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Origin': request.headers['origin'] ?? origin,
         'Access-Control-Allow-Methods':
-            request.headers['Access-Control-Request-Method'] ??
-                'POST, GET, OPTIONS, DELETE, PATCH',
+            // TODO: Chrome works only with uppercase, but Firefox - only without. WTF?
+            request.headers['Access-Control-Request-Method'].toUpperCase(),
         'Access-Control-Allow-Headers':
-            request.headers['Access-Control-Request-Headers'] ?? '*'
+            request.headers['Access-Control-Request-Headers'] ?? '*',
       });
     }
     final response = await wrapped(request);
-    response.headers['Access-Control-Allow-Origin'] = origin;
+    response.headers['Access-Control-Allow-Origin'] =
+        request.headers['origin'] ?? origin;
     return response;
   }
 }

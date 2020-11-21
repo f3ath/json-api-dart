@@ -1,7 +1,6 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/src/test/payload.dart' as payload;
 import 'package:test/test.dart';
-
-import 'payload.dart' as payload;
 
 void main() {
   group('InboundDocument', () {

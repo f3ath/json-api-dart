@@ -8,4 +8,8 @@ class RequestFailure implements Exception {
   /// The response itself.
   final HttpResponse http;
   final InboundDocument /*?*/ document;
+
+  @override
+  String toString() =>
+      'JSON:API request failed with HTTP status ${http.statusCode}';
 }

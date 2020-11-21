@@ -6,6 +6,10 @@ class One extends Relationship {
 
   One.empty() : identifier = null;
 
+  /// Returns the key of the relationship identifier.
+  /// If the identifier is null, returns an empty string.
+  String get key => identifier?.key ?? '';
+
   @override
   Map<String, dynamic> toJson() => {'data': identifier, ...super.toJson()};
 

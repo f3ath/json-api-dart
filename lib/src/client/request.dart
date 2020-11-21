@@ -2,23 +2,25 @@ import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
+import 'package:json_api/src/client/collection_response.dart';
 import 'package:json_api/src/client/json_api_request.dart';
-import 'package:json_api/src/client/response/collection_response.dart';
-import 'package:json_api/src/client/response/new_resource_response.dart';
-import 'package:json_api/src/client/response/relationship_response.dart';
-import 'package:json_api/src/client/response/resource_response.dart';
+import 'package:json_api/src/client/new_resource_response.dart';
+import 'package:json_api/src/client/relationship_response.dart';
+import 'package:json_api/src/client/resource_response.dart';
+import 'package:json_api/src/client/response.dart';
 
+/// A basic implementation of [JsonApiRequest].
+/// Allows to easily add query parameters.
+/// Contains a collection of static factory methods for common JSON:API requests.
 class Request<T> implements JsonApiRequest<T> {
-  Request(this.method, this.target, this.convert, [this.document]);
+  Request(this.method, this.target, this.convert, {this.document});
 
   /// Adds identifiers to a to-many relationship
   static Request<RelationshipResponse<Many>> addMany(String type, String id,
           String relationship, List<Identifier> identifiers) =>
-      Request(
-          'post',
-          RelationshipTarget(type, id, relationship),
+      Request('post', RelationshipTarget(type, id, relationship),
           RelationshipResponse.decodeMany,
-          OutboundDataDocument.many(Many(identifiers)));
+          document: OutboundDataDocument.many(Many(identifiers)));
 
   /// Creates a new resource on the server. The server is responsible for assigning the resource id.
   static Request<NewResourceResponse> createNew(String type,
@@ -26,11 +28,8 @@ class Request<T> implements JsonApiRequest<T> {
           Map<String, Identifier> one = const {},
           Map<String, Iterable<Identifier>> many = const {},
           Map<String, Object /*?*/ > meta = const {}}) =>
-      Request(
-          'post',
-          CollectionTarget(type),
-          NewResourceResponse.decode,
-          OutboundDataDocument.newResource(NewResource(type)
+      Request('post', CollectionTarget(type), NewResourceResponse.decode,
+          document: OutboundDataDocument.newResource(NewResource(type)
             ..attributes.addAll(attributes)
             ..relationships.addAll({
               ...one.map((key, value) => MapEntry(key, One(value))),
@@ -40,11 +39,9 @@ class Request<T> implements JsonApiRequest<T> {
 
   static Request<RelationshipResponse<Many>> deleteMany(String type, String id,
           String relationship, List<Identifier> identifiers) =>
-      Request(
-          'delete',
-          RelationshipTarget(type, id, relationship),
+      Request('delete', RelationshipTarget(type, id, relationship),
           RelationshipResponse.decode,
-          OutboundDataDocument.many(Many(identifiers)));
+          document: OutboundDataDocument.many(Many(identifiers)));
 
   static Request<CollectionResponse> fetchCollection(String type) =>
       Request('get', CollectionTarget(type), CollectionResponse.decode);
@@ -58,6 +55,16 @@ class Request<T> implements JsonApiRequest<T> {
           String type, String id, String relationship) =>
       Request('get', RelationshipTarget(type, id, relationship),
           RelationshipResponse.decode);
+
+  static Request<RelationshipResponse<One>> fetchOne(
+          String type, String id, String relationship) =>
+      Request('get', RelationshipTarget(type, id, relationship),
+          RelationshipResponse.decodeOne);
+
+  static Request<RelationshipResponse<Many>> fetchMany(
+          String type, String id, String relationship) =>
+      Request('get', RelationshipTarget(type, id, relationship),
+          RelationshipResponse.decodeMany);
 
   static Request<ResourceResponse> fetchRelatedResource(
           String type, String id, String relationship) =>
@@ -75,11 +82,8 @@ class Request<T> implements JsonApiRequest<T> {
     Map<String, Iterable<Identifier>> many = const {},
     Map<String, Object /*?*/ > meta = const {},
   }) =>
-      Request(
-          'patch',
-          ResourceTarget(type, id),
-          ResourceResponse.decode,
-          OutboundDataDocument.resource(Resource(type, id)
+      Request('patch', ResourceTarget(type, id), ResourceResponse.decode,
+          document: OutboundDataDocument.resource(Resource(type, id)
             ..attributes.addAll(attributes)
             ..relationships.addAll({
               ...one.map((key, value) => MapEntry(key, One(value))),
@@ -96,11 +100,8 @@ class Request<T> implements JsonApiRequest<T> {
     Map<String, Iterable<Identifier>> many = const {},
     Map<String, Object /*?*/ > meta = const {},
   }) =>
-      Request(
-          'post',
-          CollectionTarget(type),
-          ResourceResponse.decode,
-          OutboundDataDocument.resource(Resource(type, id)
+      Request('post', CollectionTarget(type), ResourceResponse.decode,
+          document: OutboundDataDocument.resource(Resource(type, id)
             ..attributes.addAll(attributes)
             ..relationships.addAll({
               ...one.map((k, v) => MapEntry(k, One(v))),
@@ -110,27 +111,24 @@ class Request<T> implements JsonApiRequest<T> {
 
   static Request<RelationshipResponse<One>> replaceOne(
           String type, String id, String relationship, Identifier identifier) =>
-      Request(
-          'patch',
-          RelationshipTarget(type, id, relationship),
+      Request('patch', RelationshipTarget(type, id, relationship),
           RelationshipResponse.decodeOne,
-          OutboundDataDocument.one(One(identifier)));
+          document: OutboundDataDocument.one(One(identifier)));
 
   static Request<RelationshipResponse<Many>> replaceMany(String type, String id,
           String relationship, Iterable<Identifier> identifiers) =>
-      Request(
-          'patch',
-          RelationshipTarget(type, id, relationship),
+      Request('patch', RelationshipTarget(type, id, relationship),
           RelationshipResponse.decodeMany,
-          OutboundDataDocument.many(Many(identifiers)));
+          document: OutboundDataDocument.many(Many(identifiers)));
 
   static Request<RelationshipResponse<One>> deleteOne(
           String type, String id, String relationship) =>
-      Request(
-          'patch',
-          RelationshipTarget(type, id, relationship),
+      Request('patch', RelationshipTarget(type, id, relationship),
           RelationshipResponse.decodeOne,
-          OutboundDataDocument.one(One.empty()));
+          document: OutboundDataDocument.one(One.empty()));
+
+  static JsonApiRequest<Response> deleteResource(String type, String id) =>
+      Request('delete', ResourceTarget(type, id), Response.decode);
 
   /// Request target
   final Target target;
@@ -139,7 +137,7 @@ class Request<T> implements JsonApiRequest<T> {
   final String method;
 
   @override
-  final OutboundDocument document;
+  final Object document;
 
   final T Function(HttpResponse response) convert;
 

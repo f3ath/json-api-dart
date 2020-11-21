@@ -2,6 +2,7 @@ import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/src/client/identity_collection.dart';
 
+/// A response to a relationship request.
 class RelationshipResponse<T extends Relationship> {
   RelationshipResponse(this.http, this.relationship,
       {Iterable<Resource> included = const []})

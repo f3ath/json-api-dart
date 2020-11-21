@@ -15,6 +15,7 @@ class CollectionResponse {
     this.links.addAll(links);
   }
 
+  /// Decodes the response from [HttpResponse].
   static CollectionResponse decode(HttpResponse response) {
     final doc = InboundDocument.decode(response.body);
     return CollectionResponse(response,

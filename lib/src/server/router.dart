@@ -8,17 +8,26 @@ class Router {
 
   final TargetMatcher matcher;
 
-  T route<T>(HttpRequest request, JsonApiController<T> controller) {
-    final target = matcher.match(request.uri);
+  T route<T>(HttpRequest rq, JsonApiController<T> controller) {
+    final target = matcher.match(rq.uri);
     if (target is CollectionTarget) {
-      if (request.isGet) return controller.fetchCollection(request, target);
-      if (request.isPost) return controller.createResource(request, target);
-      throw MethodNotAllowed(request.method);
+      if (rq.isGet) return controller.fetchCollection(rq, target);
+      if (rq.isPost) return controller.createResource(rq, target);
+      throw MethodNotAllowed(rq.method);
     }
     if (target is ResourceTarget) {
-      if (request.isGet) return controller.fetchResource(request, target);
-      throw MethodNotAllowed(request.method);
+      if (rq.isGet) return controller.fetchResource(rq, target);
+      if (rq.isDelete) return controller.deleteResource(rq, target);
+      if (rq.isPatch) return controller.updateResource(rq, target);
+      throw MethodNotAllowed(rq.method);
     }
-    throw 'UnmatchedTarget';
+    if (target is RelationshipTarget) {
+      if (rq.isGet) return controller.fetchRelationship(rq, target);
+      if (rq.isPost) return controller.addMany(rq, target);
+      if (rq.isPatch) return controller.replaceRelationship(rq, target);
+      if (rq.isDelete) return controller.deleteMany(rq, target);
+      throw MethodNotAllowed(rq.method);
+    }
+    throw 'UnmatchedTarget $target';
   }
 }

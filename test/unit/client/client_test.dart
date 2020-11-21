@@ -2,15 +2,22 @@ import 'dart:convert';
 
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
-import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
+import 'package:json_api/src/test/mock_handler.dart';
+import 'package:json_api/src/test/response.dart' as mock;
 import 'package:test/test.dart';
-
-import 'response.dart' as mock;
 
 void main() {
   final http = MockHandler();
   final client = JsonApiClient(http, RecommendedUrlDesign(Uri(path: '/')));
+
+  group('Client', () {
+    // test('Can send request with a document', () {
+    //   client(Request('post', CollectionTarget('apples'), (_) => _))
+    //
+    // });
+
+  });
 
   group('Failure', () {
     test('RequestFailure', () async {
@@ -181,8 +188,7 @@ void main() {
     test('Min', () async {
       http.response = mock.one;
       final response =
-          await client(Request.fetchRelationship('articles', '1', 'author'));
-      expect(response.relationship, isA<One>());
+          await client(Request.fetchOne('articles', '1', 'author'));
       expect(response.included.length, 3);
       expect(http.request.method, 'get');
       expect(http.request.uri.toString(), '/articles/1/relationships/author');
@@ -191,11 +197,9 @@ void main() {
 
     test('Full', () async {
       http.response = mock.one;
-      final response =
-          await client(Request.fetchRelationship('articles', '1', 'author')
-            ..headers['foo'] = 'bar'
-            ..query['foo'] = 'bar');
-      expect(response.relationship, isA<One>());
+      final response = await client(Request.fetchOne('articles', '1', 'author')
+        ..headers['foo'] = 'bar'
+        ..query['foo'] = 'bar');
       expect(response.included.length, 3);
       expect(http.request.method, 'get');
       expect(http.request.uri.path, '/articles/1/relationships/author');
@@ -717,73 +721,4 @@ void main() {
           throwsFormatException);
     });
   });
-
-//  group('Call', () {
-//    test('Sends correct request when given minimum arguments', () async {
-//      http.response = HttpResponse(204);
-//      final response =
-//          await client.call(Request('get'), Uri.parse('/foo'));
-//      expect(response, http.response);
-//      expect(http.request.method, 'get');
-//      expect(http.request.uri.toString(), '/foo');
-//      expect(http.request.headers, {
-//        'accept': 'application/vnd.api+json',
-//      });
-//      expect(http.request.body, isEmpty);
-//    });
-//
-//    test('Sends correct request when given all possible arguments', () async {
-//      http.response = HttpResponse(204);
-//      final response = await client.call(
-//          Request('get', document: {
-//            'data': null
-//          }, headers: {
-//            'foo': 'bar'
-//          }, include: [
-//            'author'
-//          ], fields: {
-//            'author': ['name']
-//          }, sort: [
-//            'title',
-//            '-date'
-//          ], page: {
-//            'limit': '10'
-//          }, query: {
-//            'foo': 'bar'
-//          }),
-//          Uri.parse('/foo'));
-//      expect(response, http.response);
-//      expect(http.request.method, 'get');
-//      expect(http.request.uri.toString(),
-//          r'/foo?include=author&fields%5Bauthor%5D=name&sort=title%2C-date&page%5Blimit%5D=10&foo=bar');
-//      expect(http.request.headers, {
-//        'accept': 'application/vnd.api+json',
-//        'content-type': 'application/vnd.api+json',
-//        'foo': 'bar'
-//      });
-//      expect(jsonDecode(http.request.body), {'data': null});
-//    });
-//
-//    test('Throws RequestFailure', () async {
-//      http.response = mock.error422;
-//      try {
-//        await client.call(Request('get'), Uri.parse('/foo'));
-//        fail('Exception expected');
-//      } on RequestFailure catch (e) {
-//        expect(e.response.statusCode, 422);
-//        expect(e.errors.first.status, '422');
-//      }
-//    });
-//  });
-}
-
-class MockHandler implements HttpHandler {
-  HttpResponse /*?*/ response;
-  HttpRequest /*?*/ request;
-
-  @override
-  Future<HttpResponse> call(HttpRequest request) async {
-    this.request = request;
-    return response;
-  }
 }

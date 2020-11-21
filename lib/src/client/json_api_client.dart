@@ -14,10 +14,25 @@ class JsonApiClient {
   final HttpHandler _http;
   final UriFactory _uriFactory;
 
+  // /// Adds identifiers to a to-many relationship
+  // RelationshipResponse<Many> addMany(String type, String id,
+  //     String relationship, List<Identifier> identifiers) async =>
+  //     Request('post', RelationshipTarget(type, id, relationship),
+  //         RelationshipResponse.decodeMany,
+  //         document: OutboundDataDocument.many(Many(identifiers)));
+
+
   /// Sends the [request] to the server.
   /// Returns the response when the server responds with a JSON:API document.
   /// Throws a [RequestFailure] if the server responds with an error.
   Future<T> call<T>(JsonApiRequest<T> request) async {
+    return request.response(await _call(request));
+  }
+
+  /// Sends the [request] to the server.
+  /// Returns the response when the server responds with a JSON:API document.
+  /// Throws a [RequestFailure] if the server responds with an error.
+  Future<HttpResponse> _call<T>(JsonApiRequest<T> request) async {
     final response = await _http.call(_toHttp(request));
     if (!response.isSuccessful && !response.isPending) {
       throw RequestFailure(response,
@@ -25,7 +40,7 @@ class JsonApiClient {
               ? InboundDocument.decode(response.body)
               : null);
     }
-    return request.response(response);
+    return response;
   }
 
   HttpRequest _toHttp(JsonApiRequest request) {

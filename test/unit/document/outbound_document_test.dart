@@ -89,7 +89,7 @@ void main() {
       });
       test('full', () {
         expect(
-            toObject(OutboundDataDocument.one(One(book.identifier)
+            toObject(OutboundDataDocument.one(One(book.toIdentifier())
               ..meta['foo'] = 42
               ..links['self'] = Link(Uri.parse('/books/1')))
               ..included.add(author)),
@@ -110,7 +110,7 @@ void main() {
       });
       test('full', () {
         expect(
-            toObject(OutboundDataDocument.many(Many([book.identifier])
+            toObject(OutboundDataDocument.many(Many([book.toIdentifier()])
               ..meta['foo'] = 42
               ..links['self'] = Link(Uri.parse('/books/1')))
               ..included.add(author)),

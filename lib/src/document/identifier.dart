@@ -4,6 +4,12 @@ import 'package:json_api/src/document/identity.dart';
 class Identifier with Identity {
   Identifier(this.type, this.id);
 
+  /// Created a new [Identifier] from an [Identity] key.
+  static Identifier fromKey(String key) {
+    final p = Identity.split(key);
+    return Identifier(p.first, p.last);
+  }
+
   @override
   final String type;
 

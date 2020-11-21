@@ -1,5 +1,4 @@
-import 'package:json_api/routing.dart';
-import 'package:json_api/src/routing/reference.dart';
+import 'package:json_api/src/routing/_reference.dart';
 
 /// A request target
 abstract class Target {
