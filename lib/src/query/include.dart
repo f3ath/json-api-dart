@@ -17,7 +17,8 @@ class Include with IterableMixin<String> {
   final _ = <String>[];
 
   /// Converts to a map of query parameters
-  Map<String, String> get asQueryParameters => {'include': join(',')};
+  Map<String, String> get asQueryParameters =>
+      {if (isNotEmpty) 'include': join(',')};
 
   @override
   Iterator<String> get iterator => _.iterator;

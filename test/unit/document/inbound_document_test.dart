@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:json_api/document.dart';
 import 'package:json_api/src/test/payload.dart' as payload;
 import 'package:test/test.dart';
@@ -167,6 +169,18 @@ void main() {
             () => InboundDocument({
                   'links': {'self': 42}
                 }).dataAsRelationship(),
+            throwsFormatException);
+      });
+
+      test('throws on invalid JSON', () {
+        expect(() => InboundDocument.decode(jsonEncode('oops')),
+            throwsFormatException);
+      });
+
+      test('throws on invalid relationship kind', () {
+        expect(() => InboundDocument(payload.one).dataAsRelationship<Many>(),
+            throwsFormatException);
+        expect(() => InboundDocument(payload.many).dataAsRelationship<One>(),
             throwsFormatException);
       });
     });

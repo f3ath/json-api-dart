@@ -1,14 +1,18 @@
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
-import 'package:json_api/src/server/method_not_allowed.dart';
+import 'package:json_api/src/server/_internal/method_not_allowed.dart';
+import 'package:json_api/src/server/_internal/unmatched_target.dart';
 
-class Router {
-  const Router(this.matcher);
+class RoutingHttpHandler implements HttpHandler {
+  RoutingHttpHandler(this.controller, {TargetMatcher matcher})
+      : matcher = matcher ?? RecommendedUrlDesign.pathOnly;
 
+  final Controller controller;
   final TargetMatcher matcher;
 
-  T route<T>(HttpRequest rq, JsonApiController<T> controller) {
+  @override
+  Future<HttpResponse> call(HttpRequest rq) async {
     final target = matcher.match(rq.uri);
     if (target is CollectionTarget) {
       if (rq.isGet) return controller.fetchCollection(rq, target);
@@ -28,6 +32,10 @@ class Router {
       if (rq.isDelete) return controller.deleteMany(rq, target);
       throw MethodNotAllowed(rq.method);
     }
-    throw 'UnmatchedTarget $target';
+    if (target is RelatedTarget) {
+      if (rq.isGet) return controller.fetchRelated(rq, target);
+      throw MethodNotAllowed(rq.method);
+    }
+    throw UnmatchedTarget(rq.uri);
   }
 }

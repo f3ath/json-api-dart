@@ -1,5 +1,7 @@
 abstract class Repo {
-  Stream<Entity<Model>> fetchAll(String type);
+  /// Fetches a collection.
+  /// Throws [CollectionNotFound].
+  Stream<Entity<Model>> fetchCollection(String type);
 
   Future<Model /*?*/ > fetch(String type, String id);
 
@@ -30,6 +32,8 @@ abstract class Repo {
   Stream<String> replaceMany(
       String type, String id, String relationship, Iterable<String> refs);
 }
+
+class CollectionNotFound implements Exception {}
 
 class Entity<M> {
   const Entity(this.id, this.model);

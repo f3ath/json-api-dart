@@ -2,13 +2,13 @@ import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/src/_demo/repo.dart';
 import 'package:json_api/src/nullable.dart';
+import 'package:json_api/src/server/_internal/relationship_node.dart';
+import 'package:json_api/src/server/_internal/repo.dart';
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/relationship_node.dart';
 import 'package:json_api/src/server/response.dart';
 
-class RepositoryController implements JsonApiController<Future<HttpResponse>> {
+class RepositoryController implements Controller {
   RepositoryController(this.repo, this.getId);
 
   final Repo repo;
@@ -60,7 +60,7 @@ class RepositoryController implements JsonApiController<Future<HttpResponse>> {
       ..links['self'] = self;
     return Response.created(
         OutboundDataDocument.resource(resource)..links['self'] = self,
-        location: self.uri.toString());
+        self.uri.toString());
   }
 
   @override
@@ -129,7 +129,7 @@ class RepositoryController implements JsonApiController<Future<HttpResponse>> {
 
   @override
   Future<HttpResponse> fetchRelationship(
-      HttpRequest rq, RelationshipTarget target) async {
+      HttpRequest request, RelationshipTarget target) async {
     final model = await repo.fetch(target.type, target.id);
     if (model.one.containsKey(target.relationship)) {
       final doc = OutboundDataDocument.one(
@@ -142,6 +142,26 @@ class RepositoryController implements JsonApiController<Future<HttpResponse>> {
       return Response.ok(doc);
     }
     // TODO: implement fetchRelationship
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<HttpResponse> fetchRelated(
+      HttpRequest request, RelatedTarget target) async {
+    final model = await repo.fetch(target.type, target.id);
+    if (model.one.containsKey(target.relationship)) {
+      final related =
+          await _fetchRelatedResource(model.one[target.relationship]);
+      final doc = OutboundDataDocument.resource(related);
+      return Response.ok(doc);
+    }
+    if (model.many.containsKey(target.relationship)) {
+      final doc = OutboundDataDocument.collection(
+          await _fetchRelatedCollection(model.many[target.relationship])
+              .toList());
+      return Response.ok(doc);
+    }
+    // TODO: implement fetchRelated
     throw UnimplementedError();
   }
 
@@ -172,13 +192,24 @@ class RepositoryController implements JsonApiController<Future<HttpResponse>> {
   }
 
   Stream<Resource> _fetchAll(String type) =>
-      repo.fetchAll(type).map((e) => _toResource(e.id, type, e.model));
+      repo.fetchCollection(type).map((e) => _toResource(e.id, type, e.model));
 
   /// Fetches and builds a resource object
   Future<Resource /*?*/ > _fetchResource(String type, String id) async {
     final model = await repo.fetch(type, id);
     if (model == null) return null;
     return _toResource(id, type, model);
+  }
+
+  Future<Resource /*?*/ > _fetchRelatedResource(String key) {
+    final id = Identifier.fromKey(key);
+    return _fetchLinkedResource(id.type, id.id);
+  }
+
+  Stream<Resource> _fetchRelatedCollection(Iterable<String> keys) async* {
+    for (final key in keys) {
+      yield await _fetchRelatedResource(key);
+    }
   }
 
   Resource _toResource(String id, String type, Model model) {

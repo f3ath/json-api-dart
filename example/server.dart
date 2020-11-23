@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:json_api/http.dart';
-import 'package:json_api/src/_demo/demo_server.dart';
-import 'package:json_api/src/_demo/in_memory_repo.dart';
+import 'package:json_api/src/server/_internal/demo_server.dart';
+import 'package:json_api/src/server/_internal/in_memory_repo.dart';
 
 Future<void> main() async {
   final demo = DemoServer(InMemoryRepo(['users', 'posts', 'comments']),

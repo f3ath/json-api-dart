@@ -54,5 +54,11 @@ void main() {
             }
           }));
     });
+    test('one() throws StateError when relationship does not exist', () {
+      expect(() => Resource('books', '1').one('author'), throwsStateError);
+    });
+    test('many() throws StateError when relationship does not exist', () {
+      expect(() => Resource('books', '1').many('tags'), throwsStateError);
+    });
   });
 }

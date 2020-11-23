@@ -10,10 +10,14 @@ class ResourceResponse {
     this.links.addAll(links);
   }
 
+  ResourceResponse.noContent(this.http)
+      : resource = null,
+        included = IdentityCollection(const []);
+
   static ResourceResponse decode(HttpResponse response) {
-    if (response.isNoContent) return ResourceResponse(response, null);
+    if (response.isNoContent) return ResourceResponse.noContent(response);
     final doc = InboundDocument.decode(response.body);
-    return ResourceResponse(response, doc.resource(),
+    return ResourceResponse(response, doc.nullableResource(),
         links: doc.links, included: doc.included);
   }
 

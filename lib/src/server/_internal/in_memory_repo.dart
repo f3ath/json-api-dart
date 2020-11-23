@@ -1,4 +1,4 @@
-import 'package:json_api/src/_demo/repo.dart';
+import 'repo.dart';
 
 class InMemoryRepo implements Repo {
   InMemoryRepo(Iterable<String> types) {
@@ -10,9 +10,13 @@ class InMemoryRepo implements Repo {
   final _storage = <String, Map<String, Model>>{};
 
   @override
-  Stream<Entity<Model>> fetchAll(String type) {
-    return Stream.fromIterable(_storage[type].entries)
-        .map((_) => Entity(_.key, _.value));
+  Stream<Entity<Model>> fetchCollection(String type) async* {
+    if (!_storage.containsKey(type)) {
+      throw CollectionNotFound();
+    }
+    for (final e in _storage[type].entries) {
+      yield Entity(e.key, e.value);
+    }
   }
 
   @override

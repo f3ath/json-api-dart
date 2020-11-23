@@ -2,14 +2,14 @@ import 'dart:collection';
 
 /// Query parameters defining Sparse Fieldsets
 /// @see https://jsonapi.org/format/#fetching-sparse-fieldsets
-class Fields with MapMixin<String, List<String>> {
+class Fields with MapMixin<String, Iterable<String>> {
   /// The [fields] argument maps the resource type to a list of fields.
   ///
   /// Example:
   /// ```dart
   /// Fields({'articles': ['title', 'body'], 'people': ['name']});
   /// ```
-  Fields([Map<String, List<String>> fields = const {}]) {
+  Fields([Map<String, Iterable<String>> fields = const {}]) {
     addAll(fields);
   }
 
@@ -29,7 +29,7 @@ class Fields with MapMixin<String, List<String>> {
       _map.map((k, v) => MapEntry('fields[$k]', v.join(',')));
 
   @override
-  void operator []=(String key, List<String> value) => _map[key] = value;
+  void operator []=(String key, Iterable<String> value) => _map[key] = value;
 
   @override
   void clear() => _map.clear();

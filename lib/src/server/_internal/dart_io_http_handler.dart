@@ -24,8 +24,8 @@ class DartIOHttpHandler {
 
   Future<HttpRequest> _convertRequest(io.HttpRequest ioRequest) async =>
       HttpRequest(ioRequest.method, ioRequest.requestedUri,
-          body: await _readBody(ioRequest),
-          headers: _convertHeaders(ioRequest.headers));
+          body: await _readBody(ioRequest))
+        ..headers.addAll(_convertHeaders(ioRequest.headers));
 
   Future<String> _readBody(io.HttpRequest ioRequest) =>
       ioRequest.cast<List<int>>().transform(utf8.decoder).join();

@@ -3,10 +3,7 @@ import 'package:json_api/src/http/media_type.dart';
 
 /// The response sent by the server and received by the client
 class HttpResponse {
-  HttpResponse(this.statusCode,
-      {this.body = '', Map<String, String> headers = const {}}) {
-    this.headers.addAll(headers);
-  }
+  HttpResponse(this.statusCode, {this.body = ''});
 
   /// Response status code
   final int statusCode;

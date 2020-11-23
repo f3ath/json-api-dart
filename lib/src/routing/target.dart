@@ -1,11 +1,11 @@
-import 'package:json_api/src/routing/_reference.dart';
+import 'package:json_api/src/routing/reference.dart';
 
 /// A request target
 abstract class Target {
   /// Targeted resource type
   String get type;
 
-  T map<T>(TargetMapper<T> mapper) => mapper.collection(this);
+  T map<T>(TargetMapper<T> mapper);
 }
 
 abstract class TargetMapper<T> {

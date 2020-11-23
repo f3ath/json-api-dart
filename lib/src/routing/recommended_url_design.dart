@@ -6,8 +6,6 @@ import 'package:json_api/src/routing/target_matcher.dart';
 class RecommendedUrlDesign implements UriFactory, TargetMatcher {
   /// Creates an instance of RecommendedUrlDesign.
   /// The [base] URI will be used as a prefix for the generated URIs.
-  ///
-  /// To generate URIs without a hostname, pass `Uri(path: '/')` as [base].
   const RecommendedUrlDesign(this.base);
 
   /// A "path only" version of the recommended URL design, e.g.
