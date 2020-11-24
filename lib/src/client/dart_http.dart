@@ -1,8 +1,9 @@
 import 'package:http/http.dart';
+import 'package:json_api/handler.dart';
 import 'package:json_api/http.dart';
 
 /// A handler using the built-in http client
-class DartHttp implements HttpHandler {
+class DartHttp implements Handler<HttpRequest, HttpResponse> {
   /// Creates an instance of [DartHttp].
   /// If [client] is passed, it will be used to keep a persistent connection.
   /// In this case it is your responsibility to call [Client.close].

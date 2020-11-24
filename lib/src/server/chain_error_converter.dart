@@ -1,19 +1,20 @@
-import 'package:json_api/src/http/http_response.dart';
-import 'package:json_api/src/server/error_converter.dart';
+import 'package:json_api/handler.dart';
 
-class ChainErrorConverter implements ErrorConverter {
-  ChainErrorConverter(Iterable<ErrorConverter> chain) {
+class ChainErrorConverter<E, Rs> implements Handler<E, Rs> {
+  ChainErrorConverter(
+      Iterable<Handler<E, Rs /*?*/ >> chain, this._defaultResponse) {
     _chain.addAll(chain);
   }
 
-  final _chain = <ErrorConverter>[];
+  final _chain = <Handler<E, Rs /*?*/ >>[];
+  final Future<Rs> Function() _defaultResponse;
 
   @override
-  Future<HttpResponse /*?*/ > convert(Object error) async {
+  Future<Rs> call(E error) async {
     for (final h in _chain) {
-      final r = await h.convert(error);
+      final r = await h.call(error);
       if (r != null) return r;
     }
-    return null;
+    return await _defaultResponse();
   }
 }

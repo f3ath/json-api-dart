@@ -3,7 +3,7 @@ import 'package:json_api/routing.dart';
 import 'package:stream_channel/stream_channel.dart';
 import 'package:test/test.dart';
 
-import '../shared.dart';
+import 'shared.dart';
 
 
 void main() {

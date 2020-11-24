@@ -1,22 +1,24 @@
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
+import 'package:json_api/handler.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/src/client/collection_response.dart';
-import 'package:json_api/src/client/new_resource_response.dart';
-import 'package:json_api/src/client/relationship_response.dart';
 import 'package:json_api/src/client/request.dart';
-import 'package:json_api/src/client/request_failure.dart';
-import 'package:json_api/src/client/resource_response.dart';
-import 'package:json_api/src/client/response.dart';
+import 'package:json_api/src/client/response/collection_response.dart';
+import 'package:json_api/src/client/response/new_resource_response.dart';
+import 'package:json_api/src/client/response/relationship_response.dart';
+import 'package:json_api/src/client/response/request_failure.dart';
+import 'package:json_api/src/client/response/resource_response.dart';
+import 'package:json_api/src/client/response/response.dart';
 
 /// The JSON:API client
 class JsonApiClient {
-  JsonApiClient(this._uriFactory, {HttpHandler httpHandler})
+  JsonApiClient(this._uriFactory,
+      {Handler<HttpRequest, HttpResponse> httpHandler})
       : _http = httpHandler ?? DartHttp();
 
-  final HttpHandler _http;
+  final Handler<HttpRequest, HttpResponse> _http;
   final UriFactory _uriFactory;
 
   /// Adds [identifiers] to a to-many relationship
@@ -306,9 +308,9 @@ class JsonApiClient {
 
     if (response.isFailed) {
       throw RequestFailure(response,
-          document: response.hasDocument
-              ? InboundDocument.decode(response.body)
-              : null);
+          errors: response.hasDocument
+              ? InboundDocument.decode(response.body).errors
+              : []);
     }
     return response;
   }

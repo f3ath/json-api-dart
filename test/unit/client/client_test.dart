@@ -2,13 +2,14 @@ import 'dart:convert';
 
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
+import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/test/mock_handler.dart';
 import 'package:json_api/src/test/response.dart' as mock;
 import 'package:test/test.dart';
 
 void main() {
-  final http = MockHandler();
+  final http = MockHandler<HttpRequest, HttpResponse>();
   final client =
       JsonApiClient(RecommendedUrlDesign(Uri(path: '/')), httpHandler: http);
 
@@ -20,8 +21,8 @@ void main() {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 422);
-        expect(e.document.errors.first.status, '422');
-        expect(e.document.errors.first.title, 'Invalid Attribute');
+        expect(e.errors.first.status, '422');
+        expect(e.errors.first.title, 'Invalid Attribute');
       }
     });
     test('ServerError', () async {
@@ -193,7 +194,7 @@ void main() {
     test('Missing resource', () async {
       http.response = mock.relatedResourceNull;
       final response =
-      await client.fetchRelatedResource('articles', '1', 'author');
+          await client.fetchRelatedResource('articles', '1', 'author');
       expect(response.resource, isNull);
       expect(response.included, isEmpty);
       expect(http.request.method, 'get');
@@ -493,7 +494,7 @@ void main() {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 422);
-        expect(e.document.errors.first.status, '422');
+        expect(e.errors.first.status, '422');
       }
     });
 
@@ -544,7 +545,7 @@ void main() {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 422);
-        expect(e.document.errors.first.status, '422');
+        expect(e.errors.first.status, '422');
       }
     });
 
@@ -602,7 +603,7 @@ void main() {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 422);
-        expect(e.document.errors.first.status, '422');
+        expect(e.errors.first.status, '422');
       }
     });
 
@@ -662,7 +663,7 @@ void main() {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 422);
-        expect(e.document.errors.first.status, '422');
+        expect(e.errors.first.status, '422');
       }
     });
 
@@ -722,7 +723,7 @@ void main() {
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 422);
-        expect(e.document.errors.first.status, '422');
+        expect(e.errors.first.status, '422');
         expect(e.toString(), 'JSON:API request failed with HTTP status 422');
       }
     });

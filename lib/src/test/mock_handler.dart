@@ -1,11 +1,11 @@
-import 'package:json_api/http.dart';
+import 'package:json_api/handler.dart';
 
-class MockHandler implements HttpHandler {
-  HttpResponse /*?*/ response;
-  HttpRequest /*?*/ request;
+class MockHandler<Rq, Rs> implements Handler<Rq, Rs> {
+  Rq /*?*/ request;
+  Rs /*?*/ response;
 
   @override
-  Future<HttpResponse> call(HttpRequest request) async {
+  Future<Rs> call(Rq request) async {
     this.request = request;
     return response;
   }

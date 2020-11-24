@@ -1,4 +1,5 @@
 import 'package:json_api/client.dart';
+import 'package:json_api/handler.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:test/test.dart';
@@ -7,7 +8,7 @@ import 'package:uuid/uuid.dart';
 import 'shared.dart';
 
 void main() {
-  HttpHandler server;
+  Handler<HttpRequest, HttpResponse> server;
   JsonApiClient client;
 
   setUp(() async {

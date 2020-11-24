@@ -3,11 +3,15 @@ import 'package:json_api/http.dart';
 
 /// Thrown when the server returns a non-successful response.
 class RequestFailure implements Exception {
-  RequestFailure(this.http, {this.document});
+  RequestFailure(this.http, {Iterable<ErrorObject> errors}) {
+    this.errors.addAll(errors);
+  }
 
   /// The response itself.
   final HttpResponse http;
-  final InboundDocument /*?*/ document;
+
+  /// JSON:API errors (if any)
+  final errors = <ErrorObject>[];
 
   @override
   String toString() =>

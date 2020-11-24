@@ -1,13 +1,13 @@
-import 'package:json_api/src/http/http_response.dart';
+import 'package:json_api/handler.dart';
 import 'package:json_api/src/server/_internal/repo.dart';
-import 'package:json_api/src/server/error_converter.dart';
-import 'package:json_api/src/server/response.dart';
+import 'package:json_api/src/server/json_api_response.dart';
 
-class RepositoryErrorConverter implements ErrorConverter {
+class RepositoryErrorConverter
+    implements Handler<Object, JsonApiResponse /*?*/ > {
   @override
-  Future<HttpResponse /*?*/ > convert(Object error) async {
+  Future<JsonApiResponse /*?*/ > call(Object error) async {
     if (error is CollectionNotFound) {
-      return Response.notFound();
+      return JsonApiResponse.notFound();
     }
     return null;
   }

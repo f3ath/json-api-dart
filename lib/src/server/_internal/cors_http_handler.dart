@@ -1,18 +1,18 @@
+import 'package:json_api/handler.dart';
 import 'package:json_api/http.dart';
 
-class CorsHandler implements HttpHandler {
-  CorsHandler(this.wrapped, {this.origin = '*'});
+/// An [HttpHandler] wrapper. Adds CORS headers and handles pre-flight requests.
+class CorsHttpHandler implements Handler<HttpRequest, HttpResponse> {
+  CorsHttpHandler(this._wrapped);
 
-  final String origin;
-
-  final HttpHandler wrapped;
+  final Handler<HttpRequest, HttpResponse> _wrapped;
 
   @override
   Future<HttpResponse> call(HttpRequest request) async {
-    if (request.method == 'options') {
+    if (request.isOptions) {
       return HttpResponse(204)
         ..headers.addAll({
-          'Access-Control-Allow-Origin': request.headers['origin'] ?? origin,
+          'Access-Control-Allow-Origin': request.headers['origin'] ?? '*',
           'Access-Control-Allow-Methods':
               // TODO: Chrome works only with uppercase, but Firefox - only without. WTF?
               request.headers['Access-Control-Request-Method'].toUpperCase(),
@@ -20,8 +20,8 @@ class CorsHandler implements HttpHandler {
               request.headers['Access-Control-Request-Headers'] ?? '*',
         });
     }
-    return await wrapped(request)
+    return await _wrapped(request)
       ..headers['Access-Control-Allow-Origin'] =
-          request.headers['origin'] ?? origin;
+          request.headers['origin'] ?? '*';
   }
 }

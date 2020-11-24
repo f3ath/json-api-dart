@@ -6,9 +6,9 @@ import 'package:json_api/src/nullable.dart';
 import 'package:json_api/src/server/_internal/relationship_node.dart';
 import 'package:json_api/src/server/_internal/repo.dart';
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/response.dart';
+import 'package:json_api/src/server/json_api_response.dart';
 
-class RepositoryController implements Controller {
+class RepositoryController implements Controller<JsonApiResponse> {
   RepositoryController(this.repo, this.getId);
 
   final Repo repo;
@@ -18,7 +18,7 @@ class RepositoryController implements Controller {
   final urlDesign = RecommendedUrlDesign.pathOnly;
 
   @override
-  Future<HttpResponse> fetchCollection(
+  Future<JsonApiResponse> fetchCollection(
       HttpRequest request, CollectionTarget target) async {
     final resources = await _fetchAll(target.type).toList();
     final doc = OutboundDataDocument.collection(resources)
@@ -29,69 +29,69 @@ class RepositoryController implements Controller {
         doc.included.add(r);
       }
     }
-    return Response.ok(doc);
+    return JsonApiResponse.ok(doc);
   }
 
   @override
-  Future<HttpResponse> fetchResource(
+  Future<JsonApiResponse> fetchResource(
       HttpRequest request, ResourceTarget target) async {
     final resource = await _fetchLinkedResource(target.type, target.id);
-    if (resource == null) return Response.notFound();
+    if (resource == null) return JsonApiResponse.notFound();
     final doc = OutboundDataDocument.resource(resource)
       ..links['self'] = Link(target.map(urlDesign));
     final forest = RelationshipNode.forest(Include.fromUri(request.uri));
     await for (final r in _getAllRelated(resource, forest)) {
       doc.included.add(r);
     }
-    return Response.ok(doc);
+    return JsonApiResponse.ok(doc);
   }
 
   @override
-  Future<HttpResponse> createResource(
+  Future<JsonApiResponse> createResource(
       HttpRequest request, CollectionTarget target) async {
     final res = _decode(request).newResource();
     final id = res.id ?? getId();
     await repo.persist(res.type, id, _toModel(res));
     if (res.id != null) {
-      return Response.noContent();
+      return JsonApiResponse.noContent();
     }
     final self = Link(ResourceTarget(target.type, id).map(urlDesign));
     final resource = await _fetchResource(target.type, id)
       ..links['self'] = self;
-    return Response.created(
+    return JsonApiResponse.created(
         OutboundDataDocument.resource(resource)..links['self'] = self,
         self.uri.toString());
   }
 
   @override
-  Future<HttpResponse> addMany(
+  Future<JsonApiResponse> addMany(
       HttpRequest request, RelationshipTarget target) async {
     final many = _decode(request).dataAsRelationship<Many>();
     final refs = await repo
         .addMany(
             target.type, target.id, target.relationship, many.map((_) => _.key))
         .toList();
-    return Response.ok(
+    return JsonApiResponse.ok(
         OutboundDataDocument.many(Many(refs.map(Identifier.fromKey))));
   }
 
   @override
-  Future<HttpResponse> deleteResource(
+  Future<JsonApiResponse> deleteResource(
       HttpRequest request, ResourceTarget target) async {
     await repo.delete(target.type, target.id);
-    return Response.noContent();
+    return JsonApiResponse.noContent();
   }
 
   @override
-  Future<HttpResponse> updateResource(
+  Future<JsonApiResponse> updateResource(
       HttpRequest request, ResourceTarget target) async {
     await repo.update(
         target.type, target.id, _toModel(_decode(request).resource()));
-    return Response.noContent();
+    return JsonApiResponse.noContent();
   }
 
   @override
-  Future<HttpResponse> replaceRelationship(
+  Future<JsonApiResponse> replaceRelationship(
       HttpRequest request, RelationshipTarget target) async {
     final rel = _decode(request).dataAsRelationship();
     if (rel is One) {
@@ -102,7 +102,7 @@ class RepositoryController implements Controller {
         await repo.replaceOne(
             target.type, target.id, target.relationship, id.key);
       }
-      return Response.ok(OutboundDataDocument.one(One(id)));
+      return JsonApiResponse.ok(OutboundDataDocument.one(One(id)));
     }
     if (rel is Many) {
       final ids = await repo
@@ -110,13 +110,13 @@ class RepositoryController implements Controller {
               rel.map((_) => _.key))
           .map(Identifier.fromKey)
           .toList();
-      return Response.ok(OutboundDataDocument.many(Many(ids)));
+      return JsonApiResponse.ok(OutboundDataDocument.many(Many(ids)));
     }
     throw FormatException('Incomplete relationship');
   }
 
   @override
-  Future<HttpResponse> deleteMany(
+  Future<JsonApiResponse> deleteMany(
       HttpRequest request, RelationshipTarget target) async {
     final rel = _decode(request).dataAsRelationship<Many>();
     final ids = await repo
@@ -124,42 +124,42 @@ class RepositoryController implements Controller {
             target.type, target.id, target.relationship, rel.map((_) => _.key))
         .map(Identifier.fromKey)
         .toList();
-    return Response.ok(OutboundDataDocument.many(Many(ids)));
+    return JsonApiResponse.ok(OutboundDataDocument.many(Many(ids)));
   }
 
   @override
-  Future<HttpResponse> fetchRelationship(
+  Future<JsonApiResponse> fetchRelationship(
       HttpRequest request, RelationshipTarget target) async {
     final model = await repo.fetch(target.type, target.id);
     if (model.one.containsKey(target.relationship)) {
       final doc = OutboundDataDocument.one(
           One(nullable(Identifier.fromKey)(model.one[target.relationship])));
-      return Response.ok(doc);
+      return JsonApiResponse.ok(doc);
     }
     if (model.many.containsKey(target.relationship)) {
       final doc = OutboundDataDocument.many(
           Many(model.many[target.relationship].map(Identifier.fromKey)));
-      return Response.ok(doc);
+      return JsonApiResponse.ok(doc);
     }
     // TODO: implement fetchRelationship
     throw UnimplementedError();
   }
 
   @override
-  Future<HttpResponse> fetchRelated(
+  Future<JsonApiResponse> fetchRelated(
       HttpRequest request, RelatedTarget target) async {
     final model = await repo.fetch(target.type, target.id);
     if (model.one.containsKey(target.relationship)) {
       final related =
           await _fetchRelatedResource(model.one[target.relationship]);
       final doc = OutboundDataDocument.resource(related);
-      return Response.ok(doc);
+      return JsonApiResponse.ok(doc);
     }
     if (model.many.containsKey(target.relationship)) {
       final doc = OutboundDataDocument.collection(
           await _fetchRelatedCollection(model.many[target.relationship])
               .toList());
-      return Response.ok(doc);
+      return JsonApiResponse.ok(doc);
     }
     // TODO: implement fetchRelated
     throw UnimplementedError();
