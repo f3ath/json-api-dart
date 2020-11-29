@@ -1,6 +1,6 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
-import 'package:json_api/src/client/identity_collection.dart';
+import 'package:json_api/src/client/collection.dart';
 
 /// A response to a fetch collection request.
 ///
@@ -9,9 +9,9 @@ class CollectionResponse {
   CollectionResponse(this.http,
       {Iterable<Resource> collection = const [],
       Iterable<Resource> included = const [],
-      Map<String, Link> links = const {}})
-      : collection = IdentityCollection(collection),
-        included = IdentityCollection(included) {
+      Map<String, Link> links = const {}}) {
+    this.collection.addAll(collection);
+    this.included.addAll(included);
     this.links.addAll(links);
   }
 
@@ -28,10 +28,10 @@ class CollectionResponse {
   final HttpResponse http;
 
   /// The resource collection fetched from the server
-  final IdentityCollection<Resource> collection;
+  final collection = ResourceCollection();
 
   /// Included resources
-  final IdentityCollection<Resource> included;
+  final included = ResourceCollection();
 
   /// Links to iterate the collection
   final links = <String, Link>{};

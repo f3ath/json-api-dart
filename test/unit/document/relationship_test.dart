@@ -1,38 +1,39 @@
+import 'package:json_api/core.dart';
 import 'package:json_api/document.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final a = Identifier('apples', 'a');
-  final b = Identifier('apples', 'b');
+  final a = Identifier(Ref('apples', 'a'));
+  final b = Identifier(Ref('apples', 'b'));
   group('Relationship', () {
     test('one', () {
-      expect(One(a).identifier, a);
-      expect([...One(a)].first, a);
+      expect(ToOne(a).identifier, a);
+      expect([...ToOne(a)].first, a);
 
-      expect(One.empty().identifier, isNull);
-      expect([...One.empty()], isEmpty);
+      expect(ToOne.empty().identifier, isNull);
+      expect([...ToOne.empty()], isEmpty);
     });
 
     test('many', () {
-      expect(Many([]), isEmpty);
-      expect([...Many([])], isEmpty);
+      expect(ToMany([]), isEmpty);
+      expect([...ToMany([])], isEmpty);
 
-      expect(Many([a]), isNotEmpty);
+      expect(ToMany([a]), isNotEmpty);
       expect(
           [
-            ...Many([a])
+            ...ToMany([a])
           ].first,
           a);
 
-      expect(Many([a, b]), isNotEmpty);
+      expect(ToMany([a, b]), isNotEmpty);
       expect(
           [
-            ...Many([a, b])
+            ...ToMany([a, b])
           ].first,
           a);
       expect(
           [
-            ...Many([a, b])
+            ...ToMany([a, b])
           ].last,
           b);
     });

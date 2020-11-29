@@ -1,3 +1,4 @@
+import 'package:json_api/core.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/routing/target_matcher.dart';
 
@@ -22,15 +23,16 @@ class RecommendedUrlDesign implements UriFactory, TargetMatcher {
   /// Returns a URL for the primary resource of type [type] with id [id].
   /// E.g. `/books/123`.
   @override
-  Uri resource(ResourceTarget target) => _resolve([target.type, target.id]);
+  Uri resource(ResourceTarget target) =>
+      _resolve([target.ref.type, target.ref.id]);
 
   /// Returns a URL for the relationship itself.
   /// The [type] and [id] identify the primary resource and the [relationship]
   /// is the relationship name.
   /// E.g. `/books/123/relationships/authors`.
   @override
-  Uri relationship(RelationshipTarget target) =>
-      _resolve([target.type, target.id, 'relationships', target.relationship]);
+  Uri relationship(RelationshipTarget target) => _resolve(
+      [target.ref.type, target.ref.id, 'relationships', target.relationship]);
 
   /// Returns a URL for the related resource or collection.
   /// The [type] and [id] identify the primary resource and the [relationship]
@@ -38,22 +40,22 @@ class RecommendedUrlDesign implements UriFactory, TargetMatcher {
   /// E.g. `/books/123/authors`.
   @override
   Uri related(RelatedTarget target) =>
-      _resolve([target.type, target.id, target.relationship]);
+      _resolve([target.ref.type, target.ref.id, target.relationship]);
 
   @override
-  Target /*?*/ match(Uri uri) {
+  Target? match(Uri uri) {
     final s = uri.pathSegments;
     if (s.length == 1) {
       return CollectionTarget(s.first);
     }
     if (s.length == 2) {
-      return ResourceTarget(s.first, s.last);
+      return ResourceTarget(Ref(s.first, s.last));
     }
     if (s.length == 3) {
-      return RelatedTarget(s.first, s[1], s.last);
+      return RelatedTarget(Ref(s.first, s[1]), s.last);
     }
     if (s.length == 4 && s[2] == 'relationships') {
-      return RelationshipTarget(s.first, s[1], s.last);
+      return RelationshipTarget(Ref(s.first, s[1]), s.last);
     }
     return null;
   }

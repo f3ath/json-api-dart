@@ -1,13 +1,13 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
-import 'package:json_api/src/client/identity_collection.dart';
+import 'package:json_api/src/client/collection.dart';
 
 /// A response to a new resource creation request.
 class NewResourceResponse {
   NewResourceResponse(this.http, this.resource,
       {Map<String, Link> links = const {},
-      Iterable<Resource> included = const []})
-      : included = IdentityCollection(included) {
+      Iterable<Resource> included = const []}) {
+    this.included.addAll(included);
     this.links.addAll(links);
   }
 
@@ -20,11 +20,11 @@ class NewResourceResponse {
   /// Original HTTP response.
   final HttpResponse http;
 
-  /// Nullable. Created resource.
-  final Resource /*?*/ resource;
+  /// Created resource.
+  final Resource resource;
 
   /// Included resources.
-  final IdentityCollection<Resource> included;
+  final included = ResourceCollection();
 
   /// Document links.
   final links = <String, Link>{};

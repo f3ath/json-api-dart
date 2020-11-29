@@ -1,3 +1,4 @@
+import 'package:json_api/core.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
@@ -35,8 +36,7 @@ class RepositoryController implements Controller<JsonApiResponse> {
   @override
   Future<JsonApiResponse> fetchResource(
       HttpRequest request, ResourceTarget target) async {
-    final resource = await _fetchLinkedResource(target.type, target.id);
-    if (resource == null) return JsonApiResponse.notFound();
+    final resource = await _fetchLinkedResource(target.ref);
     final doc = OutboundDataDocument.resource(resource)
       ..links['self'] = Link(target.map(urlDesign));
     final forest = RelationshipNode.forest(Include.fromUri(request.uri));
@@ -50,14 +50,13 @@ class RepositoryController implements Controller<JsonApiResponse> {
   Future<JsonApiResponse> createResource(
       HttpRequest request, CollectionTarget target) async {
     final res = _decode(request).newResource();
-    final id = res.id ?? getId();
-    await repo.persist(res.type, id, _toModel(res));
+    final ref = Ref(res.type, res.id ?? getId());
+    await repo.persist(Model(ref)..setFrom(res.toModelProps()));
     if (res.id != null) {
       return JsonApiResponse.noContent();
     }
-    final self = Link(ResourceTarget(target.type, id).map(urlDesign));
-    final resource = await _fetchResource(target.type, id)
-      ..links['self'] = self;
+    final self = Link(ResourceTarget(ref).map(urlDesign));
+    final resource = (await _fetchResource(ref))..links['self'] = self;
     return JsonApiResponse.created(
         OutboundDataDocument.resource(resource)..links['self'] = self,
         self.uri.toString());
@@ -66,27 +65,25 @@ class RepositoryController implements Controller<JsonApiResponse> {
   @override
   Future<JsonApiResponse> addMany(
       HttpRequest request, RelationshipTarget target) async {
-    final many = _decode(request).dataAsRelationship<Many>();
+    final many = _decode(request).dataAsRelationship<ToMany>();
     final refs = await repo
-        .addMany(
-            target.type, target.id, target.relationship, many.map((_) => _.key))
+        .addMany(target.ref, target.relationship, many.map((_) => _.ref))
         .toList();
     return JsonApiResponse.ok(
-        OutboundDataDocument.many(Many(refs.map(Identifier.fromKey))));
+        OutboundDataDocument.many(ToMany(refs.map(_toIdentifier))));
   }
 
   @override
   Future<JsonApiResponse> deleteResource(
       HttpRequest request, ResourceTarget target) async {
-    await repo.delete(target.type, target.id);
+    await repo.delete(target.ref);
     return JsonApiResponse.noContent();
   }
 
   @override
   Future<JsonApiResponse> updateResource(
       HttpRequest request, ResourceTarget target) async {
-    await repo.update(
-        target.type, target.id, _toModel(_decode(request).resource()));
+    await repo.update(target.ref, _decode(request).resource().toModelProps());
     return JsonApiResponse.noContent();
   }
 
@@ -94,23 +91,18 @@ class RepositoryController implements Controller<JsonApiResponse> {
   Future<JsonApiResponse> replaceRelationship(
       HttpRequest request, RelationshipTarget target) async {
     final rel = _decode(request).dataAsRelationship();
-    if (rel is One) {
-      final id = rel.identifier;
-      if (id == null) {
-        await repo.deleteOne(target.type, target.id, target.relationship);
-      } else {
-        await repo.replaceOne(
-            target.type, target.id, target.relationship, id.key);
-      }
-      return JsonApiResponse.ok(OutboundDataDocument.one(One(id)));
+    if (rel is ToOne) {
+      final ref = rel.identifier?.ref;
+      await repo.replaceOne(target.ref, target.relationship, ref);
+      return JsonApiResponse.ok(OutboundDataDocument.one(
+          ref == null ? ToOne.empty() : ToOne(Identifier(ref))));
     }
-    if (rel is Many) {
+    if (rel is ToMany) {
       final ids = await repo
-          .replaceMany(target.type, target.id, target.relationship,
-              rel.map((_) => _.key))
-          .map(Identifier.fromKey)
+          .replaceMany(target.ref, target.relationship, rel.map((_) => _.ref))
+          .map(_toIdentifier)
           .toList();
-      return JsonApiResponse.ok(OutboundDataDocument.many(Many(ids)));
+      return JsonApiResponse.ok(OutboundDataDocument.many(ToMany(ids)));
     }
     throw FormatException('Incomplete relationship');
   }
@@ -118,27 +110,26 @@ class RepositoryController implements Controller<JsonApiResponse> {
   @override
   Future<JsonApiResponse> deleteMany(
       HttpRequest request, RelationshipTarget target) async {
-    final rel = _decode(request).dataAsRelationship<Many>();
+    final rel = _decode(request).dataAsRelationship<ToMany>();
     final ids = await repo
-        .deleteMany(
-            target.type, target.id, target.relationship, rel.map((_) => _.key))
-        .map(Identifier.fromKey)
+        .deleteMany(target.ref, target.relationship, rel.map((_) => _.ref))
+        .map(_toIdentifier)
         .toList();
-    return JsonApiResponse.ok(OutboundDataDocument.many(Many(ids)));
+    return JsonApiResponse.ok(OutboundDataDocument.many(ToMany(ids)));
   }
 
   @override
   Future<JsonApiResponse> fetchRelationship(
       HttpRequest request, RelationshipTarget target) async {
-    final model = await repo.fetch(target.type, target.id);
+    final model = (await repo.fetch(target.ref));
+
     if (model.one.containsKey(target.relationship)) {
-      final doc = OutboundDataDocument.one(
-          One(nullable(Identifier.fromKey)(model.one[target.relationship])));
-      return JsonApiResponse.ok(doc);
+      return JsonApiResponse.ok(OutboundDataDocument.one(
+          ToOne(nullable(_toIdentifier)(model.one[target.relationship]))));
     }
-    if (model.many.containsKey(target.relationship)) {
-      final doc = OutboundDataDocument.many(
-          Many(model.many[target.relationship].map(Identifier.fromKey)));
+    final many = model.many[target.relationship];
+    if (many != null) {
+      final doc = OutboundDataDocument.many(ToMany(many.map(_toIdentifier)));
       return JsonApiResponse.ok(doc);
     }
     // TODO: implement fetchRelationship
@@ -148,22 +139,24 @@ class RepositoryController implements Controller<JsonApiResponse> {
   @override
   Future<JsonApiResponse> fetchRelated(
       HttpRequest request, RelatedTarget target) async {
-    final model = await repo.fetch(target.type, target.id);
+    final model = await repo.fetch(target.ref);
     if (model.one.containsKey(target.relationship)) {
       final related =
-          await _fetchRelatedResource(model.one[target.relationship]);
+          await nullable(_fetchRelatedResource)(model.one[target.relationship]);
       final doc = OutboundDataDocument.resource(related);
       return JsonApiResponse.ok(doc);
     }
-    if (model.many.containsKey(target.relationship)) {
+    final many = model.many[target.relationship];
+    if (many != null) {
       final doc = OutboundDataDocument.collection(
-          await _fetchRelatedCollection(model.many[target.relationship])
-              .toList());
+          await _fetchRelatedCollection(many).toList());
       return JsonApiResponse.ok(doc);
     }
     // TODO: implement fetchRelated
     throw UnimplementedError();
   }
+
+  Identifier _toIdentifier(Ref ref) => Identifier(ref);
 
   /// Returns a stream of related resources recursively
   Stream<Resource> _getAllRelated(
@@ -178,68 +171,51 @@ class RepositoryController implements Controller<JsonApiResponse> {
 
   /// Returns a stream of related resources
   Stream<Resource> _getRelated(Resource resource, String relationship) async* {
-    for (final _ in resource.relationships[relationship]) {
-      final r = await _fetchLinkedResource(_.type, _.id);
-      if (r != null) yield r;
+    for (final _ in resource.relationships[relationship] ??
+        (throw RelationshipNotFound(relationship))) {
+      yield await _fetchLinkedResource(_.ref);
     }
   }
 
   /// Fetches and builds a resource object with a "self" link
-  Future<Resource /*?*/ > _fetchLinkedResource(String type, String id) async {
-    final r = await _fetchResource(type, id);
-    if (r == null) return null;
-    return r..links['self'] = Link(ResourceTarget(type, id).map(urlDesign));
+  Future<Resource> _fetchLinkedResource(Ref ref) async {
+    return (await _fetchResource(ref))
+      ..links['self'] = Link(ResourceTarget(ref).map(urlDesign));
   }
 
   Stream<Resource> _fetchAll(String type) =>
-      repo.fetchCollection(type).map((e) => _toResource(e.id, type, e.model));
+      repo.fetchCollection(type).map(_toResource);
 
   /// Fetches and builds a resource object
-  Future<Resource /*?*/ > _fetchResource(String type, String id) async {
-    final model = await repo.fetch(type, id);
-    if (model == null) return null;
-    return _toResource(id, type, model);
+  Future<Resource> _fetchResource(ref) async {
+    return _toResource(await repo.fetch(ref));
   }
 
-  Future<Resource /*?*/ > _fetchRelatedResource(String key) {
-    final id = Identifier.fromKey(key);
-    return _fetchLinkedResource(id.type, id.id);
+  Future<Resource?> _fetchRelatedResource(Ref ref) {
+    final id = Identifier(ref);
+    return _fetchLinkedResource(ref);
   }
 
-  Stream<Resource> _fetchRelatedCollection(Iterable<String> keys) async* {
-    for (final key in keys) {
-      yield await _fetchRelatedResource(key);
+  Stream<Resource> _fetchRelatedCollection(Iterable<Ref> refs) async* {
+    for (final ref in refs) {
+      final r = await _fetchRelatedResource(ref);
+      if (r != null) yield r;
     }
   }
 
-  Resource _toResource(String id, String type, Model model) {
-    final res = Resource(type, id);
+  Resource _toResource(Model model) {
+    final res = Resource(model.ref);
     model.attributes.forEach((key, value) {
       res.attributes[key] = value;
     });
     model.one.forEach((key, value) {
-      res.relationships[key] = One(nullable(Identifier.fromKey)(value));
+      res.relationships[key] =
+          (value == null ? ToOne.empty() : ToOne(Identifier(value)));
     });
     model.many.forEach((key, value) {
-      res.relationships[key] = Many(value.map((Identifier.fromKey)));
+      res.relationships[key] = ToMany(value.map(_toIdentifier));
     });
     return res;
-  }
-
-  Model _toModel(ResourceProperties r) {
-    final model = Model();
-    r.attributes.forEach((key, value) {
-      model.attributes[key] = value;
-    });
-    r.relationships.forEach((key, value) {
-      if (value is One) {
-        model.one[key] = value?.identifier?.key;
-      }
-      if (value is Many) {
-        model.many[key] = Set.from(value.map((_) => _.key));
-      }
-    });
-    return model;
   }
 
   InboundDocument _decode(HttpRequest r) => InboundDocument.decode(r.body);

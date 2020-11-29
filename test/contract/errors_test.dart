@@ -1,27 +1,26 @@
 import 'package:json_api/client.dart';
-import 'package:json_api/handler.dart';
+import 'package:json_api/core.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:test/test.dart';
 
-import 'shared.dart';
+import '../src/demo_handler.dart';
 
 void main() {
-  Handler<HttpRequest, HttpResponse> server;
-  JsonApiClient client;
+  late JsonApiClient client;
 
   setUp(() async {
-    server = initServer();
-    client = JsonApiClient(RecommendedUrlDesign.pathOnly, httpHandler: server);
+    client = JsonApiClient(DemoHandler(), RecommendedUrlDesign.pathOnly);
   });
 
   group('Errors', () {
     test('Method not allowed', () async {
+      final ref = Ref('posts', '1');
       final badRequests = [
         Request('delete', CollectionTarget('posts')),
-        Request('post', ResourceTarget('posts', '1')),
-        Request('post', RelatedTarget('posts', '1', 'author')),
-        Request('head', RelationshipTarget('posts', '1', 'author')),
+        Request('post', ResourceTarget(ref)),
+        Request('post', RelatedTarget(ref, 'author')),
+        Request('head', RelationshipTarget(ref, 'author')),
       ];
       for (final request in badRequests) {
         try {
@@ -33,14 +32,9 @@ void main() {
       }
     });
     test('Bad request when target can not be matched', () async {
-      try {
-        await JsonApiClient(RecommendedUrlDesign(Uri.parse('/a/long/prefix/')),
-                httpHandler: server)
-            .fetchCollection('posts');
-        fail('Exception expected');
-      } on RequestFailure catch (e) {
-        expect(e.http.statusCode, 400);
-      }
+      final r = await DemoHandler()
+          .call(HttpRequest('get', Uri.parse('/a/long/prefix/')));
+      expect(r.statusCode, 400);
     });
     test('404', () async {
       final actions = <Future Function()>[

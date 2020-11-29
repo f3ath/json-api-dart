@@ -1,3 +1,5 @@
+import 'package:json_api/core.dart';
+
 import 'repo.dart';
 
 class InMemoryRepo implements Repo {
@@ -10,67 +12,62 @@ class InMemoryRepo implements Repo {
   final _storage = <String, Map<String, Model>>{};
 
   @override
-  Stream<Entity<Model>> fetchCollection(String type) async* {
-    if (!_storage.containsKey(type)) {
-      throw CollectionNotFound();
-    }
-    for (final e in _storage[type].entries) {
-      yield Entity(e.key, e.value);
-    }
+  Stream<Model> fetchCollection(String type) {
+    return Stream.fromIterable(_collection(type).values);
   }
 
   @override
-  Future<Model /*?*/ > fetch(String type, String id) async {
-    return _storage[type][id];
+  Future<Model> fetch(Ref ref) async {
+    return _model(ref);
   }
 
   @override
-  Future<void> persist(String type, String id, Model model) async {
-    _storage[type][id] = model;
+  Future<void> persist(Model model) async {
+    _collection(model.ref.type)[model.ref.id] = model;
   }
 
   @override
-  Stream<String> addMany(
-      String type, String id, String rel, Iterable<String> refs) {
-    final model = _storage[type][id];
-    model.addMany(rel, refs);
-    return Stream.fromIterable(model.many[rel]);
+  Stream<Ref> addMany(Ref ref, String rel, Iterable<Ref> refs) {
+    final model = _model(ref);
+    final many = model.many[rel];
+    if (many == null) throw RelationshipNotFound(rel);
+    many.addAll(refs);
+    return Stream.fromIterable(many);
   }
 
   @override
-  Future<void> delete(String type, String id) async {
-    _storage[type].remove(id);
+  Future<void> delete(Ref ref) async {
+    _collection(ref.type).remove(ref.id);
   }
 
   @override
-  Future<void> update(String type, String id, Model model) async {
-    _storage[type][id].setFrom(model);
+  Future<void> update(Ref ref, ModelProps props) async {
+    _model(ref).setFrom(props);
   }
 
   @override
-  Future<void> replaceOne(
-      String type, String id, String relationship, String key) async {
-    _storage[type][id].one[relationship] = key;
+  Future<void> replaceOne(Ref ref, String rel, Ref? one) async {
+    _model(ref).one[rel] = one;
   }
 
   @override
-  Future<void> deleteOne(String type, String id, String relationship) async {
-    _storage[type][id].one[relationship] = null;
+  Stream<Ref> deleteMany(Ref ref, String rel, Iterable<Ref> refs) {
+    return Stream.fromIterable(_many(ref, rel)..removeAll(refs));
   }
 
   @override
-  Stream<String> deleteMany(
-      String type, String id, String relationship, Iterable<String> refs) {
-    _storage[type][id].many[relationship].removeAll(refs);
-    return Stream.fromIterable(_storage[type][id].many[relationship]);
-  }
-
-  @override
-  Stream<String> replaceMany(
-      String type, String id, String relationship, Iterable<String> refs) {
-    _storage[type][id].many[relationship]
+  Stream<Ref> replaceMany(Ref ref, String rel, Iterable<Ref> refs) {
+    return Stream.fromIterable(_many(ref, rel)
       ..clear()
-      ..addAll(refs);
-    return Stream.fromIterable(_storage[type][id].many[relationship]);
+      ..addAll(refs));
   }
+
+  Map<String, Model> _collection(String type) =>
+      (_storage[type] ?? (throw CollectionNotFound()));
+
+  Model _model(Ref ref) =>
+      _collection(ref.type)[ref.id] ?? (throw ResourceNotFound());
+
+  Set<Ref> _many(Ref ref, String rel) =>
+      _model(ref).many[rel] ?? (throw RelationshipNotFound(rel));
 }

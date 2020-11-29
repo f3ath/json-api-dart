@@ -28,5 +28,4 @@ void main() {
     expect(Include(['author', 'comments.author']).asQueryParameters,
         {'include': 'author,comments.author'});
   });
-
 }

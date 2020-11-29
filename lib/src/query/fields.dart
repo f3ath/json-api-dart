@@ -22,7 +22,7 @@ class Fields with MapMixin<String, Iterable<String>> {
 
   static final _regex = RegExp(r'^fields\[(.+)\]$');
 
-  final _map = <String, List<String>>{};
+  final _map = <String, Iterable<String>>{};
 
   /// Converts to a map of query parameters
   Map<String, String> get asQueryParameters =>
@@ -38,8 +38,8 @@ class Fields with MapMixin<String, Iterable<String>> {
   Iterable<String> get keys => _map.keys;
 
   @override
-  List<String> /*?*/ remove(Object /*?*/ key) => _map.remove(key);
+  Iterable<String>? remove(Object? key) => _map.remove(key);
 
   @override
-  List<String> /*?*/ operator [](Object /*?*/ key) => _map[key];
+  Iterable<String>? operator [](Object? key) => _map[key];
 }

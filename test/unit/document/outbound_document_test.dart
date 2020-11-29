@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:json_api/core.dart';
 import 'package:json_api/document.dart';
 import 'package:test/test.dart';
 
@@ -35,8 +36,8 @@ void main() {
   });
 
   group('Data', () {
-    final book = Resource('books', '1');
-    final author = Resource('people', '2');
+    final book = Resource(Ref('books', '1'));
+    final author = Resource(Ref('people', '2'));
     group('Resource', () {
       test('minimal', () {
         expect(toObject(OutboundDataDocument.resource(book)), {
@@ -85,11 +86,12 @@ void main() {
 
     group('One', () {
       test('minimal', () {
-        expect(toObject(OutboundDataDocument.one(One.empty())), {'data': null});
+        expect(
+            toObject(OutboundDataDocument.one(ToOne.empty())), {'data': null});
       });
       test('full', () {
         expect(
-            toObject(OutboundDataDocument.one(One(book.toIdentifier())
+            toObject(OutboundDataDocument.one(ToOne(Identifier(book.ref))
               ..meta['foo'] = 42
               ..links['self'] = Link(Uri.parse('/books/1')))
               ..included.add(author)),
@@ -106,11 +108,11 @@ void main() {
 
     group('Many', () {
       test('minimal', () {
-        expect(toObject(OutboundDataDocument.many(Many([]))), {'data': []});
+        expect(toObject(OutboundDataDocument.many(ToMany([]))), {'data': []});
       });
       test('full', () {
         expect(
-            toObject(OutboundDataDocument.many(Many([book.toIdentifier()])
+            toObject(OutboundDataDocument.many(ToMany([Identifier(book.ref)])
               ..meta['foo'] = 42
               ..links['self'] = Link(Uri.parse('/books/1')))
               ..included.add(author)),
@@ -129,4 +131,4 @@ void main() {
   });
 }
 
-Map<String, Object> toObject(v) => jsonDecode(jsonEncode(v));
+Map<String, dynamic> toObject(v) => jsonDecode(jsonEncode(v));

@@ -1,9 +1,13 @@
 import 'package:json_api/client.dart';
 import 'package:test/test.dart';
-import 'package:uuid/uuid.dart';
 
-void expectAllHttpMethodsToWork(JsonApiClient client) async {
-  final id = Uuid().v4();
+void e2eTests(JsonApiClient client) async {
+  await _testAllHttpMethods(client);
+  await _testLocationIsSet(client);
+}
+
+Future<void> _testAllHttpMethods(JsonApiClient client) async {
+  final id = '12345';
   // POST
   await client.create('posts', id, attributes: {'title': 'Hello world'});
   // GET
@@ -18,6 +22,13 @@ void expectAllHttpMethodsToWork(JsonApiClient client) async {
   // DELETE
   await client.deleteResource('posts', id);
   await client.fetchCollection('posts').then((r) {
-    expect(r.collection, isEmpty);
+    expect(r.collection.length, isEmpty);
+  });
+}
+
+Future<void> _testLocationIsSet(JsonApiClient client) async {
+  await client
+      .createNew('posts', attributes: {'title': 'Location test'}).then((r) {
+    expect(r.http.headers['Location'], isNotEmpty);
   });
 }

@@ -1,43 +1,29 @@
-import 'dart:io';
+// @dart=2.10
+import 'dart:io' as io;
 
-import 'package:json_api/handler.dart';
-import 'package:json_api/server.dart';
-import 'package:json_api/src/server/_internal/cors_http_handler.dart';
-import 'package:json_api/src/server/_internal/in_memory_repo.dart';
-import 'package:json_api/src/server/_internal/repository_controller.dart';
-import 'package:json_api/src/server/_internal/repository_error_converter.dart';
-import 'package:json_api/src/server/response_encoder.dart';
-import 'package:json_api_server/json_api_server.dart';
-import 'package:uuid/uuid.dart';
+import '../test/src/demo_handler.dart';
+import '../test/src/json_api_server.dart';
 
 Future<void> main() async {
-  final repo = InMemoryRepo(['users', 'posts', 'comments']);
-  final controller = RepositoryController(repo, Uuid().v4);
-  final errorConverter = ChainErrorConverter([
-    RepositoryErrorConverter(),
-    RoutingErrorConverter(),
-  ], () async => JsonApiResponse.internalServerError());
-  final handler = CorsHttpHandler(JsonApiResponseEncoder(
-      TryCatchHandler(Router(controller), errorConverter)));
-  final loggingHandler = LoggingHandler(
-      handler,
-      (rq) => print([
-            '>> ${rq.method.toUpperCase()} ${rq.uri}',
+  final server = JsonApiServer(DemoHandler(
+      logRequest: (rq) => print([
+            '>> Request >>',
+            '${rq.method.toUpperCase()} ${rq.uri}',
             'Headers: ${rq.headers}',
             'Body: ${rq.body}',
           ].join('\n') +
           '\n'),
-      (rs) => print([
-            '<< ${rs.statusCode}',
+      logResponse: (rs) => print([
+            '<< Response <<',
+            'Status: ${rs.statusCode}',
             'Headers: ${rs.headers}',
             'Body: ${rs.body}',
           ].join('\n') +
-          '\n'));
-  final server = JsonApiServer(loggingHandler);
+          '\n')));
 
-  ProcessSignal.sigint.watch().listen((event) async {
+  io.ProcessSignal.sigint.watch().listen((event) async {
     await server.stop();
-    exit(0);
+    io.exit(0);
   });
 
   await server.start();

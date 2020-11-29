@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:json_api/core.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/src/document/error_source.dart';
 import 'package:json_api/src/document/many.dart';
@@ -47,14 +48,13 @@ class InboundDocument {
   Iterable<Resource> resourceCollection() =>
       _json.get<List>('data').whereType<Map>().map(_resource);
 
-  Resource resource() =>
-      _resource(_json.get<Map<String, Object /*?*/ >>('data'));
+  Resource resource() => _resource(_json.get<Map<String, Object?>>('data'));
 
   NewResource newResource() =>
-      _newResource(_json.get<Map<String, Object /*?*/ >>('data'));
+      _newResource(_json.get<Map<String, Object?>>('data'));
 
-  Resource /*?*/ nullableResource() {
-    return nullable(_resource)(_json.getNullable<Map>('data'));
+  Resource? nullableResource() {
+    return nullable(_resource)(_json.get<Map?>('data'));
   }
 
   R dataAsRelationship<R extends Relationship>() {
@@ -73,13 +73,13 @@ class InboundDocument {
     if (json.containsKey('data')) {
       final data = json['data'];
       if (data == null) {
-        return One.empty()..links.addAll(links)..meta.addAll(meta);
+        return ToOne.empty()..links.addAll(links)..meta.addAll(meta);
       }
       if (data is Map) {
-        return One(_identifier(data))..links.addAll(links)..meta.addAll(meta);
+        return ToOne(_identifier(data))..links.addAll(links)..meta.addAll(meta);
       }
       if (data is List) {
-        return Many(data.whereType<Map>().map(_identifier))
+        return ToMany(data.whereType<Map>().map(_identifier))
           ..links.addAll(links)
           ..meta.addAll(meta);
       }
@@ -92,7 +92,7 @@ class InboundDocument {
       json.get<Map<String, Object /*?*/ >>('meta', orGet: () => {});
 
   static Resource _resource(Map json) =>
-      Resource(json.get<String>('type'), json.get<String>('id'))
+      Resource(Ref(json.get<String>('type'), json.get<String>('id')))
         ..attributes.addAll(_getAttributes(json))
         ..relationships.addAll(_getRelationships(json))
         ..links.addAll(_links(json))
@@ -100,7 +100,7 @@ class InboundDocument {
 
   static NewResource _newResource(Map json) => NewResource(
       json.get<String>('type'),
-      json.get<String /*?*/ >('id', orGet: () => null))
+      json.containsKey('id') ? json.get<String>('id') : null)
     ..attributes.addAll(_getAttributes(json))
     ..relationships.addAll(_getRelationships(json))
     ..meta.addAll(_meta(json));
@@ -108,7 +108,7 @@ class InboundDocument {
   /// Decodes Identifier from [json]. Returns the decoded object.
   /// If the [json] has incorrect format, throws  [FormatException].
   static Identifier _identifier(Map json) =>
-      Identifier(json.get<String>('type'), json.get<String>('id'))
+      Identifier(Ref(json.get<String>('type'), json.get<String>('id')))
         ..meta.addAll(_meta(json));
 
   static ErrorObject _errorObject(Map json) => ErrorObject(
@@ -146,7 +146,7 @@ class InboundDocument {
 }
 
 extension _TypedGetter on Map {
-  T get<T>(String key, {T Function() /*?*/ orGet}) {
+  T get<T>(String key, {T Function()? orGet}) {
     if (containsKey(key)) {
       final val = this[key];
       if (val is T) return val;
@@ -154,16 +154,6 @@ extension _TypedGetter on Map {
           'Key "$key": expected $T, found ${val.runtimeType}');
     }
     if (orGet != null) return orGet();
-    throw FormatException('Key "$key" does not exist');
-  }
-
-  T /*?*/ getNullable<T>(String key) {
-    if (containsKey(key)) {
-      final val = this[key];
-      if (val is T || val == null) return val;
-      throw FormatException(
-          'Key "$key": expected $T, found ${val.runtimeType}');
-    }
     throw FormatException('Key "$key" does not exist');
   }
 }

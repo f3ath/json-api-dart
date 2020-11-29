@@ -1,11 +1,13 @@
+import 'package:json_api/core.dart';
 import 'package:json_api/routing.dart';
 import 'package:test/test.dart';
 
 void main() {
   final collection = CollectionTarget('books');
-  final resource = ResourceTarget('books', '42');
-  final related = RelatedTarget('books', '42', 'author');
-  final relationship = RelationshipTarget('books', '42', 'author');
+  final ref = Ref('books', '42');
+  final resource = ResourceTarget(ref);
+  final related = RelatedTarget(ref, 'author');
+  final relationship = RelationshipTarget(ref, 'author');
 
   test('uri generation', () {
     final url = RecommendedUrlDesign.pathOnly;

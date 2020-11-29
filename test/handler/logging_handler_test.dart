@@ -3,16 +3,17 @@ import 'package:test/test.dart';
 
 void main() {
   test('Logging handler can log', () async {
-    String loggedRequest;
-    String loggedResponse;
+    String? loggedRequest;
+    String? loggedResponse;
 
     final handler =
-        LoggingHandler(FunHandler((String s) async => s.toUpperCase()), (rq) {
+        LoggingHandler(Handler.lambda((String s) async => s.toUpperCase()),
+            onRequest: (String rq) {
       loggedRequest = rq;
-    }, (rs) {
+    }, onResponse: (String rs) {
       loggedResponse = rs;
     });
-    expect(await handler('foo'), 'FOO');
+    expect(await handler.call('foo'), 'FOO');
     expect(loggedRequest, 'foo');
     expect(loggedResponse, 'FOO');
   });

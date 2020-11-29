@@ -21,7 +21,6 @@ class RelationshipNode {
   void add(Iterable<String> chain) {
     if (chain.isEmpty) return;
     final key = chain.first;
-    _map[key] ??= RelationshipNode(key);
-    _map[key].add(chain.skip(1));
+    _map[key] = (_map[key] ?? RelationshipNode(key))..add(chain.skip(1));
   }
 }

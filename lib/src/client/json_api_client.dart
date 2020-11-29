@@ -1,4 +1,5 @@
 import 'package:json_api/client.dart';
+import 'package:json_api/core.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/handler.dart';
 import 'package:json_api/http.dart';
@@ -6,6 +7,9 @@ import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/client/request.dart';
 import 'package:json_api/src/client/response/collection_response.dart';
+import 'package:json_api/src/client/response/fetch_collection_response.dart';
+import 'package:json_api/src/client/response/fetch_primary_resource_response.dart';
+import 'package:json_api/src/client/response/fetch_resource_response.dart';
 import 'package:json_api/src/client/response/new_resource_response.dart';
 import 'package:json_api/src/client/response/relationship_response.dart';
 import 'package:json_api/src/client/response/request_failure.dart';
@@ -14,9 +18,10 @@ import 'package:json_api/src/client/response/response.dart';
 
 /// The JSON:API client
 class JsonApiClient {
-  JsonApiClient(this._uriFactory,
-      {Handler<HttpRequest, HttpResponse> httpHandler})
-      : _http = httpHandler ?? DartHttp();
+  JsonApiClient(
+    this._http,
+    this._uriFactory,
+  );
 
   final Handler<HttpRequest, HttpResponse> _http;
   final UriFactory _uriFactory;
@@ -26,7 +31,7 @@ class JsonApiClient {
   ///
   /// Optional arguments:
   /// - [headers] - any extra HTTP headers
-  Future<RelationshipResponse<Many>> addMany(
+  Future<RelationshipResponse<ToMany>> addMany(
     String type,
     String id,
     String relationship,
@@ -34,8 +39,8 @@ class JsonApiClient {
     Map<String, String> headers = const {},
   }) async =>
       RelationshipResponse.decodeMany(await send(Request(
-          'post', RelationshipTarget(type, id, relationship),
-          document: OutboundDataDocument.many(Many(identifiers)))
+          'post', RelationshipTarget(Ref(type, id), relationship),
+          document: OutboundDataDocument.many(ToMany(identifiers)))
         ..headers.addAll(headers)));
 
   /// Creates a new resource in the collection of type [type].
@@ -50,11 +55,11 @@ class JsonApiClient {
   /// - [headers] - any extra HTTP headers
   Future<NewResourceResponse> createNew(
     String type, {
-    Map<String, Object /*?*/ > attributes = const {},
+    Map<String, Object?> attributes = const {},
     Map<String, Identifier> one = const {},
     Map<String, Iterable<Identifier>> many = const {},
-    Map<String, Object /*?*/ > meta = const {},
-    String /*?*/ resourceType,
+    Map<String, Object?> meta = const {},
+    String? resourceType,
     Map<String, String> headers = const {},
   }) async =>
       NewResourceResponse.decode(await send(Request(
@@ -63,8 +68,8 @@ class JsonApiClient {
               OutboundDataDocument.newResource(NewResource(resourceType ?? type)
                 ..attributes.addAll(attributes)
                 ..relationships.addAll({
-                  ...one.map((key, value) => MapEntry(key, One(value))),
-                  ...many.map((key, value) => MapEntry(key, Many(value))),
+                  ...one.map((key, value) => MapEntry(key, ToOne(value))),
+                  ...many.map((key, value) => MapEntry(key, ToMany(value))),
                 })
                 ..meta.addAll(meta)))
         ..headers.addAll(headers)));
@@ -74,7 +79,7 @@ class JsonApiClient {
   ///
   /// Optional arguments:
   /// - [headers] - any extra HTTP headers
-  Future<RelationshipResponse<Many>> deleteMany(
+  Future<RelationshipResponse<ToMany>> deleteFromToMany(
     String type,
     String id,
     String relationship,
@@ -82,8 +87,8 @@ class JsonApiClient {
     Map<String, String> headers = const {},
   }) async =>
       RelationshipResponse.decode(await send(Request(
-          'delete', RelationshipTarget(type, id, relationship),
-          document: OutboundDataDocument.many(Many(identifiers)))
+          'delete', RelationshipTarget(Ref(type, id), relationship),
+          document: OutboundDataDocument.many(ToMany(identifiers)))
         ..headers.addAll(headers)));
 
   /// Fetches  a primary collection of type [type].
@@ -127,7 +132,7 @@ class JsonApiClient {
   /// - [include] - request to include related resources
   /// - [sort] - collection sorting options
   /// - [fields] - sparse fields options
-  Future<CollectionResponse> fetchRelatedCollection(
+  Future<FetchCollectionResponse> fetchRelatedCollection(
     String type,
     String id,
     String relationship, {
@@ -139,8 +144,8 @@ class JsonApiClient {
     Map<String, Iterable<String>> fields = const {},
     Map<String, String> query = const {},
   }) async =>
-      CollectionResponse.decode(await send(
-          Request('get', RelatedTarget(type, id, relationship))
+      FetchCollectionResponse.decode(await send(
+          Request('get', RelatedTarget(Ref(type, id), relationship))
             ..headers.addAll(headers)
             ..query.addAll(query)
             ..page.addAll(page)
@@ -149,7 +154,7 @@ class JsonApiClient {
             ..sort.addAll(sort)
             ..fields.addAll(fields)));
 
-  Future<RelationshipResponse<One>> fetchOne(
+  Future<RelationshipResponse<ToOne>> fetchToOne(
     String type,
     String id,
     String relationship, {
@@ -157,11 +162,11 @@ class JsonApiClient {
     Map<String, String> query = const {},
   }) async =>
       RelationshipResponse.decodeOne(await send(
-          Request('get', RelationshipTarget(type, id, relationship))
+          Request('get', RelationshipTarget(Ref(type, id), relationship))
             ..headers.addAll(headers)
             ..query.addAll(query)));
 
-  Future<RelationshipResponse<Many>> fetchMany(
+  Future<RelationshipResponse<ToMany>> fetchToMany(
     String type,
     String id,
     String relationship, {
@@ -169,11 +174,11 @@ class JsonApiClient {
     Map<String, String> query = const {},
   }) async =>
       RelationshipResponse.decodeMany(await send(
-          Request('get', RelationshipTarget(type, id, relationship))
+          Request('get', RelationshipTarget(Ref(type, id), relationship))
             ..headers.addAll(headers)
             ..query.addAll(query)));
 
-  Future<ResourceResponse> fetchRelatedResource(
+  Future<FetchRelatedResourceResponse> fetchRelatedResource(
     String type,
     String id,
     String relationship, {
@@ -183,15 +188,15 @@ class JsonApiClient {
     Iterable<String> include = const [],
     Map<String, Iterable<String>> fields = const {},
   }) async =>
-      ResourceResponse.decode(await send(
-          Request('get', RelatedTarget(type, id, relationship))
+      FetchRelatedResourceResponse.decode(await send(
+          Request('get', RelatedTarget(Ref(type, id), relationship))
             ..headers.addAll(headers)
             ..query.addAll(query)
             ..filter.addAll(filter)
             ..include.addAll(include)
             ..fields.addAll(fields)));
 
-  Future<ResourceResponse> fetchResource(
+  Future<FetchPrimaryResourceResponse> fetchResource(
     String type,
     String id, {
     Map<String, String> headers = const {},
@@ -200,8 +205,8 @@ class JsonApiClient {
     Map<String, Iterable<String>> fields = const {},
     Map<String, String> query = const {},
   }) async =>
-      ResourceResponse.decode(await send(
-          Request('get', ResourceTarget(type, id))
+      FetchPrimaryResourceResponse.decode(await send(
+          Request('get', ResourceTarget(Ref(type, id)))
             ..headers.addAll(headers)
             ..query.addAll(query)
             ..filter.addAll(filter)
@@ -215,12 +220,12 @@ class JsonApiClient {
           Map<String, Object /*?*/ > meta = const {},
           Map<String, String> headers = const {}}) async =>
       ResourceResponse.decode(
-          await send(Request('patch', ResourceTarget(type, id),
-              document: OutboundDataDocument.resource(Resource(type, id)
+          await send(Request('patch', ResourceTarget(Ref(type, id)),
+              document: OutboundDataDocument.resource(Resource(Ref(type, id))
                 ..attributes.addAll(attributes)
                 ..relationships.addAll({
-                  ...one.map((key, value) => MapEntry(key, One(value))),
-                  ...many.map((key, value) => MapEntry(key, Many(value))),
+                  ...one.map((key, value) => MapEntry(key, ToOne(value))),
+                  ...many.map((key, value) => MapEntry(key, ToMany(value))),
                 })
                 ..meta.addAll(meta)))
             ..headers.addAll(headers)));
@@ -236,16 +241,16 @@ class JsonApiClient {
     Map<String, String> headers = const {},
   }) async =>
       ResourceResponse.decode(await send(Request('post', CollectionTarget(type),
-          document: OutboundDataDocument.resource(Resource(type, id)
+          document: OutboundDataDocument.resource(Resource(Ref(type, id))
             ..attributes.addAll(attributes)
             ..relationships.addAll({
-              ...one.map((k, v) => MapEntry(k, One(v))),
-              ...many.map((k, v) => MapEntry(k, Many(v))),
+              ...one.map((k, v) => MapEntry(k, ToOne(v))),
+              ...many.map((k, v) => MapEntry(k, ToMany(v))),
             })
             ..meta.addAll(meta)))
         ..headers.addAll(headers)));
 
-  Future<RelationshipResponse<One>> replaceOne(
+  Future<RelationshipResponse<ToOne>> replaceToOne(
     String type,
     String id,
     String relationship,
@@ -253,11 +258,11 @@ class JsonApiClient {
     Map<String, String> headers = const {},
   }) async =>
       RelationshipResponse.decodeOne(await send(Request(
-          'patch', RelationshipTarget(type, id, relationship),
-          document: OutboundDataDocument.one(One(identifier)))
+          'patch', RelationshipTarget(Ref(type, id), relationship),
+          document: OutboundDataDocument.one(ToOne(identifier)))
         ..headers.addAll(headers)));
 
-  Future<RelationshipResponse<Many>> replaceMany(
+  Future<RelationshipResponse<ToMany>> replaceToMany(
     String type,
     String id,
     String relationship,
@@ -265,20 +270,21 @@ class JsonApiClient {
     Map<String, String> headers = const {},
   }) async =>
       RelationshipResponse.decodeMany(await send(Request(
-          'patch', RelationshipTarget(type, id, relationship),
-          document: OutboundDataDocument.many(Many(identifiers)))
+          'patch', RelationshipTarget(Ref(type, id), relationship),
+          document: OutboundDataDocument.many(ToMany(identifiers)))
         ..headers.addAll(headers)));
 
-  Future<RelationshipResponse<One>> deleteOne(
+  Future<RelationshipResponse<ToOne>> deleteToOne(
           String type, String id, String relationship,
           {Map<String, String> headers = const {}}) async =>
       RelationshipResponse.decodeOne(await send(Request(
-          'patch', RelationshipTarget(type, id, relationship),
-          document: OutboundDataDocument.one(One.empty()))
+          'patch', RelationshipTarget(Ref(type, id), relationship),
+          document: OutboundDataDocument.one(ToOne.empty()))
         ..headers.addAll(headers)));
 
   Future<Response> deleteResource(String type, String id) async =>
-      Response.decode(await send(Request('delete', ResourceTarget(type, id))));
+      Response.decode(
+          await send(Request('delete', ResourceTarget(Ref(type, id)))));
 
   /// Sends the [request] to the server.
   /// Throws a [RequestFailure] if the server responds with an error.

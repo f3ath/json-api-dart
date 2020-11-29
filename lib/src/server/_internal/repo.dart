@@ -1,67 +1,48 @@
+import 'package:json_api/core.dart';
+
 abstract class Repo {
   /// Fetches a collection.
   /// Throws [CollectionNotFound].
-  Stream<Entity<Model>> fetchCollection(String type);
+  Stream<Model> fetchCollection(String type);
 
-  Future<Model /*?*/ > fetch(String type, String id);
+  /// Throws [ResourceNotFound]
+  Future<Model> fetch(Ref ref);
 
-  Future<void> persist(String type, String id, Model model);
+  /// Throws [CollectionNotFound].
+  Future<void> persist(Model model);
 
   /// Add refs to a to-many relationship
-  Stream<String> addMany(
-      String type, String id, String rel, Iterable<String> refs);
+  /// Throws [CollectionNotFound].
+  /// Throws [ResourceNotFound].
+  /// Throws [RelationshipNotFound].
+  Stream<Ref> addMany(Ref ref, String rel, Iterable<Ref> refs);
 
-  /// Delete the model
-  Future<void> delete(String type, String id);
+  /// Delete the resource
+  Future<void> delete(Ref ref);
 
   /// Updates the model
-  Future<void> update(String type, String id, Model model);
+  Future<void> update(Ref ref, ModelProps props);
 
-  Future<void> replaceOne(
-      String type, String id, String relationship, String key);
-
-  Future<void> deleteOne(String type, String id, String relationship);
+  Future<void> replaceOne(Ref ref, String rel, Ref? one);
 
   /// Deletes refs from the to-many relationship.
   /// Returns the new actual refs.
-  Stream<String> deleteMany(
-      String type, String id, String relationship, Iterable<String> refs);
+  Stream<Ref> deleteMany(Ref ref, String rel, Iterable<Ref> refs);
 
   /// Replaces refs in the to-many relationship.
   /// Returns the new actual refs.
-  Stream<String> replaceMany(
-      String type, String id, String relationship, Iterable<String> refs);
+  Stream<Ref> replaceMany(Ref ref, String rel, Iterable<Ref> refs);
 }
 
 class CollectionNotFound implements Exception {}
 
-class Entity<M> {
-  const Entity(this.id, this.model);
+class ResourceNotFound implements Exception {}
 
-  final String id;
+class RelationshipNotFound implements Exception {
+  RelationshipNotFound(this.message);
 
-  final M model;
-}
+  final String message;
 
-class Model {
-  final attributes = <String, Object /*?*/ >{};
-  final one = <String, String>{};
-  final many = <String, Set<String>>{};
-
-  void addMany(String relationship, Iterable<String> refs) {
-    many[relationship] ??= <String>{};
-    many[relationship].addAll(refs);
-  }
-
-  void setFrom(Model other) {
-    other.attributes.forEach((key, value) {
-      attributes[key] = value;
-    });
-    other.one.forEach((key, value) {
-      one[key] = value;
-    });
-    other.many.forEach((key, value) {
-      many[key] = {...value};
-    });
-  }
+  @override
+  String toString() => message;
 }

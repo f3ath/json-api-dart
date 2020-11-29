@@ -1,22 +1,23 @@
+import 'package:json_api/src/client/collection.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/relationship.dart';
+import 'package:json_api/src/document/resource.dart';
 
-class One extends Relationship {
-  One(Identifier /*!*/ identifier) : identifier = identifier;
+class ToOne extends Relationship {
+  ToOne(this.identifier);
 
-  One.empty() : identifier = null;
-
-  /// Returns the key of the relationship identifier.
-  /// If the identifier is null, returns an empty string.
-  String get key => identifier?.key ?? '';
+  ToOne.empty() : this(null);
 
   @override
   Map<String, dynamic> toJson() => {'data': identifier, ...super.toJson()};
 
-  /// Nullable
-  final Identifier /*?*/ identifier;
+  final Identifier? identifier;
 
   @override
-  Iterator<Identifier /*!*/ > get iterator =>
-      identifier == null ? <Identifier>[].iterator : [identifier].iterator;
+  Iterator<Identifier> get iterator =>
+      identifier == null ? <Identifier>[].iterator : [identifier!].iterator;
+
+  /// Finds the referenced resource in the [collection].
+  Resource? findIn(ResourceCollection collection) =>
+      collection[identifier?.ref];
 }

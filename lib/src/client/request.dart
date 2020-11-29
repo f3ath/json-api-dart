@@ -5,7 +5,7 @@ import 'package:json_api/src/nullable.dart';
 
 /// JSON:API request consumed by the client
 class Request {
-  Request(this.method, this.target, {Object document})
+  Request(this.method, this.target, {Object? document})
       : body = nullable(jsonEncode)(document) ?? '';
 
   /// HTTP method

@@ -10,11 +10,11 @@ class NewResource with ResourceProperties {
   final String type;
 
   /// Nullable. Resource id.
-  final String /*?*/ id;
+  final String? id;
 
   Map<String, Object> toJson() => {
         'type': type,
-        if (id != null) 'id': id,
+        if (id != null) 'id': id!,
         if (attributes.isNotEmpty) 'attributes': attributes,
         if (relationships.isNotEmpty) 'relationships': relationships,
         if (meta.isNotEmpty) 'meta': meta,

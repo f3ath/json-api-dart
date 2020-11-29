@@ -28,7 +28,7 @@ class Page with MapMixin<String, String> {
       _.map((k, v) => MapEntry('page[${k}]', v));
 
   @override
-  String /*?*/ operator [](Object /*?*/ key) => _[key];
+  String? operator [](Object? key) => _[key];
 
   @override
   void operator []=(String key, String value) => _[key] = value;
@@ -40,5 +40,5 @@ class Page with MapMixin<String, String> {
   Iterable<String> get keys => _.keys;
 
   @override
-  String /*?*/ remove(Object /*?*/ key) => _.remove(key);
+  String? remove(Object? key) => _.remove(key);
 }

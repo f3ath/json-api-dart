@@ -41,7 +41,7 @@ class ErrorObject {
   final links = <String, Link>{};
 
   /// Meta data.
-  final meta = <String, Object /*?*/ >{};
+  final meta = <String, Object?>{};
 
   Map<String, Object> toJson() => {
         if (id.isNotEmpty) 'id': id,
@@ -53,4 +53,7 @@ class ErrorObject {
         if (links.isNotEmpty) 'links': links,
         if (meta.isNotEmpty) 'meta': meta,
       };
+
+  @override
+  String toString() => toJson().toString();
 }

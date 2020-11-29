@@ -1,10 +1,7 @@
-import 'package:json_api/src/routing/reference.dart';
+import 'package:json_api/core.dart';
 
 /// A request target
 abstract class Target {
-  /// Targeted resource type
-  String get type;
-
   T map<T>(TargetMapper<T> mapper);
 }
 
@@ -18,31 +15,41 @@ abstract class TargetMapper<T> {
   T relationship(RelationshipTarget target);
 }
 
-class CollectionTarget extends CollectionReference implements Target {
-  const CollectionTarget(String type) : super(type);
+class CollectionTarget implements Target {
+  const CollectionTarget(this.type);
+
+  final String type;
 
   @override
   T map<T>(TargetMapper<T> mapper) => mapper.collection(this);
 }
 
-class ResourceTarget extends ResourceReference implements Target {
-  const ResourceTarget(String type, String id) : super(type, id);
+class ResourceTarget implements Target {
+  const ResourceTarget(this.ref);
+
+  final Ref ref;
 
   @override
   T map<T>(TargetMapper<T> mapper) => mapper.resource(this);
 }
 
-class RelatedTarget extends RelationshipReference implements Target {
-  const RelatedTarget(String type, String id, String relationship)
-      : super(type, id, relationship);
+class RelatedTarget implements Target {
+  const RelatedTarget(this.ref, this.relationship);
+
+  final Ref ref;
+
+  final String relationship;
 
   @override
   T map<T>(TargetMapper<T> mapper) => mapper.related(this);
 }
 
-class RelationshipTarget extends RelationshipReference implements Target {
-  const RelationshipTarget(String type, String id, String relationship)
-      : super(type, id, relationship);
+class RelationshipTarget implements Target {
+  const RelationshipTarget(this.ref, this.relationship);
+
+  final Ref ref;
+
+  final String relationship;
 
   @override
   T map<T>(TargetMapper<T> mapper) => mapper.relationship(this);

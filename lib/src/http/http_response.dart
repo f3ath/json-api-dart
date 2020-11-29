@@ -1,18 +1,12 @@
-import 'package:json_api/src/http/headers.dart';
+import 'package:json_api/src/http/http_message.dart';
 import 'package:json_api/src/http/media_type.dart';
 
 /// The response sent by the server and received by the client
-class HttpResponse {
-  HttpResponse(this.statusCode, {this.body = ''});
+class HttpResponse extends HttpMessage {
+  HttpResponse(this.statusCode, {String body = ''}) : super(body);
 
   /// Response status code
   final int statusCode;
-
-  /// Response body
-  final String body;
-
-  /// Response headers. Lowercase keys
-  final headers = Headers();
 
   /// True for the requests processed asynchronously.
   /// @see https://jsonapi.org/recommendations/#asynchronous-processing).

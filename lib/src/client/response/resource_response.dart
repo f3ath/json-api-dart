@@ -1,18 +1,16 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
-import 'package:json_api/src/client/identity_collection.dart';
+import 'package:json_api/src/client/collection.dart';
 
 class ResourceResponse {
   ResourceResponse(this.http, this.resource,
       {Map<String, Link> links = const {},
-      Iterable<Resource> included = const []})
-      : included = IdentityCollection(included) {
+      Iterable<Resource> included = const []}) {
+    this.included.addAll(included);
     this.links.addAll(links);
   }
 
-  ResourceResponse.noContent(this.http)
-      : resource = null,
-        included = IdentityCollection(const []);
+  ResourceResponse.noContent(this.http) : resource = null;
 
   static ResourceResponse decode(HttpResponse response) {
     if (response.isNoContent) return ResourceResponse.noContent(response);
@@ -25,10 +23,10 @@ class ResourceResponse {
   final HttpResponse http;
 
   /// The created resource. Null for "204 No Content" responses.
-  final Resource /*?*/ resource;
+  final Resource? resource;
 
   /// Included resources
-  final IdentityCollection<Resource> included;
+  final included = ResourceCollection();
 
   /// Document links
   final links = <String, Link>{};

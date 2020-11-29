@@ -1,18 +1,19 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
-import 'package:json_api/src/client/identity_collection.dart';
+import 'package:json_api/src/client/collection.dart';
 
 /// A response to a relationship request.
 class RelationshipResponse<T extends Relationship> {
   RelationshipResponse(this.http, this.relationship,
-      {Iterable<Resource> included = const []})
-      : included = IdentityCollection(included);
+      {Iterable<Resource> included = const []}) {
+    this.included.addAll(included);
+  }
 
-  static RelationshipResponse<Many> decodeMany(HttpResponse response) =>
-      decode<Many>(response);
+  static RelationshipResponse<ToMany> decodeMany(HttpResponse response) =>
+      decode<ToMany>(response);
 
-  static RelationshipResponse<One> decodeOne(HttpResponse response) =>
-      decode<One>(response);
+  static RelationshipResponse<ToOne> decodeOne(HttpResponse response) =>
+      decode<ToOne>(response);
 
   static RelationshipResponse<T> decode<T extends Relationship>(
       HttpResponse response) {
@@ -29,5 +30,5 @@ class RelationshipResponse<T extends Relationship> {
   final T relationship;
 
   /// Included resources
-  final IdentityCollection<Resource> included;
+  final included = ResourceCollection();
 }
