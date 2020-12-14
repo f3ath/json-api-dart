@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:json_api/document.dart';
 import 'package:json_api/src/test/payload.dart' as payload;
 import 'package:test/test.dart';
@@ -10,7 +8,7 @@ void main() {
       test('Minimal', () {
         final e = InboundDocument({
           'errors': [{}]
-        }).errors.first;
+        }).errors().first;
         expect(e.id, '');
         expect(e.status, '');
         expect(e.code, '');
@@ -36,7 +34,7 @@ void main() {
         };
         final e = InboundDocument({
           'errors': [error]
-        }).errors.first;
+        }).errors().first;
 
         expect(e.id, 'test_id');
         expect(e.status, 'test_status');
@@ -57,7 +55,7 @@ void main() {
                   'errors': [
                     {'id': []}
                   ]
-                }).errors.first,
+                }).errors().first,
             throwsFormatException);
       });
     });
@@ -67,120 +65,118 @@ void main() {
         final doc = InboundDocument(payload.example);
         expect(
             doc
-                .resourceCollection()
+                .dataAsCollection()
                 .first
                 .relationships['author']!
                 .links['self']!
                 .uri
                 .toString(),
             'http://example.com/articles/1/relationships/author');
-        expect(doc.included.first.attributes['firstName'], 'Dan');
-        expect(doc.links['self'].toString(), 'http://example.com/articles');
-        expect(doc.meta, isEmpty);
+        expect(doc.included().first.attributes['firstName'], 'Dan');
+        expect(doc.links()['self'].toString(), 'http://example.com/articles');
+        expect(doc.meta(), isEmpty);
       });
 
       test('can parse primary resource', () {
         final doc = InboundDocument(payload.resource);
-        final article = doc.resource();
-        expect(article.ref.id, '1');
+        final article = doc.dataAsResource();
+        expect(article.id, '1');
         expect(article.attributes['title'], 'JSON:API paints my bikeshed!');
         expect(article.relationships['author'], isA<Relationship>());
-        expect(doc.included, isEmpty);
-        expect(doc.links['self'].toString(), 'http://example.com/articles/1');
-        expect(doc.meta, isEmpty);
+        expect(doc.included(), isEmpty);
+        expect(doc.links()['self'].toString(), 'http://example.com/articles/1');
+        expect(doc.meta(), isEmpty);
       });
 
       test('can parse a new resource', () {
         final doc = InboundDocument(payload.newResource);
-        final article = doc.newResource();
+        final article = doc.dataAsNewResource();
         expect(article.attributes['title'], 'A new article');
-        expect(doc.included, isEmpty);
-        expect(doc.links, isEmpty);
-        expect(doc.meta, isEmpty);
+        expect(doc.included(), isEmpty);
+        expect(doc.links(), isEmpty);
+        expect(doc.meta(), isEmpty);
       });
 
       test('newResource() has id if data is sufficient', () {
         final doc = InboundDocument(payload.resource);
-        final article = doc.newResource();
+        final article = doc.dataAsNewResource();
         expect(article.id, isNotEmpty);
       });
 
       test('can parse related resource', () {
         final doc = InboundDocument(payload.relatedEmpty);
-        expect(doc.nullableResource(), isNull);
-        expect(doc.included, isEmpty);
-        expect(doc.links['self'].toString(),
+        expect(doc.dataAsResourceOrNull(), isNull);
+        expect(doc.included(), isEmpty);
+        expect(doc.links()['self'].toString(),
             'http://example.com/articles/1/author');
-        expect(doc.meta, isEmpty);
+        expect(doc.meta(), isEmpty);
       });
 
       test('can parse to-one', () {
         final doc = InboundDocument(payload.one);
-        expect(doc.dataAsRelationship(), isA<ToOne>());
-        expect(doc.dataAsRelationship(), isNotEmpty);
-        expect(doc.dataAsRelationship().first.ref.type, 'people');
-        expect(doc.included, isEmpty);
+        expect(doc.asToOne(), isA<ToOne>());
+        expect(doc.asToOne(), isNotEmpty);
+        expect(doc.asToOne().first.type, 'people');
+        expect(doc.included(), isEmpty);
         expect(
-            doc.links['self'].toString(), '/articles/1/relationships/author');
-        expect(doc.meta, isEmpty);
+            doc.links()['self'].toString(), '/articles/1/relationships/author');
+        expect(doc.meta(), isEmpty);
       });
 
       test('can parse empty to-one', () {
         final doc = InboundDocument(payload.oneEmpty);
-        expect(doc.dataAsRelationship(), isA<ToOne>());
-        expect(doc.dataAsRelationship(), isEmpty);
-        expect(doc.included, isEmpty);
+        expect(doc.asToOne(), isA<ToOne>());
+        expect(doc.asToOne(), isEmpty);
+        expect(doc.included(), isEmpty);
         expect(
-            doc.links['self'].toString(), '/articles/1/relationships/author');
-        expect(doc.meta, isEmpty);
+            doc.links()['self'].toString(), '/articles/1/relationships/author');
+        expect(doc.meta(), isEmpty);
       });
 
       test('can parse to-many', () {
         final doc = InboundDocument(payload.many);
-        expect(doc.dataAsRelationship(), isA<ToMany>());
-        expect(doc.dataAsRelationship(), isNotEmpty);
-        expect(doc.dataAsRelationship().first.ref.type, 'tags');
-        expect(doc.included, isEmpty);
-        expect(doc.links['self'].toString(), '/articles/1/relationships/tags');
-        expect(doc.meta, isEmpty);
+        expect(doc.asToMany(), isA<ToMany>());
+        expect(doc.asToMany(), isNotEmpty);
+        expect(doc.asToMany().first.type, 'tags');
+        expect(doc.included(), isEmpty);
+        expect(
+            doc.links()['self'].toString(), '/articles/1/relationships/tags');
+        expect(doc.meta(), isEmpty);
       });
 
       test('can parse empty to-many', () {
         final doc = InboundDocument(payload.manyEmpty);
-        expect(doc.dataAsRelationship(), isA<ToMany>());
-        expect(doc.dataAsRelationship(), isEmpty);
-        expect(doc.included, isEmpty);
-        expect(doc.links['self'].toString(), '/articles/1/relationships/tags');
-        expect(doc.meta, isEmpty);
+        expect(doc.asToMany(), isA<ToMany>());
+        expect(doc.asToMany(), isEmpty);
+        expect(doc.included(), isEmpty);
+        expect(
+            doc.links()['self'].toString(), '/articles/1/relationships/tags');
+        expect(doc.meta(), isEmpty);
       });
 
       test('throws on invalid doc', () {
-        expect(() => InboundDocument(payload.manyEmpty).nullableResource(),
+        expect(() => InboundDocument(payload.manyEmpty).dataAsResourceOrNull(),
             throwsFormatException);
-        expect(() => InboundDocument(payload.newResource).resource(),
+        expect(() => InboundDocument(payload.newResource).dataAsResource(),
             throwsFormatException);
-        expect(() => InboundDocument(payload.newResource).nullableResource(),
+        expect(
+            () => InboundDocument(payload.newResource).dataAsResourceOrNull(),
             throwsFormatException);
-        expect(() => InboundDocument({}).nullableResource(),
+        expect(() => InboundDocument({}).dataAsResourceOrNull(),
             throwsFormatException);
-        expect(() => InboundDocument({'data': 42}).dataAsRelationship(),
+        expect(() => InboundDocument({'data': 42}).asToMany(),
             throwsFormatException);
         expect(
             () => InboundDocument({
                   'links': {'self': 42}
-                }).dataAsRelationship(),
-            throwsFormatException);
-      });
-
-      test('throws on invalid JSON', () {
-        expect(() => InboundDocument.decode(jsonEncode('oops')),
+                }).asToOne(),
             throwsFormatException);
       });
 
       test('throws on invalid relationship kind', () {
-        expect(() => InboundDocument(payload.one).dataAsRelationship<ToMany>(),
+        expect(() => InboundDocument(payload.one).asToMany(),
             throwsFormatException);
-        expect(() => InboundDocument(payload.many).dataAsRelationship<ToOne>(),
+        expect(() => InboundDocument(payload.many).asToOne(),
             throwsFormatException);
       });
     });

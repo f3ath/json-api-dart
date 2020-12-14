@@ -3,10 +3,10 @@ import 'package:json_api/routing.dart';
 
 abstract class Controller<T> {
   /// Fetch a primary resource collection
-  Future<T> fetchCollection(HttpRequest request, CollectionTarget target);
+  Future<T> fetchCollection(HttpRequest request, Target target);
 
   /// Create resource
-  Future<T> createResource(HttpRequest request, CollectionTarget target);
+  Future<T> createResource(HttpRequest request, Target target);
 
   /// Fetch a single primary resource
   Future<T> fetchResource(HttpRequest request, ResourceTarget target);

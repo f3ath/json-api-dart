@@ -1,4 +1,4 @@
-import 'package:json_api/src/client/collection.dart';
+import 'package:json_api/src/document/resource_collection.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
@@ -19,5 +19,5 @@ class ToOne extends Relationship {
 
   /// Finds the referenced resource in the [collection].
   Resource? findIn(ResourceCollection collection) =>
-      collection[identifier?.ref];
+      collection[identifier?.key];
 }

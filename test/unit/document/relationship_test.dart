@@ -1,10 +1,9 @@
-import 'package:json_api/core.dart';
 import 'package:json_api/document.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final a = Identifier(Ref('apples', 'a'));
-  final b = Identifier(Ref('apples', 'b'));
+  final a = Identifier('apples', 'a');
+  final b = Identifier('apples', 'b');
   group('Relationship', () {
     test('one', () {
       expect(ToOne(a).identifier, a);

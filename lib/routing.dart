@@ -2,7 +2,6 @@
 /// See https://jsonapi.org/recommendations/#urls
 library routing;
 
-export 'package:json_api/src/routing/recommended_url_design.dart';
+export 'package:json_api/src/routing/standard_uri_design.dart';
 export 'package:json_api/src/routing/target.dart';
-export 'package:json_api/src/routing/target_matcher.dart';
-export 'package:json_api/src/routing/uri_factory.dart';
+export 'package:json_api/src/routing/uri_design.dart';

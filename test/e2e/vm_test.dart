@@ -3,18 +3,20 @@ import 'package:json_api/client.dart';
 import 'package:json_api/routing.dart';
 import 'package:test/test.dart';
 
+import '../../legacy/dart_http_handler.dart';
 import '../src/demo_handler.dart';
 import '../src/json_api_server.dart';
 import 'e2e_test_set.dart';
 
 void main() {
-  JsonApiClient client;
+  RoutingClient client;
   JsonApiServer server;
 
   setUp(() async {
     server = JsonApiServer(DemoHandler(), port: 8001);
     await server.start();
-    client = JsonApiClient(DartHttpHandler(), RecommendedUrlDesign(server.uri));
+    client = RoutingClient(
+        StandardUriDesign(server.uri), BasicClient(DartHttpHandler()));
   });
 
   tearDown(() async {

@@ -7,7 +7,7 @@ class Link {
   final Uri uri;
 
   /// Link meta data
-  final meta = <String, Object /*?*/ >{};
+  final meta = <String, Object?>{};
 
   @override
   String toString() => uri.toString();

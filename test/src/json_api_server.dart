@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/handler.dart';
 import 'package:json_api/http.dart';
 
 class JsonApiServer {

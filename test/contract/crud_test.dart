@@ -6,10 +6,11 @@ import 'package:test/test.dart';
 import '../src/demo_handler.dart';
 
 void main() {
-  late JsonApiClient client;
+  late RoutingClient client;
 
   setUp(() async {
-    client = JsonApiClient(DemoHandler(), RecommendedUrlDesign.pathOnly);
+    client =
+        RoutingClient(StandardUriDesign.pathOnly, BasicClient(DemoHandler()));
   });
 
   group('CRUD', () {
@@ -26,19 +27,19 @@ void main() {
           .resource;
       post = (await client.createNew('posts',
               attributes: {'title': 'Hello world'},
-              one: {'author': Identifier(alice.ref)},
+              one: {'author': Identifier.of(alice)},
               many: {'comments': []}))
           .resource;
       comment = (await client.createNew('comments',
               attributes: {'text': 'Hi Alice'},
-              one: {'author': Identifier(bob.ref)}))
+              one: {'author': Identifier.of(bob)}))
           .resource;
       secretComment = (await client.createNew('comments',
               attributes: {'text': 'Secret comment'},
-              one: {'author': Identifier(bob.ref)}))
+              one: {'author': Identifier.of(bob)}))
           .resource;
-      await client.addMany(
-          post.ref.type, post.ref.id, 'comments', [Identifier(comment.ref)]);
+      await client
+          .addMany(post.type, post.id, 'comments', [Identifier.of(comment)]);
     });
 
     test('Fetch a complex resource', () async {
@@ -62,14 +63,14 @@ void main() {
     });
 
     test('Delete a resource', () async {
-      await client.deleteResource(post.ref.type, post.ref.id);
+      await client.deleteResource(post.type, post.id);
       await client.fetchCollection('posts').then((r) {
         expect(r.collection, isEmpty);
       });
     });
 
     test('Update a resource', () async {
-      await client.updateResource(post.ref.type, post.ref.id,
+      await client.updateResource(post.type, post.id,
           attributes: {'title': 'Bob was here'});
       await client.fetchCollection('posts').then((r) {
         expect(r.collection.single.attributes['title'], 'Bob was here');
@@ -77,66 +78,62 @@ void main() {
     });
 
     test('Fetch a related resource', () async {
-      await client
-          .fetchRelatedResource(post.ref.type, post.ref.id, 'author')
-          .then((r) {
+      await client.fetchRelatedResource(post.type, post.id, 'author').then((r) {
         expect(r.resource?.attributes['name'], 'Alice');
       });
     });
 
     test('Fetch a related collection', () async {
       await client
-          .fetchRelatedCollection(post.ref.type, post.ref.id, 'comments')
+          .fetchRelatedCollection(post.type, post.id, 'comments')
           .then((r) {
         expect(r.collection.single.attributes['text'], 'Hi Alice');
       });
     });
 
     test('Fetch a to-one relationship', () async {
-      await client.fetchToOne(post.ref.type, post.ref.id, 'author').then((r) {
-        expect(r.relationship.identifier?.ref, alice.ref);
+      await client.fetchToOne(post.type, post.id, 'author').then((r) {
+        expect(Identity.same(r.relationship.identifier!, alice), isTrue);
       });
     });
 
     test('Fetch a to-many relationship', () async {
-      await client
-          .fetchToMany(post.ref.type, post.ref.id, 'comments')
-          .then((r) {
-        expect(r.relationship.single.ref, comment.ref);
+      await client.fetchToMany(post.type, post.id, 'comments').then((r) {
+        expect(Identity.same(r.relationship.single, comment), isTrue);
       });
     });
 
     test('Delete a to-one relationship', () async {
-      await client.deleteToOne(post.ref.type, post.ref.id, 'author');
-      await client.fetchResource(post.ref.type, post.ref.id,
-          include: ['author']).then((r) {
+      await client.deleteToOne(post.type, post.id, 'author');
+      await client
+          .fetchResource(post.type, post.id, include: ['author']).then((r) {
         expect(r.resource.one('author'), isEmpty);
       });
     });
 
     test('Replace a to-one relationship', () async {
       await client.replaceToOne(
-          post.ref.type, post.ref.id, 'author', Identifier(bob.ref));
-      await client.fetchResource(post.ref.type, post.ref.id,
-          include: ['author']).then((r) {
+          post.type, post.id, 'author', Identifier.of(bob));
+      await client
+          .fetchResource(post.type, post.id, include: ['author']).then((r) {
         expect(r.resource.one('author')?.findIn(r.included)?.attributes['name'],
             'Bob');
       });
     });
 
     test('Delete from a to-many relationship', () async {
-      await client.deleteFromToMany(
-          post.ref.type, post.ref.id, 'comments', [Identifier(comment.ref)]);
-      await client.fetchResource(post.ref.type, post.ref.id).then((r) {
+      await client.deleteFromMany(
+          post.type, post.id, 'comments', [Identifier.of(comment)]);
+      await client.fetchResource(post.type, post.id).then((r) {
         expect(r.resource.many('comments'), isEmpty);
       });
     });
 
     test('Replace a to-many relationship', () async {
-      await client.replaceToMany(post.ref.type, post.ref.id, 'comments',
-          [Identifier(secretComment.ref)]);
-      await client.fetchResource(post.ref.type, post.ref.id,
-          include: ['comments']).then((r) {
+      await client.replaceToMany(
+          post.type, post.id, 'comments', [Identifier.of(secretComment)]);
+      await client
+          .fetchResource(post.type, post.id, include: ['comments']).then((r) {
         expect(
             r.resource
                 .many('comments')!
@@ -152,6 +149,26 @@ void main() {
                 .attributes['text'],
             'Secret comment');
       });
+    });
+
+    test('Incomplete relationship', () async {});
+
+    test('404', () async {
+      final actions = <Future Function()>[
+        () => client.fetchCollection('unicorns'),
+        () => client.fetchResource('posts', 'zzz'),
+        () => client.fetchRelatedResource(post.type, post.id, 'zzz'),
+        () => client.fetchToOne(post.type, post.id, 'zzz'),
+        () => client.fetchToMany(post.type, post.id, 'zzz'),
+      ];
+      for (final action in actions) {
+        try {
+          await action();
+          fail('Exception expected');
+        } on RequestFailure catch (e) {
+          expect(e.http.statusCode, 404);
+        }
+      }
     });
   });
 }

@@ -1,14 +1,15 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/handler.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
-import 'package:json_api/src/server/_internal/cors_http_handler.dart';
+import 'package:json_api/src/http/handler.dart';
 import 'package:json_api/src/server/_internal/in_memory_repo.dart';
 import 'package:json_api/src/server/_internal/repo.dart';
 import 'package:json_api/src/server/_internal/repository_controller.dart';
 import 'package:json_api/src/server/method_not_allowed.dart';
 import 'package:json_api/src/server/unmatched_target.dart';
+
+import 'sequential_numbers.dart';
 
 class DemoHandler implements Handler<HttpRequest, HttpResponse> {
   DemoHandler(
@@ -17,9 +18,9 @@ class DemoHandler implements Handler<HttpRequest, HttpResponse> {
     final repo = InMemoryRepo(['users', 'posts', 'comments']);
 
     _handler = LoggingHandler(
-        CorsHttpHandler(TryCatchHandler(
-            Router(RepositoryController(repo, _nextId),
-                RecommendedUrlDesign.pathOnly.match),
+        _Cors(TryCatchHandler(
+            Router(RepositoryController(repo, sequentialNumbers),
+                StandardUriDesign.matchTarget),
             _onError)),
         onResponse: logResponse,
         onRequest: logRequest);
@@ -49,13 +50,41 @@ class DemoHandler implements Handler<HttpRequest, HttpResponse> {
       return JsonApiResponse.notFound(
           OutboundErrorDocument([ErrorObject(title: 'RelationshipNotFound')]));
     }
-    return JsonApiResponse.internalServerError(OutboundErrorDocument([
-      ErrorObject(
-          title: 'Error: ${error.runtimeType}', detail: error.toString())
-    ]));
+    return JsonApiResponse(500,
+        document: OutboundErrorDocument([
+          ErrorObject(
+              title: 'Error: ${error.runtimeType}', detail: error.toString())
+        ]));
   }
 }
 
-int _id = 0;
+/// Adds CORS headers and handles pre-flight requests.
+class _Cors implements Handler<HttpRequest, HttpResponse> {
+  _Cors(this._handler);
 
-String _nextId() => (_id++).toString();
+  final Handler<HttpRequest, HttpResponse> _handler;
+
+  @override
+  Future<HttpResponse> call(HttpRequest request) async {
+    final headers = {
+      'Access-Control-Allow-Origin': request.headers['origin'] ?? '*',
+      'Access-Control-Expose-Headers': 'Location',
+    };
+
+    if (request.isOptions) {
+      const methods = ['POST', 'GET', 'DELETE', 'PATCH', 'OPTIONS'];
+      return HttpResponse(204)
+        ..headers.addAll({
+          ...headers,
+          'Access-Control-Allow-Methods':
+              // TODO: Chrome works only with uppercase, but Firefox - only without. WTF?
+              request.headers['Access-Control-Request-Method']?.toUpperCase() ??
+                  methods.join(', '),
+          'Access-Control-Allow-Headers':
+              request.headers['Access-Control-Request-Headers'] ?? '*',
+        });
+    }
+    return await _handler(request)
+      ..headers.addAll(headers);
+  }
+}

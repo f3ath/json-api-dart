@@ -1,15 +1,14 @@
-import 'package:json_api/core.dart';
 import 'package:json_api/document.dart';
-import 'package:json_api/src/client/collection.dart';
+import 'package:json_api/src/document/resource_collection.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/relationship.dart';
 
 class ToMany extends Relationship {
   ToMany(Iterable<Identifier> identifiers) {
-    identifiers.forEach((_) => _map[_.ref] = _);
+    identifiers.forEach((_) => _map[_.key] = _);
   }
 
-  final _map = <Ref, Identifier>{};
+  final _map = <String, Identifier>{};
 
   @override
   Map<String, Object> toJson() =>

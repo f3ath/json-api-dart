@@ -1,4 +1,4 @@
-import 'package:json_api/handler.dart';
+import 'package:json_api/src/http/handler.dart';
 import 'package:test/test.dart';
 
 void main() {

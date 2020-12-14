@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:json_api/core.dart';
 import 'package:json_api/document.dart';
 import 'package:test/test.dart';
 
@@ -15,10 +14,10 @@ void main() {
             ..meta['foo'] = [42]
             ..attributes['color'] = 'green'
             ..relationships['one'] =
-                (ToOne(Identifier(Ref('rel', '1'))..meta['rel'] = 1)
+                (ToOne(Identifier('rel', '1')..meta['rel'] = 1)
                   ..meta['one'] = 1)
             ..relationships['many'] =
-                (ToMany([Identifier(Ref('rel', '1'))..meta['rel'] = 1])
+                (ToMany([Identifier('rel', '1')..meta['rel'] = 1])
                   ..meta['many'] = 1)),
           jsonEncode({
             'type': 'test_type',

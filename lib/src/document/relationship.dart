@@ -5,7 +5,7 @@ import 'package:json_api/src/document/link.dart';
 
 class Relationship with IterableMixin<Identifier /*!*/ > {
   final links = <String, Link>{};
-  final meta = <String, Object /*?*/ >{};
+  final meta = <String, Object?>{};
 
   Map<String, dynamic> toJson() => {
         if (links.isNotEmpty) 'links': links,
@@ -13,5 +13,5 @@ class Relationship with IterableMixin<Identifier /*!*/ > {
       };
 
   @override
-  Iterator<Identifier /*!*/ > get iterator => const <Identifier>[].iterator;
+  Iterator<Identifier> get iterator => const <Identifier>[].iterator;
 }

@@ -1,14 +1,15 @@
+// @dart=2.9
 import 'package:http/http.dart';
-import 'package:json_api/handler.dart';
 import 'package:json_api/http.dart';
 
 abstract class DartHttpHandler implements Handler<HttpRequest, HttpResponse> {
-  factory DartHttpHandler([Client? client]) =>
-      client != null ? _Persistent(client) : _OneOff();
+  factory DartHttpHandler([Client /*?*/ client]) => client != null
+      ? _PersistentDartHttpHandler(client)
+      : _OneOffDartHttpHandler();
 }
 
-class _Persistent implements DartHttpHandler {
-  _Persistent(this.client);
+class _PersistentDartHttpHandler implements DartHttpHandler {
+  _PersistentDartHttpHandler(this.client);
 
   final Client client;
 
@@ -23,12 +24,12 @@ class _Persistent implements DartHttpHandler {
   }
 }
 
-class _OneOff implements DartHttpHandler {
+class _OneOffDartHttpHandler implements DartHttpHandler {
   @override
   Future<HttpResponse> call(HttpRequest request) async {
     final client = Client();
     try {
-      return await _Persistent(client).call(request);
+      return await _PersistentDartHttpHandler(client).call(request);
     } finally {
       client.close();
     }

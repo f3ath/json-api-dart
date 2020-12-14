@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:json_api/core.dart';
 import 'package:json_api/document.dart';
 import 'package:test/test.dart';
 
@@ -36,8 +35,8 @@ void main() {
   });
 
   group('Data', () {
-    final book = Resource(Ref('books', '1'));
-    final author = Resource(Ref('people', '2'));
+    final book = Resource('books', '1');
+    final author = Resource('people', '2');
     group('Resource', () {
       test('minimal', () {
         expect(toObject(OutboundDataDocument.resource(book)), {
@@ -91,7 +90,7 @@ void main() {
       });
       test('full', () {
         expect(
-            toObject(OutboundDataDocument.one(ToOne(Identifier(book.ref))
+            toObject(OutboundDataDocument.one(ToOne(Identifier.of(book))
               ..meta['foo'] = 42
               ..links['self'] = Link(Uri.parse('/books/1')))
               ..included.add(author)),
@@ -112,7 +111,7 @@ void main() {
       });
       test('full', () {
         expect(
-            toObject(OutboundDataDocument.many(ToMany([Identifier(book.ref)])
+            toObject(OutboundDataDocument.many(ToMany([Identifier.of(book)])
               ..meta['foo'] = 42
               ..links['self'] = Link(Uri.parse('/books/1')))
               ..included.add(author)),

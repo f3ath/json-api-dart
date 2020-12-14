@@ -1,13 +1,8 @@
-import 'dart:collection';
+import 'package:json_api/src/http/http_headers.dart';
 
-class HttpMessage {
+class HttpMessage with HttpHeaders {
   HttpMessage(this.body);
 
   /// Message body
   final String body;
-
-  /// Message headers. Case-insensitive.
-  final headers = LinkedHashMap<String, String>(
-      equals: (a, b) => a.toLowerCase() == b.toLowerCase(),
-      hashCode: (s) => s.toLowerCase().hashCode);
 }

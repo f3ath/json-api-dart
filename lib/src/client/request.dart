@@ -1,47 +1,53 @@
-import 'dart:convert';
-
-import 'package:json_api/routing.dart';
-import 'package:json_api/src/nullable.dart';
+import 'package:json_api/query.dart';
+import 'package:json_api/src/http/http_headers.dart';
 
 /// JSON:API request consumed by the client
-class Request {
-  Request(this.method, this.target, {Object? document})
-      : body = nullable(jsonEncode)(document) ?? '';
+class Request with HttpHeaders {
+  Request(this.method, [this.document]);
+
+  Request.get() : this('get');
+
+  Request.post([Object? document]) : this('post', document);
+
+  Request.delete([Object? document]) : this('delete', document);
+
+  Request.patch([Object? document]) : this('patch', document);
 
   /// HTTP method
   final String method;
 
-  /// Request target
-  final Target target;
+  final Object? document;
 
-  /// Encoded document or an empty string.
-  final String body;
+  /// Query parameters
+  final query = <String, String>{};
 
-  /// Any extra HTTP headers.
-  final headers = <String, String>{};
-
-  /// A list of dot-separated relationships to include.
+  /// Requests inclusion of related resources.
   /// See https://jsonapi.org/format/#fetching-includes
-  final include = <String>[];
+  void include(Iterable<String> include) {
+    query.addAll(Include(include).asQueryParameters);
+  }
 
-  /// Sorting parameters.
+  /// Sets sorting parameters.
   /// See https://jsonapi.org/format/#fetching-sorting
-  final sort = <String>[];
+  void sort(Iterable<String> sort) {
+    query.addAll(Sort(sort).asQueryParameters);
+  }
 
-  /// Sparse fieldsets.
+  /// Requests sparse fieldsets.
   /// See https://jsonapi.org/format/#fetching-sparse-fieldsets
-  final fields = <String, Iterable<String>>{};
+  void fields(Map<String, Iterable<String>> fields) {
+    query.addAll(Fields(fields).asQueryParameters);
+  }
 
-  /// Pagination parameters.
+  /// Sets pagination parameters.
   /// See https://jsonapi.org/format/#fetching-pagination
-  final page = <String, String>{};
+  void page(Map<String, String> page) {
+    query.addAll(Page(page).asQueryParameters);
+  }
 
   /// Response filtering.
   /// https://jsonapi.org/format/#fetching-filtering
-  final filter = <String, String>{};
-
-  /// Any general query parameters.
-  /// If passed, this parameter will override other parameters set through
-  /// [include], [sort], [fields], [page], and [filter].
-  final query = <String, String>{};
+  void filter(Map<String, String> filter) {
+    query.addAll(Filter(filter).asQueryParameters);
+  }
 }

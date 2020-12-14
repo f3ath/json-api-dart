@@ -1,4 +1,5 @@
-import 'package:json_api/core.dart';
+import 'package:json_api/document.dart';
+import 'package:json_api/src/nullable.dart';
 
 import 'repo.dart';
 
@@ -17,57 +18,57 @@ class InMemoryRepo implements Repo {
   }
 
   @override
-  Future<Model> fetch(Ref ref) async {
-    return _model(ref);
+  Future<Model> fetch(String type, String id) async {
+    return _model(type, id);
   }
 
   @override
-  Future<void> persist(Model model) async {
-    _collection(model.ref.type)[model.ref.id] = model;
+  Future<void> persist(String type, Model model) async {
+    _collection(type)[model.id] = model;
   }
 
   @override
-  Stream<Ref> addMany(Ref ref, String rel, Iterable<Ref> refs) {
-    final model = _model(ref);
-    final many = model.many[rel];
-    if (many == null) throw RelationshipNotFound(rel);
-    many.addAll(refs);
+  Stream<Identity> addMany(
+      String type, String id, String rel, Iterable<Identity> ids) {
+    final many = _many(type, id, rel);
+    many.addAll(ids.map(Ref.of));
     return Stream.fromIterable(many);
   }
 
   @override
-  Future<void> delete(Ref ref) async {
-    _collection(ref.type).remove(ref.id);
+  Future<void> delete(String type, String id) async {
+    _collection(type).remove(id);
   }
 
   @override
-  Future<void> update(Ref ref, ModelProps props) async {
-    _model(ref).setFrom(props);
+  Future<void> update(String type, String id, ModelProps props) async {
+    _model(type, id).setFrom(props);
   }
 
   @override
-  Future<void> replaceOne(Ref ref, String rel, Ref? one) async {
-    _model(ref).one[rel] = one;
+  Future<void> replaceOne(
+      String type, String id, String rel, Identity? one) async {
+    _model(type, id).one[rel] = nullable(Ref.of)(one);
   }
 
   @override
-  Stream<Ref> deleteMany(Ref ref, String rel, Iterable<Ref> refs) {
-    return Stream.fromIterable(_many(ref, rel)..removeAll(refs));
-  }
+  Stream<Identity> deleteMany(
+          String type, String id, String rel, Iterable<Identity> many) =>
+      Stream.fromIterable(_many(type, id, rel)..removeAll(many.map(Ref.of)));
 
   @override
-  Stream<Ref> replaceMany(Ref ref, String rel, Iterable<Ref> refs) {
-    return Stream.fromIterable(_many(ref, rel)
-      ..clear()
-      ..addAll(refs));
-  }
+  Stream<Identity> replaceMany(
+          String type, String id, String rel, Iterable<Identity> many) =>
+      Stream.fromIterable(_many(type, id, rel)
+        ..clear()
+        ..addAll(many.map(Ref.of)));
 
   Map<String, Model> _collection(String type) =>
       (_storage[type] ?? (throw CollectionNotFound()));
 
-  Model _model(Ref ref) =>
-      _collection(ref.type)[ref.id] ?? (throw ResourceNotFound());
+  Model _model(String type, String id) =>
+      _collection(type)[id] ?? (throw ResourceNotFound());
 
-  Set<Ref> _many(Ref ref, String rel) =>
-      _model(ref).many[rel] ?? (throw RelationshipNotFound(rel));
+  Set<Ref> _many(String type, String id, String rel) =>
+      _model(type, id).many[rel] ?? (throw RelationshipNotFound());
 }

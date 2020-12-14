@@ -1,7 +1,3 @@
-/// This library defines the idea of a composable generic
-/// async (request/response) handler.
-library handler;
-
 /// A generic async handler
 abstract class Handler<Rq, Rs> {
   static Handler<Rq, Rs> lambda<Rq, Rs>(Future<Rs> Function(Rq request) fun) =>

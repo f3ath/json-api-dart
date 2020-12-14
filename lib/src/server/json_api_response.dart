@@ -18,23 +18,19 @@ class JsonApiResponse<D extends OutboundDocument> extends HttpResponse {
   String get body => nullable(jsonEncode)(document) ?? '';
 
   static JsonApiResponse ok(OutboundDocument document) =>
-      JsonApiResponse(200, document: document);
+      JsonApiResponse(StatusCode.ok, document: document);
 
-  static JsonApiResponse noContent() => JsonApiResponse(204);
+  static JsonApiResponse noContent() => JsonApiResponse(StatusCode.noContent);
 
   static JsonApiResponse created(OutboundDocument document, String location) =>
-      JsonApiResponse(201, document: document)..headers['location'] = location;
+      JsonApiResponse(StatusCode.created, document: document)..headers['location'] = location;
 
   static JsonApiResponse notFound([OutboundErrorDocument? document]) =>
-      JsonApiResponse(404, document: document);
+      JsonApiResponse(StatusCode.notFound, document: document);
 
   static JsonApiResponse methodNotAllowed([OutboundErrorDocument? document]) =>
-      JsonApiResponse(405, document: document);
+      JsonApiResponse(StatusCode.methodNotAllowed, document: document);
 
   static JsonApiResponse badRequest([OutboundErrorDocument? document]) =>
-      JsonApiResponse(400, document: document);
-
-  static JsonApiResponse internalServerError(
-          [OutboundErrorDocument? document]) =>
-      JsonApiResponse(500, document: document);
+      JsonApiResponse(StatusCode.badRequest, document: document);
 }

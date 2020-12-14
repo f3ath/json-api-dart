@@ -5,7 +5,7 @@ import 'package:json_api/src/document/resource.dart';
 /// An empty outbound document.
 class OutboundDocument {
   /// The document "meta" object.
-  final meta = <String, Object>{};
+  final meta = <String, Object?>{};
 
   Map<String, Object?> toJson() => {'meta': meta};
 }

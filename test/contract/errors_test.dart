@@ -1,30 +1,28 @@
 import 'package:json_api/client.dart';
-import 'package:json_api/core.dart';
 import 'package:json_api/http.dart';
-import 'package:json_api/routing.dart';
 import 'package:test/test.dart';
 
 import '../src/demo_handler.dart';
 
 void main() {
-  late JsonApiClient client;
+  late BasicClient client;
 
   setUp(() async {
-    client = JsonApiClient(DemoHandler(), RecommendedUrlDesign.pathOnly);
+    client = BasicClient(DemoHandler());
   });
 
   group('Errors', () {
     test('Method not allowed', () async {
-      final ref = Ref('posts', '1');
-      final badRequests = [
-        Request('delete', CollectionTarget('posts')),
-        Request('post', ResourceTarget(ref)),
-        Request('post', RelatedTarget(ref, 'author')),
-        Request('head', RelationshipTarget(ref, 'author')),
+      final actions = [
+        () => client.send(Uri.parse('/posts'), Request('delete')),
+        () => client.send(Uri.parse('/posts/1'), Request('post')),
+        () => client.send(Uri.parse('/posts/1/author'), Request('post')),
+        () => client.send(
+            Uri.parse('/posts/1/relationships/author'), Request('head')),
       ];
-      for (final request in badRequests) {
+      for (final action in actions) {
         try {
-          await client.send(request);
+          await action();
           fail('Exception expected');
         } on RequestFailure catch (response) {
           expect(response.http.statusCode, 405);
@@ -35,20 +33,6 @@ void main() {
       final r = await DemoHandler()
           .call(HttpRequest('get', Uri.parse('/a/long/prefix/')));
       expect(r.statusCode, 400);
-    });
-    test('404', () async {
-      final actions = <Future Function()>[
-        () => client.fetchCollection('unicorns'),
-        () => client.fetchResource('posts', '1'),
-      ];
-      for (final action in actions) {
-        try {
-          await action();
-          fail('Exception expected');
-        } on RequestFailure catch (e) {
-          expect(e.http.statusCode, 404);
-        }
-      }
     });
   });
 }

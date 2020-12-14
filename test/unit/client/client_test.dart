@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:json_api/client.dart';
-import 'package:json_api/core.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/test/mock_handler.dart';
@@ -10,7 +9,7 @@ import 'package:test/test.dart';
 
 void main() {
   final http = MockHandler();
-  final client = JsonApiClient(http, RecommendedUrlDesign.pathOnly);
+  final client = RoutingClient(StandardUriDesign.pathOnly, BasicClient(http));
 
   group('Failure', () {
     test('RequestFailure', () async {
@@ -39,8 +38,8 @@ void main() {
     test('Min', () async {
       http.response = mock.collectionMin;
       final response = await client.fetchCollection('articles');
-      expect(response.collection.single.ref.type, 'articles');
-      expect(response.collection.single.ref.id, '1');
+      expect(response.collection.single.type, 'articles');
+      expect(response.collection.single.id, '1');
       expect(response.included, isEmpty);
       expect(http.request.method, 'get');
       expect(http.request.uri.toString(), '/articles');
@@ -129,7 +128,7 @@ void main() {
     test('Min', () async {
       http.response = mock.primaryResource;
       final response = await client.fetchResource('articles', '1');
-      expect(response.resource.ref.type, 'articles');
+      expect(response.resource.type, 'articles');
       expect(http.request.method, 'get');
       expect(http.request.uri.toString(), '/articles/1');
       expect(http.request.headers, {'Accept': 'application/vnd.api+json'});
@@ -146,7 +145,7 @@ void main() {
       ], fields: {
         'author': ['name']
       });
-      expect(response.resource.ref.type, 'articles');
+      expect(response.resource.type, 'articles');
       expect(response.included.length, 3);
       expect(http.request.method, 'get');
       expect(http.request.uri.path, '/articles/1');
@@ -162,7 +161,7 @@ void main() {
       http.response = mock.primaryResource;
       final response =
           await client.fetchRelatedResource('articles', '1', 'author');
-      expect(response.resource?.ref.type, 'articles');
+      expect(response.resource?.type, 'articles');
       expect(response.included.length, 3);
       expect(http.request.method, 'get');
       expect(http.request.uri.toString(), '/articles/1/author');
@@ -181,7 +180,7 @@ void main() {
       ], fields: {
         'author': ['name']
       });
-      expect(response.resource?.ref.type, 'articles');
+      expect(response.resource?.type, 'articles');
       expect(response.included.length, 3);
       expect(http.request.method, 'get');
       expect(http.request.uri.path, '/articles/1/author');
@@ -230,7 +229,7 @@ void main() {
     test('Min', () async {
       http.response = mock.primaryResource;
       final response = await client.createNew('articles');
-      expect(response.resource.ref.type, 'articles');
+      expect(response.resource.type, 'articles');
       expect(
           response.links['self'].toString(), 'http://example.com/articles/1');
       expect(response.included.length, 3);
@@ -250,15 +249,15 @@ void main() {
       final response = await client.createNew('articles', attributes: {
         'cool': true
       }, one: {
-        'author': Identifier(Ref('people', '42'))..meta.addAll({'hey': 'yos'})
+        'author': Identifier('people', '42')..meta.addAll({'hey': 'yos'})
       }, many: {
-        'tags': [Identifier(Ref('tags', '1')), Identifier(Ref('tags', '2'))]
+        'tags': [Identifier('tags', '1'), Identifier('tags', '2')]
       }, meta: {
         'answer': 42
       }, headers: {
         'foo': 'bar'
       });
-      expect(response.resource.ref.type, 'articles');
+      expect(response.resource.type, 'articles');
       expect(
           response.links['self'].toString(), 'http://example.com/articles/1');
       expect(response.included.length, 3);
@@ -298,7 +297,7 @@ void main() {
     test('Min', () async {
       http.response = mock.primaryResource;
       final response = await client.create('articles', '1');
-      expect(response.resource?.ref.type, 'articles');
+      expect(response.resource?.type, 'articles');
       expect(http.request.method, 'post');
       expect(http.request.uri.toString(), '/articles');
       expect(http.request.headers, {
@@ -330,15 +329,15 @@ void main() {
       final response = await client.create('articles', '1', attributes: {
         'cool': true
       }, one: {
-        'author': Identifier(Ref('people', '42'))..meta.addAll({'hey': 'yos'})
+        'author': Identifier('people', '42')..meta.addAll({'hey': 'yos'})
       }, many: {
-        'tags': [Identifier(Ref('tags', '1')), Identifier(Ref('tags', '2'))]
+        'tags': [Identifier('tags', '1'), Identifier('tags', '2')]
       }, meta: {
         'answer': 42
       }, headers: {
         'foo': 'bar'
       });
-      expect(response.resource?.ref.type, 'articles');
+      expect(response.resource?.type, 'articles');
       expect(http.request.method, 'post');
       expect(http.request.uri.toString(), '/articles');
       expect(http.request.headers, {
@@ -376,7 +375,7 @@ void main() {
     test('Min', () async {
       http.response = mock.primaryResource;
       final response = await client.updateResource('articles', '1');
-      expect(response.resource?.ref.type, 'articles');
+      expect(response.resource?.type, 'articles');
       expect(http.request.method, 'patch');
       expect(http.request.uri.toString(), '/articles/1');
       expect(http.request.headers, {
@@ -409,15 +408,15 @@ void main() {
           await client.updateResource('articles', '1', attributes: {
         'cool': true
       }, one: {
-        'author': Identifier(Ref('people', '42'))..meta.addAll({'hey': 'yos'})
+        'author': Identifier('people', '42')..meta.addAll({'hey': 'yos'})
       }, many: {
-        'tags': [Identifier(Ref('tags', '1')), Identifier(Ref('tags', '2'))]
+        'tags': [Identifier('tags', '1'), Identifier('tags', '2')]
       }, meta: {
         'answer': 42
       }, headers: {
         'foo': 'bar'
       });
-      expect(response.resource?.ref.type, 'articles');
+      expect(response.resource?.type, 'articles');
       expect(http.request.method, 'patch');
       expect(http.request.uri.toString(), '/articles/1');
       expect(http.request.headers, {
@@ -455,7 +454,7 @@ void main() {
     test('Min', () async {
       http.response = mock.one;
       final response = await client.replaceToOne(
-          'articles', '1', 'author', Identifier(Ref('people', '42')));
+          'articles', '1', 'author', Identifier('people', '42'));
       expect(response.relationship, isA<ToOne>());
       expect(http.request.method, 'patch');
       expect(http.request.uri.toString(), '/articles/1/relationships/author');
@@ -471,7 +470,7 @@ void main() {
     test('Full', () async {
       http.response = mock.one;
       final response = await client.replaceToOne(
-          'articles', '1', 'author', Identifier(Ref('people', '42')),
+          'articles', '1', 'author', Identifier('people', '42'),
           headers: {'foo': 'bar'});
       expect(response.relationship, isA<ToOne>());
       expect(http.request.method, 'patch');
@@ -490,7 +489,7 @@ void main() {
       http.response = mock.error422;
       try {
         await client.replaceToOne(
-            'articles', '1', 'author', Identifier(Ref('people', '42')));
+            'articles', '1', 'author', Identifier('people', '42'));
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 422);
@@ -502,7 +501,7 @@ void main() {
       http.response = mock.many;
       expect(
           () => client.replaceToOne(
-              'articles', '1', 'author', Identifier(Ref('people', '42'))),
+              'articles', '1', 'author', Identifier('people', '42')),
           throwsFormatException);
     });
   });
@@ -512,7 +511,7 @@ void main() {
       http.response = mock.oneEmpty;
       final response = await client.deleteToOne('articles', '1', 'author');
       expect(response.relationship, isA<ToOne>());
-      expect(response.relationship.identifier, isNull);
+      expect(response.relationship!.identifier, isNull);
       expect(http.request.method, 'patch');
       expect(http.request.uri.toString(), '/articles/1/relationships/author');
       expect(http.request.headers, {
@@ -527,7 +526,7 @@ void main() {
       final response = await client
           .deleteToOne('articles', '1', 'author', headers: {'foo': 'bar'});
       expect(response.relationship, isA<ToOne>());
-      expect(response.relationship.identifier, isNull);
+      expect(response.relationship!.identifier, isNull);
       expect(http.request.method, 'patch');
       expect(http.request.uri.toString(), '/articles/1/relationships/author');
       expect(http.request.headers, {
@@ -559,8 +558,8 @@ void main() {
   group('Delete Many', () {
     test('Min', () async {
       http.response = mock.many;
-      final response = await client.deleteFromToMany(
-          'articles', '1', 'tags', [Identifier(Ref('tags', '1'))]);
+      final response = await client
+          .deleteFromMany('articles', '1', 'tags', [Identifier('tags', '1')]);
       expect(response.relationship, isA<ToMany>());
       expect(http.request.method, 'delete');
       expect(http.request.uri.toString(), '/articles/1/relationships/tags');
@@ -577,8 +576,8 @@ void main() {
 
     test('Full', () async {
       http.response = mock.many;
-      final response = await client.deleteFromToMany(
-          'articles', '1', 'tags', [Identifier(Ref('tags', '1'))],
+      final response = await client.deleteFromMany(
+          'articles', '1', 'tags', [Identifier('tags', '1')],
           headers: {'foo': 'bar'});
       expect(response.relationship, isA<ToMany>());
       expect(http.request.method, 'delete');
@@ -598,8 +597,8 @@ void main() {
     test('Throws RequestFailure', () async {
       http.response = mock.error422;
       try {
-        await client.deleteFromToMany(
-            'articles', '1', 'tags', [Identifier(Ref('tags', '1'))]);
+        await client
+            .deleteFromMany('articles', '1', 'tags', [Identifier('tags', '1')]);
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 422);
@@ -610,8 +609,8 @@ void main() {
     test('Throws FormatException', () async {
       http.response = mock.one;
       expect(
-          () => client.deleteFromToMany(
-              'articles', '1', 'tags', [Identifier(Ref('tags', '1'))]),
+          () => client.deleteFromMany(
+              'articles', '1', 'tags', [Identifier('tags', '1')]),
           throwsFormatException);
     });
   });
@@ -619,8 +618,8 @@ void main() {
   group('Replace Many', () {
     test('Min', () async {
       http.response = mock.many;
-      final response = await client.replaceToMany(
-          'articles', '1', 'tags', [Identifier(Ref('tags', '1'))]);
+      final response = await client
+          .replaceToMany('articles', '1', 'tags', [Identifier('tags', '1')]);
       expect(response.relationship, isA<ToMany>());
       expect(http.request.method, 'patch');
       expect(http.request.uri.toString(), '/articles/1/relationships/tags');
@@ -638,7 +637,7 @@ void main() {
     test('Full', () async {
       http.response = mock.many;
       final response = await client.replaceToMany(
-          'articles', '1', 'tags', [Identifier(Ref('tags', '1'))],
+          'articles', '1', 'tags', [Identifier('tags', '1')],
           headers: {'foo': 'bar'});
       expect(response.relationship, isA<ToMany>());
       expect(http.request.method, 'patch');
@@ -658,8 +657,8 @@ void main() {
     test('Throws RequestFailure', () async {
       http.response = mock.error422;
       try {
-        await client.replaceToMany(
-            'articles', '1', 'tags', [Identifier(Ref('tags', '1'))]);
+        await client
+            .replaceToMany('articles', '1', 'tags', [Identifier('tags', '1')]);
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 422);
@@ -671,7 +670,7 @@ void main() {
       http.response = mock.one;
       expect(
           () => client.replaceToMany(
-              'articles', '1', 'tags', [Identifier(Ref('tags', '1'))]),
+              'articles', '1', 'tags', [Identifier('tags', '1')]),
           throwsFormatException);
     });
   });
@@ -680,7 +679,7 @@ void main() {
     test('Min', () async {
       http.response = mock.many;
       final response = await client
-          .addMany('articles', '1', 'tags', [Identifier(Ref('tags', '1'))]);
+          .addMany('articles', '1', 'tags', [Identifier('tags', '1')]);
       expect(response.relationship, isA<ToMany>());
       expect(http.request.method, 'post');
       expect(http.request.uri.toString(), '/articles/1/relationships/tags');
@@ -698,7 +697,7 @@ void main() {
     test('Full', () async {
       http.response = mock.many;
       final response = await client.addMany(
-          'articles', '1', 'tags', [Identifier(Ref('tags', '1'))],
+          'articles', '1', 'tags', [Identifier('tags', '1')],
           headers: {'foo': 'bar'});
       expect(response.relationship, isA<ToMany>());
       expect(http.request.method, 'post');
@@ -719,7 +718,7 @@ void main() {
       http.response = mock.error422;
       try {
         await client
-            .addMany('articles', '1', 'tags', [Identifier(Ref('tags', '1'))]);
+            .addMany('articles', '1', 'tags', [Identifier('tags', '1')]);
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.http.statusCode, 422);
@@ -732,7 +731,7 @@ void main() {
       http.response = mock.one;
       expect(
           () => client
-              .addMany('articles', '1', 'tags', [Identifier(Ref('tags', '1'))]),
+              .addMany('articles', '1', 'tags', [Identifier('tags', '1')]),
           throwsFormatException);
     });
   });

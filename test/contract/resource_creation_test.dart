@@ -5,10 +5,11 @@ import 'package:test/test.dart';
 import '../src/demo_handler.dart';
 
 void main() {
-  late JsonApiClient client;
+  late RoutingClient client;
 
   setUp(() async {
-    client = JsonApiClient(DemoHandler(), RecommendedUrlDesign.pathOnly);
+    client =
+        RoutingClient(StandardUriDesign.pathOnly, BasicClient(DemoHandler()));
   });
 
   group('Resource creation', () {
@@ -16,13 +17,11 @@ void main() {
       await client
           .createNew('posts', attributes: {'title': 'Hello world'}).then((r) {
         expect(r.http.statusCode, 201);
-        // TODO: Why does "Location" header not work in browsers?
-        expect(r.http.headers['location'], '/posts/${r.resource.ref.id}');
-        expect(r.links['self'].toString(), '/posts/${r.resource.ref.id}');
-        expect(r.resource.ref.type, 'posts');
+        expect(r.http.headers['location'], '/posts/${r.resource.id}');
+        expect(r.links['self'].toString(), '/posts/${r.resource.id}');
+        expect(r.resource.type, 'posts');
         expect(r.resource.attributes['title'], 'Hello world');
-        expect(
-            r.resource.links['self'].toString(), '/posts/${r.resource.ref.id}');
+        expect(r.resource.links['self'].toString(), '/posts/${r.resource.id}');
       });
     });
     test('Resource id assigned on the client', () async {
