@@ -1,4 +1,4 @@
-import 'package:json_api/src/http/handler.dart';
+import 'package:json_api/handler.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -7,7 +7,7 @@ void main() {
     String? loggedResponse;
 
     final handler =
-        LoggingHandler(Handler.lambda((String s) async => s.toUpperCase()),
+        LoggingHandler(AsyncHandler.lambda((String s) async => s.toUpperCase()),
             onRequest: (String rq) {
       loggedRequest = rq;
     }, onResponse: (String rs) {

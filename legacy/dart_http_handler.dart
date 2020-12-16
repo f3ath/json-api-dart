@@ -1,8 +1,9 @@
 // @dart=2.9
 import 'package:http/http.dart';
+import 'package:json_api/handler.dart';
 import 'package:json_api/http.dart';
 
-abstract class DartHttpHandler implements Handler<HttpRequest, HttpResponse> {
+abstract class DartHttpHandler implements AsyncHandler<HttpRequest, HttpResponse> {
   factory DartHttpHandler([Client /*?*/ client]) => client != null
       ? _PersistentDartHttpHandler(client)
       : _OneOffDartHttpHandler();

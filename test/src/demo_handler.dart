@@ -2,7 +2,7 @@ import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
-import 'package:json_api/src/http/handler.dart';
+import 'package:json_api/handler.dart';
 import 'package:json_api/src/server/_internal/in_memory_repo.dart';
 import 'package:json_api/src/server/_internal/repo.dart';
 import 'package:json_api/src/server/_internal/repository_controller.dart';
@@ -11,7 +11,7 @@ import 'package:json_api/src/server/unmatched_target.dart';
 
 import 'sequential_numbers.dart';
 
-class DemoHandler implements Handler<HttpRequest, HttpResponse> {
+class DemoHandler implements AsyncHandler<HttpRequest, HttpResponse> {
   DemoHandler(
       {void Function(HttpRequest request)? logRequest,
       void Function(HttpResponse response)? logResponse}) {
@@ -26,7 +26,7 @@ class DemoHandler implements Handler<HttpRequest, HttpResponse> {
         onRequest: logRequest);
   }
 
-  late Handler<HttpRequest, HttpResponse> _handler;
+  late AsyncHandler<HttpRequest, HttpResponse> _handler;
 
   @override
   Future<HttpResponse> call(HttpRequest request) => _handler.call(request);
@@ -59,10 +59,10 @@ class DemoHandler implements Handler<HttpRequest, HttpResponse> {
 }
 
 /// Adds CORS headers and handles pre-flight requests.
-class _Cors implements Handler<HttpRequest, HttpResponse> {
+class _Cors implements AsyncHandler<HttpRequest, HttpResponse> {
   _Cors(this._handler);
 
-  final Handler<HttpRequest, HttpResponse> _handler;
+  final AsyncHandler<HttpRequest, HttpResponse> _handler;
 
   @override
   Future<HttpResponse> call(HttpRequest request) async {

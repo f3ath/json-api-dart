@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:io' as io;
 
-import 'package:json_api/src/http/handler.dart';
+import 'package:json_api/handler.dart';
 import 'package:json_api/http.dart';
 
 Future<void> Function(io.HttpRequest ioRequest) dartIOHttpHandler(
-  Handler<HttpRequest, HttpResponse> handler,
+  AsyncHandler<HttpRequest, HttpResponse> handler,
 ) =>
     (request) async {
       final headers = <String, String>{};

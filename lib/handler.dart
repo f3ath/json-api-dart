@@ -1,20 +1,23 @@
+library handler;
+
 /// A generic async handler
-abstract class Handler<Rq, Rs> {
-  static Handler<Rq, Rs> lambda<Rq, Rs>(Future<Rs> Function(Rq request) fun) =>
+abstract class AsyncHandler<Rq, Rs> {
+  static AsyncHandler<Rq, Rs> lambda<Rq, Rs>(
+          Future<Rs> Function(Rq request) fun) =>
       _FunHandler(fun);
 
   Future<Rs> call(Rq request);
 }
 
-/// A wrapper over [Handler] which allows logging
-class LoggingHandler<Rq, Rs> implements Handler<Rq, Rs> {
+/// A wrapper over [AsyncHandler] which allows logging
+class LoggingHandler<Rq, Rs> implements AsyncHandler<Rq, Rs> {
   LoggingHandler(this._handler,
       {void Function(Rq request)? onRequest,
       void Function(Rs response)? onResponse})
       : _onRequest = onRequest ?? _nothing,
         _onResponse = onResponse ?? _nothing;
 
-  final Handler<Rq, Rs> _handler;
+  final AsyncHandler<Rq, Rs> _handler;
   final void Function(Rq request) _onRequest;
   final void Function(Rs response) _onResponse;
 
@@ -30,10 +33,10 @@ class LoggingHandler<Rq, Rs> implements Handler<Rq, Rs> {
 /// Calls the wrapped handler within a try-catch block.
 /// When a response object is thrown, returns it.
 /// When any other error is thrown, converts it using the callback.
-class TryCatchHandler<Rq, Rs extends Object> implements Handler<Rq, Rs> {
+class TryCatchHandler<Rq, Rs extends Object> implements AsyncHandler<Rq, Rs> {
   TryCatchHandler(this._handler, this._onError);
 
-  final Handler<Rq, Rs> _handler;
+  final AsyncHandler<Rq, Rs> _handler;
   final Future<Rs> Function(dynamic error) _onError;
 
   @override
@@ -48,7 +51,7 @@ class TryCatchHandler<Rq, Rs extends Object> implements Handler<Rq, Rs> {
   }
 }
 
-class _FunHandler<Rq, Rs> implements Handler<Rq, Rs> {
+class _FunHandler<Rq, Rs> implements AsyncHandler<Rq, Rs> {
   _FunHandler(this.handle);
 
   final Future<Rs> Function(Rq request) handle;

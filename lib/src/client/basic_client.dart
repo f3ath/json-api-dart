@@ -1,4 +1,5 @@
 import 'package:json_api/codec.dart';
+import 'package:json_api/handler.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/src/client/request.dart';
 import 'package:json_api/src/client/response/request_failure.dart';
@@ -9,7 +10,7 @@ class BasicClient {
   BasicClient(this._http, {PayloadCodec? codec})
       : _codec = codec ?? const DefaultCodec();
 
-  final Handler<HttpRequest, HttpResponse> _http;
+  final AsyncHandler<HttpRequest, HttpResponse> _http;
   final PayloadCodec _codec;
 
   /// Sends the [request] to the server.
