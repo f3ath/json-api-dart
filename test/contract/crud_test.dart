@@ -3,7 +3,7 @@ import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
 import 'package:test/test.dart';
 
-import '../src/demo_handler.dart';
+import '../../demo/demo_handler.dart';
 
 void main() {
   late RoutingClient client;

@@ -5,10 +5,11 @@ import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/document/inbound_document.dart';
 import 'package:json_api/src/nullable.dart';
-import 'package:json_api/src/server/_internal/relationship_node.dart';
-import 'package:json_api/src/server/_internal/repo.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/json_api_response.dart';
+
+import 'relationship_node.dart';
+import 'repo.dart';
 
 class RepositoryController implements Controller<JsonApiResponse> {
   RepositoryController(this.repo, this.getId);

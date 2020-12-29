@@ -3,6 +3,7 @@ import 'package:json_api/src/nullable.dart';
 
 import 'repo.dart';
 
+
 class InMemoryRepo implements Repo {
   InMemoryRepo(Iterable<String> types) {
     types.forEach((_) {

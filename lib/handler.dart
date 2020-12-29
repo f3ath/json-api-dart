@@ -60,4 +60,4 @@ class _FunHandler<Rq, Rs> implements AsyncHandler<Rq, Rs> {
   Future<Rs> call(Rq request) => handle(request);
 }
 
-void _nothing(dynamic any) {}
+void _nothing(any) {}

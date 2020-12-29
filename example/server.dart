@@ -1,8 +1,8 @@
 // @dart=2.10
 import 'dart:io' as io;
 
-import '../test/src/demo_handler.dart';
-import '../test/src/json_api_server.dart';
+import '../demo/demo_handler.dart';
+import '../demo/json_api_server.dart';
 
 Future<void> main() async {
   final server = JsonApiServer(DemoHandler(

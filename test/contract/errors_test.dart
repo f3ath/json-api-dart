@@ -2,7 +2,7 @@ import 'package:json_api/client.dart';
 import 'package:json_api/http.dart';
 import 'package:test/test.dart';
 
-import '../src/demo_handler.dart';
+import '../../demo/demo_handler.dart';
 
 void main() {
   late BasicClient client;

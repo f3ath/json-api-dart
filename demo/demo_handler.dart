@@ -3,12 +3,10 @@ import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 import 'package:json_api/handler.dart';
-import 'package:json_api/src/server/_internal/in_memory_repo.dart';
-import 'package:json_api/src/server/_internal/repo.dart';
-import 'package:json_api/src/server/_internal/repository_controller.dart';
-import 'package:json_api/src/server/method_not_allowed.dart';
-import 'package:json_api/src/server/unmatched_target.dart';
 
+import 'in_memory_repo.dart';
+import 'repo.dart';
+import 'repository_controller.dart';
 import 'sequential_numbers.dart';
 
 class DemoHandler implements AsyncHandler<HttpRequest, HttpResponse> {
