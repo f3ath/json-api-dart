@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Everything. Again. This is another major **BC-breaking** rework. Please refer to 
-  the documentation, examples and tests.
+  the API documentation, examples and tests.
 
 ## [4.0.0] - 2020-02-29
 ### Changed
