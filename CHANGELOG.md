@@ -12,6 +12,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Everything. Again. This is another major **BC-breaking** rework. Please refer to 
   the API documentation, examples and tests.
 
+## [4.3.0] - 2020-07-30
+### Added
+- `meta` parameter for createResourceAt()
+
+### Removed
+- Dropped support for Dart 2.6
+
+## [4.2.2] - 2020-06-05
+### Fixed
+- Client throws NoSuchMethodError on unexpected primary data ([issue](https://github.com/f3ath/json-api-dart/issues/102)).
+
+## [4.2.1] - 2020-06-04
+### Fixed
+- The server library was not exporting `Controller`.
+- `ResourceData.toJson()` was not calling the underlying `ResourceObject.toJson()`.
+
+## [4.2.0] - 2020-06-03
+### Added
+- Filtering support for collections ([pr](https://github.com/f3ath/json-api-dart/pull/97))
+
+### Changed
+- The client will not attempt to decode the body of the HTTP response with error status if the correct Content-Type
+  is missing. Before in such cases a `FormatException` would be thrown ([pr](https://github.com/f3ath/json-api-dart/pull/98))
+
+## [4.1.0] - 2020-05-28
+### Changed
+- `DartHttp` now defaults to utf8 if no encoding is specified in the response.
+
 ## [4.0.0] - 2020-02-29
 ### Changed
 - Everything. This is a major **BC-breaking** rework which affected pretty much all areas. Please refer to the documentation.
@@ -159,12 +187,17 @@ Most of the changes are **BC-BREAKING**.
 - Resource creation
 - Resource deletion
 
-## 0.1.0 - 2019-02-27
+## [0.1.0] - 2019-02-27
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
-[5.0.0]: https://github.com/f3ath/json-api-dart/compare/4.0.0..5.0.0
-[4.0.0]: https://github.com/f3ath/json-api-dart/compare/3.2.2..4.0.0
+[5.0.0]: https://github.com/f3ath/json-api-dart/compare/4.3.0..5.0.0
+[4.3.0]: https://github.com/f3ath/json-api-dart/compare/4.2.2...4.3.0
+[4.2.2]: https://github.com/f3ath/json-api-dart/compare/4.2.1...4.2.2
+[4.2.1]: https://github.com/f3ath/json-api-dart/compare/4.2.0...4.2.1
+[4.2.0]: https://github.com/f3ath/json-api-dart/compare/4.1.0...4.2.0
+[4.1.0]: https://github.com/f3ath/json-api-dart/compare/4.0.0...4.1.0
+[4.0.0]: https://github.com/f3ath/json-api-dart/compare/3.2.2...4.0.0
 [3.2.3]: https://github.com/f3ath/json-api-dart/compare/3.2.2..3.2.3
 [3.2.2]: https://github.com/f3ath/json-api-dart/compare/3.2.1..3.2.2
 [3.2.1]: https://github.com/f3ath/json-api-dart/compare/3.2.0...3.2.1
@@ -183,3 +216,4 @@ Most of the changes are **BC-BREAKING**.
 [0.4.0]: https://github.com/f3ath/json-api-dart/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/f3ath/json-api-dart/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/f3ath/json-api-dart/compare/0.1.0...0.2.0
+[0.1.0]: https://github.com/f3ath/json-api-dart/releases/tag/0.1.0
