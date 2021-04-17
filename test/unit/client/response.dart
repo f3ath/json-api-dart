@@ -9,7 +9,7 @@ final collectionMin = HttpResponse(200,
         {'type': 'articles', 'id': '1'}
       ]
     }))
-  ..headers.addAll({'Content-Type': MediaType.jsonApi});
+  ..headers.addAll({'Content-Type': mediaType});
 
 final collectionFull = HttpResponse(200,
     body: jsonEncode({
@@ -80,7 +80,7 @@ final collectionFull = HttpResponse(200,
         }
       ]
     }))
-  ..headers.addAll({'Content-Type': MediaType.jsonApi});
+  ..headers.addAll({'Content-Type': mediaType});
 
 final primaryResource = HttpResponse(200,
     body: jsonEncode({
@@ -130,13 +130,13 @@ final primaryResource = HttpResponse(200,
         }
       ]
     }))
-  ..headers.addAll({'Content-Type': MediaType.jsonApi});
+  ..headers.addAll({'Content-Type': mediaType});
 final relatedResourceNull = HttpResponse(200,
     body: jsonEncode({
       'links': {'self': 'http://example.com/articles/1/author'},
       'data': null
     }))
-  ..headers.addAll({'Content-Type': MediaType.jsonApi});
+  ..headers.addAll({'Content-Type': mediaType});
 final one = HttpResponse(200,
     body: jsonEncode({
       'links': {
@@ -179,7 +179,7 @@ final one = HttpResponse(200,
         }
       ]
     }))
-  ..headers.addAll({'Content-Type': MediaType.jsonApi});
+  ..headers.addAll({'Content-Type': mediaType});
 
 final oneEmpty = HttpResponse(200,
     body: jsonEncode({
@@ -223,7 +223,7 @@ final oneEmpty = HttpResponse(200,
         }
       ]
     }))
-  ..headers.addAll({'Content-Type': MediaType.jsonApi});
+  ..headers.addAll({'Content-Type': mediaType});
 
 final many = HttpResponse(200,
     body: jsonEncode({
@@ -235,7 +235,7 @@ final many = HttpResponse(200,
         {'type': 'tags', 'id': '12'}
       ]
     }))
-  ..headers.addAll({'Content-Type': MediaType.jsonApi});
+  ..headers.addAll({'Content-Type': mediaType});
 
 final noContent = HttpResponse(204);
 
@@ -250,6 +250,6 @@ final error422 = HttpResponse(422,
         }
       ]
     }))
-  ..headers.addAll({'Content-Type': MediaType.jsonApi});
+  ..headers.addAll({'Content-Type': mediaType});
 
 final error500 = HttpResponse(500);

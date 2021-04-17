@@ -8,7 +8,7 @@ import 'package:json_api/src/nullable.dart';
 class Response<D extends OutboundDocument> extends HttpResponse {
   Response(int statusCode, {this.document}) : super(statusCode) {
     if (document != null) {
-      headers['Content-Type'] = MediaType.jsonApi;
+      headers['Content-Type'] = mediaType;
     }
   }
 
