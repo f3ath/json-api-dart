@@ -14,12 +14,12 @@ void main() {
     final bytesBodyEn = utf8.encode(stringBodyEn);
 
     final buildResponse = (
-        List<int> bytesBody,
-        Encoding encoding,
-        ) async {
+      List<int> bytesBody,
+      Encoding encoding,
+    ) async {
       final dartHttp = PersistentHandler(
         MockClient(
-              (request) async {
+          (request) async {
             return http.Response.bytes(bytesBody, 200);
           },
         ),
