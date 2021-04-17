@@ -1,4 +1,4 @@
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:json_api/http.dart';
 
 /// Handler which relies on the built-in Dart HTTP client.
@@ -9,11 +9,11 @@ class PersistentHandler {
   /// the [client] when it's not longer needed.
   PersistentHandler(this.client);
 
-  final http.Client client;
+  final Client client;
 
   Future<HttpResponse> call(HttpRequest request) async {
-    final response = await http.Response.fromStream(
-        await client.send(http.Request(request.method, request.uri)
+    final response = await Response.fromStream(
+        await client.send(Request(request.method, request.uri)
           ..headers.addAll(request.headers)
           ..body = request.body));
     return HttpResponse(response.statusCode, body: response.body)

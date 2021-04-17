@@ -5,7 +5,7 @@ class MockHandler implements HttpHandler {
   late HttpResponse response;
 
   @override
-  Future<HttpResponse> call(HttpRequest request) async {
+  Future<HttpResponse> handle(HttpRequest request) async {
     this.request = request;
     return response;
   }

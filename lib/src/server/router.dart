@@ -11,7 +11,7 @@ class Router implements HttpHandler {
   final Target? Function(Uri uri) _matchTarget;
 
   @override
-  Future<HttpResponse> call(HttpRequest request) async {
+  Future<HttpResponse> handle(HttpRequest request) async {
     final target = _matchTarget(request.uri);
     if (target is RelationshipTarget) {
       if (request.isGet) {

@@ -2,11 +2,10 @@ import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
-import 'package:json_api/src/_testing/in_memory_repo.dart';
-import 'package:json_api/src/_testing/repository.dart';
-import 'package:json_api/src/_testing/repository_controller.dart';
-import 'package:json_api/src/_testing/try_catch_handler.dart';
-import 'package:uuid/uuid.dart';
+import 'in_memory_repo.dart';
+import 'repository.dart';
+import 'repository_controller.dart';
+import 'try_catch_handler.dart';
 
 class DemoHandler extends LoggingHandler {
   DemoHandler({
@@ -15,7 +14,7 @@ class DemoHandler extends LoggingHandler {
     Function(HttpResponse response)? onResponse,
   }) : super(
             TryCatchHandler(
-                Router(RepositoryController(InMemoryRepo(types), Uuid().v4),
+                Router(RepositoryController(InMemoryRepo(types), _id),
                     StandardUriDesign.matchTarget),
                 onError: _onError),
             onRequest: onRequest,
@@ -47,3 +46,7 @@ class DemoHandler extends LoggingHandler {
         ]));
   }
 }
+
+int _counter = 0;
+
+String _id() => (_counter++).toString();

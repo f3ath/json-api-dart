@@ -8,7 +8,7 @@ class DisposableHandler implements HttpHandler {
   const DisposableHandler();
 
   @override
-  Future<HttpResponse> call(HttpRequest request) async {
+  Future<HttpResponse> handle(HttpRequest request) async {
     final client = Client();
     try {
       return await PersistentHandler(client).call(request);

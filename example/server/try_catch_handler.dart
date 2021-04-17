@@ -1,18 +1,18 @@
 import 'package:json_api/http.dart';
 
 class TryCatchHandler implements HttpHandler {
-  TryCatchHandler(this.handler, {this.onError = sendInternalServerError});
+  TryCatchHandler(this._inner, {this.onError = sendInternalServerError});
 
-  final HttpHandler handler;
+  final HttpHandler _inner;
   final Future<HttpResponse> Function(dynamic error) onError;
 
   static Future<HttpResponse> sendInternalServerError(dynamic e) async =>
       HttpResponse(500);
 
   @override
-  Future<HttpResponse> call(HttpRequest request) async {
+  Future<HttpResponse> handle(HttpRequest request) async {
     try {
-      return await handler(request);
+      return await _inner.handle(request);
     } on HttpResponse catch (response) {
       return response;
     } catch (error) {

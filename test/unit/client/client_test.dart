@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/src/_testing/mock_handler.dart';
-import 'package:json_api/src/_testing/response.dart' as mock;
+import '../../../example/server/mock_handler.dart';
+import '../../../example/server/response.dart' as mock;
 import 'package:test/test.dart';
 
 void main() {

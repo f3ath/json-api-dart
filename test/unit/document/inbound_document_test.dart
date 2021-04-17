@@ -1,5 +1,5 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/src/_testing/payload.dart' as payload;
+import 'file:///home/f3ath/project/json-api-dart/test/unit/document/payload.dart' as payload;
 import 'package:test/test.dart';
 
 void main() {

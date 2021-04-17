@@ -1,14 +1,12 @@
-import 'package:json_api/src/http/http_handler.dart';
-import 'package:json_api/src/http/http_request.dart';
-import 'package:json_api/src/http/http_response.dart';
+import 'package:json_api/http.dart';
 
 class CorsHandler implements HttpHandler {
-  CorsHandler(this._handler);
+  CorsHandler(this._inner);
 
-  final HttpHandler _handler;
+  final HttpHandler _inner;
 
   @override
-  Future<HttpResponse> call(HttpRequest request) async {
+  Future<HttpResponse> handle(HttpRequest request) async {
     final headers = {
       'Access-Control-Allow-Origin': request.headers['origin'] ?? '*',
       'Access-Control-Expose-Headers': 'Location',
@@ -27,7 +25,7 @@ class CorsHandler implements HttpHandler {
               request.headers['Access-Control-Request-Headers'] ?? '*',
         });
     }
-    return await _handler(request)
+    return await _inner.handle(request)
       ..headers.addAll(headers);
   }
 }

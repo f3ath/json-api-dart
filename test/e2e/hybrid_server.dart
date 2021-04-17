@@ -1,5 +1,5 @@
-import 'package:json_api/src/_testing/demo_handler.dart';
-import 'package:json_api/src/_testing/json_api_server.dart';
+import '../../example/server/demo_handler.dart';
+import '../../example/server/json_api_server.dart';
 import 'package:stream_channel/stream_channel.dart';
 
 void hybridMain(StreamChannel channel, Object message) async {

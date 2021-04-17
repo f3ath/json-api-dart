@@ -11,9 +11,9 @@ class LoggingHandler implements HttpHandler {
   final Function(HttpResponse response)? onResponse;
 
   @override
-  Future<HttpResponse> call(HttpRequest request) async {
+  Future<HttpResponse> handle(HttpRequest request) async {
     onRequest?.call(request);
-    final response = await handler(request);
+    final response = await handler.handle(request);
     onResponse?.call(response);
     return response;
   }

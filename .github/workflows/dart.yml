@@ -23,4 +23,6 @@ jobs:
       - name: Analyzer
         run: dart analyze --fatal-infos --fatal-warnings
       - name: Tests
-        run: dart run test_coverage --no-badge --print-test-output --min-coverage 100 --exclude=test/e2e/*
+        run: dart test --coverage=.coverage -j1
+      - name: Coverage
+        run: dart run coverage:format_coverage -l -c -i .coverage --report-on=lib --packages=.packages | dart run check_coverage:check_coverage

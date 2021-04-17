@@ -19,7 +19,7 @@ class Client {
   /// Throws a [RequestFailure] if the server responds with an error.
   Future<Response> send(Uri uri, Request request) async {
     final body = await _encode(request.document);
-    final response = await _http.call(HttpRequest(
+    final response = await _http.handle(HttpRequest(
         request.method,
         request.query.isEmpty
             ? uri

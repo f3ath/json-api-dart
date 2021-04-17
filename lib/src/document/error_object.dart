@@ -53,7 +53,4 @@ class ErrorObject {
         if (links.isNotEmpty) 'links': links,
         if (meta.isNotEmpty) 'meta': meta,
       };
-
-  @override
-  String toString() => toJson().toString();
 }

@@ -18,8 +18,7 @@ class RepositoryController implements Controller {
   final design = StandardUriDesign.pathOnly;
 
   @override
-  Future<Response> fetchCollection(
-      HttpRequest request, Target target) async {
+  Future<Response> fetchCollection(HttpRequest request, Target target) async {
     final resources = await _fetchAll(target.type).toList();
     final doc = OutboundDataDocument.collection(resources)
       ..links['self'] = Link(design.collection(target.type));

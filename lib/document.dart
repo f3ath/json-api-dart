@@ -1,3 +1,4 @@
+/// JSON:API Document model.
 library document;
 
 export 'package:json_api/src/document/error_object.dart';

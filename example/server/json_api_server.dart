@@ -44,7 +44,7 @@ class JsonApiServer {
     server.listen((request) async {
       final headers = <String, String>{};
       request.headers.forEach((k, v) => headers[k] = v.join(','));
-      final response = await _handler.call(HttpRequest(
+      final response = await _handler.handle(HttpRequest(
           request.method, request.requestedUri,
           body: await request.cast<List<int>>().transform(utf8.decoder).join())
         ..headers.addAll(headers));

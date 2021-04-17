@@ -1,6 +1,6 @@
 import 'package:json_api/client.dart';
 import 'package:json_api/http.dart';
-import 'package:json_api/src/_testing/demo_handler.dart';
+import '../../example/server/demo_handler.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -30,7 +30,7 @@ void main() {
     });
     test('Bad request when target can not be matched', () async {
       final r = await DemoHandler()
-          .call(HttpRequest('get', Uri.parse('/a/long/prefix/')));
+          .handle(HttpRequest('get', Uri.parse('/a/long/prefix/')));
       expect(r.statusCode, 400);
     });
   });

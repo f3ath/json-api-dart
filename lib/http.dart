@@ -1,7 +1,7 @@
 /// This is a thin HTTP layer abstraction used by the client
 library http;
 
-export 'package:json_api/src/http/cors_handler.dart';
+export 'file:///home/f3ath/project/json-api-dart/example/server/cors_handler.dart';
 export 'package:json_api/src/http/http_handler.dart';
 export 'package:json_api/src/http/http_headers.dart';
 export 'package:json_api/src/http/http_message.dart';

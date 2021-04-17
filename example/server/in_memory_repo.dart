@@ -1,5 +1,5 @@
 import 'package:json_api/document.dart';
-import 'package:json_api/src/_testing/repository.dart';
+import 'repository.dart';
 import 'package:json_api/src/nullable.dart';
 
 class InMemoryRepo implements Repository {
