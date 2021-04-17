@@ -13,8 +13,7 @@ import 'package:json_api/src/client/response/resource_updated.dart';
 
 /// A routing JSON:API client
 class RoutingClient {
-  RoutingClient(this._uri, {Client client = const Client()})
-      : _client = client;
+  RoutingClient(this._uri, {Client client = const Client()}) : _client = client;
 
   final Client _client;
   final UriDesign _uri;

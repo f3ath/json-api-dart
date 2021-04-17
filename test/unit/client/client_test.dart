@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
+import 'package:test/test.dart';
+
 import '../../../example/server/mock_handler.dart';
 import '../../../example/server/response.dart' as mock;
-import 'package:test/test.dart';
 
 void main() {
   final http = MockHandler();

@@ -1,6 +1,7 @@
 import 'package:json_api/document.dart';
-import 'repository.dart';
 import 'package:json_api/src/nullable.dart';
+
+import 'repository.dart';
 
 class InMemoryRepo implements Repository {
   InMemoryRepo(Iterable<String> types) {

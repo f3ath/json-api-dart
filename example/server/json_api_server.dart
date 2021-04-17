@@ -5,10 +5,10 @@ import 'package:json_api/http.dart';
 
 class JsonApiServer {
   JsonApiServer(
-      this._handler, {
-        this.host = 'localhost',
-        this.port = 8080,
-      });
+    this._handler, {
+    this.host = 'localhost',
+    this.port = 8080,
+  });
 
   /// Server host name
   final String host;

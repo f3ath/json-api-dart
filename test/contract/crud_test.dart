@@ -1,8 +1,9 @@
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
-import '../../example/server/demo_handler.dart';
 import 'package:test/test.dart';
+
+import '../../example/server/demo_handler.dart';
 
 void main() {
   late RoutingClient client;

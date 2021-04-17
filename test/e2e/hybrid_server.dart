@@ -1,6 +1,7 @@
+import 'package:stream_channel/stream_channel.dart';
+
 import '../../example/server/demo_handler.dart';
 import '../../example/server/json_api_server.dart';
-import 'package:stream_channel/stream_channel.dart';
 
 void hybridMain(StreamChannel channel, Object message) async {
   final host = 'localhost';

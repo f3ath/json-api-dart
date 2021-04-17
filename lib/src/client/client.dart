@@ -8,7 +8,7 @@ import 'package:json_api/src/client/response/request_failure.dart';
 class Client {
   const Client(
       {PayloadCodec codec = const PayloadCodec(),
-        HttpHandler handler = const DisposableHandler()})
+      HttpHandler handler = const DisposableHandler()})
       : _codec = codec,
         _http = handler;
 

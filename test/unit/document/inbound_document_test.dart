@@ -1,6 +1,7 @@
 import 'package:json_api/document.dart';
-import 'file:///home/f3ath/project/json-api-dart/test/unit/document/payload.dart' as payload;
 import 'package:test/test.dart';
+
+import 'payload.dart' as payload;
 
 void main() {
   group('InboundDocument', () {
