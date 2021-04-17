@@ -1,21 +1,24 @@
+import 'package:json_api/src/http/http_message.dart';
+
 /// The request which is sent by the client and received by the server
-class HttpRequest {
-  HttpRequest(String method, this.uri,
-      {String body, Map<String, String> headers})
-      : headers = Map.unmodifiable(
-            (headers ?? {}).map((k, v) => MapEntry(k.toLowerCase(), v))),
-        method = method.toUpperCase(),
-        body = body ?? '';
+class HttpRequest extends HttpMessage {
+  HttpRequest(String method, this.uri, {String body = ''})
+      : method = method.toLowerCase(),
+        super(body);
 
   /// Requested URI
   final Uri uri;
 
-  /// Request method, uppercase
+  /// Request method, lowercase
   final String method;
 
-  /// Request body
-  final String body;
+  bool get isGet => method == 'get';
 
-  /// Request headers. Unmodifiable. Lowercase keys
-  final Map<String, String> headers;
+  bool get isPost => method == 'post';
+
+  bool get isDelete => method == 'delete';
+
+  bool get isPatch => method == 'patch';
+
+  bool get isOptions => method == 'options';
 }

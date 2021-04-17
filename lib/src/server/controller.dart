@@ -1,60 +1,41 @@
-import 'package:json_api/document.dart';
-import 'package:json_api/src/server/relationship_target.dart';
-import 'package:json_api/src/server/resource_target.dart';
+import 'package:json_api/http.dart';
+import 'package:json_api/routing.dart';
 
-/// This is a controller consolidating all possible requests a JSON:API server
-/// may handle.
-abstract class Controller<T> {
-  /// Finds an returns a primary resource collection.
-  /// See https://jsonapi.org/format/#fetching-resources
-  T fetchCollection(String type, Map<String, List<String>> queryParameters);
+/// JSON:API controller
+abstract class Controller {
+  /// Fetch a primary resource collection
+  Future<HttpResponse> fetchCollection(HttpRequest request, Target target);
 
-  /// Finds an returns a primary resource.
-  /// See https://jsonapi.org/format/#fetching-resources
-  T fetchResource(
-      ResourceTarget target, Map<String, List<String>> queryParameters);
+  /// Create resource
+  Future<HttpResponse> createResource(HttpRequest request, Target target);
 
-  /// Finds an returns a related resource or a collection of related resources.
-  /// See https://jsonapi.org/format/#fetching-resources
-  T fetchRelated(
-      RelationshipTarget target, Map<String, List<String>> queryParameters);
+  /// Fetch a single primary resource
+  Future<HttpResponse> fetchResource(
+      HttpRequest request, ResourceTarget target);
 
-  /// Finds an returns a relationship of a primary resource.
-  /// See https://jsonapi.org/format/#fetching-relationships
-  T fetchRelationship(
-      RelationshipTarget target, Map<String, List<String>> queryParameters);
+  /// Updates a primary resource
+  Future<HttpResponse> updateResource(
+      HttpRequest request, ResourceTarget target);
 
-  /// Deletes the resource.
-  /// See https://jsonapi.org/format/#crud-deleting
-  T deleteResource(ResourceTarget target);
+  /// Deletes the primary resource
+  Future<HttpResponse> deleteResource(
+      HttpRequest request, ResourceTarget target);
 
-  /// Creates a new resource in the collection.
-  /// See https://jsonapi.org/format/#crud-creating
-  T createResource(String type, Resource resource);
+  /// Fetches a relationship
+  Future<HttpResponse> fetchRelationship(
+      HttpRequest rq, RelationshipTarget target);
 
-  /// Updates the resource.
-  /// See https://jsonapi.org/format/#crud-updating
-  T updateResource(ResourceTarget target, Resource resource);
+  /// Add new entries to a to-many relationship
+  Future<HttpResponse> addMany(HttpRequest request, RelationshipTarget target);
 
-  /// Replaces the to-one relationship.
-  /// See https://jsonapi.org/format/#crud-updating-to-one-relationships
-  T replaceToOne(RelationshipTarget target, Identifier identifier);
+  /// Updates the relationship
+  Future<HttpResponse> replaceRelationship(
+      HttpRequest request, RelationshipTarget target);
 
-  /// Deletes the to-one relationship.
-  /// See https://jsonapi.org/format/#crud-updating-to-one-relationships
-  T deleteToOne(RelationshipTarget target);
+  /// Deletes the members from the to-many relationship
+  Future<HttpResponse> deleteMany(
+      HttpRequest request, RelationshipTarget target);
 
-  /// Replaces the to-many relationship.
-  /// See https://jsonapi.org/format/#crud-updating-to-many-relationships
-  T replaceToMany(RelationshipTarget target, Iterable<Identifier> identifiers);
-
-  /// Removes the given identifiers from the to-many relationship.
-  /// See https://jsonapi.org/format/#crud-updating-to-many-relationships
-  T deleteFromRelationship(
-      RelationshipTarget target, Iterable<Identifier> identifiers);
-
-  /// Adds the given identifiers to  the to-many relationship.
-  /// See https://jsonapi.org/format/#crud-updating-to-many-relationships
-  T addToRelationship(
-      RelationshipTarget target, Iterable<Identifier> identifiers);
+  /// Fetches related resource or collection
+  Future<HttpResponse> fetchRelated(HttpRequest request, RelatedTarget target);
 }

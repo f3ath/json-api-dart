@@ -1,30 +1,42 @@
-import 'package:json_api/src/query/query_parameters.dart';
+import 'dart:collection';
 
-/// Query parameters defining Filter
-/// @see https://jsonapi.org/recommendations/#filtering
-class Filter extends QueryParameters {
-  /// The [filter] argument maps the resource type to a list of filters.
-  ///
+class Filter with MapMixin<String, String> {
   /// Example:
   /// ```dart
-  /// Filter({'articles': ['title', 'body'], 'people': ['name']}).addTo(url);
+  /// Filter({'post': '1,2', 'author': '12'}).addTo(url);
   /// ```
-  /// encodes to
+  /// encodes into
   /// ```
-  /// ?filter[articles]=title,body&filter[people]=name
+  /// ?filter[post]=1,2&filter[author]=12
   /// ```
-  Filter(Map<String, List<String>> filter)
-      : _filter = {...filter},
-        super(filter.map((k, v) => MapEntry('filter[$k]', v.join(','))));
+  Filter([Map<String, String> parameters = const {}]) {
+    addAll(parameters);
+  }
 
-  /// Extracts the requested filter from the [uri].
-  static Filter fromUri(Uri uri) => Filter(uri.queryParameters
-      .map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1), v.split(',')))
-        ..removeWhere((k, v) => k == null));
-
-  List<String> operator [](String key) => _filter[key];
+  static Filter fromUri(Uri uri) => Filter(uri.queryParametersAll
+      .map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1) ?? '', v.last))
+        ..removeWhere((k, v) => k.isEmpty));
 
   static final _regex = RegExp(r'^filter\[(.+)\]$');
 
-  final Map<String, List<String>> _filter;
+  final _ = <String, String>{};
+
+  /// Converts to a map of query parameters
+  Map<String, String> get asQueryParameters =>
+      _.map((k, v) => MapEntry('filter[$k]', v));
+
+  @override
+  String? operator [](Object? key) => _[key];
+
+  @override
+  void operator []=(String key, String value) => _[key] = value;
+
+  @override
+  void clear() => _.clear();
+
+  @override
+  Iterable<String> get keys => _.keys;
+
+  @override
+  String? remove(Object? key) => _.remove(key);
 }

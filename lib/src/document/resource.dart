@@ -1,54 +1,24 @@
-import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/identity.dart';
+import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/resource_properties.dart';
 
-/// Resource
-///
-/// Together with [Identifier] forms the core of the Document model.
-/// Resources are passed between the server and the client in the form
-/// of [ResourceObject]s.
-class Resource {
-  /// Creates an instance of [Resource].
-  /// The [type] can not be null.
-  /// The [id] may be null for the resources to be created on the server.
-  Resource(this.type, this.id,
-      {Map<String, Object> attributes,
-      Map<String, Identifier> toOne,
-      Map<String, List<Identifier>> toMany})
-      : attributes = Map.unmodifiable(attributes ?? const {}),
-        toOne = Map.unmodifiable(toOne ?? const {}),
-        toMany = Map.unmodifiable(
-            (toMany ?? {}).map((k, v) => MapEntry(k, Set.of(v).toList()))) {
-    ArgumentError.notNull(type);
-  }
-
-  /// Resource type
-  final String type;
-
-  /// Resource id
-  ///
-  /// May be null for resources to be created on the server
-  final String id;
-
-  /// Unmodifiable map of attributes
-  final Map<String, Object> attributes;
-
-  /// Unmodifiable map of to-one relationships
-  final Map<String, Identifier> toOne;
-
-  /// Unmodifiable map of to-many relationships
-  final Map<String, List<Identifier>> toMany;
-
-  /// Resource type and id combined
-  String get key => '$type:$id';
+class Resource with ResourceProperties, Identity {
+  Resource(this.type, this.id);
 
   @override
-  String toString() => 'Resource($key $attributes)';
-}
+  final String type;
+  @override
+  final String id;
 
-/// Resource to be created on the server. Does not have the id yet
-class NewResource extends Resource {
-  NewResource(String type,
-      {Map<String, Object> attributes,
-      Map<String, Identifier> toOne,
-      Map<String, List<Identifier>> toMany})
-      : super(type, null, attributes: attributes, toOne: toOne, toMany: toMany);
+  /// Resource links
+  final links = <String, Link>{};
+
+  Map<String, Object> toJson() => {
+        'type': type,
+        'id': id,
+        if (attributes.isNotEmpty) 'attributes': attributes,
+        if (relationships.isNotEmpty) 'relationships': relationships,
+        if (links.isNotEmpty) 'links': links,
+        if (meta.isNotEmpty) 'meta': meta,
+      };
 }

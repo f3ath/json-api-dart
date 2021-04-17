@@ -1,39 +1,83 @@
 import 'dart:io';
 
+import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
+import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
+import 'package:uuid/uuid.dart';
 
-/// This example shows how to run a simple JSON:API server using the built-in
-/// HTTP server (dart:io).
-/// Run it: `dart example/server.dart`
-void main() async {
-  /// Listening on this port
+import 'server/in_memory_repo.dart';
+import 'server/json_api_server.dart';
+import 'server/repository.dart';
+import 'server/repository_controller.dart';
+import 'server/try_catch_handler.dart';
+
+Future<void> main() async {
+  final host = 'localhost';
   final port = 8080;
-
-  /// Listening on the localhost
-  final address = 'localhost';
-
-  /// Resource repository supports two kind of entities: writers and books
-  final repo = InMemoryRepository({'writers': {}, 'books': {}});
-
-  /// Controller provides JSON:API interface to the repository
-  final controller = RepositoryController(repo);
-
-  /// The JSON:API server routes requests to the controller
-  final jsonApiServer = JsonApiServer(controller);
-
-  /// We will be logging the requests and responses to the console
-  final loggingJsonApiServer = LoggingHttpHandler(jsonApiServer,
-      onRequest: (r) => print('${r.method} ${r.uri}'),
+  final resources = ['colors'];
+  final repo = InMemoryRepo(resources);
+  await addColors(repo);
+  final controller = RepositoryController(repo, Uuid().v4);
+  HttpHandler handler = Router(controller, StandardUriDesign.matchTarget);
+  handler = TryCatchHandler(handler, onError: convertError);
+  handler = LoggingHandler(handler,
+      onRequest: (r) => print('${r.method.toUpperCase()} ${r.uri}'),
       onResponse: (r) => print('${r.statusCode}'));
+  final server = JsonApiServer(handler, host: host, port: port);
 
-  /// The handler for the built-in HTTP server
-  final serverHandler = DartServer(loggingJsonApiServer);
+  ProcessSignal.sigint.watch().listen((event) async {
+    await server.stop();
+    exit(0);
+  });
 
-  /// Start the server
-  final server = await HttpServer.bind(address, port);
-  print('Listening on ${Uri(host: address, port: port, scheme: 'http')}');
+  await server.start();
 
-  /// Each HTTP request will be processed by the handler
-  await server.forEach(serverHandler);
+  print('The server is listening at $host:$port.'
+      ' Try opening the following URL(s) in your browser:');
+  resources.forEach((resource) {
+    print('http://$host:$port/$resource');
+  });
+}
+
+Future addColors(Repository repo) async {
+  final models = {
+    {'name': 'Salmon', 'r': 250, 'g': 128, 'b': 114},
+    {'name': 'Pink', 'r': 255, 'g': 192, 'b': 203},
+    {'name': 'Lime', 'r': 0, 'g': 255, 'b': 0},
+    {'name': 'Peru', 'r': 205, 'g': 133, 'b': 63},
+  }.map((color) => Model(Uuid().v4())
+    ..attributes['name'] = color['name']
+    ..attributes['red'] = color['r']
+    ..attributes['green'] = color['g']
+    ..attributes['blue'] = color['b']);
+  for (final model in models) {
+    await repo.persist('colors', model);
+  }
+}
+
+Future<HttpResponse> convertError(dynamic error) async {
+  if (error is MethodNotAllowed) {
+    return Response.methodNotAllowed();
+  }
+  if (error is UnmatchedTarget) {
+    return Response.badRequest();
+  }
+  if (error is CollectionNotFound) {
+    return Response.notFound(
+        OutboundErrorDocument([ErrorObject(title: 'CollectionNotFound')]));
+  }
+  if (error is ResourceNotFound) {
+    return Response.notFound(
+        OutboundErrorDocument([ErrorObject(title: 'ResourceNotFound')]));
+  }
+  if (error is RelationshipNotFound) {
+    return Response.notFound(
+        OutboundErrorDocument([ErrorObject(title: 'RelationshipNotFound')]));
+  }
+  return Response(500,
+      document: OutboundErrorDocument([
+        ErrorObject(
+            title: 'Error: ${error.runtimeType}', detail: error.toString())
+      ]));
 }

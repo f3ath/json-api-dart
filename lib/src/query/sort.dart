@@ -1,65 +1,67 @@
 import 'dart:collection';
 
-import 'package:json_api/src/query/query_parameters.dart';
-
 /// Query parameters defining the sorting.
 /// @see https://jsonapi.org/format/#fetching-sorting
-class Sort extends QueryParameters with IterableMixin<SortField> {
+class Sort with IterableMixin<SortField> {
   /// The [fields] arguments is the list of sorting criteria.
-  /// Use [Asc] and [Desc] to define sort direction.
   ///
   /// Example:
   /// ```dart
-  /// Sort([Asc('created'), Desc('title')]).addTo(url);
+  /// Sort(['-created', 'title']);
   /// ```
-  /// encodes into
-  /// ```
-  /// ?sort=-created,title
-  /// ```
-  Sort(Iterable<SortField> fields)
-      : _fields = [...fields],
-        super({'sort': fields.join(',')});
-  final List<SortField> _fields;
+  Sort([Iterable<String> fields = const []]) {
+    _.addAll(fields.map((SortField.parse)));
+  }
 
-  static Sort fromUri(Uri uri) => fromQueryParameters(uri.queryParametersAll);
+  static Sort fromUri(Uri uri) =>
+      Sort((uri.queryParametersAll['sort']?.expand((_) => _.split(',')) ?? []));
 
-  static Sort fromQueryParameters(Map<String, List<String>> queryParameters) =>
-      Sort((queryParameters['sort']?.expand((_) => _.split(',')) ?? [])
-          .map(SortField.parse));
+  final _ = <SortField>[];
+
+  /// Converts to a map of query parameters
+  Map<String, String> get asQueryParameters =>
+      {if (isNotEmpty) 'sort': join(',')};
 
   @override
-  Iterator<SortField> get iterator => _fields.iterator;
+  int get length => _.length;
+
+  @override
+  Iterator<SortField> get iterator => _.iterator;
 }
 
-class SortField {
-  SortField.Asc(this.name)
-      : isAsc = true,
-        isDesc = false;
-
-  SortField.Desc(this.name)
-      : isAsc = false,
-        isDesc = true;
-
+abstract class SortField {
   static SortField parse(String queryParam) => queryParam.startsWith('-')
       ? Desc(queryParam.substring(1))
       : Asc(queryParam);
-  final bool isAsc;
 
-  final bool isDesc;
-
-  final String name;
+  String get name;
 
   /// Returns 1 for Ascending fields, -1 for Descending
-  int get comparisonFactor => isAsc ? 1 : -1;
+  int get factor;
+}
+
+class Asc implements SortField {
+  const Asc(this.name);
 
   @override
-  String toString() => isAsc ? name : '-$name';
+  final String name;
+
+  @override
+  final int factor = 1;
+
+  @override
+  String toString() => name;
 }
 
-class Asc extends SortField {
-  Asc(String name) : super.Asc(name);
-}
+class Desc implements SortField {
+  const Desc(this.name);
 
-class Desc extends SortField {
-  Desc(String name) : super.Desc(name);
+  @override
+  final String name;
+
+  @override
+  final int factor = -1;
+
+  @override
+  String toString() => '-$name';
 }

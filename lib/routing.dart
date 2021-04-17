@@ -1,6 +1,7 @@
-export 'package:json_api/src/routing/composite_routing.dart';
-export 'package:json_api/src/routing/route_factory.dart';
-export 'package:json_api/src/routing/route_matcher.dart';
-export 'package:json_api/src/routing/routes.dart';
-export 'package:json_api/src/routing/standard_routes.dart';
-export 'package:json_api/src/routing/standard_routing.dart';
+/// Routing describes the design of URLs on the server.
+/// See https://jsonapi.org/recommendations/#urls
+library routing;
+
+export 'package:json_api/src/routing/standard_uri_design.dart';
+export 'package:json_api/src/routing/target.dart';
+export 'package:json_api/src/routing/uri_design.dart';

@@ -3,10 +3,12 @@ import 'package:test/test.dart';
 
 void main() {
   test('emptiness', () {
-    expect(Include([]).isEmpty, isTrue);
-    expect(Include([]).isNotEmpty, isFalse);
+    expect(Include().isEmpty, isTrue);
+    expect(Include().isNotEmpty, isFalse);
+    expect(Include().length, 0);
     expect(Include(['foo']).isEmpty, isFalse);
     expect(Include(['foo']).isNotEmpty, isTrue);
+    expect(Include(['foo']).length, 1);
   });
 
   test('Can decode url without duplicate keys', () {
@@ -22,10 +24,8 @@ void main() {
     expect(include, equals(['author', 'comments.author', 'tags']));
   });
 
-  test('Can add to uri', () {
-    final uri = Uri.parse('/articles/1');
-    final include = Include(['author', 'comments.author']);
-    expect(include.addToUri(uri).toString(),
-        '/articles/1?include=author%2Ccomments.author');
+  test('Can convert to query parameters', () {
+    expect(Include(['author', 'comments.author']).asQueryParameters,
+        {'include': 'author,comments.author'});
   });
 }

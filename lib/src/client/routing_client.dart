@@ -1,119 +1,317 @@
-import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
-import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
+import 'package:json_api/src/client/client.dart';
+import 'package:json_api/src/client/request.dart';
+import 'package:json_api/src/client/response.dart';
+import 'package:json_api/src/client/response/collection_fetched.dart';
+import 'package:json_api/src/client/response/related_resource_fetched.dart';
+import 'package:json_api/src/client/response/relationship_fetched.dart';
+import 'package:json_api/src/client/response/relationship_updated.dart';
+import 'package:json_api/src/client/response/resource_created.dart';
+import 'package:json_api/src/client/response/resource_fetched.dart';
+import 'package:json_api/src/client/response/resource_updated.dart';
 
-import 'response.dart';
-
-/// This is a wrapper over [JsonApiClient] capable of building the
-/// request URIs by itself.
+/// A routing JSON:API client
 class RoutingClient {
-  RoutingClient(this._client, this._routes);
+  RoutingClient(this._uri, {Client client = const Client()}) : _client = client;
 
-  final JsonApiClient _client;
-  final RouteFactory _routes;
+  final Client _client;
+  final UriDesign _uri;
 
-  /// Fetches a primary resource collection by [type].
-  Future<Response<ResourceCollectionData>> fetchCollection(String type,
-          {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchCollectionAt(_routes.collection(type),
-          headers: headers, parameters: parameters);
+  /// Adds [identifiers] to a to-many relationship
+  /// identified by [type], [id], [relationship].
+  ///
+  /// Optional arguments:
+  /// - [headers] - any extra HTTP headers
+  Future<RelationshipUpdated<ToMany>> addMany(
+    String type,
+    String id,
+    String relationship,
+    List<Identifier> identifiers, {
+    Map<String, String> headers = const {},
+  }) async {
+    final response = await _client.send(
+        _uri.relationship(type, id, relationship),
+        Request.post(OutboundDataDocument.many(ToMany(identifiers)))
+          ..headers.addAll(headers));
+    return RelationshipUpdated.many(response.http, response.json);
+  }
 
-  /// Fetches a related resource collection. Guesses the URI by [type], [id], [relationship].
-  Future<Response<ResourceCollectionData>> fetchRelatedCollection(
-          String type, String id, String relationship,
-          {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchCollectionAt(_routes.related(type, id, relationship),
-          headers: headers, parameters: parameters);
+  /// Creates a new resource in the collection of type [type].
+  /// The server is responsible for assigning the resource id.
+  ///
+  /// Optional arguments:
+  /// - [attributes] - resource attributes
+  /// - [one] - resource to-one relationships
+  /// - [many] - resource to-many relationships
+  /// - [meta] - resource meta data
+  /// - [headers] - any extra HTTP headers
+  Future<ResourceCreated> createNew(
+    String type, {
+    Map<String, Object?> attributes = const {},
+    Map<String, Identifier> one = const {},
+    Map<String, Iterable<Identifier>> many = const {},
+    Map<String, Object?> meta = const {},
+    Map<String, String> headers = const {},
+  }) async {
+    final response = await _client.send(
+        _uri.collection(type),
+        Request.post(OutboundDataDocument.newResource(NewResource(type)
+          ..attributes.addAll(attributes)
+          ..relationships.addAll({
+            ...one.map((key, value) => MapEntry(key, ToOne(value))),
+            ...many.map((key, value) => MapEntry(key, ToMany(value))),
+          })
+          ..meta.addAll(meta)))
+          ..headers.addAll(headers));
 
-  /// Fetches a primary resource by [type] and [id].
-  Future<Response<ResourceData>> fetchResource(String type, String id,
-          {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchResourceAt(_routes.resource(type, id),
-          headers: headers, parameters: parameters);
+    return ResourceCreated(
+        response.http, response.json ?? (throw FormatException()));
+  }
 
-  /// Fetches a related resource by [type], [id], [relationship].
-  Future<Response<ResourceData>> fetchRelatedResource(
-          String type, String id, String relationship,
-          {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchResourceAt(_routes.related(type, id, relationship),
-          headers: headers, parameters: parameters);
+  /// Deletes [identifiers] from a to-many relationship
+  /// identified by [type], [id], [relationship].
+  ///
+  /// Optional arguments:
+  /// - [headers] - any extra HTTP headers
+  Future<RelationshipUpdated> deleteFromMany(
+    String type,
+    String id,
+    String relationship,
+    List<Identifier> identifiers, {
+    Map<String, String> headers = const {},
+  }) async {
+    final response = await _client.send(
+        _uri.relationship(type, id, relationship),
+        Request.delete(OutboundDataDocument.many(ToMany(identifiers)))
+          ..headers.addAll(headers));
 
-  /// Fetches a to-one relationship by [type], [id], [relationship].
-  Future<Response<ToOne>> fetchToOne(
-          String type, String id, String relationship,
-          {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchToOneAt(_routes.relationship(type, id, relationship),
-          headers: headers, parameters: parameters);
+    return RelationshipUpdated.many(response.http, response.json);
+  }
 
-  /// Fetches a to-many relationship by [type], [id], [relationship].
-  Future<Response<ToMany>> fetchToMany(
-          String type, String id, String relationship,
-          {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchToManyAt(_routes.relationship(type, id, relationship),
-          headers: headers, parameters: parameters);
+  /// Fetches  a primary collection of type [type].
+  ///
+  /// Optional arguments:
+  /// - [headers] - any extra HTTP headers
+  /// - [query] - any extra query parameters
+  /// - [page] - pagination options
+  /// - [filter] - filtering options
+  /// - [include] - request to include related resources
+  /// - [sort] - collection sorting options
+  /// - [fields] - sparse fields options
+  Future<CollectionFetched> fetchCollection(
+    String type, {
+    Map<String, String> headers = const {},
+    Map<String, String> query = const {},
+    Map<String, String> page = const {},
+    Map<String, String> filter = const {},
+    Iterable<String> include = const [],
+    Iterable<String> sort = const [],
+    Map<String, Iterable<String>> fields = const {},
+  }) async {
+    final response = await _client.send(
+        _uri.collection(type),
+        Request.get()
+          ..headers.addAll(headers)
+          ..query.addAll(query)
+          ..page(page)
+          ..filter(filter)
+          ..include(include)
+          ..sort(sort)
+          ..fields(fields));
+    return CollectionFetched(
+        response.http, response.json ?? (throw FormatException()));
+  }
 
-  /// Fetches a [relationship] of [type] : [id].
-  Future<Response<Relationship>> fetchRelationship(
-          String type, String id, String relationship,
-          {Map<String, String> headers, QueryParameters parameters}) =>
-      _client.fetchRelationshipAt(_routes.relationship(type, id, relationship),
-          headers: headers, parameters: parameters);
+  /// Fetches a related resource collection
+  /// identified by [type], [id], [relationship].
+  ///
+  /// Optional arguments:
+  /// - [headers] - any extra HTTP headers
+  /// - [query] - any extra query parameters
+  /// - [page] - pagination options
+  /// - [filter] - filtering options
+  /// - [include] - request to include related resources
+  /// - [sort] - collection sorting options
+  /// - [fields] - sparse fields options
+  Future<CollectionFetched> fetchRelatedCollection(
+    String type,
+    String id,
+    String relationship, {
+    Map<String, String> headers = const {},
+    Map<String, String> page = const {},
+    Map<String, String> filter = const {},
+    Iterable<String> include = const [],
+    Iterable<String> sort = const [],
+    Map<String, Iterable<String>> fields = const {},
+    Map<String, String> query = const {},
+  }) async {
+    final response = await _client.send(
+        _uri.related(type, id, relationship),
+        Request.get()
+          ..headers.addAll(headers)
+          ..query.addAll(query)
+          ..page(page)
+          ..filter(filter)
+          ..include(include)
+          ..sort(sort)
+          ..fields(fields));
+    return CollectionFetched(
+        response.http, response.json ?? (throw FormatException()));
+  }
 
-  /// Creates the [resource] on the server.
-  Future<Response<ResourceData>> createResource(Resource resource,
-          {Map<String, String> headers}) =>
-      _client.createResourceAt(_routes.collection(resource.type), resource,
-          headers: headers);
+  Future<RelationshipFetched<ToOne>> fetchToOne(
+    String type,
+    String id,
+    String relationship, {
+    Map<String, String> headers = const {},
+    Map<String, String> query = const {},
+  }) async {
+    final response = await _client.send(
+        _uri.relationship(type, id, relationship),
+        Request.get()..headers.addAll(headers)..query.addAll(query));
+    return RelationshipFetched.one(
+        response.http, response.json ?? (throw FormatException()));
+  }
 
-  /// Deletes the resource by [type] and [id].
-  Future<Response> deleteResource(String type, String id,
-          {Map<String, String> headers}) =>
-      _client.deleteResourceAt(_routes.resource(type, id), headers: headers);
+  Future<RelationshipFetched<ToMany>> fetchToMany(
+    String type,
+    String id,
+    String relationship, {
+    Map<String, String> headers = const {},
+    Map<String, String> query = const {},
+  }) async {
+    final response = await _client.send(
+        _uri.relationship(type, id, relationship),
+        Request.get()..headers.addAll(headers)..query.addAll(query));
+    return RelationshipFetched.many(
+        response.http, response.json ?? (throw FormatException()));
+  }
 
-  /// Updates the [resource].
-  Future<Response<ResourceData>> updateResource(Resource resource,
-          {Map<String, String> headers}) =>
-      _client.updateResourceAt(
-          _routes.resource(resource.type, resource.id), resource,
-          headers: headers);
+  Future<RelatedResourceFetched> fetchRelatedResource(
+    String type,
+    String id,
+    String relationship, {
+    Map<String, String> headers = const {},
+    Map<String, String> query = const {},
+    Map<String, String> filter = const {},
+    Iterable<String> include = const [],
+    Map<String, Iterable<String>> fields = const {},
+  }) async {
+    final response = await _client.send(
+        _uri.related(type, id, relationship),
+        Request.get()
+          ..headers.addAll(headers)
+          ..query.addAll(query)
+          ..filter(filter)
+          ..include(include)
+          ..fields(fields));
+    return RelatedResourceFetched(
+        response.http, response.json ?? (throw FormatException()));
+  }
 
-  /// Replaces the to-one [relationship] of [type] : [id].
-  Future<Response<ToOne>> replaceToOne(
-          String type, String id, String relationship, Identifier identifier,
-          {Map<String, String> headers}) =>
-      _client.replaceToOneAt(
-          _routes.relationship(type, id, relationship), identifier,
-          headers: headers);
+  Future<ResourceFetched> fetchResource(
+    String type,
+    String id, {
+    Map<String, String> headers = const {},
+    Map<String, String> filter = const {},
+    Iterable<String> include = const [],
+    Map<String, Iterable<String>> fields = const {},
+    Map<String, String> query = const {},
+  }) async {
+    final response = await _client.send(
+        _uri.resource(type, id),
+        Request.get()
+          ..headers.addAll(headers)
+          ..query.addAll(query)
+          ..filter(filter)
+          ..include(include)
+          ..fields(fields));
 
-  /// Deletes the to-one [relationship] of [type] : [id].
-  Future<Response<ToOne>> deleteToOne(
-          String type, String id, String relationship,
-          {Map<String, String> headers}) =>
-      _client.deleteToOneAt(_routes.relationship(type, id, relationship),
-          headers: headers);
+    return ResourceFetched(
+        response.http, response.json ?? (throw FormatException()));
+  }
 
-  /// Deletes the [identifiers] from the to-many [relationship] of [type] : [id].
-  Future<Response<ToMany>> deleteFromToMany(String type, String id,
-          String relationship, Iterable<Identifier> identifiers,
-          {Map<String, String> headers}) =>
-      _client.deleteFromToManyAt(
-          _routes.relationship(type, id, relationship), identifiers,
-          headers: headers);
+  Future<ResourceUpdated> updateResource(String type, String id,
+      {Map<String, Object?> attributes = const {},
+      Map<String, Identifier> one = const {},
+      Map<String, Iterable<Identifier>> many = const {},
+      Map<String, Object?> meta = const {},
+      Map<String, String> headers = const {}}) async {
+    final response = await _client.send(
+        _uri.resource(type, id),
+        Request.patch(OutboundDataDocument.resource(Resource(type, id)
+          ..attributes.addAll(attributes)
+          ..relationships.addAll({
+            ...one.map((key, value) => MapEntry(key, ToOne(value))),
+            ...many.map((key, value) => MapEntry(key, ToMany(value))),
+          })
+          ..meta.addAll(meta)))
+          ..headers.addAll(headers));
+    return ResourceUpdated(response.http, response.json);
+  }
 
-  /// Replaces the to-many [relationship] of [type] : [id] with the [identifiers].
-  Future<Response<ToMany>> replaceToMany(String type, String id,
-          String relationship, Iterable<Identifier> identifiers,
-          {Map<String, String> headers}) =>
-      _client.replaceToManyAt(
-          _routes.relationship(type, id, relationship), identifiers,
-          headers: headers);
+  /// Creates a new resource with the given id on the server.
+  Future<ResourceUpdated> create(
+    String type,
+    String id, {
+    Map<String, Object?> attributes = const {},
+    Map<String, Identifier> one = const {},
+    Map<String, Iterable<Identifier>> many = const {},
+    Map<String, Object?> meta = const {},
+    Map<String, String> headers = const {},
+  }) async {
+    final response = await _client.send(
+        _uri.collection(type),
+        Request.post(OutboundDataDocument.resource(Resource(type, id)
+          ..attributes.addAll(attributes)
+          ..relationships.addAll({
+            ...one.map((key, value) => MapEntry(key, ToOne(value))),
+            ...many.map((key, value) => MapEntry(key, ToMany(value))),
+          })
+          ..meta.addAll(meta)))
+          ..headers.addAll(headers));
+    return ResourceUpdated(response.http, response.json);
+  }
 
-  /// Adds the [identifiers] to the to-many [relationship] of [type] : [id].
-  Future<Response<ToMany>> addToRelationship(String type, String id,
-          String relationship, Iterable<Identifier> identifiers,
-          {Map<String, String> headers}) =>
-      _client.addToRelationshipAt(
-          _routes.relationship(type, id, relationship), identifiers,
-          headers: headers);
+  Future<RelationshipUpdated<ToOne>> replaceToOne(
+    String type,
+    String id,
+    String relationship,
+    Identifier identifier, {
+    Map<String, String> headers = const {},
+  }) async {
+    final response = await _client.send(
+        _uri.relationship(type, id, relationship),
+        Request.patch(OutboundDataDocument.one(ToOne(identifier)))
+          ..headers.addAll(headers));
+    return RelationshipUpdated.one(response.http, response.json);
+  }
+
+  Future<RelationshipUpdated<ToMany>> replaceToMany(
+    String type,
+    String id,
+    String relationship,
+    Iterable<Identifier> identifiers, {
+    Map<String, String> headers = const {},
+  }) async {
+    final response = await _client.send(
+        _uri.relationship(type, id, relationship),
+        Request.patch(OutboundDataDocument.many(ToMany(identifiers)))
+          ..headers.addAll(headers));
+    return RelationshipUpdated.many(response.http, response.json);
+  }
+
+  Future<RelationshipUpdated<ToOne>> deleteToOne(
+      String type, String id, String relationship,
+      {Map<String, String> headers = const {}}) async {
+    final response = await _client.send(
+        _uri.relationship(type, id, relationship),
+        Request.patch(OutboundDataDocument.one(ToOne.empty()))
+          ..headers.addAll(headers));
+    return RelationshipUpdated.one(response.http, response.json);
+  }
+
+  Future<Response> deleteResource(String type, String id) =>
+      _client.send(_uri.resource(type, id), Request.delete());
 }

@@ -1,39 +1,20 @@
-import 'package:json_api/document.dart';
+import 'package:json_api/src/document/identity.dart';
 
-/// Resource identifier
-///
-/// Together with [Resource] forms the core of the Document model.
-/// Identifiers are passed between the server and the client in the form
-/// of [IdentifierObject]s.
-class Identifier {
-  /// Neither [type] nor [id] can be null or empty.
-  Identifier(this.type, this.id) {
-    ArgumentError.checkNotNull(type);
-    ArgumentError.checkNotNull(id);
-  }
+/// A Resource Identifier object
+class Identifier with Identity {
+  Identifier(this.type, this.id);
 
-  static Identifier of(Resource resource) =>
-      Identifier(resource.type, resource.id);
+  static Identifier of(Identity identity) =>
+      Identifier(identity.type, identity.id);
 
-  /// Resource type
+  @override
   final String type;
-
-  /// Resource id
+  @override
   final String id;
 
-  /// Returns true if the two identifiers have the same [type] and [id]
-  bool equals(Identifier other) =>
-      other != null &&
-      other.runtimeType == Identifier &&
-      other.type == type &&
-      other.id == id;
+  /// Identifier meta-data.
+  final meta = <String, Object?>{};
 
-  @override
-  String toString() => 'Identifier($type:$id)';
-
-  @override
-  bool operator ==(other) => equals(other);
-
-  @override
-  int get hashCode => 0;
+  Map<String, Object> toJson() =>
+      {'type': type, 'id': id, if (meta.isNotEmpty) 'meta': meta};
 }

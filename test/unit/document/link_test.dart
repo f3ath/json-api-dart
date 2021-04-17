@@ -1,41 +1,22 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:json_api/document.dart';
-import 'package:json_api/src/document/document_exception.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('link can encoded and decoded', () {
-    final link = Link(Uri.parse('http://example.com'));
-    expect(Link.fromJson(json.decode(json.encode(link))).uri.toString(),
-        'http://example.com');
-  });
-
-  test('link object can be parsed from JSON', () {
-    final link =
-        LinkObject(Uri.parse('http://example.com'), meta: {'foo': 'bar'});
-
-    final parsed = Link.fromJson(json.decode(json.encode(link)));
-    expect(parsed.uri.toString(), 'http://example.com');
-    if (parsed is LinkObject) {
-      expect(parsed.meta['foo'], 'bar');
-    } else {
-      fail('LinkObject expected');
-    }
-  });
-
-  test('a map of link object can be parsed from JSON', () {
-    final links = Link.mapFromJson({
-      'first': 'http://example.com/first',
-      'last': 'http://example.com/last'
+  group('Link', () {
+    final href = 'http://example.com';
+    test('String', () {
+      expect(jsonEncode(Link(Uri.parse(href))), jsonEncode(href));
     });
-    expect(links['first'].uri.toString(), 'http://example.com/first');
-    expect(links['last'].uri.toString(), 'http://example.com/last');
-  });
-
-  test('link throws DocumentException on invalid JSON', () {
-    expect(() => Link.fromJson([]), throwsA(TypeMatcher<DocumentException>()));
-    expect(
-        () => Link.mapFromJson([]), throwsA(TypeMatcher<DocumentException>()));
+    test('Object', () {
+      expect(
+          jsonEncode(Link(Uri.parse(href))..meta['foo'] = []),
+          jsonEncode({
+            'href': href,
+            'meta': {'foo': []}
+          }));
+    });
   });
 }

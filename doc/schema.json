@@ -13,7 +13,6 @@
       "$ref": "#/definitions/info"
     }
   ],
-
   "definitions": {
     "success": {
       "type": "object",
@@ -95,7 +94,6 @@
       },
       "additionalProperties": false
     },
-
     "meta": {
       "description": "Non-standard meta-information that can not be represented as an attribute or relationship.",
       "type": "object",
@@ -196,7 +194,6 @@
         }
       ]
     },
-
     "attributes": {
       "description": "Members of the attributes object (\"attributes\") represent information about the resource object in which it's defined.",
       "type": "object",
@@ -207,7 +204,6 @@
       },
       "additionalProperties": false
     },
-
     "relationships": {
       "description": "Members of the relationships object (\"relationships\") represent references from the resource object in which it's defined to other resource objects.",
       "type": "object",
@@ -233,9 +229,21 @@
             }
           },
           "anyOf": [
-            {"required": ["data"]},
-            {"required": ["meta"]},
-            {"required": ["links"]}
+            {
+              "required": [
+                "data"
+              ]
+            },
+            {
+              "required": [
+                "meta"
+              ]
+            },
+            {
+              "required": [
+                "links"
+              ]
+            }
           ],
           "additionalProperties": false
         }
@@ -291,34 +299,53 @@
         "first": {
           "description": "The first page of data",
           "oneOf": [
-            { "type": "string", "format": "uri-reference" },
-            { "type": "null" }
+            {
+              "type": "string",
+              "format": "uri-reference"
+            },
+            {
+              "type": "null"
+            }
           ]
         },
         "last": {
           "description": "The last page of data",
           "oneOf": [
-            { "type": "string", "format": "uri-reference" },
-            { "type": "null" }
+            {
+              "type": "string",
+              "format": "uri-reference"
+            },
+            {
+              "type": "null"
+            }
           ]
         },
         "prev": {
           "description": "The previous page of data",
           "oneOf": [
-            { "type": "string", "format": "uri-reference" },
-            { "type": "null" }
+            {
+              "type": "string",
+              "format": "uri-reference"
+            },
+            {
+              "type": "null"
+            }
           ]
         },
         "next": {
           "description": "The next page of data",
           "oneOf": [
-            { "type": "string", "format": "uri-reference" },
-            { "type": "null" }
+            {
+              "type": "string",
+              "format": "uri-reference"
+            },
+            {
+              "type": "null"
+            }
           ]
         }
       }
     },
-
     "jsonapi": {
       "description": "An object describing the server's implementation",
       "type": "object",
@@ -332,7 +359,6 @@
       },
       "additionalProperties": false
     },
-
     "error": {
       "type": "object",
       "properties": {

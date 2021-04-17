@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Sound null-safety support.
+
+### Changed
+- Everything. Again. This is another major **BC-breaking** rework. Please refer to 
+  the API documentation, examples and tests.
+
 ## [4.3.0] - 2020-07-30
 ### Added
 - `meta` parameter for createResourceAt()
@@ -26,24 +33,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Filtering support for collections ([pr](https://github.com/f3ath/json-api-dart/pull/97))
 
 ### Changed
-- The client will not attempt to decode the body of the HTTP response with error status if the correct Content-Type 
-is missing. Before in such cases a `FormatException` would be thrown ([pr](https://github.com/f3ath/json-api-dart/pull/98))
+- The client will not attempt to decode the body of the HTTP response with error status if the correct Content-Type
+  is missing. Before in such cases a `FormatException` would be thrown ([pr](https://github.com/f3ath/json-api-dart/pull/98))
 
 ## [4.1.0] - 2020-05-28
 ### Changed
 - `DartHttp` now defaults to utf8 if no encoding is specified in the response.
 
-## [4.0.0] - 2020-05-26
+## [4.0.0] - 2020-02-29
 ### Changed
-- This is a major **BC-breaking** rework which affected pretty much all areas.
+- Everything. This is a major **BC-breaking** rework which affected pretty much all areas. Please refer to the documentation.
+
+## [3.2.3] - 2020-08-06
+### Fixed
+- Call toJson() on resourceObject when serializing ([#84](https://github.com/f3ath/json-api-dart/pull/84))
+
 
 ## [3.2.2] - 2020-01-07
 ### Fixed
--  Can not decode related resource which is null ([issue](https://github.com/f3ath/json-api-dart/issues/77))
+-  Can not decode related resource which is null ([#77](https://github.com/f3ath/json-api-dart/issues/77))
 
 ## [3.2.1] - 2020-01-01
 ### Fixed
--  Incorrect URL in the example in the Client documentation ([issue](https://github.com/f3ath/json-api-dart/issues/74))
+-  Incorrect URL in the example in the Client documentation ([#74](https://github.com/f3ath/json-api-dart/issues/74))
 
 ## [3.2.0] - 2019-12-30
 ### Added
@@ -69,12 +81,13 @@ is missing. Before in such cases a `FormatException` would be thrown ([pr](https
 
 ## [3.0.0] - 2019-12-17
 ### Added
-- Support for custom non-standard links ([issue](https://github.com/f3ath/json-api-dart/issues/61))
+- Support for custom non-standard links ([#61](https://github.com/f3ath/json-api-dart/issues/61))
 - Client supports `jsonapi` key in outgoing requests.
 - `Document.contentType` constant.
 - `IdentifierObject.fromIdentifier` factory method
 
 ### Changed
+Most of the changes are **BC-BREAKING**.
 - `URLBuilder` was renamed to `UrlFactory`.
 - `DocumentBuilder` was split into `ServerDocumentFactory` and `ClientDocumentFactory`. Some methods were renamed.
 - Static `decodeJson` methods were renamed to `fromJson`.
@@ -84,7 +97,7 @@ is missing. Before in such cases a `FormatException` would be thrown ([pr](https
 - The signature of `Controller`.
 - `Server` was renamed to `JsonApiServer`.
 - `Pagination` was renamed to `PaginationStrategy`.
-
+ 
 ### Removed
 - (Server) `ResourceTarget`, `CollectionTarget`, `RelationshipTarget`  classes.
 - `QueryParameters` interface.
@@ -93,7 +106,7 @@ is missing. Before in such cases a `FormatException` would be thrown ([pr](https
 
 ## [2.1.0] - 2019-12-04
 ### Added
-- `onHttpCall` hook to enable raw http request/response logging ([issue](https://github.com/f3ath/json-api-dart/issues/60)).
+- `onHttpCall` hook to enable raw http request/response logging ([#60](https://github.com/f3ath/json-api-dart/issues/60)).
 
 ## [2.0.3] - 2019-09-29
 ### Fixed
@@ -101,26 +114,28 @@ is missing. Before in such cases a `FormatException` would be thrown ([pr](https
 
 ## [2.0.2] - 2019-08-01
 ### Fixed
-- Meta members have incorrect type ([issue](https://github.com/f3ath/json-api-dart/issues/54)).
+- Meta members have incorrect type ([#54](https://github.com/f3ath/json-api-dart/issues/54)).
 
 ## [2.0.1] - 2019-07-12
 ### Fixed
 - Readme example was outdated.
 
 ## [2.0.0] - 2019-07-12
+
 ### Changed
 - This package now consolidates the Client, the Server and the Document in one single library. 
-It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages 
-from your `pubspec.yaml`.
+    It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages 
+    from your `pubspec.yaml`.
 - The min Dart SDK version bumped to `2.3.0`
 - The Client requires an instance of HttpClient to be passed to the constructor explicitly.
 - Both the Document and the Server have been refactored with lots of **BREAKING CHANGES**. 
-See the examples and the functional tests for details.
+    See the examples and the functional tests for details.
 - Meta properties are not defensively copied, but set directly. Meta property behavior is unified across 
-the Document model.
+    the Document model.
 
 ### Removed
 - `JsonApiParser` is removed. Use the static `decodeJson` methods in the corresponding classes instead.
+
 
 ## [1.0.1] - 2019-04-05
 ### Fixed
@@ -136,35 +151,35 @@ the Document model.
 - Renamed `client.removeToOne(...)` to `client.deleteToOne(...)`
 
 ## [0.5.0] - 2019-03-21
-### Added
-- Related collection pagination
-- Async operations support
-
 ### Changed
 - More BC-breaking changes in the Server
 
 ### Fixed
-- Location headers generated incorrectly
+- Location headers were incorrectly generated by Server
+
+### Added
+- Related collection pagination
+- Async operations support
 
 ## [0.4.0] - 2019-03-17
-### Added
-- Compound documents support in Client (Server-side support is still very limited)
-
 ### Changed
 - Parsing logic moved out
 - Some other BC-breaking changes in the Document
 - Huge changes in the Server
 
+### Added
+- Compound documents support in Client (Server-side support is still very limited)
+
 ### Fixed
 - Server was not setting links for resources and relationships
 
 ## [0.3.0] - 2019-03-16
+### Changed
+- Huge BC-breaking refactoring in the Document model which propagated everywhere
+
 ### Added
 - Resource attributes update
 - Resource relationships update
-
-### Changed
-- Huge BC-breaking refactoring in the Document model which propagated everywhere
 
 ## [0.2.0] - 2019-03-01
 ### Added
@@ -172,18 +187,19 @@ the Document model.
 - Resource creation
 - Resource deletion
 
-## 0.1.0 - 2019-02-27
+## [0.1.0] - 2019-02-27
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
-[Unreleased]: https://github.com/f3ath/json-api-dart/compare/4.3.0...HEAD
+[Unreleased]: https://github.com/f3ath/json-api-dart/compare/4.3.0..HEAD
 [4.3.0]: https://github.com/f3ath/json-api-dart/compare/4.2.2...4.3.0
 [4.2.2]: https://github.com/f3ath/json-api-dart/compare/4.2.1...4.2.2
 [4.2.1]: https://github.com/f3ath/json-api-dart/compare/4.2.0...4.2.1
 [4.2.0]: https://github.com/f3ath/json-api-dart/compare/4.1.0...4.2.0
 [4.1.0]: https://github.com/f3ath/json-api-dart/compare/4.0.0...4.1.0
 [4.0.0]: https://github.com/f3ath/json-api-dart/compare/3.2.2...4.0.0
-[3.2.2]: https://github.com/f3ath/json-api-dart/compare/3.2.1...3.2.2
+[3.2.3]: https://github.com/f3ath/json-api-dart/compare/3.2.2..3.2.3
+[3.2.2]: https://github.com/f3ath/json-api-dart/compare/3.2.1..3.2.2
 [3.2.1]: https://github.com/f3ath/json-api-dart/compare/3.2.0...3.2.1
 [3.2.0]: https://github.com/f3ath/json-api-dart/compare/3.1.0...3.2.0
 [3.1.0]: https://github.com/f3ath/json-api-dart/compare/3.0.0...3.1.0
@@ -200,3 +216,4 @@ the Document model.
 [0.4.0]: https://github.com/f3ath/json-api-dart/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/f3ath/json-api-dart/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/f3ath/json-api-dart/compare/0.1.0...0.2.0
+[0.1.0]: https://github.com/f3ath/json-api-dart/releases/tag/0.1.0

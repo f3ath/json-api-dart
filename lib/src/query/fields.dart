@@ -1,36 +1,45 @@
-import 'package:json_api/src/query/query_parameters.dart';
+import 'dart:collection';
 
 /// Query parameters defining Sparse Fieldsets
 /// @see https://jsonapi.org/format/#fetching-sparse-fieldsets
-class Fields extends QueryParameters {
+class Fields with MapMixin<String, Iterable<String>> {
   /// The [fields] argument maps the resource type to a list of fields.
   ///
   /// Example:
   /// ```dart
-  /// Fields({'articles': ['title', 'body'], 'people': ['name']}).addTo(url);
+  /// Fields({'articles': ['title', 'body'], 'people': ['name']});
   /// ```
-  /// encodes to
-  /// ```
-  /// ?fields[articles]=title,body&fields[people]=name
-  /// ```
-  Fields(Map<String, List<String>> fields)
-      : _fields = {...fields},
-        super(fields.map((k, v) => MapEntry('fields[$k]', v.join(','))));
+  Fields([Map<String, Iterable<String>> fields = const {}]) {
+    addAll(fields);
+  }
 
   /// Extracts the requested fields from the [uri].
-  static Fields fromUri(Uri uri) => fromQueryParameters(uri.queryParametersAll);
-
-  /// Extracts the requested fields from [queryParameters].
-  static Fields fromQueryParameters(
-          Map<String, List<String>> queryParameters) =>
-      Fields(queryParameters.map((k, v) => MapEntry(
-          _regex.firstMatch(k)?.group(1),
+  static Fields fromUri(Uri uri) =>
+      Fields(uri.queryParametersAll.map((k, v) => MapEntry(
+          _regex.firstMatch(k)?.group(1) ?? '',
           v.expand((_) => _.split(',')).toList()))
-        ..removeWhere((k, v) => k == null));
-
-  List<String> operator [](String key) => _fields[key];
+        ..removeWhere((k, v) => k.isEmpty));
 
   static final _regex = RegExp(r'^fields\[(.+)\]$');
 
-  final Map<String, List<String>> _fields;
+  final _map = <String, Iterable<String>>{};
+
+  /// Converts to a map of query parameters
+  Map<String, String> get asQueryParameters =>
+      _map.map((k, v) => MapEntry('fields[$k]', v.join(',')));
+
+  @override
+  void operator []=(String key, Iterable<String> value) => _map[key] = value;
+
+  @override
+  void clear() => _map.clear();
+
+  @override
+  Iterable<String> get keys => _map.keys;
+
+  @override
+  Iterable<String>? remove(Object? key) => _map.remove(key);
+
+  @override
+  Iterable<String>? operator [](Object? key) => _map[key];
 }

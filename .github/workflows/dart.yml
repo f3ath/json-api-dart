@@ -15,12 +15,14 @@ jobs:
       image:  google/dart:latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: pub get
-    - name: Formatting
-      run: dartfmt -n --set-exit-if-changed .
-    - name: Analyzer
-      run: dartanalyzer --fatal-infos --fatal-warnings lib test example
-    - name: Run tests
-      run: pub run test
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: dart pub get
+      - name: Format
+        run: dartfmt --dry-run --set-exit-if-changed lib test
+      - name: Analyzer
+        run: dart analyze --fatal-infos --fatal-warnings
+      - name: Tests
+        run: dart test --coverage=.coverage -j1
+      - name: Coverage
+        run: dart run coverage:format_coverage -l -c -i .coverage --report-on=lib --packages=.packages | dart run check_coverage:check_coverage
