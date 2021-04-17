@@ -4,12 +4,13 @@ import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
+import 'package:uuid/uuid.dart';
+
 import 'server/in_memory_repo.dart';
 import 'server/json_api_server.dart';
 import 'server/repository.dart';
 import 'server/repository_controller.dart';
 import 'server/try_catch_handler.dart';
-import 'package:uuid/uuid.dart';
 
 Future<void> main() async {
   final host = 'localhost';
