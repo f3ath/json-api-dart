@@ -1,7 +1,6 @@
-import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/src/client/basic_client.dart';
+import 'package:json_api/src/client/client.dart';
 import 'package:json_api/src/client/request.dart';
 import 'package:json_api/src/client/response.dart';
 import 'package:json_api/src/client/response/collection_fetched.dart';
@@ -14,9 +13,10 @@ import 'package:json_api/src/client/response/resource_updated.dart';
 
 /// A routing JSON:API client
 class RoutingClient {
-  RoutingClient(this._uri, this._client);
+  RoutingClient(this._uri, {Client client = const Client()})
+      : _client = client;
 
-  final BasicClient _client;
+  final Client _client;
   final UriDesign _uri;
 
   /// Adds [identifiers] to a to-many relationship

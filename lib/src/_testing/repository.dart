@@ -1,7 +1,7 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/nullable.dart';
 
-abstract class Repo {
+abstract class Repository {
   /// Fetches a collection.
   /// Throws [CollectionNotFound].
   Stream<Model> fetchCollection(String type);

@@ -1,15 +1,14 @@
 import 'package:json_api/client.dart';
 import 'package:json_api/routing.dart';
+import 'package:json_api/src/_testing/demo_handler.dart';
 import 'package:test/test.dart';
-
-import '../../demo/demo_handler.dart';
 
 void main() {
   late RoutingClient client;
 
   setUp(() async {
-    client =
-        RoutingClient(StandardUriDesign.pathOnly, BasicClient(DemoHandler()));
+    client = RoutingClient(StandardUriDesign.pathOnly,
+        client: Client(handler: DemoHandler()));
   });
 
   group('Resource creation', () {

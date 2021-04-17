@@ -1,60 +1,60 @@
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/handler.dart';
 import 'package:json_api/src/server/controller.dart';
-import 'package:json_api/src/server/method_not_allowed.dart';
-import 'package:json_api/src/server/unmatched_target.dart';
+import 'package:json_api/src/server/errors/method_not_allowed.dart';
+import 'package:json_api/src/server/errors/unmatched_target.dart';
 
-class Router<R> implements AsyncHandler<HttpRequest, R> {
-  Router(this.controller, this.matchTarget);
+class Router implements HttpHandler {
+  Router(this._controller, this._matchTarget);
 
-  final Controller<R> controller;
-  final Target? Function(Uri uri) matchTarget;
+  final Controller _controller;
+  final Target? Function(Uri uri) _matchTarget;
 
   @override
-  Future<R> call(HttpRequest request) async {
-    final target = matchTarget(request.uri);
+  Future<HttpResponse> call(HttpRequest request) async {
+    final target = _matchTarget(request.uri);
     if (target is RelationshipTarget) {
       if (request.isGet) {
-        return await controller.fetchRelationship(request, target);
+        return await _controller.fetchRelationship(request, target);
       }
-      if (request.isPost) return await controller.addMany(request, target);
+      if (request.isPost) {
+        return await _controller.addMany(request, target);
+      }
       if (request.isPatch) {
-        return await controller.replaceRelationship(request, target);
+        return await _controller.replaceRelationship(request, target);
       }
       if (request.isDelete) {
-        return await controller.deleteMany(request, target);
+        return await _controller.deleteMany(request, target);
       }
       throw MethodNotAllowed(request.method);
     }
     if (target is RelatedTarget) {
       if (request.isGet) {
-        return await controller.fetchRelated(request, target);
+        return await _controller.fetchRelated(request, target);
       }
       throw MethodNotAllowed(request.method);
     }
     if (target is ResourceTarget) {
       if (request.isGet) {
-        return await controller.fetchResource(request, target);
+        return await _controller.fetchResource(request, target);
       }
       if (request.isPatch) {
-        return await controller.updateResource(request, target);
+        return await _controller.updateResource(request, target);
       }
       if (request.isDelete) {
-        return await controller.deleteResource(request, target);
+        return await _controller.deleteResource(request, target);
       }
       throw MethodNotAllowed(request.method);
     }
     if (target is Target) {
       if (request.isGet) {
-        return await controller.fetchCollection(request, target);
+        return await _controller.fetchCollection(request, target);
       }
       if (request.isPost) {
-        return await controller.createResource(request, target);
+        return await _controller.createResource(request, target);
       }
       throw MethodNotAllowed(request.method);
     }
-
     throw UnmatchedTarget(request.uri);
   }
 }

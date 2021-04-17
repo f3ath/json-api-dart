@@ -1,5 +1,5 @@
+import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
-import 'package:json_api/src/http/http_headers.dart';
 
 /// JSON:API request consumed by the client
 class Request with HttpHeaders {

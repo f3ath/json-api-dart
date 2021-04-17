@@ -1,7 +1,6 @@
-import 'package:json_api/handler.dart';
 import 'package:json_api/http.dart';
 
-class MockHandler implements AsyncHandler<HttpRequest, HttpResponse> {
+class MockHandler implements HttpHandler {
   late HttpRequest request;
   late HttpResponse response;
 

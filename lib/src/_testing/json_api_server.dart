@@ -1,15 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:json_api/handler.dart';
 import 'package:json_api/http.dart';
 
 class JsonApiServer {
   JsonApiServer(
-    this._handler, {
-    this.host = 'localhost',
-    this.port = 8080,
-  });
+      this._handler, {
+        this.host = 'localhost',
+        this.port = 8080,
+      });
 
   /// Server host name
   final String host;
@@ -17,7 +16,7 @@ class JsonApiServer {
   /// Server port
   final int port;
 
-  final AsyncHandler<HttpRequest, HttpResponse> _handler;
+  final HttpHandler _handler;
   HttpServer? _server;
 
   /// Server uri

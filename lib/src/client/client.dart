@@ -1,16 +1,18 @@
-import 'package:json_api/codec.dart';
-import 'package:json_api/handler.dart';
 import 'package:json_api/http.dart';
+import 'package:json_api/src/client/disposable_handler.dart';
 import 'package:json_api/src/client/request.dart';
-import 'package:json_api/src/client/response/request_failure.dart';
 import 'package:json_api/src/client/response.dart';
+import 'package:json_api/src/client/response/request_failure.dart';
 
 /// A basic JSON:API client
-class BasicClient {
-  BasicClient(this._http, {PayloadCodec? codec})
-      : _codec = codec ?? const DefaultCodec();
+class Client {
+  const Client(
+      {PayloadCodec codec = const PayloadCodec(),
+        HttpHandler handler = const DisposableHandler()})
+      : _codec = codec,
+        _http = handler;
 
-  final AsyncHandler<HttpRequest, HttpResponse> _http;
+  final HttpHandler _http;
   final PayloadCodec _codec;
 
   /// Sends the [request] to the server.

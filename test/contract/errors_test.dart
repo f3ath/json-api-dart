@@ -1,14 +1,13 @@
 import 'package:json_api/client.dart';
 import 'package:json_api/http.dart';
+import 'package:json_api/src/_testing/demo_handler.dart';
 import 'package:test/test.dart';
 
-import '../../demo/demo_handler.dart';
-
 void main() {
-  late BasicClient client;
+  late Client client;
 
   setUp(() async {
-    client = BasicClient(DemoHandler());
+    client = Client(handler: DemoHandler());
   });
 
   group('Errors', () {

@@ -1,7 +1,7 @@
 import 'package:json_api/client.dart';
 import 'package:test/test.dart';
 
-void e2eTests(RoutingClient client) async {
+Future<void> e2eTests(RoutingClient client) async {
   await _testAllHttpMethods(client);
   await _testLocationIsSet(client);
 }
@@ -22,7 +22,7 @@ Future<void> _testAllHttpMethods(RoutingClient client) async {
   // DELETE
   await client.deleteResource('posts', id);
   await client.fetchCollection('posts').then((r) {
-    expect(r.collection.length, isEmpty);
+    expect(r.collection, isEmpty);
   });
 }
 

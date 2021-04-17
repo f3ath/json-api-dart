@@ -3,13 +3,14 @@ import 'dart:convert';
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/src/test/mock_handler.dart';
-import 'package:json_api/src/test/response.dart' as mock;
+import 'package:json_api/src/_testing/mock_handler.dart';
+import 'package:json_api/src/_testing/response.dart' as mock;
 import 'package:test/test.dart';
 
 void main() {
   final http = MockHandler();
-  final client = RoutingClient(StandardUriDesign.pathOnly, BasicClient(http));
+  final client =
+      RoutingClient(StandardUriDesign.pathOnly, client: Client(handler: http));
 
   group('Failure', () {
     test('RequestFailure', () async {
