@@ -1,3 +1,1 @@
-class MediaType {
-  static const jsonApi = 'application/vnd.api+json';
-}
+const mediaType = 'application/vnd.api+json';

@@ -11,7 +11,7 @@ class DisposableHandler implements HttpHandler {
   Future<HttpResponse> handle(HttpRequest request) async {
     final client = Client();
     try {
-      return await PersistentHandler(client).call(request);
+      return await PersistentHandler(client).handle(request);
     } finally {
       client.close();
     }

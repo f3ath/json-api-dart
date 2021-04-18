@@ -26,8 +26,8 @@ class Client {
             : uri.replace(queryParameters: request.query),
         body: body)
       ..headers.addAll({
-        'Accept': MediaType.jsonApi,
-        if (body.isNotEmpty) 'Content-Type': MediaType.jsonApi,
+        'Accept': mediaType,
+        if (body.isNotEmpty) 'Content-Type': mediaType,
         ...request.headers
       }));
 
@@ -49,5 +49,5 @@ class Client {
       response.body.isNotEmpty &&
       (response.headers['Content-Type'] ?? '')
           .toLowerCase()
-          .startsWith(MediaType.jsonApi);
+          .startsWith(mediaType);
 }
