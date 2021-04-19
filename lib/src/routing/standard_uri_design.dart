@@ -38,23 +38,23 @@ class StandardUriDesign implements UriDesign {
   /// Returns a URL for the primary resource of type [type] with id [id].
   /// E.g. `/books/123`.
   @override
-  Uri resource(String type, String id) => _resolve([type, id]);
+  Uri resource(String type, String? id) => _resolve([type, if (id != null) id]);
 
   /// Returns a URL for the relationship itself.
   /// The [type] and [id] identify the primary resource and the [relationship]
   /// is the relationship name.
   /// E.g. `/books/123/relationships/authors`.
   @override
-  Uri relationship(String type, String id, String relationship) =>
-      _resolve([type, id, 'relationships', relationship]);
+  Uri relationship(String type, String? id, String relationship) =>
+      _resolve([type, if (id != null) id, 'relationships', relationship]);
 
   /// Returns a URL for the related resource or collection.
   /// The [type] and [id] identify the primary resource and the [relationship]
   /// is the relationship name.
   /// E.g. `/books/123/authors`.
   @override
-  Uri related(String type, String id, String relationship) =>
-      _resolve([type, id, relationship]);
+  Uri related(String type, String? id, String relationship) =>
+      _resolve([type, if (id != null) id, relationship]);
 
   Uri _resolve(List<String> pathSegments) =>
       base.resolveUri(Uri(pathSegments: pathSegments));
