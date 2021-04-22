@@ -9,5 +9,4 @@ class Response {
 
   /// Decoded JSON document
   final Map? document;
-
 }
