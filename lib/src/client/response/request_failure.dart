@@ -3,10 +3,10 @@ import 'package:json_api/http.dart';
 
 /// Thrown when the server returns a non-successful response.
 class RequestFailure implements Exception {
-  RequestFailure(this.http, Map? json) {
-    if (json != null) {
-      errors.addAll(InboundDocument(json).errors());
-      meta.addAll(InboundDocument(json).meta());
+  RequestFailure(this.http, Map? document) {
+    if (document != null) {
+      errors.addAll(InboundDocument(document).errors());
+      meta.addAll(InboundDocument(document).meta());
     }
   }
 

@@ -1,11 +1,12 @@
-import 'package:json_api/http.dart' as h;
+import 'package:json_api/http.dart';
 
+/// A generic JSON:API response.
 class Response {
-  Response(this.http, this.json);
+  Response(this.http, this.document);
 
   /// HTTP response
-  final h.HttpResponse http;
+  final HttpResponse http;
 
-  /// Raw JSON response
-  final Map? json;
+  /// Decoded JSON document
+  final Map? document;
 }

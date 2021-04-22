@@ -1,3 +1,4 @@
+import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/client/client.dart';
@@ -13,10 +14,11 @@ import 'package:json_api/src/client/response/resource_updated.dart';
 
 /// A routing JSON:API client
 class RoutingClient {
-  RoutingClient(this._uri, {Client client = const Client()}) : _client = client;
+  RoutingClient(this.baseUri, {Client client = const Client()})
+      : _client = client;
 
   final Client _client;
-  final UriDesign _uri;
+  final UriDesign baseUri;
 
   /// Adds [identifiers] to a to-many relationship
   /// identified by [type], [id], [relationship].
@@ -30,11 +32,11 @@ class RoutingClient {
     List<Identifier> identifiers, {
     Map<String, String> headers = const {},
   }) async {
-    final response = await _client.send(
-        _uri.relationship(type, id, relationship),
+    final response = await send(
+        baseUri.relationship(type, id, relationship),
         Request.post(OutboundDataDocument.many(ToMany(identifiers)))
           ..headers.addAll(headers));
-    return RelationshipUpdated.many(response.http, response.json);
+    return RelationshipUpdated.many(response.http, response.document);
   }
 
   /// Creates a new resource in the collection of type [type].
@@ -54,8 +56,8 @@ class RoutingClient {
     Map<String, Object?> meta = const {},
     Map<String, String> headers = const {},
   }) async {
-    final response = await _client.send(
-        _uri.collection(type),
+    final response = await send(
+        baseUri.collection(type),
         Request.post(OutboundDataDocument.newResource(NewResource(type)
           ..attributes.addAll(attributes)
           ..relationships.addAll({
@@ -66,7 +68,7 @@ class RoutingClient {
           ..headers.addAll(headers));
 
     return ResourceCreated(
-        response.http, response.json ?? (throw FormatException()));
+        response.http, response.document ?? (throw FormatException()));
   }
 
   /// Deletes [identifiers] from a to-many relationship
@@ -81,12 +83,12 @@ class RoutingClient {
     List<Identifier> identifiers, {
     Map<String, String> headers = const {},
   }) async {
-    final response = await _client.send(
-        _uri.relationship(type, id, relationship),
+    final response = await send(
+        baseUri.relationship(type, id, relationship),
         Request.delete(OutboundDataDocument.many(ToMany(identifiers)))
           ..headers.addAll(headers));
 
-    return RelationshipUpdated.many(response.http, response.json);
+    return RelationshipUpdated.many(response.http, response.document);
   }
 
   /// Fetches  a primary collection of type [type].
@@ -109,8 +111,8 @@ class RoutingClient {
     Iterable<String> sort = const [],
     Map<String, Iterable<String>> fields = const {},
   }) async {
-    final response = await _client.send(
-        _uri.collection(type),
+    final response = await send(
+        baseUri.collection(type),
         Request.get()
           ..headers.addAll(headers)
           ..query.addAll(query)
@@ -120,7 +122,7 @@ class RoutingClient {
           ..sort(sort)
           ..fields(fields));
     return CollectionFetched(
-        response.http, response.json ?? (throw FormatException()));
+        response.http, response.document ?? (throw FormatException()));
   }
 
   /// Fetches a related resource collection
@@ -146,8 +148,8 @@ class RoutingClient {
     Map<String, Iterable<String>> fields = const {},
     Map<String, String> query = const {},
   }) async {
-    final response = await _client.send(
-        _uri.related(type, id, relationship),
+    final response = await send(
+        baseUri.related(type, id, relationship),
         Request.get()
           ..headers.addAll(headers)
           ..query.addAll(query)
@@ -157,7 +159,7 @@ class RoutingClient {
           ..sort(sort)
           ..fields(fields));
     return CollectionFetched(
-        response.http, response.json ?? (throw FormatException()));
+        response.http, response.document ?? (throw FormatException()));
   }
 
   Future<RelationshipFetched<ToOne>> fetchToOne(
@@ -167,11 +169,10 @@ class RoutingClient {
     Map<String, String> headers = const {},
     Map<String, String> query = const {},
   }) async {
-    final response = await _client.send(
-        _uri.relationship(type, id, relationship),
+    final response = await send(baseUri.relationship(type, id, relationship),
         Request.get()..headers.addAll(headers)..query.addAll(query));
     return RelationshipFetched.one(
-        response.http, response.json ?? (throw FormatException()));
+        response.http, response.document ?? (throw FormatException()));
   }
 
   Future<RelationshipFetched<ToMany>> fetchToMany(
@@ -181,11 +182,10 @@ class RoutingClient {
     Map<String, String> headers = const {},
     Map<String, String> query = const {},
   }) async {
-    final response = await _client.send(
-        _uri.relationship(type, id, relationship),
+    final response = await send(baseUri.relationship(type, id, relationship),
         Request.get()..headers.addAll(headers)..query.addAll(query));
     return RelationshipFetched.many(
-        response.http, response.json ?? (throw FormatException()));
+        response.http, response.document ?? (throw FormatException()));
   }
 
   Future<RelatedResourceFetched> fetchRelatedResource(
@@ -198,8 +198,8 @@ class RoutingClient {
     Iterable<String> include = const [],
     Map<String, Iterable<String>> fields = const {},
   }) async {
-    final response = await _client.send(
-        _uri.related(type, id, relationship),
+    final response = await send(
+        baseUri.related(type, id, relationship),
         Request.get()
           ..headers.addAll(headers)
           ..query.addAll(query)
@@ -207,7 +207,7 @@ class RoutingClient {
           ..include(include)
           ..fields(fields));
     return RelatedResourceFetched(
-        response.http, response.json ?? (throw FormatException()));
+        response.http, response.document ?? (throw FormatException()));
   }
 
   Future<ResourceFetched> fetchResource(
@@ -219,8 +219,8 @@ class RoutingClient {
     Map<String, Iterable<String>> fields = const {},
     Map<String, String> query = const {},
   }) async {
-    final response = await _client.send(
-        _uri.resource(type, id),
+    final response = await send(
+        baseUri.resource(type, id),
         Request.get()
           ..headers.addAll(headers)
           ..query.addAll(query)
@@ -229,7 +229,7 @@ class RoutingClient {
           ..fields(fields));
 
     return ResourceFetched(
-        response.http, response.json ?? (throw FormatException()));
+        response.http, response.document ?? (throw FormatException()));
   }
 
   Future<ResourceUpdated> updateResource(String type, String id,
@@ -238,8 +238,8 @@ class RoutingClient {
       Map<String, Iterable<Identifier>> many = const {},
       Map<String, Object?> meta = const {},
       Map<String, String> headers = const {}}) async {
-    final response = await _client.send(
-        _uri.resource(type, id),
+    final response = await send(
+        baseUri.resource(type, id),
         Request.patch(OutboundDataDocument.resource(Resource(type, id)
           ..attributes.addAll(attributes)
           ..relationships.addAll({
@@ -248,7 +248,7 @@ class RoutingClient {
           })
           ..meta.addAll(meta)))
           ..headers.addAll(headers));
-    return ResourceUpdated(response.http, response.json);
+    return ResourceUpdated(response.http, response.document);
   }
 
   /// Creates a new resource with the given id on the server.
@@ -261,8 +261,8 @@ class RoutingClient {
     Map<String, Object?> meta = const {},
     Map<String, String> headers = const {},
   }) async {
-    final response = await _client.send(
-        _uri.collection(type),
+    final response = await send(
+        baseUri.collection(type),
         Request.post(OutboundDataDocument.resource(Resource(type, id)
           ..attributes.addAll(attributes)
           ..relationships.addAll({
@@ -271,7 +271,7 @@ class RoutingClient {
           })
           ..meta.addAll(meta)))
           ..headers.addAll(headers));
-    return ResourceUpdated(response.http, response.json);
+    return ResourceUpdated(response.http, response.document);
   }
 
   Future<RelationshipUpdated<ToOne>> replaceToOne(
@@ -281,11 +281,11 @@ class RoutingClient {
     Identifier identifier, {
     Map<String, String> headers = const {},
   }) async {
-    final response = await _client.send(
-        _uri.relationship(type, id, relationship),
+    final response = await send(
+        baseUri.relationship(type, id, relationship),
         Request.patch(OutboundDataDocument.one(ToOne(identifier)))
           ..headers.addAll(headers));
-    return RelationshipUpdated.one(response.http, response.json);
+    return RelationshipUpdated.one(response.http, response.document);
   }
 
   Future<RelationshipUpdated<ToMany>> replaceToMany(
@@ -295,23 +295,31 @@ class RoutingClient {
     Iterable<Identifier> identifiers, {
     Map<String, String> headers = const {},
   }) async {
-    final response = await _client.send(
-        _uri.relationship(type, id, relationship),
+    final response = await send(
+        baseUri.relationship(type, id, relationship),
         Request.patch(OutboundDataDocument.many(ToMany(identifiers)))
           ..headers.addAll(headers));
-    return RelationshipUpdated.many(response.http, response.json);
+    return RelationshipUpdated.many(response.http, response.document);
   }
 
   Future<RelationshipUpdated<ToOne>> deleteToOne(
       String type, String id, String relationship,
       {Map<String, String> headers = const {}}) async {
-    final response = await _client.send(
-        _uri.relationship(type, id, relationship),
+    final response = await send(
+        baseUri.relationship(type, id, relationship),
         Request.patch(OutboundDataDocument.one(ToOne.empty()))
           ..headers.addAll(headers));
-    return RelationshipUpdated.one(response.http, response.json);
+    return RelationshipUpdated.one(response.http, response.document);
   }
 
   Future<Response> deleteResource(String type, String id) =>
-      _client.send(_uri.resource(type, id), Request.delete());
+      send(baseUri.resource(type, id), Request.delete());
+
+  Future<Response> send(Uri uri, Request request) async {
+    final response = await _client.send(uri, request);
+    if (response.http.isFailed) {
+      throw RequestFailure(response.http, response.document);
+    }
+    return response;
+  }
 }
