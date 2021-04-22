@@ -2,9 +2,12 @@ import 'package:json_api/http.dart';
 import 'package:json_api/src/client/disposable_handler.dart';
 import 'package:json_api/src/client/request.dart';
 import 'package:json_api/src/client/response.dart';
-import 'package:json_api/src/client/response/request_failure.dart';
 
-/// A basic JSON:API client
+/// A basic JSON:API client.
+///
+/// The JSON:API [Request] is converted to [HttpRequest] and sent downstream
+/// using the [handler]. Received [HttpResponse] is then converted back to
+/// JSON:API [Response]. JSON conversion is performed by the [codec].
 class Client {
   const Client(
       {PayloadCodec codec = const PayloadCodec(),
@@ -15,8 +18,7 @@ class Client {
   final HttpHandler _http;
   final PayloadCodec _codec;
 
-  /// Sends the [request] to the server.
-  /// Throws a [RequestFailure] if the server responds with an error.
+  /// Sends the [request] to the given [uri].
   Future<Response> send(Uri uri, Request request) async {
     final body = await _encode(request.document);
     final response = await _http.handle(HttpRequest(
@@ -31,23 +33,13 @@ class Client {
         ...request.headers
       }));
 
-    final json = await _decode(response);
-    if (StatusCode(response.statusCode).isFailed) {
-      throw RequestFailure(response, json);
-    }
-    return Response(response, json);
+    final document = await _decode(response);
+    return Response(response, document);
   }
 
   Future<String> _encode(Object? doc) async =>
       doc == null ? '' : await _codec.encode(doc);
 
   Future<Map?> _decode(HttpResponse response) async =>
-      _isJsonApi(response) ? await _codec.decode(response.body) : null;
-
-  /// True if body is not empty and Content-Type is application/vnd.api+json
-  bool _isJsonApi(HttpResponse response) =>
-      response.body.isNotEmpty &&
-      (response.headers['Content-Type'] ?? '')
-          .toLowerCase()
-          .startsWith(mediaType);
+      response.hasDocument ? await _codec.decode(response.body) : null;
 }

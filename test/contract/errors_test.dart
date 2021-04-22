@@ -21,12 +21,8 @@ void main() {
             Uri.parse('/posts/1/relationships/author'), Request('head')),
       ];
       for (final action in actions) {
-        try {
-          await action();
-          fail('Exception expected');
-        } on RequestFailure catch (response) {
-          expect(response.http.statusCode, 405);
-        }
+        final response = await action();
+        expect(response.http.statusCode, 405);
       }
     });
     test('Bad request when target can not be matched', () async {
