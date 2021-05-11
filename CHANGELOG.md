@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.1] - 2021-05-11
+### Fixed
+- Missing http client exports
+
 ## [5.0.0] - 2021-04-21
 ### Added
 - Sound null-safety support.
@@ -121,14 +125,14 @@ is missing. Before in such cases a `FormatException` would be thrown ([pr](https
 ## [2.0.0] - 2019-07-12
 ### Changed
 - This package now consolidates the Client, the Server and the Document in one single library. 
-  It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages 
-  from your `pubspec.yaml`.
+It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages 
+from your `pubspec.yaml`.
 - The min Dart SDK version bumped to `2.3.0`
 - The Client requires an instance of HttpClient to be passed to the constructor explicitly.
 - Both the Document and the Server have been refactored with lots of **BREAKING CHANGES**. 
-  See the examples and the functional tests for details.
+See the examples and the functional tests for details.
 - Meta properties are not defensively copied, but set directly. Meta property behavior is unified across 
-  the Document model.
+the Document model.
 
 ### Removed
 - `JsonApiParser` is removed. Use the static `decodeJson` methods in the corresponding classes instead.
@@ -187,6 +191,7 @@ is missing. Before in such cases a `FormatException` would be thrown ([pr](https
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
+[5.0.1]: https://github.com/f3ath/json-api-dart/compare/5.0.0...5.0.1
 [5.0.0]: https://github.com/f3ath/json-api-dart/compare/3.2.3...5.0.0
 [3.2.3]: https://github.com/f3ath/json-api-dart/compare/3.2.2...3.2.3
 [4.3.0]: https://github.com/f3ath/json-api-dart/compare/4.2.2...4.3.0
