@@ -1,5 +1,5 @@
 name: json_api
-version: 5.0.0
+version: 5.0.1
 homepage: https://github.com/f3ath/json-api-dart
 description: A framework-agnostic implementations of JSON:API Client and Server. Supports JSON:API v1.0 (https://jsonapi.org)
 environment:

@@ -26,7 +26,7 @@ void main() {
         defaultEncoding: encoding,
       );
 
-      return dartHttp.handle(HttpRequest('', Uri.parse('http://test.com')));
+      return dartHttp.handle(HttpRequest('get', Uri.parse('http://test.com')));
     };
 
     test('UTF-8 ru', () async {
