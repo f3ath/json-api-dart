@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [5.0.1] - 2021-05-11
 ### Fixed
 - Missing http client exports
+- Failing test
 
 ## [5.0.0] - 2021-04-21
 ### Added
