@@ -7,7 +7,7 @@ import 'package:json_api/http.dart';
 /// Handler which relies on the built-in Dart HTTP client.
 /// It is the developer's responsibility to instantiate the client and
 /// call `close()` on it in the end pf the application lifecycle.
-class PersistentHandler {
+class PersistentHandler implements HttpHandler {
   /// Creates a new instance of the handler. Do not forget to call `close()` on
   /// the [client] when it's not longer needed.
   PersistentHandler(this.client, {this.defaultEncoding = utf8});
@@ -15,6 +15,7 @@ class PersistentHandler {
   final Client client;
   final Encoding defaultEncoding;
 
+  @override
   Future<HttpResponse> handle(HttpRequest request) async {
     final response = await Response.fromStream(
         await client.send(Request(request.method, request.uri)
