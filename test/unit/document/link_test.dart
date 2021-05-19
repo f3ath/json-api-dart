@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:json_api/document.dart';
 import 'package:test/test.dart';
