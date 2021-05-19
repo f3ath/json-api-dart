@@ -256,6 +256,8 @@ void main() {
         'tags': [Identifier('tags', '1'), Identifier('tags', '2')]
       }, meta: {
         'answer': 42
+      }, documentMeta: {
+        'hello': 'world'
       }, headers: {
         'foo': 'bar'
       });
@@ -290,7 +292,8 @@ void main() {
             }
           },
           'meta': {'answer': 42}
-        }
+        },
+        'meta': {'hello': 'world'}
       });
     });
   });

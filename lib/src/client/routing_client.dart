@@ -47,6 +47,7 @@ class RoutingClient {
   /// - [one] - resource to-one relationships
   /// - [many] - resource to-many relationships
   /// - [meta] - resource meta data
+  /// - [documentMeta] - document meta
   /// - [headers] - any extra HTTP headers
   Future<ResourceCreated> createNew(
     String type, {
@@ -54,6 +55,7 @@ class RoutingClient {
     Map<String, Identifier> one = const {},
     Map<String, Iterable<Identifier>> many = const {},
     Map<String, Object?> meta = const {},
+    Map<String, Object?> documentMeta = const {},
     Map<String, String> headers = const {},
   }) async {
     final response = await send(
@@ -64,7 +66,8 @@ class RoutingClient {
             ...one.map((key, value) => MapEntry(key, ToOne(value))),
             ...many.map((key, value) => MapEntry(key, ToMany(value))),
           })
-          ..meta.addAll(meta)))
+          ..meta.addAll(meta))
+          ..meta.addAll(documentMeta))
           ..headers.addAll(headers));
 
     return ResourceCreated(
