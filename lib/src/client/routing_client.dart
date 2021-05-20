@@ -30,11 +30,13 @@ class RoutingClient {
     String id,
     String relationship,
     List<Identifier> identifiers, {
+    Map<String, Object?> meta = const {},
     Map<String, String> headers = const {},
   }) async {
     final response = await send(
         baseUri.relationship(type, id, relationship),
-        Request.post(OutboundDataDocument.many(ToMany(identifiers)))
+        Request.post(
+            OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
           ..headers.addAll(headers));
     return RelationshipUpdated.many(response.http, response.document);
   }
@@ -84,11 +86,13 @@ class RoutingClient {
     String id,
     String relationship,
     List<Identifier> identifiers, {
+    Map<String, Object?> meta = const {},
     Map<String, String> headers = const {},
   }) async {
     final response = await send(
         baseUri.relationship(type, id, relationship),
-        Request.delete(OutboundDataDocument.many(ToMany(identifiers)))
+        Request.delete(
+            OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
           ..headers.addAll(headers));
 
     return RelationshipUpdated.many(response.http, response.document);
@@ -235,12 +239,16 @@ class RoutingClient {
         response.http, response.document ?? (throw FormatException()));
   }
 
-  Future<ResourceUpdated> updateResource(String type, String id,
-      {Map<String, Object?> attributes = const {},
-      Map<String, Identifier> one = const {},
-      Map<String, Iterable<Identifier>> many = const {},
-      Map<String, Object?> meta = const {},
-      Map<String, String> headers = const {}}) async {
+  Future<ResourceUpdated> updateResource(
+    String type,
+    String id, {
+    Map<String, Object?> attributes = const {},
+    Map<String, Identifier> one = const {},
+    Map<String, Iterable<Identifier>> many = const {},
+    Map<String, Object?> meta = const {},
+    Map<String, Object?> documentMeta = const {},
+    Map<String, String> headers = const {},
+  }) async {
     final response = await send(
         baseUri.resource(type, id),
         Request.patch(OutboundDataDocument.resource(Resource(type, id)
@@ -249,7 +257,8 @@ class RoutingClient {
             ...one.map((key, value) => MapEntry(key, ToOne(value))),
             ...many.map((key, value) => MapEntry(key, ToMany(value))),
           })
-          ..meta.addAll(meta)))
+          ..meta.addAll(meta))
+          ..meta.addAll(documentMeta))
           ..headers.addAll(headers));
     return ResourceUpdated(response.http, response.document);
   }
@@ -262,6 +271,7 @@ class RoutingClient {
     Map<String, Identifier> one = const {},
     Map<String, Iterable<Identifier>> many = const {},
     Map<String, Object?> meta = const {},
+    Map<String, Object?> documentMeta = const {},
     Map<String, String> headers = const {},
   }) async {
     final response = await send(
@@ -272,7 +282,8 @@ class RoutingClient {
             ...one.map((key, value) => MapEntry(key, ToOne(value))),
             ...many.map((key, value) => MapEntry(key, ToMany(value))),
           })
-          ..meta.addAll(meta)))
+          ..meta.addAll(meta))
+          ..meta.addAll(documentMeta))
           ..headers.addAll(headers));
     return ResourceUpdated(response.http, response.document);
   }
@@ -282,11 +293,13 @@ class RoutingClient {
     String id,
     String relationship,
     Identifier identifier, {
+    Map<String, Object?> meta = const {},
     Map<String, String> headers = const {},
   }) async {
     final response = await send(
         baseUri.relationship(type, id, relationship),
-        Request.patch(OutboundDataDocument.one(ToOne(identifier)))
+        Request.patch(
+            OutboundDataDocument.one(ToOne(identifier)..meta.addAll(meta)))
           ..headers.addAll(headers));
     return RelationshipUpdated.one(response.http, response.document);
   }
@@ -296,11 +309,13 @@ class RoutingClient {
     String id,
     String relationship,
     Iterable<Identifier> identifiers, {
+    Map<String, Object?> meta = const {},
     Map<String, String> headers = const {},
   }) async {
     final response = await send(
         baseUri.relationship(type, id, relationship),
-        Request.patch(OutboundDataDocument.many(ToMany(identifiers)))
+        Request.patch(
+            OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
           ..headers.addAll(headers));
     return RelationshipUpdated.many(response.http, response.document);
   }
