@@ -339,6 +339,8 @@ void main() {
         'tags': [Identifier('tags', '1'), Identifier('tags', '2')]
       }, meta: {
         'answer': 42
+      }, documentMeta: {
+        'hello': 'world'
       }, headers: {
         'foo': 'bar'
       });
@@ -371,7 +373,8 @@ void main() {
             }
           },
           'meta': {'answer': 42}
-        }
+        },
+        'meta': {'hello': 'world'}
       });
     });
   });
@@ -418,6 +421,8 @@ void main() {
         'tags': [Identifier('tags', '1'), Identifier('tags', '2')]
       }, meta: {
         'answer': 42
+      }, documentMeta: {
+        'hello': 'world'
       }, headers: {
         'foo': 'bar'
       });
@@ -450,7 +455,8 @@ void main() {
             }
           },
           'meta': {'answer': 42}
-        }
+        },
+        'meta': {'hello': 'world'}
       });
     });
   });
@@ -476,7 +482,7 @@ void main() {
       http.response = mock.one;
       final response = await client.replaceToOne(
           'articles', '1', 'author', Identifier('people', '42'),
-          headers: {'foo': 'bar'});
+          meta: {'hello': 'world'}, headers: {'foo': 'bar'});
       expect(response.relationship, isA<ToOne>());
       expect(http.request.method, 'patch');
       expect(http.request.uri.toString(), '/articles/1/relationships/author');
@@ -486,7 +492,8 @@ void main() {
         'foo': 'bar'
       });
       expect(jsonDecode(http.request.body), {
-        'data': {'type': 'people', 'id': '42'}
+        'data': {'type': 'people', 'id': '42'},
+        'meta': {'hello': 'world'}
       });
     });
 
@@ -583,7 +590,7 @@ void main() {
       http.response = mock.many;
       final response = await client.deleteFromMany(
           'articles', '1', 'tags', [Identifier('tags', '1')],
-          headers: {'foo': 'bar'});
+          meta: {'hello': 'world'}, headers: {'foo': 'bar'});
       expect(response.relationship, isA<ToMany>());
       expect(http.request.method, 'delete');
       expect(http.request.uri.toString(), '/articles/1/relationships/tags');
@@ -595,7 +602,8 @@ void main() {
       expect(jsonDecode(http.request.body), {
         'data': [
           {'type': 'tags', 'id': '1'}
-        ]
+        ],
+        'meta': {'hello': 'world'}
       });
     });
 
@@ -643,7 +651,7 @@ void main() {
       http.response = mock.many;
       final response = await client.replaceToMany(
           'articles', '1', 'tags', [Identifier('tags', '1')],
-          headers: {'foo': 'bar'});
+          meta: {'hello': 'world'}, headers: {'foo': 'bar'});
       expect(response.relationship, isA<ToMany>());
       expect(http.request.method, 'patch');
       expect(http.request.uri.toString(), '/articles/1/relationships/tags');
@@ -655,7 +663,8 @@ void main() {
       expect(jsonDecode(http.request.body), {
         'data': [
           {'type': 'tags', 'id': '1'}
-        ]
+        ],
+        'meta': {'hello': 'world'}
       });
     });
 
@@ -703,7 +712,7 @@ void main() {
       http.response = mock.many;
       final response = await client.addMany(
           'articles', '1', 'tags', [Identifier('tags', '1')],
-          headers: {'foo': 'bar'});
+          meta: {'hello': 'world'}, headers: {'foo': 'bar'});
       expect(response.relationship, isA<ToMany>());
       expect(http.request.method, 'post');
       expect(http.request.uri.toString(), '/articles/1/relationships/tags');
@@ -715,7 +724,8 @@ void main() {
       expect(jsonDecode(http.request.body), {
         'data': [
           {'type': 'tags', 'id': '1'}
-        ]
+        ],
+        'meta': {'hello': 'world'}
       });
     });
 
