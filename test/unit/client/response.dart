@@ -18,6 +18,7 @@ final collectionFull = HttpResponse(200,
         'next': 'http://example.com/articles?page[offset]=2',
         'last': 'http://example.com/articles?page[offset]=10'
       },
+      'meta': {'hello': 'world'},
       'data': [
         {
           'type': 'articles',
@@ -85,6 +86,7 @@ final collectionFull = HttpResponse(200,
 final primaryResource = HttpResponse(200,
     body: jsonEncode({
       'links': {'self': 'http://example.com/articles/1'},
+      'meta': {'hello': 'world'},
       'data': {
         'type': 'articles',
         'id': '1',
@@ -134,6 +136,7 @@ final primaryResource = HttpResponse(200,
 final relatedResourceNull = HttpResponse(200,
     body: jsonEncode({
       'links': {'self': 'http://example.com/articles/1/author'},
+      'meta': {'hello': 'world'},
       'data': null
     }))
   ..headers.addAll({'Content-Type': mediaType});
@@ -143,6 +146,7 @@ final one = HttpResponse(200,
         'self': '/articles/1/relationships/author',
         'related': '/articles/1/author'
       },
+      'meta': {'hello': 'world'},
       'data': {'type': 'people', 'id': '12'},
       'included': [
         {
@@ -187,6 +191,7 @@ final oneEmpty = HttpResponse(200,
         'self': '/articles/1/relationships/author',
         'related': '/articles/1/author'
       },
+      'meta': {'hello': 'world'},
       'data': null,
       'included': [
         {
@@ -231,6 +236,7 @@ final many = HttpResponse(200,
         'self': '/articles/1/relationships/tags',
         'related': '/articles/1/tags'
       },
+      'meta': {'hello': 'world'},
       'data': [
         {'type': 'tags', 'id': '12'}
       ]
@@ -241,6 +247,7 @@ final noContent = HttpResponse(204);
 
 final error422 = HttpResponse(422,
     body: jsonEncode({
+      'meta': {'hello': 'world'},
       'errors': [
         {
           'status': '422',

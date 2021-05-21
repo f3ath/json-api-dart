@@ -17,7 +17,11 @@ class ResourceCreated {
 
   /// Created resource.
   final Resource resource;
+
+  /// Top-level meta data
   final meta = <String, Object?>{};
+
+  /// Top-level links
   final links = <String, Link>{};
 
   /// Included resources
