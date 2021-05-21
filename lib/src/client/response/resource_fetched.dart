@@ -12,11 +12,13 @@ class ResourceFetched {
 
   final HttpResponse http;
   final Resource resource;
-  final included = ResourceCollection();
 
   /// Top-level meta data
   final meta = <String, Object?>{};
 
-  /// Top-level links object
+  /// Top-level links
   final links = <String, Link>{};
+
+  /// Included resources
+  final included = ResourceCollection();
 }

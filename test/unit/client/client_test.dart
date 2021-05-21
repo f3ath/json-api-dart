@@ -79,6 +79,8 @@ void main() {
     });
     expect(http.request.headers,
         {'Accept': 'application/vnd.api+json', 'foo': 'bar'});
+
+    expect(response.meta, {'hello': 'world'});
   });
 
   group('Fetch Related Collection', () {
@@ -123,6 +125,8 @@ void main() {
       });
       expect(http.request.headers,
           {'Accept': 'application/vnd.api+json', 'foo': 'bar'});
+
+      expect(response.meta, {'hello': 'world'});
     });
   });
 
@@ -155,6 +159,8 @@ void main() {
           {'include': 'author', 'fields[author]': 'name', 'foo': 'bar'});
       expect(http.request.headers,
           {'Accept': 'application/vnd.api+json', 'foo': 'bar'});
+
+      expect(response.meta, {'hello': 'world'});
     });
   });
 
@@ -190,6 +196,8 @@ void main() {
           {'include': 'author', 'fields[author]': 'name', 'foo': 'bar'});
       expect(http.request.headers,
           {'Accept': 'application/vnd.api+json', 'foo': 'bar'});
+
+      expect(response.meta, {'hello': 'world'});
     });
 
     test('Missing resource', () async {
@@ -295,6 +303,8 @@ void main() {
         },
         'meta': {'hello': 'world'}
       });
+
+      expect(response.meta, {'hello': 'world'});
     });
   });
 
@@ -376,6 +386,8 @@ void main() {
         },
         'meta': {'hello': 'world'}
       });
+
+      expect(response.meta, {'hello': 'world'});
     });
   });
 
@@ -458,6 +470,8 @@ void main() {
         },
         'meta': {'hello': 'world'}
       });
+
+      expect(response.meta, {'hello': 'world'});
     });
   });
 
