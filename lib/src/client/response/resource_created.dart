@@ -8,6 +8,7 @@ import 'package:json_api/http.dart';
 class ResourceCreated {
   ResourceCreated(this.http, Map json)
       : resource = InboundDocument(json).dataAsResource() {
+    meta.addAll(InboundDocument(json).meta());
     links.addAll(InboundDocument(json).links());
     included.addAll(InboundDocument(json).included());
   }
@@ -16,6 +17,7 @@ class ResourceCreated {
 
   /// Created resource.
   final Resource resource;
+  final meta = <String, Object?>{};
   final links = <String, Link>{};
 
   /// Included resources
