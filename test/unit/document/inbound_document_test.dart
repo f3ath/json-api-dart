@@ -78,6 +78,15 @@ void main() {
         expect(doc.meta(), isEmpty);
       });
 
+      test('can parse the null link', () {
+
+        final doc = InboundDocument(payload.nullLink);
+        expect(doc.links()['self'].toString(), 'http://example.com/articles');
+        expect(doc.links()['prev'], isNull);
+        expect(doc.links()['next'], isNull);
+        expect(doc.links()['foobar'], isNull);
+      });
+
       test('can parse primary resource', () {
         final doc = InboundDocument(payload.resource);
         final article = doc.dataAsResource();
