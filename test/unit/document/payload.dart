@@ -67,6 +67,15 @@ final example = {
   ]
 };
 
+final nullLink = {
+  'links': {
+    'self': 'http://example.com/articles',
+    'next': null,
+    'last': null,
+  },
+  'data': []
+};
+
 final newResource = {
   'data': {
     'type': 'articles',

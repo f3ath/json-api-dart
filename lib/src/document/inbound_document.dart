@@ -67,9 +67,11 @@ class _Parser {
   Map<String, Object?> meta(Map json) =>
       json.get<Map<String, Object?>>('meta', orGet: () => {});
 
-  Map<String, Link> links(Map json) => json
-      .get<Map>('links', orGet: () => {})
-      .map((k, v) => MapEntry(k.toString(), _link(v)));
+  Map<String, Link> links(Map json) {
+    var links = json.get<Map>('links', orGet: () => {});
+    links.removeWhere((key, value) => value == null);
+    return links.map((k, v) => MapEntry(k.toString(), _link(v)));
+  }
 
   Relationship relationship(Map json) {
     final rel = json.containsKey('data') ? _rel(json['data']) : Relationship();
