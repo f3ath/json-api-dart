@@ -79,7 +79,6 @@ void main() {
       });
 
       test('can parse the null link', () {
-
         final doc = InboundDocument(payload.nullLink);
         expect(doc.links()['self'].toString(), 'http://example.com/articles');
         expect(doc.links()['prev'], isNull);
