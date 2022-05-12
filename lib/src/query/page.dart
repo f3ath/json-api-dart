@@ -18,7 +18,7 @@ class Page with MapMixin<String, String> {
 
   static Page fromUri(Uri uri) => Page(uri.queryParametersAll
       .map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1) ?? '', v.last))
-        ..removeWhere((k, v) => k.isEmpty));
+    ..removeWhere((k, v) => k.isEmpty));
   static final _regex = RegExp(r'^page\[(.+)\]$');
 
   final _ = <String, String>{};

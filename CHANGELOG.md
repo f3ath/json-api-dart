@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.1.0] - 2022-05-11
+### Changed
+- Dependency versions bump
+
 ## [5.0.5] - 2021-07-19
 ### Fixed
 - Pagination with null values crashes json parser (#123)
@@ -208,6 +212,7 @@ the Document model.
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
+[5.1.0]: https://github.com/f3ath/json-api-dart/compare/5.0.5...5.1.0
 [5.0.5]: https://github.com/f3ath/json-api-dart/compare/5.0.4...5.0.5
 [5.0.4]: https://github.com/f3ath/json-api-dart/compare/5.0.3...5.0.4
 [5.0.3]: https://github.com/f3ath/json-api-dart/compare/5.0.2...5.0.3

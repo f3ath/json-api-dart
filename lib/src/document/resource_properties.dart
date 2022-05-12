@@ -26,5 +26,6 @@ mixin ResourceProperties {
   R? _rel<R extends Relationship>(String name) {
     final r = relationships[name];
     if (r is R) return r;
+    return null;
   }
 }

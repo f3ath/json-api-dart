@@ -5,9 +5,9 @@ import 'repository.dart';
 
 class InMemoryRepo implements Repository {
   InMemoryRepo(Iterable<String> types) {
-    types.forEach((_) {
-      _storage[_] = {};
-    });
+    for (var type in types) {
+      _storage[type] = {};
+    }
   }
 
   final _storage = <String, Map<String, Model>>{};

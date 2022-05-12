@@ -1,4 +1,3 @@
-import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/client/client.dart';
@@ -8,6 +7,7 @@ import 'package:json_api/src/client/response/collection_fetched.dart';
 import 'package:json_api/src/client/response/related_resource_fetched.dart';
 import 'package:json_api/src/client/response/relationship_fetched.dart';
 import 'package:json_api/src/client/response/relationship_updated.dart';
+import 'package:json_api/src/client/response/request_failure.dart';
 import 'package:json_api/src/client/response/resource_created.dart';
 import 'package:json_api/src/client/response/resource_fetched.dart';
 import 'package:json_api/src/client/response/resource_updated.dart';
@@ -176,8 +176,11 @@ class RoutingClient {
     Map<String, String> headers = const {},
     Map<String, String> query = const {},
   }) async {
-    final response = await send(baseUri.relationship(type, id, relationship),
-        Request.get()..headers.addAll(headers)..query.addAll(query));
+    final response = await send(
+        baseUri.relationship(type, id, relationship),
+        Request.get()
+          ..headers.addAll(headers)
+          ..query.addAll(query));
     return RelationshipFetched.one(
         response.http, response.document ?? (throw FormatException()));
   }
@@ -189,8 +192,11 @@ class RoutingClient {
     Map<String, String> headers = const {},
     Map<String, String> query = const {},
   }) async {
-    final response = await send(baseUri.relationship(type, id, relationship),
-        Request.get()..headers.addAll(headers)..query.addAll(query));
+    final response = await send(
+        baseUri.relationship(type, id, relationship),
+        Request.get()
+          ..headers.addAll(headers)
+          ..query.addAll(query));
     return RelationshipFetched.many(
         response.http, response.document ?? (throw FormatException()));
   }

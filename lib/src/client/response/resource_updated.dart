@@ -17,6 +17,7 @@ class ResourceUpdated {
         return doc.dataAsResource();
       }
     }
+    return null;
   }
 
   final HttpResponse http;

@@ -27,6 +27,8 @@ void main() async {
     });
   } on RequestFailure catch (e) {
     /// Catch error response
-    e.errors.forEach((error) => print('${error.title}'));
+    for (var error in e.errors) {
+      print(error.title);
+    }
   }
 }
