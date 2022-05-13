@@ -15,7 +15,7 @@ class Filter with MapMixin<String, String> {
 
   static Filter fromUri(Uri uri) => Filter(uri.queryParametersAll
       .map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1) ?? '', v.last))
-        ..removeWhere((k, v) => k.isEmpty));
+    ..removeWhere((k, v) => k.isEmpty));
 
   static final _regex = RegExp(r'^filter\[(.+)\]$');
 

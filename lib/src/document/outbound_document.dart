@@ -1,5 +1,8 @@
-import 'package:json_api/document.dart';
+import 'package:json_api/src/document/error_object.dart';
 import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/many.dart';
+import 'package:json_api/src/document/new_resource.dart';
+import 'package:json_api/src/document/one.dart';
 import 'package:json_api/src/document/resource.dart';
 
 /// A sever-to-client document.

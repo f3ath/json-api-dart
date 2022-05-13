@@ -13,7 +13,7 @@ void main() {
     final stringBodyEn = 'qwerty';
     final bytesBodyEn = utf8.encode(stringBodyEn);
 
-    final buildResponse = (
+    buildResponse(
       List<int> bytesBody,
       Encoding encoding,
     ) async {
@@ -27,7 +27,7 @@ void main() {
       );
 
       return dartHttp.handle(HttpRequest('get', Uri.parse('http://test.com')));
-    };
+    }
 
     test('UTF-8 ru', () async {
       final response = await buildResponse(bytesBodyRu, utf8);

@@ -35,9 +35,9 @@ Future<void> main() async {
 
   print('The server is listening at $host:$port.'
       ' Try opening the following URL(s) in your browser:');
-  resources.forEach((resource) {
+  for (var resource in resources) {
     print('http://$host:$port/$resource');
-  });
+  }
 }
 
 Future addColors(Repository repo) async {

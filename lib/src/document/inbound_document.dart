@@ -1,4 +1,3 @@
-import 'package:json_api/document.dart';
 import 'package:json_api/src/document/error_object.dart';
 import 'package:json_api/src/document/error_source.dart';
 import 'package:json_api/src/document/identifier.dart';

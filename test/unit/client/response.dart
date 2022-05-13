@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:json_api/http.dart';
-import 'package:json_api/src/http/media_type.dart';
 
 final collectionMin = HttpResponse(200,
     body: jsonEncode({
