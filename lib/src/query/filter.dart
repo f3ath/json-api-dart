@@ -14,7 +14,7 @@ class Filter with MapMixin<String, Object> {
   }
 
   static Filter fromUri(Uri uri) {
-    Map<String, Object> filters = {};
+    final filters = <String, Object>{};
     uri.queryParametersAll.forEach((key, value) {
       if (_validationRegex.hasMatch(key)) {
         final matches = _extractionRegex.allMatches(key).toList();
@@ -30,21 +30,22 @@ class Filter with MapMixin<String, Object> {
     String value,
   ) {
     final key = matches[0].group(1) ?? '';
-    if (key.isNotEmpty) {
-      if (matches.length == 1) {
-        destination[key] = value;
-        return;
-      }
-      if (!destination.containsKey(key) ||
-          destination[key] is! Map<String, Object>) {
-        destination[key] = <String, Object>{};
-      }
-      _convertToMapAndMerge(
-        matches.sublist(1),
-        destination[key] as Map<String, Object>,
-        value,
-      );
+    if (key.isEmpty) {
+      return;
     }
+    if (matches.length == 1) {
+      destination[key] = value;
+      return;
+    }
+    if (!destination.containsKey(key) ||
+        destination[key] is! Map<String, Object>) {
+      destination[key] = <String, Object>{};
+    }
+    _convertToMapAndMerge(
+      matches.sublist(1),
+      destination[key] as Map<String, Object>,
+      value,
+    );
   }
 
   static final _validationRegex = RegExp(r'^filter(?:\[[^\[\]]+\])+$');
@@ -64,6 +65,11 @@ class Filter with MapMixin<String, Object> {
         queryParameters[keyWithPrefix] = value;
       } else if (value is Map<String, Object>) {
         queryParameters.addAll(_flattenFiltersMap(value, keyWithPrefix));
+      } else {
+        throw ArgumentError(
+          'Filter values must have a type of String or Map<String, Object>',
+          'value',
+        );
       }
     });
     return queryParameters;
@@ -76,7 +82,7 @@ class Filter with MapMixin<String, Object> {
   void operator []=(String key, Object value) {
     if (value is! String && value is! Map<String, Object>) {
       throw ArgumentError(
-        'Filter value must have a type of String or Map<String, Object>',
+        'Filter values must have a type of String or Map<String, Object>',
         'value',
       );
     }
