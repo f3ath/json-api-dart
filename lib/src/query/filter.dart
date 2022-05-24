@@ -70,7 +70,7 @@ class Filter with MapMixin<String, Object> {
   }
 
   @override
-  dynamic operator [](Object? key) => _[key];
+  Object? operator [](Object? key) => _[key];
 
   @override
   void operator []=(String key, Object value) {
