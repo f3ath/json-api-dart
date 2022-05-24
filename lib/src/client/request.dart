@@ -56,7 +56,7 @@ class Request with HttpHeaders {
 
   /// Response filtering.
   /// https://jsonapi.org/format/#fetching-filtering
-  void filter(Map<String, String> filter) {
+  void filter(Map<String, dynamic> filter) {
     query.addAll(Filter(filter).asQueryParameters);
   }
 }
