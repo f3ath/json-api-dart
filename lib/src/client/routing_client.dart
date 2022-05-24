@@ -59,6 +59,7 @@ class RoutingClient {
     Map<String, Object?> meta = const {},
     Map<String, Object?> documentMeta = const {},
     Map<String, String> headers = const {},
+    Iterable<String> include = const [],
   }) async {
     final response = await send(
         baseUri.collection(type),
@@ -70,7 +71,8 @@ class RoutingClient {
           })
           ..meta.addAll(meta))
           ..meta.addAll(documentMeta))
-          ..headers.addAll(headers));
+          ..headers.addAll(headers)
+          ..include(include));
 
     return ResourceCreated(
         response.http, response.document ?? (throw FormatException()));
@@ -254,6 +256,7 @@ class RoutingClient {
     Map<String, Object?> meta = const {},
     Map<String, Object?> documentMeta = const {},
     Map<String, String> headers = const {},
+    Iterable<String> include = const [],
   }) async {
     final response = await send(
         baseUri.resource(type, id),
@@ -265,7 +268,8 @@ class RoutingClient {
           })
           ..meta.addAll(meta))
           ..meta.addAll(documentMeta))
-          ..headers.addAll(headers));
+          ..headers.addAll(headers)
+          ..include(include));
     return ResourceUpdated(response.http, response.document);
   }
 
@@ -279,6 +283,7 @@ class RoutingClient {
     Map<String, Object?> meta = const {},
     Map<String, Object?> documentMeta = const {},
     Map<String, String> headers = const {},
+    Iterable<String> include = const [],
   }) async {
     final response = await send(
         baseUri.collection(type),
@@ -290,7 +295,8 @@ class RoutingClient {
           })
           ..meta.addAll(meta))
           ..meta.addAll(documentMeta))
-          ..headers.addAll(headers));
+          ..headers.addAll(headers)
+          ..include(include));
     return ResourceUpdated(response.http, response.document);
   }
 
