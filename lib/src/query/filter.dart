@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-class Filter with MapMixin<String, dynamic> {
+class Filter with MapMixin<String, Object> {
   /// Example:
   /// ```dart
   /// Filter({'post': '1,2', 'author': {'id': '12', 'role': 'admin'}}).addTo(url);
@@ -9,12 +9,12 @@ class Filter with MapMixin<String, dynamic> {
   /// ```
   /// ?filter[post]=1,2&filter[author][id]=12&filter[author][role]=admin
   /// ```
-  Filter([Map<String, dynamic> parameters = const {}]) {
+  Filter([Map<String, Object> parameters = const {}]) {
     addAll(parameters);
   }
 
   static Filter fromUri(Uri uri) {
-    Map<String, dynamic> filters = {};
+    Map<String, Object> filters = {};
     uri.queryParametersAll.forEach((key, value) {
       if (_validationRegex.hasMatch(key)) {
         final matches = _extractionRegex.allMatches(key).toList();
@@ -26,7 +26,7 @@ class Filter with MapMixin<String, dynamic> {
 
   static void _convertToMapAndMerge(
     List<RegExpMatch> matches,
-    Map<String, dynamic> destination,
+    Map<String, Object> destination,
     String value,
   ) {
     final key = matches[0].group(1) ?? '';
@@ -35,29 +35,34 @@ class Filter with MapMixin<String, dynamic> {
         destination[key] = value;
         return;
       }
-      if (!destination.containsKey(key)) {
-        destination[key] = <String, dynamic>{};
+      if (!destination.containsKey(key) ||
+          destination[key] is! Map<String, Object>) {
+        destination[key] = <String, Object>{};
       }
-      _convertToMapAndMerge(matches.sublist(1), destination[key], value);
+      _convertToMapAndMerge(
+        matches.sublist(1),
+        destination[key] as Map<String, Object>,
+        value,
+      );
     }
   }
 
   static final _validationRegex = RegExp(r'^filter(?:\[[^\[\]]+\])+$');
   static final _extractionRegex = RegExp(r'\[([^\[\]]+)\]');
 
-  final _ = <String, dynamic>{};
+  final _ = <String, Object>{};
 
   /// Converts to a map of query parameters
   Map<String, String> get asQueryParameters => _flattenFiltersMap(_);
 
-  Map<String, String> _flattenFiltersMap(Map<String, dynamic> filters,
+  Map<String, String> _flattenFiltersMap(Map<String, Object> filters,
       [String keyPrefix = 'filter']) {
     final queryParameters = <String, String>{};
     filters.forEach((key, value) {
       final keyWithPrefix = '$keyPrefix[$key]';
       if (value is String) {
         queryParameters[keyWithPrefix] = value;
-      } else if (value is Map<String, dynamic>) {
+      } else if (value is Map<String, Object>) {
         queryParameters.addAll(_flattenFiltersMap(value, keyWithPrefix));
       }
     });
@@ -68,10 +73,10 @@ class Filter with MapMixin<String, dynamic> {
   dynamic operator [](Object? key) => _[key];
 
   @override
-  void operator []=(String key, dynamic value) {
-    if (value is! String && value is! Map<String, dynamic>) {
+  void operator []=(String key, Object value) {
+    if (value is! String && value is! Map<String, Object>) {
       throw ArgumentError(
-        'Filter value must have a type of String or Map<String, dynamic>',
+        'Filter value must have a type of String or Map<String, Object>',
         'value',
       );
     }
@@ -85,5 +90,5 @@ class Filter with MapMixin<String, dynamic> {
   Iterable<String> get keys => _.keys;
 
   @override
-  String? remove(Object? key) => _.remove(key);
+  Object? remove(Object? key) => _.remove(key);
 }
