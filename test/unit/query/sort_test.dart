@@ -27,6 +27,6 @@ void main() {
 
   test('Can convert to query parameters', () {
     expect(Sort(['-created', 'title']).asQueryParameters,
-        {'sort': '-created,title'});
+        {'sort': ['-created,title']});
   });
 }

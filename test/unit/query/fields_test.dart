@@ -53,7 +53,7 @@ void main() {
             'articles': ['title', 'body'],
             'people': ['name']
           }).asQueryParameters,
-          {'fields[articles]': 'title,body', 'fields[people]': 'name'});
+          {'fields[articles]': ['title,body'], 'fields[people]': ['name']});
     });
   });
 }

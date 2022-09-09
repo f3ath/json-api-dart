@@ -24,8 +24,8 @@ class Page with MapMixin<String, String> {
   final _ = <String, String>{};
 
   /// Converts to a map of query parameters
-  Map<String, String> get asQueryParameters =>
-      _.map((k, v) => MapEntry('page[$k]', v));
+  Map<String, List<String>> get asQueryParameters =>
+      _.map((k, v) => MapEntry('page[$k]', [v]));
 
   @override
   String? operator [](Object? key) => _[key];

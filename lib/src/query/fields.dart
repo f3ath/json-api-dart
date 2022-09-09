@@ -25,8 +25,8 @@ class Fields with MapMixin<String, Iterable<String>> {
   final _map = <String, Iterable<String>>{};
 
   /// Converts to a map of query parameters
-  Map<String, String> get asQueryParameters =>
-      _map.map((k, v) => MapEntry('fields[$k]', v.join(',')));
+  Map<String, List<String>> get asQueryParameters =>
+      _map.map((k, v) => MapEntry('fields[$k]', [v.join(',')]));
 
   @override
   void operator []=(String key, Iterable<String> value) => _map[key] = value;

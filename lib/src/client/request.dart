@@ -28,7 +28,7 @@ class Request with HttpHeaders {
   final Object? document;
 
   /// Query parameters
-  final query = <String, String>{};
+  final query = <String, List<String>>{};
 
   /// Requests inclusion of related resources.
   /// See https://jsonapi.org/format/#fetching-includes

@@ -54,7 +54,7 @@ void main() {
     final response = await client.fetchCollection('articles', headers: {
       'foo': 'bar'
     }, query: {
-      'foo': 'bar'
+      'foo': ['bar']
     }, include: [
       'author'
     ], fields: {
@@ -100,7 +100,7 @@ void main() {
           .fetchRelatedCollection('people', '1', 'articles', headers: {
         'foo': 'bar'
       }, query: {
-        'foo': 'bar'
+        'foo': ['bar']
       }, include: [
         'author'
       ], fields: {
@@ -145,7 +145,7 @@ void main() {
       final response = await client.fetchResource('articles', '1', headers: {
         'foo': 'bar'
       }, query: {
-        'foo': 'bar'
+        'foo': ['bar']
       }, include: [
         'author'
       ], fields: {
@@ -182,7 +182,7 @@ void main() {
           .fetchRelatedResource('articles', '1', 'author', headers: {
         'foo': 'bar'
       }, query: {
-        'foo': 'bar'
+        'foo': ['bar']
       }, include: [
         'author'
       ], fields: {
@@ -225,7 +225,7 @@ void main() {
     test('Full', () async {
       http.response = mock.one;
       final response = await client.fetchToOne('articles', '1', 'author',
-          headers: {'foo': 'bar'}, query: {'foo': 'bar'});
+          headers: {'foo': 'bar'}, query: {'foo': ['bar']});
       expect(response.included.length, 3);
       expect(http.request.method, 'get');
       expect(http.request.uri.path, '/articles/1/relationships/author');

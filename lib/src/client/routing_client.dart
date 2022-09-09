@@ -113,7 +113,7 @@ class RoutingClient {
   Future<CollectionFetched> fetchCollection(
     String type, {
     Map<String, String> headers = const {},
-    Map<String, String> query = const {},
+    Map<String, List<String>> query = const {},
     Map<String, String> page = const {},
     Map<String, String> filter = const {},
     Iterable<String> include = const [],
@@ -155,7 +155,7 @@ class RoutingClient {
     Iterable<String> include = const [],
     Iterable<String> sort = const [],
     Map<String, Iterable<String>> fields = const {},
-    Map<String, String> query = const {},
+    Map<String, List<String>> query = const {},
   }) async {
     final response = await send(
         baseUri.related(type, id, relationship),
@@ -176,7 +176,7 @@ class RoutingClient {
     String id,
     String relationship, {
     Map<String, String> headers = const {},
-    Map<String, String> query = const {},
+    Map<String, List<String>> query = const {},
   }) async {
     final response = await send(
         baseUri.relationship(type, id, relationship),
@@ -192,7 +192,7 @@ class RoutingClient {
     String id,
     String relationship, {
     Map<String, String> headers = const {},
-    Map<String, String> query = const {},
+    Map<String, List<String>> query = const {},
   }) async {
     final response = await send(
         baseUri.relationship(type, id, relationship),
@@ -208,7 +208,7 @@ class RoutingClient {
     String id,
     String relationship, {
     Map<String, String> headers = const {},
-    Map<String, String> query = const {},
+    Map<String, List<String>> query = const {},
     Map<String, String> filter = const {},
     Iterable<String> include = const [],
     Map<String, Iterable<String>> fields = const {},
@@ -232,7 +232,7 @@ class RoutingClient {
     Map<String, String> filter = const {},
     Iterable<String> include = const [],
     Map<String, Iterable<String>> fields = const {},
-    Map<String, String> query = const {},
+    Map<String, List<String>> query = const {},
   }) async {
     final response = await send(
         baseUri.resource(type, id),
