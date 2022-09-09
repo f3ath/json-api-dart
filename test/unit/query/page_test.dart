@@ -30,7 +30,7 @@ void main() {
     });
 
     test('can convert to query parameters', () {
-      expect(Page({'limit': '10', 'offset': '20'}).asQueryParameters,
+      expect(Page({'limit': '10', 'offset': '20'}).toQuery(),
           {'page[limit]': ['10'], 'page[offset]': ['20']});
     });
   });

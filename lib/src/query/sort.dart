@@ -19,8 +19,9 @@ class Sort with IterableMixin<SortField> {
   final _ = <SortField>[];
 
   /// Converts to a map of query parameters
-  Map<String, List<String>> get asQueryParameters =>
-      {if (isNotEmpty) 'sort': [join(',')]};
+  Map<String, List<String>> toQuery() => {
+        if (isNotEmpty) 'sort': [join(',')]
+      };
 
   @override
   int get length => _.length;

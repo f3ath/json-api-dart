@@ -52,7 +52,7 @@ void main() {
           Fields({
             'articles': ['title', 'body'],
             'people': ['name']
-          }).asQueryParameters,
+          }).toQuery(),
           {'fields[articles]': ['title,body'], 'fields[people]': ['name']});
     });
   });

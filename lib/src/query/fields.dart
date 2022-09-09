@@ -1,8 +1,10 @@
 import 'dart:collection';
 
+import 'package:json_api/src/query/query.dart';
+
 /// Query parameters defining Sparse Fieldsets
 /// @see https://jsonapi.org/format/#fetching-sparse-fieldsets
-class Fields with MapMixin<String, Iterable<String>> {
+class Fields with MapMixin<String, Iterable<String>> implements Query {
   /// The [fields] argument maps the resource type to a list of fields.
   ///
   /// Example:
@@ -25,7 +27,8 @@ class Fields with MapMixin<String, Iterable<String>> {
   final _map = <String, Iterable<String>>{};
 
   /// Converts to a map of query parameters
-  Map<String, List<String>> get asQueryParameters =>
+  @override
+  Map<String, List<String>> toQuery() =>
       _map.map((k, v) => MapEntry('fields[$k]', [v.join(',')]));
 
   @override

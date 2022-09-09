@@ -1,8 +1,10 @@
 import 'dart:collection';
 
+import 'package:json_api/src/query/query.dart';
+
 /// Query parameters defining the pagination data.
 /// @see https://jsonapi.org/format/#fetching-pagination
-class Page with MapMixin<String, String> {
+class Page with MapMixin<String, String> implements Query {
   /// Example:
   /// ```dart
   /// Page({'limit': '10', 'offset': '20'}).addTo(url);
@@ -24,7 +26,8 @@ class Page with MapMixin<String, String> {
   final _ = <String, String>{};
 
   /// Converts to a map of query parameters
-  Map<String, List<String>> get asQueryParameters =>
+  @override
+  Map<String, List<String>> toQuery() =>
       _.map((k, v) => MapEntry('page[$k]', [v]));
 
   @override

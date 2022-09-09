@@ -30,7 +30,7 @@ void main() {
     });
 
     test('Can convert to query parameters', () {
-      expect(Filter({'post': '1,2', 'author': '12'}).asQueryParameters,
+      expect(Filter({'post': '1,2', 'author': '12'}).toQuery(),
           {'filter[post]': ['1,2'], 'filter[author]': ['12']});
     });
   });

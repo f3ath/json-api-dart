@@ -3,7 +3,7 @@ version: 5.2.0
 homepage: https://github.com/f3ath/json-api-dart
 description: A framework-agnostic implementations of JSON:API Client and Server. Supports JSON:API v1.0 (https://jsonapi.org)
 environment:
-  sdk: '>=2.17.0 <3.0.0'
+  sdk: '>=2.18.0 <3.0.0'
 
 dependencies:
   http: ^0.13.4

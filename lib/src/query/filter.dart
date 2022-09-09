@@ -1,6 +1,8 @@
 import 'dart:collection';
 
-class Filter with MapMixin<String, String> {
+import 'package:json_api/src/query/query.dart';
+
+class Filter with MapMixin<String, String> implements Query {
   /// Example:
   /// ```dart
   /// Filter({'post': '1,2', 'author': '12'}).addTo(url);
@@ -22,7 +24,8 @@ class Filter with MapMixin<String, String> {
   final _ = <String, String>{};
 
   /// Converts to a map of query parameters
-  Map<String, List<String>> get asQueryParameters =>
+  @override
+  Map<String, List<String>> toQuery() =>
       _.map((k, v) => MapEntry('filter[$k]', [v]));
 
   @override

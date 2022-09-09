@@ -33,30 +33,30 @@ class Request with HttpHeaders {
   /// Requests inclusion of related resources.
   /// See https://jsonapi.org/format/#fetching-includes
   void include(Iterable<String> include) {
-    query.addAll(Include(include).asQueryParameters);
+    query.addAll(Include(include).toQuery());
   }
 
   /// Sets sorting parameters.
   /// See https://jsonapi.org/format/#fetching-sorting
   void sort(Iterable<String> sort) {
-    query.addAll(Sort(sort).asQueryParameters);
+    query.addAll(Sort(sort).toQuery());
   }
 
   /// Requests sparse fieldsets.
   /// See https://jsonapi.org/format/#fetching-sparse-fieldsets
   void fields(Map<String, Iterable<String>> fields) {
-    query.addAll(Fields(fields).asQueryParameters);
+    query.addAll(Fields(fields).toQuery());
   }
 
   /// Sets pagination parameters.
   /// See https://jsonapi.org/format/#fetching-pagination
   void page(Map<String, String> page) {
-    query.addAll(Page(page).asQueryParameters);
+    query.addAll(Page(page).toQuery());
   }
 
   /// Response filtering.
   /// https://jsonapi.org/format/#fetching-filtering
   void filter(Map<String, String> filter) {
-    query.addAll(Filter(filter).asQueryParameters);
+    query.addAll(Filter(filter).toQuery());
   }
 }

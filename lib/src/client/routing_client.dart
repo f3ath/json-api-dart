@@ -51,6 +51,7 @@ class RoutingClient {
   /// - [meta] - resource meta data
   /// - [documentMeta] - document meta
   /// - [headers] - any extra HTTP headers
+  /// - [include] - request to include related resources in the response
   Future<ResourceCreated> createNew(
     String type, {
     Map<String, Object?> attributes = const {},
