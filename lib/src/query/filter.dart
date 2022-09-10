@@ -1,8 +1,8 @@
 import 'dart:collection';
 
-import 'package:json_api/src/query/query.dart';
+import 'package:json_api/src/query/query_encodable.dart';
 
-class Filter with MapMixin<String, String> implements Query {
+class Filter with MapMixin<String, String> implements QueryEncodable {
   /// Example:
   /// ```dart
   /// Filter({'post': '1,2', 'author': '12'}).addTo(url);

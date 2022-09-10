@@ -1,10 +1,11 @@
 import 'dart:collection';
 
-import 'package:json_api/src/query/query.dart';
+import 'package:json_api/src/query/query_encodable.dart';
+
 
 /// Query parameters defining Sparse Fieldsets
 /// @see https://jsonapi.org/format/#fetching-sparse-fieldsets
-class Fields with MapMixin<String, Iterable<String>> implements Query {
+class Fields with MapMixin<String, Iterable<String>> implements QueryEncodable {
   /// The [fields] argument maps the resource type to a list of fields.
   ///
   /// Example:

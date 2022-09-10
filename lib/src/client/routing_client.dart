@@ -114,7 +114,7 @@ class RoutingClient {
   Future<CollectionFetched> fetchCollection(
     String type, {
     Map<String, String> headers = const {},
-    Map<String, List<String>> query = const {},
+    @Deprecated('WIP') Map<String, List<String>> query = const {},
     Map<String, String> page = const {},
     Map<String, String> filter = const {},
     Iterable<String> include = const [],
@@ -125,7 +125,7 @@ class RoutingClient {
         baseUri.collection(type),
         Request.get()
           ..headers.addAll(headers)
-          ..query.addAll(query)
+          ..query.mergeMap(query)
           ..page(page)
           ..filter(filter)
           ..include(include)
@@ -162,7 +162,7 @@ class RoutingClient {
         baseUri.related(type, id, relationship),
         Request.get()
           ..headers.addAll(headers)
-          ..query.addAll(query)
+          ..query.mergeMap(query)
           ..page(page)
           ..filter(filter)
           ..include(include)
@@ -183,7 +183,7 @@ class RoutingClient {
         baseUri.relationship(type, id, relationship),
         Request.get()
           ..headers.addAll(headers)
-          ..query.addAll(query));
+          ..query.mergeMap(query));
     return RelationshipFetched.one(
         response.http, response.document ?? (throw FormatException()));
   }
@@ -199,7 +199,7 @@ class RoutingClient {
         baseUri.relationship(type, id, relationship),
         Request.get()
           ..headers.addAll(headers)
-          ..query.addAll(query));
+          ..query.mergeMap(query));
     return RelationshipFetched.many(
         response.http, response.document ?? (throw FormatException()));
   }
@@ -218,7 +218,7 @@ class RoutingClient {
         baseUri.related(type, id, relationship),
         Request.get()
           ..headers.addAll(headers)
-          ..query.addAll(query)
+          ..query.mergeMap(query)
           ..filter(filter)
           ..include(include)
           ..fields(fields));
@@ -239,7 +239,7 @@ class RoutingClient {
         baseUri.resource(type, id),
         Request.get()
           ..headers.addAll(headers)
-          ..query.addAll(query)
+          ..query.mergeMap(query)
           ..filter(filter)
           ..include(include)
           ..fields(fields));

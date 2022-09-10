@@ -1,6 +1,7 @@
 import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/src/client/client.dart';
+import 'package:json_api/src/query/query.dart';
 
 /// A generic JSON:API request.
 class Request with HttpHeaders {
@@ -28,35 +29,35 @@ class Request with HttpHeaders {
   final Object? document;
 
   /// Query parameters
-  final query = <String, List<String>>{};
+  final query = Query();
 
   /// Requests inclusion of related resources.
   /// See https://jsonapi.org/format/#fetching-includes
   void include(Iterable<String> include) {
-    query.addAll(Include(include).toQuery());
+    query.merge(Include(include));
   }
 
   /// Sets sorting parameters.
   /// See https://jsonapi.org/format/#fetching-sorting
   void sort(Iterable<String> sort) {
-    query.addAll(Sort(sort).toQuery());
+    query.merge(Sort(sort));
   }
 
   /// Requests sparse fieldsets.
   /// See https://jsonapi.org/format/#fetching-sparse-fieldsets
   void fields(Map<String, Iterable<String>> fields) {
-    query.addAll(Fields(fields).toQuery());
+    query.merge(Fields(fields));
   }
 
   /// Sets pagination parameters.
   /// See https://jsonapi.org/format/#fetching-pagination
   void page(Map<String, String> page) {
-    query.addAll(Page(page).toQuery());
+    query.merge(Page(page));
   }
 
   /// Response filtering.
   /// https://jsonapi.org/format/#fetching-filtering
   void filter(Map<String, String> filter) {
-    query.addAll(Filter(filter).toQuery());
+    query.merge(Filter(filter));
   }
 }

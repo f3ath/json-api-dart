@@ -25,7 +25,7 @@ class Client {
         request.method,
         request.query.isEmpty
             ? uri
-            : uri.replace(queryParameters: request.query),
+            : uri.replace(queryParameters: request.query.toQuery()),
         body: body)
       ..headers.addAll({
         'Accept': mediaType,
