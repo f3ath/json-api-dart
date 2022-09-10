@@ -1,4 +1,5 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/client/client.dart';
 import 'package:json_api/src/client/request.dart';
@@ -51,7 +52,6 @@ class RoutingClient {
   /// - [meta] - resource meta data
   /// - [documentMeta] - document meta
   /// - [headers] - any extra HTTP headers
-  /// - [include] - request to include related resources in the response
   Future<ResourceCreated> createNew(
     String type, {
     Map<String, Object?> attributes = const {},
@@ -73,7 +73,7 @@ class RoutingClient {
           ..meta.addAll(meta))
           ..meta.addAll(documentMeta))
           ..headers.addAll(headers)
-          ..include(include));
+          ..query.merge(Include(include)));
 
     return ResourceCreated(
         response.http, response.document ?? (throw FormatException()));
@@ -126,11 +126,11 @@ class RoutingClient {
         Request.get()
           ..headers.addAll(headers)
           ..query.mergeMap(query)
-          ..page(page)
-          ..filter(filter)
-          ..include(include)
-          ..sort(sort)
-          ..fields(fields));
+          ..query.merge(Page(page))
+          ..query.merge(Filter(filter))
+          ..query.merge(Include(include))
+          ..query.merge(Sort(sort))
+          ..query.merge(Fields(fields)));
     return CollectionFetched(
         response.http, response.document ?? (throw FormatException()));
   }
@@ -163,11 +163,11 @@ class RoutingClient {
         Request.get()
           ..headers.addAll(headers)
           ..query.mergeMap(query)
-          ..page(page)
-          ..filter(filter)
-          ..include(include)
-          ..sort(sort)
-          ..fields(fields));
+          ..query.merge(Page(page))
+          ..query.merge(Filter(filter))
+          ..query.merge(Include(include))
+          ..query.merge(Sort(sort))
+          ..query.merge(Fields(fields)));
     return CollectionFetched(
         response.http, response.document ?? (throw FormatException()));
   }
@@ -219,9 +219,9 @@ class RoutingClient {
         Request.get()
           ..headers.addAll(headers)
           ..query.mergeMap(query)
-          ..filter(filter)
-          ..include(include)
-          ..fields(fields));
+          ..query.merge(Filter(filter))
+          ..query.merge(Include(include))
+          ..query.merge(Fields(fields)));
     return RelatedResourceFetched(
         response.http, response.document ?? (throw FormatException()));
   }
@@ -240,9 +240,9 @@ class RoutingClient {
         Request.get()
           ..headers.addAll(headers)
           ..query.mergeMap(query)
-          ..filter(filter)
-          ..include(include)
-          ..fields(fields));
+          ..query.merge(Filter(filter))
+          ..query.merge(Include(include))
+          ..query.merge(Fields(fields)));
 
     return ResourceFetched(
         response.http, response.document ?? (throw FormatException()));
@@ -270,7 +270,7 @@ class RoutingClient {
           ..meta.addAll(meta))
           ..meta.addAll(documentMeta))
           ..headers.addAll(headers)
-          ..include(include));
+          ..query.merge(Include(include)));
     return ResourceUpdated(response.http, response.document);
   }
 
@@ -297,7 +297,7 @@ class RoutingClient {
           ..meta.addAll(meta))
           ..meta.addAll(documentMeta))
           ..headers.addAll(headers)
-          ..include(include));
+          ..query.merge(Include(include)));
     return ResourceUpdated(response.http, response.document);
   }
 
