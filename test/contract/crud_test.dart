@@ -1,5 +1,6 @@
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
+import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
 import 'package:test/test.dart';
 
@@ -43,8 +44,9 @@ void main() {
     });
 
     test('Fetch a complex resource', () async {
-      final response = await client.fetchCollection('posts',
-          include: ['author', 'comments', 'comments.author']);
+      final response = await client.fetchCollection('posts', query: [
+        Include(['author', 'comments', 'comments.author'])
+      ]);
 
       expect(response.http.statusCode, 200);
       expect(response.collection.length, 1);
@@ -105,8 +107,9 @@ void main() {
 
     test('Delete a to-one relationship', () async {
       await client.deleteToOne(post.type, post.id, 'author');
-      await client
-          .fetchResource(post.type, post.id, include: ['author']).then((r) {
+      await client.fetchResource(post.type, post.id, query: [
+        Include(['author'])
+      ]).then((r) {
         expect(r.resource.one('author'), isEmpty);
       });
     });
@@ -114,8 +117,9 @@ void main() {
     test('Replace a to-one relationship', () async {
       await client.replaceToOne(
           post.type, post.id, 'author', Identifier.of(bob));
-      await client
-          .fetchResource(post.type, post.id, include: ['author']).then((r) {
+      await client.fetchResource(post.type, post.id, query: [
+        Include(['author'])
+      ]).then((r) {
         expect(r.resource.one('author')?.findIn(r.included)?.attributes['name'],
             'Bob');
       });
@@ -132,8 +136,9 @@ void main() {
     test('Replace a to-many relationship', () async {
       await client.replaceToMany(
           post.type, post.id, 'comments', [Identifier.of(secretComment)]);
-      await client
-          .fetchResource(post.type, post.id, include: ['comments']).then((r) {
+      await client.fetchResource(post.type, post.id, query: [
+        Include(['comments'])
+      ]).then((r) {
         expect(
             r.resource
                 .many('comments')!

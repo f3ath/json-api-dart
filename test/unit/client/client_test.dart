@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
+import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
 import 'package:test/test.dart';
 
@@ -53,17 +54,16 @@ void main() {
     http.response = mock.collectionFull;
     final response = await client.fetchCollection('articles', headers: {
       'foo': 'bar'
-    }, query: {
-      'foo': ['bar']
-    }, include: [
-      'author'
-    ], fields: {
-      'author': ['name']
-    }, page: {
-      'limit': '10'
-    }, sort: [
-      'title',
-      '-date'
+    }, query: [
+      Query({
+        'foo': ['bar']
+      }),
+      Include(['author']),
+      Fields({
+        'author': ['name']
+      }),
+      Page({'limit': '10'}),
+      Sort(['title', '-date'])
     ]);
 
     expect(response.collection.length, 1);
@@ -99,17 +99,16 @@ void main() {
       final response = await client
           .fetchRelatedCollection('people', '1', 'articles', headers: {
         'foo': 'bar'
-      }, query: {
-        'foo': ['bar']
-      }, include: [
-        'author'
-      ], fields: {
-        'author': ['name']
-      }, page: {
-        'limit': '10'
-      }, sort: [
-        'title',
-        '-date'
+      }, query: [
+        Query({
+          'foo': ['bar']
+        }),
+        Include(['author']),
+        Page({'limit': '10'}),
+        Fields({
+          'author': ['name']
+        }),
+        Sort(['title', '-date'])
       ]);
 
       expect(response.collection.length, 1);
@@ -144,13 +143,15 @@ void main() {
       http.response = mock.primaryResource;
       final response = await client.fetchResource('articles', '1', headers: {
         'foo': 'bar'
-      }, query: {
-        'foo': ['bar']
-      }, include: [
-        'author'
-      ], fields: {
-        'author': ['name']
-      });
+      }, query: [
+        Query({
+          'foo': ['bar']
+        }),
+        Include(['author']),
+        Fields({
+          'author': ['name']
+        })
+      ]);
       expect(response.resource.type, 'articles');
       expect(response.included.length, 3);
       expect(http.request.method, 'get');
@@ -181,13 +182,15 @@ void main() {
       final response = await client
           .fetchRelatedResource('articles', '1', 'author', headers: {
         'foo': 'bar'
-      }, query: {
-        'foo': ['bar']
-      }, include: [
-        'author'
-      ], fields: {
-        'author': ['name']
-      });
+      }, query: [
+        Query({
+          'foo': ['bar']
+        }),
+        Include(['author']),
+        Fields({
+          'author': ['name']
+        })
+      ]);
       expect(response.resource?.type, 'articles');
       expect(response.included.length, 3);
       expect(http.request.method, 'get');
@@ -224,8 +227,14 @@ void main() {
 
     test('Full', () async {
       http.response = mock.one;
-      final response = await client.fetchToOne('articles', '1', 'author',
-          headers: {'foo': 'bar'}, query: {'foo': ['bar']});
+      final response =
+          await client.fetchToOne('articles', '1', 'author', headers: {
+        'foo': 'bar'
+      }, query: [
+        Query({
+          'foo': ['bar']
+        })
+      ]);
       expect(response.included.length, 3);
       expect(http.request.method, 'get');
       expect(http.request.uri.path, '/articles/1/relationships/author');

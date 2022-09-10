@@ -31,6 +31,11 @@ class Query implements QueryEncodable {
     mergeMap(encodable.toQuery());
   }
 
+  /// Merges parameters from other [encodables] into this object.
+  void mergeAll(Iterable<QueryEncodable> encodables) {
+    encodables.forEach(merge);
+  }
+
   @override
   Map<String, List<String>> toQuery() =>
       _parameters.map((key, value) => MapEntry(key, value.toList()));

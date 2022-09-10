@@ -21,7 +21,7 @@ class RoutingClient {
   final Client _client;
   final UriDesign baseUri;
 
-  /// Adds [identifiers] to a to-many relationship
+  /// Adds the [identifiers] to the to-many relationship
   /// identified by [type], [id], [relationship].
   ///
   /// Optional arguments:
@@ -42,6 +42,42 @@ class RoutingClient {
     return RelationshipUpdated.many(response.http, response.document);
   }
 
+  /// Creates a new resource with the given [type] and [id] on the server.
+  ///
+  /// Optional arguments:
+  /// - [attributes] - resource attributes
+  /// - [one] - resource to-one relationships
+  /// - [many] - resource to-many relationships
+  /// - [meta] - resource meta data
+  /// - [documentMeta] - document meta
+  /// - [headers] - any extra HTTP headers
+  /// - [query] - a collection of parameters to be included in the URI query
+  Future<ResourceUpdated> create(
+    String type,
+    String id, {
+    Map<String, Object?> attributes = const {},
+    Map<String, Identifier> one = const {},
+    Map<String, Iterable<Identifier>> many = const {},
+    Map<String, Object?> meta = const {},
+    Map<String, Object?> documentMeta = const {},
+    Map<String, String> headers = const {},
+    Iterable<QueryEncodable> query = const [],
+  }) async {
+    final response = await send(
+        baseUri.collection(type),
+        Request.post(OutboundDataDocument.resource(Resource(type, id)
+          ..attributes.addAll(attributes)
+          ..relationships.addAll({
+            ...one.map((key, value) => MapEntry(key, ToOne(value))),
+            ...many.map((key, value) => MapEntry(key, ToMany(value))),
+          })
+          ..meta.addAll(meta))
+          ..meta.addAll(documentMeta))
+          ..headers.addAll(headers)
+          ..query.mergeAll(query));
+    return ResourceUpdated(response.http, response.document);
+  }
+
   /// Creates a new resource in the collection of type [type].
   /// The server is responsible for assigning the resource id.
   ///
@@ -52,6 +88,7 @@ class RoutingClient {
   /// - [meta] - resource meta data
   /// - [documentMeta] - document meta
   /// - [headers] - any extra HTTP headers
+  /// - [query] - a collection of parameters to be included in the URI query
   Future<ResourceCreated> createNew(
     String type, {
     Map<String, Object?> attributes = const {},
@@ -60,7 +97,7 @@ class RoutingClient {
     Map<String, Object?> meta = const {},
     Map<String, Object?> documentMeta = const {},
     Map<String, String> headers = const {},
-    Iterable<String> include = const [],
+    Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
         baseUri.collection(type),
@@ -73,17 +110,18 @@ class RoutingClient {
           ..meta.addAll(meta))
           ..meta.addAll(documentMeta))
           ..headers.addAll(headers)
-          ..query.merge(Include(include)));
+          ..query.mergeAll(query));
 
     return ResourceCreated(
         response.http, response.document ?? (throw FormatException()));
   }
 
-  /// Deletes [identifiers] from a to-many relationship
+  /// Deletes the [identifiers] from the to-many relationship
   /// identified by [type], [id], [relationship].
   ///
   /// Optional arguments:
   /// - [headers] - any extra HTTP headers
+  /// - [meta] - relationship meta data
   Future<RelationshipUpdated> deleteFromMany(
     String type,
     String id,
@@ -101,153 +139,144 @@ class RoutingClient {
     return RelationshipUpdated.many(response.http, response.document);
   }
 
-  /// Fetches  a primary collection of type [type].
+  /// Fetches the primary collection of type [type].
   ///
   /// Optional arguments:
   /// - [headers] - any extra HTTP headers
-  /// - [query] - any extra query parameters
-  /// - [page] - pagination options
-  /// - [filter] - filtering options
-  /// - [include] - request to include related resources
-  /// - [sort] - collection sorting options
-  /// - [fields] - sparse fields options
+  /// - [query] - a collection of parameters to be included in the URI query
   Future<CollectionFetched> fetchCollection(
     String type, {
     Map<String, String> headers = const {},
-    @Deprecated('WIP') Map<String, List<String>> query = const {},
-    Map<String, String> page = const {},
-    Map<String, String> filter = const {},
-    Iterable<String> include = const [],
-    Iterable<String> sort = const [],
-    Map<String, Iterable<String>> fields = const {},
+    Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
         baseUri.collection(type),
         Request.get()
           ..headers.addAll(headers)
-          ..query.mergeMap(query)
-          ..query.merge(Page(page))
-          ..query.merge(Filter(filter))
-          ..query.merge(Include(include))
-          ..query.merge(Sort(sort))
-          ..query.merge(Fields(fields)));
+          ..query.mergeAll(query));
     return CollectionFetched(
         response.http, response.document ?? (throw FormatException()));
   }
 
-  /// Fetches a related resource collection
+  /// Fetches the related resource collection
   /// identified by [type], [id], [relationship].
   ///
   /// Optional arguments:
   /// - [headers] - any extra HTTP headers
-  /// - [query] - any extra query parameters
-  /// - [page] - pagination options
-  /// - [filter] - filtering options
-  /// - [include] - request to include related resources
-  /// - [sort] - collection sorting options
-  /// - [fields] - sparse fields options
+  /// - [query] - a collection of parameters to be included in the URI query
   Future<CollectionFetched> fetchRelatedCollection(
     String type,
     String id,
     String relationship, {
     Map<String, String> headers = const {},
-    Map<String, String> page = const {},
-    Map<String, String> filter = const {},
-    Iterable<String> include = const [],
-    Iterable<String> sort = const [],
-    Map<String, Iterable<String>> fields = const {},
-    Map<String, List<String>> query = const {},
+    Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
         baseUri.related(type, id, relationship),
         Request.get()
           ..headers.addAll(headers)
-          ..query.mergeMap(query)
-          ..query.merge(Page(page))
-          ..query.merge(Filter(filter))
-          ..query.merge(Include(include))
-          ..query.merge(Sort(sort))
-          ..query.merge(Fields(fields)));
+          ..query.mergeAll(query));
     return CollectionFetched(
         response.http, response.document ?? (throw FormatException()));
   }
 
+  /// Fetches the to-one relationship
+  /// identified by [type], [id], [relationship].
+  ///
+  /// Optional arguments:
+  /// - [headers] - any extra HTTP headers
+  /// - [query] - a collection of parameters to be included in the URI query
   Future<RelationshipFetched<ToOne>> fetchToOne(
     String type,
     String id,
     String relationship, {
     Map<String, String> headers = const {},
-    Map<String, List<String>> query = const {},
+    Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
         baseUri.relationship(type, id, relationship),
         Request.get()
           ..headers.addAll(headers)
-          ..query.mergeMap(query));
+          ..query.mergeAll(query));
     return RelationshipFetched.one(
         response.http, response.document ?? (throw FormatException()));
   }
 
+  /// Fetches the to-many relationship
+  /// identified by [type], [id], [relationship].
+  ///
+  /// Optional arguments:
+  /// - [headers] - any extra HTTP headers
+  /// - [query] - a collection of parameters to be included in the URI query
   Future<RelationshipFetched<ToMany>> fetchToMany(
     String type,
     String id,
     String relationship, {
     Map<String, String> headers = const {},
-    Map<String, List<String>> query = const {},
+    Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
         baseUri.relationship(type, id, relationship),
         Request.get()
           ..headers.addAll(headers)
-          ..query.mergeMap(query));
+          ..query.mergeAll(query));
     return RelationshipFetched.many(
         response.http, response.document ?? (throw FormatException()));
   }
 
+  /// Fetches the related resource
+  /// identified by [type], [id], [relationship].
+  ///
+  /// Optional arguments:
+  /// - [headers] - any extra HTTP headers
+  /// - [query] - a collection of parameters to be included in the URI query
   Future<RelatedResourceFetched> fetchRelatedResource(
     String type,
     String id,
     String relationship, {
     Map<String, String> headers = const {},
-    Map<String, List<String>> query = const {},
-    Map<String, String> filter = const {},
-    Iterable<String> include = const [],
-    Map<String, Iterable<String>> fields = const {},
+    Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
         baseUri.related(type, id, relationship),
         Request.get()
           ..headers.addAll(headers)
-          ..query.mergeMap(query)
-          ..query.merge(Filter(filter))
-          ..query.merge(Include(include))
-          ..query.merge(Fields(fields)));
+          ..query.mergeAll(query));
     return RelatedResourceFetched(
         response.http, response.document ?? (throw FormatException()));
   }
 
+  /// Fetches the resource identified by [type] and [id].
+  ///
+  /// Optional arguments:
+  /// - [headers] - any extra HTTP headers
+  /// - [query] - a collection of parameters to be included in the URI query
   Future<ResourceFetched> fetchResource(
     String type,
     String id, {
     Map<String, String> headers = const {},
-    Map<String, String> filter = const {},
-    Iterable<String> include = const [],
-    Map<String, Iterable<String>> fields = const {},
-    Map<String, List<String>> query = const {},
+    Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
         baseUri.resource(type, id),
         Request.get()
           ..headers.addAll(headers)
-          ..query.mergeMap(query)
-          ..query.merge(Filter(filter))
-          ..query.merge(Include(include))
-          ..query.merge(Fields(fields)));
+          ..query.mergeAll(query));
 
     return ResourceFetched(
         response.http, response.document ?? (throw FormatException()));
   }
 
+  /// Updates the resource identified by [type] and [id].
+  ///
+  /// Optional arguments:
+  /// - [attributes] - attributes to update
+  /// - [one] - to-one relationships to update
+  /// - [many] - to-many relationships to update
+  /// - [meta] - resource meta data to update
+  /// - [documentMeta] - document meta data
+  /// - [headers] - any extra HTTP headers
+  /// - [query] - a collection of parameters to be included in the URI query
   Future<ResourceUpdated> updateResource(
     String type,
     String id, {
@@ -257,7 +286,7 @@ class RoutingClient {
     Map<String, Object?> meta = const {},
     Map<String, Object?> documentMeta = const {},
     Map<String, String> headers = const {},
-    Iterable<String> include = const [],
+    Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
         baseUri.resource(type, id),
@@ -270,37 +299,18 @@ class RoutingClient {
           ..meta.addAll(meta))
           ..meta.addAll(documentMeta))
           ..headers.addAll(headers)
-          ..query.merge(Include(include)));
+          ..query.mergeAll(query));
     return ResourceUpdated(response.http, response.document);
   }
 
-  /// Creates a new resource with the given id on the server.
-  Future<ResourceUpdated> create(
-    String type,
-    String id, {
-    Map<String, Object?> attributes = const {},
-    Map<String, Identifier> one = const {},
-    Map<String, Iterable<Identifier>> many = const {},
-    Map<String, Object?> meta = const {},
-    Map<String, Object?> documentMeta = const {},
-    Map<String, String> headers = const {},
-    Iterable<String> include = const [],
-  }) async {
-    final response = await send(
-        baseUri.collection(type),
-        Request.post(OutboundDataDocument.resource(Resource(type, id)
-          ..attributes.addAll(attributes)
-          ..relationships.addAll({
-            ...one.map((key, value) => MapEntry(key, ToOne(value))),
-            ...many.map((key, value) => MapEntry(key, ToMany(value))),
-          })
-          ..meta.addAll(meta))
-          ..meta.addAll(documentMeta))
-          ..headers.addAll(headers)
-          ..query.merge(Include(include)));
-    return ResourceUpdated(response.http, response.document);
-  }
-
+  /// Replaces the to-one relationship
+  /// identified by [type], [id], and [relationship] by setting
+  /// the new [identifier].
+  ///
+  /// Optional arguments:
+  /// - [meta] - relationship metadata
+  /// - [headers] - any extra HTTP headers
+  /// - [query] - a collection of parameters to be included in the URI query
   Future<RelationshipUpdated<ToOne>> replaceToOne(
     String type,
     String id,
@@ -308,15 +318,25 @@ class RoutingClient {
     Identifier identifier, {
     Map<String, Object?> meta = const {},
     Map<String, String> headers = const {},
+    Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
         baseUri.relationship(type, id, relationship),
         Request.patch(
             OutboundDataDocument.one(ToOne(identifier)..meta.addAll(meta)))
-          ..headers.addAll(headers));
+          ..headers.addAll(headers)
+          ..query.mergeAll(query));
     return RelationshipUpdated.one(response.http, response.document);
   }
 
+  /// Replaces the to-many relationship
+  /// identified by [type], [id], and [relationship] by setting
+  /// the new [identifiers].
+  ///
+  /// Optional arguments:
+  /// - [meta] - relationship metadata
+  /// - [headers] - any extra HTTP headers
+  /// - [query] - a collection of parameters to be included in the URI query
   Future<RelationshipUpdated<ToMany>> replaceToMany(
     String type,
     String id,
@@ -324,28 +344,57 @@ class RoutingClient {
     Iterable<Identifier> identifiers, {
     Map<String, Object?> meta = const {},
     Map<String, String> headers = const {},
+    Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
         baseUri.relationship(type, id, relationship),
         Request.patch(
             OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
-          ..headers.addAll(headers));
+          ..headers.addAll(headers)
+          ..query.mergeAll(query));
     return RelationshipUpdated.many(response.http, response.document);
   }
 
+  /// Removes the to-one relationship
+  /// identified by [type], [id], and [relationship]..
+  ///
+  /// Optional arguments:
+  /// - [headers] - any extra HTTP headers
+  /// - [query] - a collection of parameters to be included in the URI query
   Future<RelationshipUpdated<ToOne>> deleteToOne(
-      String type, String id, String relationship,
-      {Map<String, String> headers = const {}}) async {
+    String type,
+    String id,
+    String relationship, {
+    Map<String, String> headers = const {},
+    Iterable<QueryEncodable> query = const [],
+  }) async {
     final response = await send(
         baseUri.relationship(type, id, relationship),
         Request.patch(OutboundDataDocument.one(ToOne.empty()))
-          ..headers.addAll(headers));
+          ..headers.addAll(headers)
+          ..query.mergeAll(query));
     return RelationshipUpdated.one(response.http, response.document);
   }
 
-  Future<Response> deleteResource(String type, String id) =>
-      send(baseUri.resource(type, id), Request.delete());
+  /// Deletes the resource identified by [type] and [id].
+  ///
+  /// Optional arguments:
+  /// - [headers] - any extra HTTP headers
+  /// - [query] - a collection of parameters to be included in the URI query
+  Future<Response> deleteResource(
+    String type,
+    String id, {
+    Map<String, String> headers = const {},
+    Iterable<QueryEncodable> query = const [],
+  }) =>
+      send(
+          baseUri.resource(type, id),
+          Request.delete()
+            ..headers.addAll(headers)
+            ..query.mergeAll(query));
 
+  /// Sends the [request] to the [uri] on the server.
+  /// This method can be used to send any non-standard requests.
   Future<Response> send(Uri uri, Request request) async {
     final response = await _client.send(uri, request);
     if (response.http.isFailed) {

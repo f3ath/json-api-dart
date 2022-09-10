@@ -38,7 +38,4 @@ void main() async {
 This is a work-in-progress. You can help it by submitting a PR with a feature or documentation improvements.
 
 
-
-
-
 [JSON:API]: https://jsonapi.org
