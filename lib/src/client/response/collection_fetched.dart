@@ -13,10 +13,10 @@ class CollectionFetched {
   final HttpResponse http;
 
   /// The resource collection fetched from the server
-  final collection = ResourceCollection();
+  final collection = <Resource>[];
 
   /// Included resources
-  final included = ResourceCollection();
+  final included = <Resource>[];
 
   /// Top-level meta data
   final meta = <String, Object?>{};

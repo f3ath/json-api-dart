@@ -19,7 +19,7 @@ class RelatedResourceFetched {
   final Resource? resource;
 
   /// Included resources
-  final included = ResourceCollection();
+  final included = <Resource>[];
 
   /// Top-level meta data
   final meta = <String, Object?>{};

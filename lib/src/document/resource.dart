@@ -6,6 +6,7 @@ class Resource with ResourceProperties {
 
   final String type;
   final String id;
+
   String get key => '$type:$id';
 
   /// Resource links

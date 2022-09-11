@@ -15,5 +15,5 @@ class RelationshipFetched<R extends Relationship> {
 
   final HttpResponse http;
   final R relationship;
-  final included = ResourceCollection();
+  final included = <Resource>[];
 }

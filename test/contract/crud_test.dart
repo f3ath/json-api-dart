@@ -55,9 +55,10 @@ void main() {
       final fetchedPost = response.collection.first;
       expect(fetchedPost.attributes['title'], 'Hello world');
 
-      final fetchedAuthor =
-          response.included[fetchedPost.one('author')?.identifier?.key];
-      expect(fetchedAuthor?.attributes['name'], 'Alice');
+      final fetchedAuthor = response.included
+          .where(fetchedPost.one('author')!.identifier!.identifies)
+          .single;
+      expect(fetchedAuthor.attributes['name'], 'Alice');
 
       final fetchedComment =
           find(fetchedPost.many('comments')!, response.included).single;
@@ -121,8 +122,10 @@ void main() {
         Include(['author'])
       ]).then((r) {
         expect(
-            r.included[r.resource.one('author')?.identifier?.key]
-                ?.attributes['name'],
+            r.included
+                .where(r.resource.one('author')!.identifier!.identifies)
+                .single
+                .attributes['name'],
             'Bob');
       });
     });
@@ -179,6 +182,6 @@ void main() {
 /// Finds the referenced elements which are found in the [collection].
 /// The resulting [Iterable] may contain fewer elements than referred by the
 /// relationship if the [collection] does not have all of them.
-Iterable<Resource> find(ToMany many, ResourceCollection collection) =>
+Iterable<Resource> find(ToMany many, Iterable<Resource> collection) =>
     collection.where((resource) =>
         many.any((identifier) => identifier.identifies(resource)));

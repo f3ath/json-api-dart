@@ -25,5 +25,5 @@ class ResourceCreated {
   final links = <String, Link>{};
 
   /// Included resources
-  final included = ResourceCollection();
+  final included = <Resource>[];
 }
