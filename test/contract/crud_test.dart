@@ -56,7 +56,7 @@ void main() {
       expect(fetchedPost.attributes['title'], 'Hello world');
 
       final fetchedAuthor =
-          fetchedPost.one('author')!.findIn(response.included);
+          response.included[fetchedPost.one('author')?.identifier?.key];
       expect(fetchedAuthor?.attributes['name'], 'Alice');
 
       final fetchedComment =
@@ -120,7 +120,9 @@ void main() {
       await client.fetchResource(post.type, post.id, query: [
         Include(['author'])
       ]).then((r) {
-        expect(r.resource.one('author')?.findIn(r.included)?.attributes['name'],
+        expect(
+            r.included[r.resource.one('author')?.identifier?.key]
+                ?.attributes['name'],
             'Bob');
       });
     });

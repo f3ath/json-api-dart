@@ -12,10 +12,6 @@ class Identifier {
 
   String get key => '$type:$id';
 
-  // /// True if the [other] identifier references the same object.
-  // bool hasSameReference(Identifier other) =>
-  //     type == other.type && id == other.id;
-
   /// True if this identifier identifies the [resource].
   bool identifies(Resource resource) =>
       type == resource.type && id == resource.id;
