@@ -44,10 +44,10 @@ class ResourceNotFound implements Exception {}
 
 class RelationshipNotFound implements Exception {}
 
-class Ref with Identity {
-  Ref(this.type, this.id);
+class Reference with Identity {
+  Reference(this.type, this.id);
 
-  static Ref of(Identity identity) => Ref(identity.type, identity.id);
+  static Reference of(Identity identity) => Reference(identity.type, identity.id);
 
   @override
   final String type;
@@ -59,7 +59,7 @@ class Ref with Identity {
 
   @override
   bool operator ==(Object other) =>
-      other is Ref && type == other.type && id == other.id;
+      other is Reference && type == other.type && id == other.id;
 }
 
 class ModelProps {
@@ -70,11 +70,11 @@ class ModelProps {
     });
     res.relationships.forEach((key, value) {
       if (value is ToOne) {
-        props.one[key] = nullable(Ref.of)(value.identifier);
+        props.one[key] = nullable(Reference.of)(value.identifier);
         return;
       }
       if (value is ToMany) {
-        props.many[key] = Set.of(value.map(Ref.of));
+        props.many[key] = Set.of(value.map(Reference.of));
         return;
       }
     });
@@ -82,8 +82,8 @@ class ModelProps {
   }
 
   final attributes = <String, Object?>{};
-  final one = <String, Ref?>{};
-  final many = <String, Set<Ref>>{};
+  final one = <String, Reference?>{};
+  final many = <String, Set<Reference>>{};
 
   void setFrom(ModelProps other) {
     other.attributes.forEach((key, value) {

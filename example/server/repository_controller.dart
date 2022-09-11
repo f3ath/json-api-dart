@@ -47,7 +47,7 @@ class RepositoryController implements Controller {
   @override
   Future<Response> createResource(HttpRequest request, Target target) async {
     final res = (await _decode(request)).dataAsNewResource();
-    final ref = Ref(res.type, res.id ?? getId());
+    final ref = Reference(res.type, res.id ?? getId());
     await repo.persist(
         res.type, Model(ref.id)..setFrom(ModelProps.fromResource(res)));
     if (res.id != null) {
@@ -187,11 +187,11 @@ class RepositoryController implements Controller {
     return (await repo.fetch(type, id)).toResource(type);
   }
 
-  Future<Resource?> _fetchRelatedResource(Ref ref) {
+  Future<Resource?> _fetchRelatedResource(Reference ref) {
     return _fetchLinkedResource(ref.type, ref.id);
   }
 
-  Stream<Resource> _fetchRelatedCollection(Iterable<Ref> refs) async* {
+  Stream<Resource> _fetchRelatedCollection(Iterable<Reference> refs) async* {
     for (final ref in refs) {
       final r = await _fetchRelatedResource(ref);
       if (r != null) yield r;

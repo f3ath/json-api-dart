@@ -31,7 +31,7 @@ class InMemoryRepo implements Repository {
   Stream<Identity> addMany(
       String type, String id, String rel, Iterable<Identity> ids) {
     final many = _many(type, id, rel);
-    many.addAll(ids.map(Ref.of));
+    many.addAll(ids.map(Reference.of));
     return Stream.fromIterable(many);
   }
 
@@ -48,20 +48,20 @@ class InMemoryRepo implements Repository {
   @override
   Future<void> replaceOne(
       String type, String id, String rel, Identity? one) async {
-    _model(type, id).one[rel] = nullable(Ref.of)(one);
+    _model(type, id).one[rel] = nullable(Reference.of)(one);
   }
 
   @override
   Stream<Identity> deleteMany(
           String type, String id, String rel, Iterable<Identity> many) =>
-      Stream.fromIterable(_many(type, id, rel)..removeAll(many.map(Ref.of)));
+      Stream.fromIterable(_many(type, id, rel)..removeAll(many.map(Reference.of)));
 
   @override
   Stream<Identity> replaceMany(
           String type, String id, String rel, Iterable<Identity> many) =>
       Stream.fromIterable(_many(type, id, rel)
         ..clear()
-        ..addAll(many.map(Ref.of)));
+        ..addAll(many.map(Reference.of)));
 
   Map<String, Model> _collection(String type) =>
       (_storage[type] ?? (throw CollectionNotFound()));
@@ -69,6 +69,6 @@ class InMemoryRepo implements Repository {
   Model _model(String type, String id) =>
       _collection(type)[id] ?? (throw ResourceNotFound());
 
-  Set<Ref> _many(String type, String id, String rel) =>
+  Set<Reference> _many(String type, String id, String rel) =>
       _model(type, id).many[rel] ?? (throw RelationshipNotFound());
 }
