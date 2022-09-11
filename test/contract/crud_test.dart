@@ -60,7 +60,7 @@ void main() {
       expect(fetchedAuthor?.attributes['name'], 'Alice');
 
       final fetchedComment =
-          fetchedPost.many('comments')!.findIn(response.included).single;
+          find(fetchedPost.many('comments')!, response.included).single;
       expect(fetchedComment.attributes['text'], 'Hi Alice');
     });
 
@@ -142,16 +142,12 @@ void main() {
         Include(['comments'])
       ]).then((r) {
         expect(
-            r.resource
-                .many('comments')!
-                .findIn(r.included)
+            find(r.resource.many('comments')!, r.included)
                 .single
                 .attributes['text'],
             'Secret comment');
         expect(
-            r.resource
-                .many('comments')!
-                .findIn(r.included)
+            find(r.resource.many('comments')!, r.included)
                 .single
                 .attributes['text'],
             'Secret comment');
@@ -179,3 +175,10 @@ void main() {
     });
   });
 }
+
+/// Finds the referenced elements which are found in the [collection].
+/// The resulting [Iterable] may contain fewer elements than referred by the
+/// relationship if the [collection] does not have all of them.
+Iterable<Resource> find(ToMany many, ResourceCollection collection) =>
+    collection.where((resource) =>
+        many.any((identifier) => identifier.identifies(resource)));
