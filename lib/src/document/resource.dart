@@ -1,14 +1,12 @@
-import 'package:json_api/src/document/identity.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/resource_properties.dart';
 
-class Resource with ResourceProperties, Identity {
+class Resource with ResourceProperties {
   Resource(this.type, this.id);
 
-  @override
   final String type;
-  @override
   final String id;
+  String get key => '$type:$id';
 
   /// Resource links
   final links = <String, Link>{};

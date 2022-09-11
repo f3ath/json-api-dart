@@ -95,13 +95,13 @@ void main() {
 
     test('Fetch a to-one relationship', () async {
       await client.fetchToOne(post.type, post.id, 'author').then((r) {
-        expect(Identity.same(r.relationship.identifier!, alice), isTrue);
+        expect(r.relationship.identifier!.identifies(alice), isTrue);
       });
     });
 
     test('Fetch a to-many relationship', () async {
       await client.fetchToMany(post.type, post.id, 'comments').then((r) {
-        expect(Identity.same(r.relationship.single, comment), isTrue);
+        expect(r.relationship.single.identifies(comment), isTrue);
       });
     });
 

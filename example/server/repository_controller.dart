@@ -68,8 +68,7 @@ class RepositoryController implements Controller {
     final refs = await repo
         .addMany(target.type, target.id, target.relationship, many)
         .toList();
-    return Response.ok(
-        OutboundDataDocument.many(ToMany(refs.map(Identifier.of))));
+    return Response.ok(OutboundDataDocument.many(ToMany(refs)));
   }
 
   @override
@@ -94,13 +93,12 @@ class RepositoryController implements Controller {
     if (rel is ToOne) {
       final ref = rel.identifier;
       await repo.replaceOne(target.type, target.id, target.relationship, ref);
-      return Response.ok(OutboundDataDocument.one(
-          ref == null ? ToOne.empty() : ToOne(Identifier.of(ref))));
+      return Response.ok(
+          OutboundDataDocument.one(ref == null ? ToOne.empty() : ToOne(ref)));
     }
     if (rel is ToMany) {
       final ids = await repo
           .replaceMany(target.type, target.id, target.relationship, rel)
-          .map(Identifier.of)
           .toList();
       return Response.ok(OutboundDataDocument.many(ToMany(ids)));
     }
@@ -113,7 +111,6 @@ class RepositoryController implements Controller {
     final rel = (await _decode(request)).asToMany();
     final ids = await repo
         .deleteMany(target.type, target.id, target.relationship, rel)
-        .map(Identifier.of)
         .toList();
     return Response.ok(OutboundDataDocument.many(ToMany(ids)));
   }
@@ -125,11 +122,12 @@ class RepositoryController implements Controller {
 
     if (model.one.containsKey(target.relationship)) {
       return Response.ok(OutboundDataDocument.one(
-          ToOne(nullable(Identifier.of)(model.one[target.relationship]))));
+          ToOne(model.one[target.relationship]?.toIdentifier())));
     }
-    final many = model.many[target.relationship];
+    final many =
+        model.many[target.relationship]?.map((it) => it.toIdentifier());
     if (many != null) {
-      final doc = OutboundDataDocument.many(ToMany(many.map(Identifier.of)));
+      final doc = OutboundDataDocument.many(ToMany(many));
       return Response.ok(doc);
     }
     throw RelationshipNotFound();

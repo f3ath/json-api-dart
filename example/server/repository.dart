@@ -16,8 +16,8 @@ abstract class Repository {
   /// Throws [CollectionNotFound].
   /// Throws [ResourceNotFound].
   /// Throws [RelationshipNotFound].
-  Stream<Identity> addMany(
-      String type, String id, String rel, Iterable<Identity> refs);
+  Stream<Identifier> addMany(
+      String type, String id, String rel, Iterable<Identifier> many);
 
   /// Delete the resource
   Future<void> delete(String type, String id);
@@ -25,17 +25,17 @@ abstract class Repository {
   /// Updates the model
   Future<void> update(String type, String id, ModelProps props);
 
-  Future<void> replaceOne(String type, String id, String rel, Identity? ref);
+  Future<void> replaceOne(String type, String id, String rel, Identifier? one);
 
   /// Deletes refs from the to-many relationship.
   /// Returns the new actual refs.
-  Stream<Identity> deleteMany(
-      String type, String id, String rel, Iterable<Identity> refs);
+  Stream<Identifier> deleteMany(
+      String type, String id, String rel, Iterable<Identifier> many);
 
   /// Replaces refs in the to-many relationship.
   /// Returns the new actual refs.
-  Stream<Identity> replaceMany(
-      String type, String id, String rel, Iterable<Identity> refs);
+  Stream<Identifier> replaceMany(
+      String type, String id, String rel, Iterable<Identifier> many);
 }
 
 class CollectionNotFound implements Exception {}
@@ -44,11 +44,12 @@ class ResourceNotFound implements Exception {}
 
 class RelationshipNotFound implements Exception {}
 
-class Reference with Identity {
+class Reference {
   Reference(this.type, this.id);
 
-  static Reference of(Identity identity) => Reference(identity.type, identity.id);
+  static Reference of(Identifier id) => Reference(id.type, id.id);
 
+  Identifier toIdentifier() => Identifier(type, id);
   @override
   final String type;
   @override
@@ -111,10 +112,10 @@ class Model extends ModelProps {
     });
     one.forEach((key, value) {
       res.relationships[key] =
-          (value == null ? ToOne.empty() : ToOne(Identifier.of(value)));
+          (value == null ? ToOne.empty() : ToOne(value.toIdentifier()));
     });
     many.forEach((key, value) {
-      res.relationships[key] = ToMany(value.map(Identifier.of));
+      res.relationships[key] = ToMany(value.map((it) => it.toIdentifier()));
     });
     return res;
   }

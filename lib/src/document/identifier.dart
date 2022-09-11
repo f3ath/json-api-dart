@@ -1,16 +1,24 @@
-import 'package:json_api/src/document/identity.dart';
+import 'package:json_api/src/document/resource.dart';
 
 /// A Resource Identifier object
-class Identifier with Identity {
+class Identifier {
   Identifier(this.type, this.id);
 
-  static Identifier of(Identity identity) =>
-      Identifier(identity.type, identity.id);
+  static Identifier of(Resource resource) =>
+      Identifier(resource.type, resource.id);
 
-  @override
   final String type;
-  @override
   final String id;
+
+  String get key => '$type:$id';
+
+  // /// True if the [other] identifier references the same object.
+  // bool hasSameReference(Identifier other) =>
+  //     type == other.type && id == other.id;
+
+  /// True if this identifier identifies the [resource].
+  bool identifies(Resource resource) =>
+      type == resource.type && id == resource.id;
 
   /// Identifier meta-data.
   final meta = <String, Object?>{};
