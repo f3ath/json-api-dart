@@ -2,9 +2,7 @@ import 'package:json_api/src/document/resource_properties.dart';
 
 /// A set of properties for a to-be-created resource which does not have the id yet.
 class NewResource with ResourceProperties {
-  NewResource(this.type, [this.id]) {
-    ArgumentError.checkNotNull(type);
-  }
+  NewResource(this.type, {this.id});
 
   /// Resource type
   final String type;

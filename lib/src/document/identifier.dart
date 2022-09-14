@@ -7,7 +7,10 @@ class Identifier {
   static Identifier of(Resource resource) =>
       Identifier(resource.type, resource.id);
 
+  /// Resource type.
   final String type;
+
+  /// Resource id.
   final String id;
 
   /// Identifier meta-data.

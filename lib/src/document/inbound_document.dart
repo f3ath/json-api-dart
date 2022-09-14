@@ -86,11 +86,11 @@ class _Parser {
         ..links.addAll(links(json))
         ..meta.addAll(meta(json));
 
-  NewResource newResource(Map json) => NewResource(json.get<String>('type'),
-      json.containsKey('id') ? json.get<String>('id') : null)
-    ..attributes.addAll(_getAttributes(json))
-    ..relationships.addAll(_getRelationships(json))
-    ..meta.addAll(meta(json));
+  NewResource newResource(Map json) =>
+      NewResource(json.get<String>('type'), id: json.getIfDefined('id'))
+        ..attributes.addAll(_getAttributes(json))
+        ..relationships.addAll(_getRelationships(json))
+        ..meta.addAll(meta(json));
 
   /// Decodes Identifier from [json]. Returns the decoded object.
   /// If the [json] has incorrect format, throws  [FormatException].
@@ -141,13 +141,19 @@ class _Parser {
 
 extension _TypedGeter on Map {
   T get<T>(String key, {T Function()? orGet}) {
-    if (containsKey(key)) {
-      final val = this[key];
-      if (val is T) return val;
-      throw FormatException(
-          'Key "$key": expected $T, found ${val.runtimeType}');
-    }
+    if (containsKey(key)) return _get(key);
     if (orGet != null) return orGet();
     throw FormatException('Key "$key" does not exist');
+  }
+
+  T? getIfDefined<T>(String key, {T Function()? orGet}) {
+    if (containsKey(key)) return _get(key);
+    return null;
+  }
+
+  T _get<T>(String key) {
+    final val = this[key];
+    if (val is T) return val;
+    throw FormatException('Key "$key": expected $T, found ${val.runtimeType}');
   }
 }

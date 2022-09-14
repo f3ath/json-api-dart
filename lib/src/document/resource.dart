@@ -4,10 +4,11 @@ import 'package:json_api/src/document/resource_properties.dart';
 class Resource with ResourceProperties {
   Resource(this.type, this.id);
 
+  /// Resource type.
   final String type;
-  final String id;
 
-  String get key => '$type:$id';
+  /// Resource id.
+  final String id;
 
   /// Resource links
   final links = <String, Link>{};
