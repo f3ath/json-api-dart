@@ -10,12 +10,6 @@ class Identifier {
   final String type;
   final String id;
 
-  String get key => '$type:$id';
-
-  /// True if this identifier identifies the [resource].
-  bool identifies(Resource resource) =>
-      type == resource.type && id == resource.id;
-
   /// Identifier meta-data.
   final meta = <String, Object?>{};
 
