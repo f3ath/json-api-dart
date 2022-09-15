@@ -1,7 +1,7 @@
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/relationship.dart';
 
-class ToOne extends Relationship {
+class ToOne extends Relationship<Identifier> {
   ToOne(this.identifier);
 
   ToOne.empty() : this(null);
@@ -13,5 +13,5 @@ class ToOne extends Relationship {
 
   @override
   Iterator<Identifier> get iterator =>
-      identifier == null ? <Identifier>[].iterator : [identifier!].iterator;
+      identifier == null ? super.iterator : [identifier!].iterator;
 }
