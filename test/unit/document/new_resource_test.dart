@@ -10,7 +10,7 @@ void main() {
           jsonEncode({'type': 'test_type'}));
 
       expect(
-          jsonEncode(NewResource('test_type')
+          jsonEncode(NewResource('test_type', id: 'test_id', lid: 'test_lid')
             ..meta['foo'] = [42]
             ..attributes['color'] = 'green'
             ..relationships['one'] =
@@ -21,6 +21,8 @@ void main() {
                   ..meta['many'] = 1)),
           jsonEncode({
             'type': 'test_type',
+            'id': 'test_id',
+            'lid': 'test_lid',
             'attributes': {'color': 'green'},
             'relationships': {
               'one': {
