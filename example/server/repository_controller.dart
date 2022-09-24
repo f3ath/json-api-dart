@@ -46,13 +46,15 @@ class RepositoryController implements Controller {
 
   @override
   Future<Response> createResource(HttpRequest request, Target target) async {
-    final res = (await _decode(request)).dataAsNewResource();
-    final ref = Reference(res.type, res.id ?? getId());
+    final document = await _decode(request);
+    final newResource = document.dataAsNewResource();
+    final res = newResource.toResource(getId);
     await repo.persist(
-        res.type, Model(ref.id)..setFrom(ModelProps.fromResource(res)));
-    if (res.id != null) {
+        res.type, Model(res.id)..setFrom(ModelProps.fromResource(res)));
+    if (newResource.id != null) {
       return Response.noContent();
     }
+    final ref = Reference.of(Identifier.of(res));
     final self = Link(design.resource(ref.type, ref.id));
     final resource = (await _fetchResource(ref.type, ref.id))
       ..links['self'] = self;

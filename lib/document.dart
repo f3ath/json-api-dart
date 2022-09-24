@@ -11,4 +11,3 @@ export 'package:json_api/src/document/one.dart';
 export 'package:json_api/src/document/outbound_document.dart';
 export 'package:json_api/src/document/relationship.dart';
 export 'package:json_api/src/document/resource.dart';
-export 'package:json_api/src/document/resource_properties.dart';

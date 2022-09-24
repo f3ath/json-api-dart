@@ -50,9 +50,7 @@ class Reference {
   static Reference of(Identifier id) => Reference(id.type, id.id);
 
   Identifier toIdentifier() => Identifier(type, id);
-  @override
   final String type;
-  @override
   final String id;
 
   @override
@@ -64,7 +62,7 @@ class Reference {
 }
 
 class ModelProps {
-  static ModelProps fromResource(ResourceProperties res) {
+  static ModelProps fromResource(Resource res) {
     final props = ModelProps();
     res.attributes.forEach((key, value) {
       props.attributes[key] = value;
