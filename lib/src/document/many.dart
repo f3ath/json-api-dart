@@ -1,7 +1,7 @@
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/relationship.dart';
 
-class ToMany extends Relationship<Identifier> {
+class ToMany extends Relationship {
   ToMany(Iterable<Identifier> identifiers) {
     _ids.addAll(identifiers);
   }
