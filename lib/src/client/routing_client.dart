@@ -12,6 +12,7 @@ import 'package:json_api/src/client/response/request_failure.dart';
 import 'package:json_api/src/client/response/resource_created.dart';
 import 'package:json_api/src/client/response/resource_fetched.dart';
 import 'package:json_api/src/client/response/resource_updated.dart';
+import 'package:json_api/src/document/new_identifier.dart';
 
 /// A routing JSON:API client
 class RoutingClient {
@@ -92,8 +93,8 @@ class RoutingClient {
   Future<ResourceCreated> createNew(
     String type, {
     Map<String, Object?> attributes = const {},
-    Map<String, Identifier> one = const {},
-    Map<String, Iterable<Identifier>> many = const {},
+    Map<String, NewIdentifier> one = const {},
+    Map<String, Iterable<NewIdentifier>> many = const {},
     Map<String, Object?> meta = const {},
     Map<String, Object?> documentMeta = const {},
     Map<String, String> headers = const {},
@@ -104,8 +105,8 @@ class RoutingClient {
         Request.post(OutboundDataDocument.newResource(NewResource(type)
           ..attributes.addAll(attributes)
           ..relationships.addAll({
-            ...one.map((key, value) => MapEntry(key, ToOne(value))),
-            ...many.map((key, value) => MapEntry(key, ToMany(value))),
+            ...one.map((key, value) => MapEntry(key, NewToOne(value))),
+            ...many.map((key, value) => MapEntry(key, NewToMany(value))),
           })
           ..meta.addAll(meta))
           ..meta.addAll(documentMeta))

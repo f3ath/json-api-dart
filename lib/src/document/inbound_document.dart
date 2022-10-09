@@ -2,11 +2,14 @@ import 'package:json_api/src/document/error_object.dart';
 import 'package:json_api/src/document/error_source.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/many.dart';
+import 'package:json_api/src/document/new_relationship.dart';
 import 'package:json_api/src/document/new_resource.dart';
-import 'package:json_api/src/document/one.dart';
+import 'package:json_api/src/document/new_to_many.dart';
+import 'package:json_api/src/document/new_to_one.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/src/document/to_many.dart';
+import 'package:json_api/src/document/to_one.dart';
 import 'package:json_api/src/nullable.dart';
 
 /// Inbound JSON:API document
@@ -79,6 +82,14 @@ class _Parser {
     return rel;
   }
 
+  NewRelationship newRelationship(Map json) {
+    final rel =
+        json.containsKey('data') ? _newRel(json['data']) : NewRelationship();
+    rel.links.addAll(links(json));
+    rel.meta.addAll(meta(json));
+    return rel;
+  }
+
   Resource resource(Map json) =>
       Resource(json.get<String>('type'), json.get<String>('id'))
         ..attributes.addAll(_getAttributes(json))
@@ -89,7 +100,7 @@ class _Parser {
   NewResource newResource(Map json) =>
       NewResource(json.get<String>('type'), id: json.getIfDefined('id'))
         ..attributes.addAll(_getAttributes(json))
-        ..relationships.addAll(_getRelationships(json))
+        ..relationships.addAll(_getNewRelationships(json))
         ..meta.addAll(meta(json));
 
   /// Decodes Identifier from [json]. Returns the decoded object.
@@ -131,10 +142,21 @@ class _Parser {
       .get<Map>('relationships', orGet: () => {})
       .map((key, value) => MapEntry(key, relationship(value)));
 
+  Map<String, NewRelationship> _getNewRelationships(Map json) => json
+      .get<Map>('relationships', orGet: () => {})
+      .map((key, value) => MapEntry(key, newRelationship(value)));
+
   Relationship _rel(data) {
     if (data == null) return ToOne.empty();
     if (data is Map) return ToOne(identifier(data));
     if (data is List) return ToMany(data.whereType<Map>().map(identifier));
+    throw FormatException('Invalid relationship object');
+  }
+
+  NewRelationship _newRel(data) {
+    if (data == null) return NewToOne.empty();
+    if (data is Map) return NewToOne(identifier(data));
+    if (data is List) return NewToMany(data.whereType<Map>().map(identifier));
     throw FormatException('Invalid relationship object');
   }
 }

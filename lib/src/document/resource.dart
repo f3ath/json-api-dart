@@ -1,7 +1,8 @@
+import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/many.dart';
-import 'package:json_api/src/document/one.dart';
 import 'package:json_api/src/document/relationship.dart';
+import 'package:json_api/src/document/to_many.dart';
+import 'package:json_api/src/document/to_one.dart';
 
 class Resource {
   Resource(this.type, this.id);
@@ -27,6 +28,9 @@ class Resource {
   ///
   /// See https://jsonapi.org/format/#document-resource-object-relationships
   final relationships = <String, Relationship>{};
+
+  /// Creates a new [Identifier] for this resource.
+  Identifier toIdentifier() => Identifier(type, id);
 
   /// Returns a to-one relationship by its [name].
   ToOne? one(String name) => _rel<ToOne>(name);

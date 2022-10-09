@@ -54,7 +54,7 @@ class RepositoryController implements Controller {
     if (newResource.id != null) {
       return Response.noContent();
     }
-    final ref = Reference.of(Identifier.of(res));
+    final ref = Reference.of(res.toIdentifier());
     final self = Link(design.resource(ref.type, ref.id));
     final resource = (await _fetchResource(ref.type, ref.id))
       ..links['self'] = self;

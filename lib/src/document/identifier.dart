@@ -1,21 +1,25 @@
-import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/document.dart';
 
 /// A Resource Identifier object
-class Identifier {
+class Identifier implements NewIdentifier {
   Identifier(this.type, this.id);
 
-  static Identifier of(Resource resource) =>
-      Identifier(resource.type, resource.id);
-
   /// Resource type.
+  @override
   final String type;
 
   /// Resource id.
+  @override
   final String id;
 
+  @override
+  final lid = null;
+
   /// Identifier meta-data.
+  @override
   final meta = <String, Object?>{};
 
+  @override
   Map<String, Object> toJson() =>
       {'type': type, 'id': id, if (meta.isNotEmpty) 'meta': meta};
 }

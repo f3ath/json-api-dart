@@ -14,10 +14,10 @@ void main() {
             ..meta['foo'] = [42]
             ..attributes['color'] = 'green'
             ..relationships['one'] =
-                (ToOne(Identifier('rel', '1')..meta['rel'] = 1)
+                (NewToOne(Identifier('rel', '1')..meta['rel'] = 1)
                   ..meta['one'] = 1)
             ..relationships['many'] =
-                (ToMany([Identifier('rel', '1')..meta['rel'] = 1])
+                (NewToMany([Identifier('rel', '1')..meta['rel'] = 1])
                   ..meta['many'] = 1)),
           jsonEncode({
             'type': 'test_type',

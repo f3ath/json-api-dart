@@ -28,19 +28,19 @@ void main() {
           .resource;
       post = (await client.createNew('posts',
               attributes: {'title': 'Hello world'},
-              one: {'author': Identifier.of(alice)},
+              one: {'author': alice.toIdentifier()},
               many: {'comments': []}))
           .resource;
       comment = (await client.createNew('comments',
               attributes: {'text': 'Hi Alice'},
-              one: {'author': Identifier.of(bob)}))
+              one: {'author': bob.toIdentifier()}))
           .resource;
       secretComment = (await client.createNew('comments',
               attributes: {'text': 'Secret comment'},
-              one: {'author': Identifier.of(bob)}))
+              one: {'author': bob.toIdentifier()}))
           .resource;
       await client
-          .addMany(post.type, post.id, 'comments', [Identifier.of(comment)]);
+          .addMany(post.type, post.id, 'comments', [comment.toIdentifier()]);
     });
 
     test('Fetch a complex resource', () async {
@@ -117,7 +117,7 @@ void main() {
 
     test('Replace a to-one relationship', () async {
       await client.replaceToOne(
-          post.type, post.id, 'author', Identifier.of(bob));
+          post.type, post.id, 'author', bob.toIdentifier());
       await client.fetchResource(post.type, post.id, query: [
         Include(['author'])
       ]).then((r) {
@@ -132,7 +132,7 @@ void main() {
 
     test('Delete from a to-many relationship', () async {
       await client.deleteFromMany(
-          post.type, post.id, 'comments', [Identifier.of(comment)]);
+          post.type, post.id, 'comments', [comment.toIdentifier()]);
       await client.fetchResource(post.type, post.id).then((r) {
         expect(r.resource.many('comments'), isEmpty);
       });
@@ -140,7 +140,7 @@ void main() {
 
     test('Replace a to-many relationship', () async {
       await client.replaceToMany(
-          post.type, post.id, 'comments', [Identifier.of(secretComment)]);
+          post.type, post.id, 'comments', [secretComment.toIdentifier()]);
       await client.fetchResource(post.type, post.id, query: [
         Include(['comments'])
       ]).then((r) {

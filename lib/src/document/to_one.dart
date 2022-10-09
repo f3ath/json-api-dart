@@ -13,5 +13,5 @@ class ToOne extends Relationship {
 
   @override
   Iterator<Identifier> get iterator =>
-      identifier == null ? <Identifier>[].iterator : [identifier!].iterator;
+      identifier == null ? super.iterator : [identifier!].iterator;
 }
