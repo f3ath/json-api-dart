@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
@@ -10,7 +9,6 @@ import 'server/in_memory_repo.dart';
 import 'server/json_api_server.dart';
 import 'server/repository.dart';
 import 'server/repository_controller.dart';
-import 'server/try_catch_handler.dart';
 
 Future<void> main() async {
   final host = 'localhost';
@@ -20,7 +18,7 @@ Future<void> main() async {
   await addColors(repo);
   final controller = RepositoryController(repo, Uuid().v4);
   HttpHandler handler = Router(controller, StandardUriDesign.matchTarget);
-  handler = TryCatchHandler(handler, onError: convertError);
+  handler = TryCatchHandler(handler, onError: ErrorConverter());
   handler = LoggingHandler(handler,
       onRequest: (r) => print('${r.method.toUpperCase()} ${r.uri}'),
       onResponse: (r) => print('${r.statusCode}'));
@@ -54,30 +52,4 @@ Future addColors(Repository repo) async {
   for (final model in models) {
     await repo.persist('colors', model);
   }
-}
-
-Future<HttpResponse> convertError(dynamic error) async {
-  if (error is MethodNotAllowed) {
-    return Response.methodNotAllowed();
-  }
-  if (error is UnmatchedTarget) {
-    return Response.badRequest();
-  }
-  if (error is CollectionNotFound) {
-    return Response.notFound(
-        OutboundErrorDocument([ErrorObject(title: 'CollectionNotFound')]));
-  }
-  if (error is ResourceNotFound) {
-    return Response.notFound(
-        OutboundErrorDocument([ErrorObject(title: 'ResourceNotFound')]));
-  }
-  if (error is RelationshipNotFound) {
-    return Response.notFound(
-        OutboundErrorDocument([ErrorObject(title: 'RelationshipNotFound')]));
-  }
-  return Response(500,
-      document: OutboundErrorDocument([
-        ErrorObject(
-            title: 'Error: ${error.runtimeType}', detail: error.toString())
-      ]));
 }

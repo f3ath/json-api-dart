@@ -10,3 +10,4 @@ export 'package:json_api/src/http/logging_handler.dart';
 export 'package:json_api/src/http/media_type.dart';
 export 'package:json_api/src/http/payload_codec.dart';
 export 'package:json_api/src/http/status_code.dart';
+export 'package:json_api/src/http/try_catch_handler.dart';

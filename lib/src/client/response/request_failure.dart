@@ -20,5 +20,5 @@ class RequestFailure implements Exception {
 
   @override
   String toString() =>
-      'JSON:API request failed with HTTP status ${http.statusCode}';
+      'JSON:API request failed with HTTP status ${http.statusCode}.';
 }

@@ -2,6 +2,8 @@ import 'package:json_api/src/document/error_object.dart';
 import 'package:json_api/src/document/error_source.dart';
 import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/local_identifier.dart';
+import 'package:json_api/src/document/new_identifier.dart';
 import 'package:json_api/src/document/new_relationship.dart';
 import 'package:json_api/src/document/new_resource.dart';
 import 'package:json_api/src/document/new_to_many.dart';
@@ -90,15 +92,20 @@ class _Parser {
     return rel;
   }
 
-  Resource resource(Map json) =>
-      Resource(json.get<String>('type'), json.get<String>('id'))
+  Resource resource(Map json) => Resource(
+        json.get<String>('type'),
+        json.get<String>('id'),
+      )
         ..attributes.addAll(_getAttributes(json))
         ..relationships.addAll(_getRelationships(json))
         ..links.addAll(links(json))
         ..meta.addAll(meta(json));
 
-  NewResource newResource(Map json) =>
-      NewResource(json.get<String>('type'), id: json.getIfDefined('id'))
+  NewResource newResource(Map json) => NewResource(
+        json.get<String>('type'),
+        id: json.getIfDefined('id'),
+        lid: json.getIfDefined('lid'),
+      )
         ..attributes.addAll(_getAttributes(json))
         ..relationships.addAll(_getNewRelationships(json))
         ..meta.addAll(meta(json));
@@ -108,6 +115,21 @@ class _Parser {
   Identifier identifier(Map json) =>
       Identifier(json.get<String>('type'), json.get<String>('id'))
         ..meta.addAll(meta(json));
+
+  /// Decodes NewIdentifier from [json]. Returns the decoded object.
+  /// If the [json] has incorrect format, throws  [FormatException].
+  NewIdentifier newIdentifier(Map json) {
+    final type = json.get<String>('type');
+    final id = json.getIfDefined<String>('id');
+    final lid = json.getIfDefined<String>('lid');
+    if (id != null) {
+      return Identifier(type, id)..meta.addAll(meta(json));
+    }
+    if (lid != null) {
+      return LocalIdentifier(type, lid)..meta.addAll(meta(json));
+    }
+    throw FormatException('Invalid JSON');
+  }
 
   ErrorObject errorObject(Map json) => ErrorObject(
       id: json.get<String>('id', orGet: () => ''),
@@ -154,9 +176,15 @@ class _Parser {
   }
 
   NewRelationship _newRel(data) {
-    if (data == null) return NewToOne.empty();
-    if (data is Map) return NewToOne(identifier(data));
-    if (data is List) return NewToMany(data.whereType<Map>().map(identifier));
+    if (data == null) {
+      return NewToOne.empty();
+    }
+    if (data is Map) {
+      return NewToOne(newIdentifier(data));
+    }
+    if (data is List) {
+      return NewToMany(data.whereType<Map>().map(newIdentifier));
+    }
     throw FormatException('Invalid relationship object');
   }
 }

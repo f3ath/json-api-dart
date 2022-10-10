@@ -12,7 +12,6 @@ import 'package:json_api/src/client/response/request_failure.dart';
 import 'package:json_api/src/client/response/resource_created.dart';
 import 'package:json_api/src/client/response/resource_fetched.dart';
 import 'package:json_api/src/client/response/resource_updated.dart';
-import 'package:json_api/src/document/new_identifier.dart';
 
 /// A routing JSON:API client
 class RoutingClient {
@@ -83,6 +82,7 @@ class RoutingClient {
   /// The server is responsible for assigning the resource id.
   ///
   /// Optional arguments:
+  /// - [lid] - local resource id
   /// - [attributes] - resource attributes
   /// - [one] - resource to-one relationships
   /// - [many] - resource to-many relationships
@@ -92,6 +92,7 @@ class RoutingClient {
   /// - [query] - a collection of parameters to be included in the URI query
   Future<ResourceCreated> createNew(
     String type, {
+    String? lid,
     Map<String, Object?> attributes = const {},
     Map<String, NewIdentifier> one = const {},
     Map<String, Iterable<NewIdentifier>> many = const {},
@@ -102,14 +103,15 @@ class RoutingClient {
   }) async {
     final response = await send(
         baseUri.collection(type),
-        Request.post(OutboundDataDocument.newResource(NewResource(type)
-          ..attributes.addAll(attributes)
-          ..relationships.addAll({
-            ...one.map((key, value) => MapEntry(key, NewToOne(value))),
-            ...many.map((key, value) => MapEntry(key, NewToMany(value))),
-          })
-          ..meta.addAll(meta))
-          ..meta.addAll(documentMeta))
+        Request.post(
+            OutboundDataDocument.newResource(NewResource(type, lid: lid)
+              ..attributes.addAll(attributes)
+              ..relationships.addAll({
+                ...one.map((key, value) => MapEntry(key, NewToOne(value))),
+                ...many.map((key, value) => MapEntry(key, NewToMany(value))),
+              })
+              ..meta.addAll(meta))
+              ..meta.addAll(documentMeta))
           ..headers.addAll(headers)
           ..query.mergeAll(query));
 

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:json_api/document.dart';
+import 'package:json_api/src/document/local_identifier.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -16,9 +17,14 @@ void main() {
             ..relationships['one'] =
                 (NewToOne(Identifier('rel', '1')..meta['rel'] = 1)
                   ..meta['one'] = 1)
-            ..relationships['many'] =
-                (NewToMany([Identifier('rel', '1')..meta['rel'] = 1])
-                  ..meta['many'] = 1)),
+            ..relationships['self'] = (NewToOne(
+                LocalIdentifier('test_type', 'test_lid')..meta['rel'] = 1)
+              ..meta['one'] = 1)
+            ..relationships['many'] = (NewToMany([
+              Identifier('rel', '1')..meta['rel'] = 1,
+              LocalIdentifier('test_type', 'test_lid')..meta['rel'] = 1,
+            ])
+              ..meta['many'] = 1)),
           jsonEncode({
             'type': 'test_type',
             'id': 'test_id',
@@ -33,11 +39,24 @@ void main() {
                 },
                 'meta': {'one': 1}
               },
+              'self': {
+                'data': {
+                  'type': 'test_type',
+                  'lid': 'test_lid',
+                  'meta': {'rel': 1}
+                },
+                'meta': {'one': 1}
+              },
               'many': {
                 'data': [
                   {
                     'type': 'rel',
                     'id': '1',
+                    'meta': {'rel': 1}
+                  },
+                  {
+                    'type': 'test_type',
+                    'lid': 'test_lid',
                     'meta': {'rel': 1}
                   },
                 ],

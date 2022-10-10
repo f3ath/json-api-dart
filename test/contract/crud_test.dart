@@ -4,14 +4,15 @@ import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
 import 'package:test/test.dart';
 
-import '../../example/server/demo_handler.dart';
+import '../test_handler.dart';
+
 
 void main() {
   late RoutingClient client;
 
   setUp(() async {
     client = RoutingClient(StandardUriDesign.pathOnly,
-        client: Client(handler: DemoHandler()));
+        client: Client(handler: TestHandler()));
   });
 
   group('CRUD', () {

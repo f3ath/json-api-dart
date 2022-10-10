@@ -2,13 +2,13 @@ import 'package:json_api/client.dart';
 import 'package:json_api/http.dart';
 import 'package:test/test.dart';
 
-import '../../example/server/demo_handler.dart';
+import '../test_handler.dart';
 
 void main() {
   late Client client;
 
   setUp(() async {
-    client = Client(handler: DemoHandler());
+    client = Client(handler: TestHandler());
   });
 
   group('Errors', () {
@@ -26,7 +26,7 @@ void main() {
       }
     });
     test('Bad request when target can not be matched', () async {
-      final r = await DemoHandler()
+      final r = await TestHandler()
           .handle(HttpRequest('get', Uri.parse('/a/long/prefix/')));
       expect(r.statusCode, 400);
     });

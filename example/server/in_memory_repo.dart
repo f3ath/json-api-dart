@@ -1,4 +1,5 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/server.dart';
 import 'package:json_api/src/nullable.dart';
 
 import 'repository.dart';
@@ -68,11 +69,11 @@ class InMemoryRepo implements Repository {
   }
 
   Map<String, Model> _collection(String type) =>
-      (_storage[type] ?? (throw CollectionNotFound()));
+      (_storage[type] ?? (throw CollectionNotFound(type)));
 
   Model _model(String type, String id) =>
-      _collection(type)[id] ?? (throw ResourceNotFound());
+      _collection(type)[id] ?? (throw ResourceNotFound(type, id));
 
   Set<Reference> _many(String type, String id, String rel) =>
-      _model(type, id).many[rel] ?? (throw RelationshipNotFound());
+      _model(type, id).many[rel] ?? (throw RelationshipNotFound(type, id, rel));
 }

@@ -38,12 +38,6 @@ abstract class Repository {
       String type, String id, String rel, Iterable<Identifier> many);
 }
 
-class CollectionNotFound implements Exception {}
-
-class ResourceNotFound implements Exception {}
-
-class RelationshipNotFound implements Exception {}
-
 class Reference {
   Reference(this.type, this.id);
 

@@ -1,15 +1,16 @@
 import 'package:json_api/client.dart';
 import 'package:json_api/routing.dart';
+import 'package:json_api/src/document/local_identifier.dart';
 import 'package:test/test.dart';
 
-import '../../example/server/demo_handler.dart';
+import '../test_handler.dart';
 
 void main() {
   late RoutingClient client;
 
   setUp(() async {
     client = RoutingClient(StandardUriDesign.pathOnly,
-        client: Client(handler: DemoHandler()));
+        client: Client(handler: TestHandler()));
   });
 
   group('Resource creation', () {
@@ -24,6 +25,21 @@ void main() {
         expect(r.resource.links['self'].toString(), '/posts/${r.resource.id}');
       });
     });
+
+    test('Resource id assigned on the server using local id', () async {
+      await client.createNew('posts',
+          lid: 'lid',
+          attributes: {'title': 'Hello world'},
+          one: {'self': LocalIdentifier('posts', 'lid')}).then((r) {
+        expect(r.http.statusCode, 201);
+        expect(r.http.headers['location'], '/posts/${r.resource.id}');
+        expect(r.links['self'].toString(), '/posts/${r.resource.id}');
+        expect(r.resource.type, 'posts');
+        expect(r.resource.attributes['title'], 'Hello world');
+        expect(r.resource.links['self'].toString(), '/posts/${r.resource.id}');
+      });
+    });
+
     test('Resource id assigned on the client', () async {
       await client.create('posts', '12345',
           attributes: {'title': 'Hello world'}).then((r) {

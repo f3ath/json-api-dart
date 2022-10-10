@@ -6,7 +6,7 @@ import 'package:json_api/src/client/response.dart';
 /// A basic JSON:API client.
 ///
 /// The JSON:API [Request] is converted to [HttpRequest] and sent downstream
-/// using the [handler]. Received [HttpResponse] is then converted back to
+/// using the [wrapped]. Received [HttpResponse] is then converted back to
 /// JSON:API [Response]. JSON conversion is performed by the [codec].
 class Client {
   const Client(

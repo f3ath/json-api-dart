@@ -132,7 +132,7 @@ class RepositoryController implements Controller {
       final doc = OutboundDataDocument.many(ToMany(many));
       return Response.ok(doc);
     }
-    throw RelationshipNotFound();
+    throw RelationshipNotFound(target.type, target.id, target.relationship);
   }
 
   @override
@@ -151,7 +151,7 @@ class RepositoryController implements Controller {
           await _fetchRelatedCollection(many).toList());
       return Response.ok(doc);
     }
-    throw RelationshipNotFound();
+    throw RelationshipNotFound(target.type, target.id, target.relationship);
   }
 
   /// Returns a stream of related resources recursively
@@ -168,7 +168,8 @@ class RepositoryController implements Controller {
   /// Returns a stream of related resources
   Stream<Resource> _getRelated(Resource resource, String relationship) async* {
     for (final _ in resource.relationships[relationship] ??
-        (throw RelationshipNotFound())) {
+        (throw RelationshipNotFound(
+            resource.type, resource.id, relationship))) {
       yield await _fetchLinkedResource(_.type, _.id);
     }
   }
