@@ -2,7 +2,7 @@
 ///
 /// There are two clients implementation provided by this library.
 ///
-/// The firs one, [Client], is the most flexible but low level. It operates
+/// The first one, [Client], is the most flexible but low level. It operates
 /// generic [Request] and [Response] objects and performs basic operations
 /// such as JSON conversion and error handling. It is agnostic to the document
 /// structure and accepts any target URIs.
@@ -25,6 +25,7 @@ library client;
 
 export 'package:json_api/src/client/client.dart';
 export 'package:json_api/src/client/disposable_handler.dart';
+export 'package:json_api/src/client/message_converter.dart';
 export 'package:json_api/src/client/persistent_handler.dart';
 export 'package:json_api/src/client/request.dart';
 export 'package:json_api/src/client/response/collection_fetched.dart';
