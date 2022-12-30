@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:json_api/client.dart';
 import 'package:json_api/http.dart';
-import 'package:json_api/src/client/persistent_handler.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -23,6 +23,7 @@ void main() {
             return http.Response.bytes(bytesBody, 200);
           },
         ),
+        // ignore: deprecated_member_use_from_same_package
         defaultEncoding: encoding,
       );
 
