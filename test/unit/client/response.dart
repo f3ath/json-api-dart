@@ -1,8 +1,9 @@
 import 'dart:convert';
 
-import 'package:json_api/http.dart';
+import 'package:http_interop/http_interop.dart' as interop;
+import 'package:json_api/src/media_type.dart';
 
-final collectionMin = HttpResponse(200,
+final collectionMin = interop.Response(200,
     body: jsonEncode({
       'data': [
         {'type': 'articles', 'id': '1'}
@@ -10,7 +11,7 @@ final collectionMin = HttpResponse(200,
     }))
   ..headers.addAll({'Content-Type': mediaType});
 
-final collectionFull = HttpResponse(200,
+final collectionFull = interop.Response(200,
     body: jsonEncode({
       'links': {
         'self': 'http://example.com/articles',
@@ -82,7 +83,7 @@ final collectionFull = HttpResponse(200,
     }))
   ..headers.addAll({'Content-Type': mediaType});
 
-final primaryResource = HttpResponse(200,
+final primaryResource = interop.Response(200,
     body: jsonEncode({
       'links': {'self': 'http://example.com/articles/1'},
       'meta': {'hello': 'world'},
@@ -132,14 +133,14 @@ final primaryResource = HttpResponse(200,
       ]
     }))
   ..headers.addAll({'Content-Type': mediaType});
-final relatedResourceNull = HttpResponse(200,
+final relatedResourceNull = interop.Response(200,
     body: jsonEncode({
       'links': {'self': 'http://example.com/articles/1/author'},
       'meta': {'hello': 'world'},
       'data': null
     }))
   ..headers.addAll({'Content-Type': mediaType});
-final one = HttpResponse(200,
+final one = interop.Response(200,
     body: jsonEncode({
       'links': {
         'self': '/articles/1/relationships/author',
@@ -184,7 +185,7 @@ final one = HttpResponse(200,
     }))
   ..headers.addAll({'Content-Type': mediaType});
 
-final oneEmpty = HttpResponse(200,
+final oneEmpty = interop.Response(200,
     body: jsonEncode({
       'links': {
         'self': '/articles/1/relationships/author',
@@ -229,7 +230,7 @@ final oneEmpty = HttpResponse(200,
     }))
   ..headers.addAll({'Content-Type': mediaType});
 
-final many = HttpResponse(200,
+final many = interop.Response(200,
     body: jsonEncode({
       'links': {
         'self': '/articles/1/relationships/tags',
@@ -242,9 +243,9 @@ final many = HttpResponse(200,
     }))
   ..headers.addAll({'Content-Type': mediaType});
 
-final noContent = HttpResponse(204);
+final noContent = interop.Response(204);
 
-final error422 = HttpResponse(422,
+final error422 = interop.Response(422,
     body: jsonEncode({
       'meta': {'hello': 'world'},
       'errors': [
@@ -258,4 +259,4 @@ final error422 = HttpResponse(422,
     }))
   ..headers.addAll({'Content-Type': mediaType});
 
-final error500 = HttpResponse(500);
+final error500 = interop.Response(500);

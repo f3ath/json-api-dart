@@ -400,7 +400,7 @@ class RoutingClient {
   /// This method can be used to send any non-standard requests.
   Future<Response> send(Uri uri, Request request) async {
     final response = await _client.send(uri, request);
-    if (response.http.isFailed) {
+    if (response.isFailed) {
       throw RequestFailure(response.http, response.document);
     }
     return response;

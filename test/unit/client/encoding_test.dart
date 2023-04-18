@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:json_api/client.dart';
-import 'package:json_api/http.dart';
+import 'package:http_interop/http_interop.dart' as interop;
+import 'package:http_interop_http/http_interop_http.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -17,17 +17,17 @@ void main() {
       List<int> bytesBody,
       Encoding encoding,
     ) async {
-      final dartHttp = PersistentHandler(
+      final dartHttp = HandlerWrapper(
         MockClient(
           (request) async {
             return http.Response.bytes(bytesBody, 200);
           },
         ),
-        // ignore: deprecated_member_use_from_same_package
-        defaultEncoding: encoding,
+        messageConverter: MessageConverter(defaultResponseEncoding: encoding),
       );
 
-      return dartHttp.handle(HttpRequest('get', Uri.parse('http://test.com')));
+      return dartHttp
+          .handle(interop.Request('get', Uri.parse('http://test.com')));
     }
 
     test('UTF-8 ru', () async {

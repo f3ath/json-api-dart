@@ -1,12 +1,12 @@
-import 'package:json_api/http.dart';
+import 'package:http_interop/http_interop.dart' as interop;
 
-class CorsHandler implements HttpHandler {
+class CorsHandler implements interop.Handler {
   CorsHandler(this._inner);
 
-  final HttpHandler _inner;
+  final interop.Handler _inner;
 
   @override
-  Future<HttpResponse> handle(HttpRequest request) async {
+  Future<interop.Response> handle(interop.Request request) async {
     final headers = {
       'Access-Control-Allow-Origin': request.headers['origin'] ?? '*',
       'Access-Control-Expose-Headers': 'Location',
@@ -14,7 +14,7 @@ class CorsHandler implements HttpHandler {
 
     if (request.isOptions) {
       const methods = ['POST', 'GET', 'DELETE', 'PATCH', 'OPTIONS'];
-      return HttpResponse(204)
+      return interop.Response(204)
         ..headers.addAll({
           ...headers,
           'Access-Control-Allow-Methods':

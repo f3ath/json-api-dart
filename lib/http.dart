@@ -1,13 +1,23 @@
-/// This is a thin HTTP layer abstraction used by the client and the server
-library http;
+class StatusCode {
+  const StatusCode(this.value);
 
-export 'package:json_api/src/http/http_handler.dart';
-export 'package:json_api/src/http/http_headers.dart';
-export 'package:json_api/src/http/http_message.dart';
-export 'package:json_api/src/http/http_request.dart';
-export 'package:json_api/src/http/http_response.dart';
-export 'package:json_api/src/http/logging_handler.dart';
-export 'package:json_api/src/http/media_type.dart';
-export 'package:json_api/src/http/payload_codec.dart';
-export 'package:json_api/src/http/status_code.dart';
-export 'package:json_api/src/http/try_catch_handler.dart';
+  static const ok = 200;
+  static const created = 201;
+  static const accepted = 202;
+  static const noContent = 204;
+  static const badRequest = 400;
+  static const notFound = 404;
+  static const methodNotAllowed = 405;
+
+  final int value;
+
+  /// True for the requests processed asynchronously.
+  /// @see https://jsonapi.org/recommendations/#asynchronous-processing).
+  bool get isPending => value == accepted;
+
+  /// True for successfully processed requests
+  bool get isSuccessful => value >= ok && value < 300 && !isPending;
+
+  /// True for failed requests (i.e. neither successful nor pending)
+  bool get isFailed => !isSuccessful && !isPending;
+}

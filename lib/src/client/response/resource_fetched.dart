@@ -1,5 +1,5 @@
+import 'package:http_interop/http_interop.dart' as interop;
 import 'package:json_api/document.dart';
-import 'package:json_api/http.dart';
 
 /// A response to fetch a primary resource request
 class ResourceFetched {
@@ -10,7 +10,7 @@ class ResourceFetched {
     links.addAll(InboundDocument(json).links());
   }
 
-  final HttpResponse http;
+  final interop.Response http;
   final Resource resource;
 
   /// Top-level meta data

@@ -6,7 +6,6 @@ import 'package:test/test.dart';
 
 import '../test_handler.dart';
 
-
 void main() {
   late RoutingClient client;
 

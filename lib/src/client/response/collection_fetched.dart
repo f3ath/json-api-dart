@@ -1,5 +1,5 @@
+import 'package:http_interop/http_interop.dart' as interop;
 import 'package:json_api/document.dart';
-import 'package:json_api/http.dart';
 
 class CollectionFetched {
   CollectionFetched(this.http, Map json) {
@@ -10,7 +10,7 @@ class CollectionFetched {
     links.addAll(document.links());
   }
 
-  final HttpResponse http;
+  final interop.Response http;
 
   /// The resource collection fetched from the server
   final collection = <Resource>[];

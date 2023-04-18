@@ -1,5 +1,5 @@
+import 'package:http_interop/http_interop.dart' as interop;
 import 'package:json_api/document.dart';
-import 'package:json_api/http.dart';
 
 class ResourceUpdated {
   ResourceUpdated(this.http, Map? json) : resource = _resource(json) {
@@ -20,7 +20,7 @@ class ResourceUpdated {
     return null;
   }
 
-  final HttpResponse http;
+  final interop.Response http;
 
   /// The created resource. Null for "204 No Content" responses.
   late final Resource? resource;

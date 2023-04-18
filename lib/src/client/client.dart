@@ -1,27 +1,29 @@
-import 'package:json_api/http.dart';
-import 'package:json_api/src/client/disposable_handler.dart';
+import 'package:http_interop/http_interop.dart' as interop;
+import 'package:http_interop_http/http_interop_http.dart' as http;
+import 'package:json_api/src/client/payload_codec.dart';
 import 'package:json_api/src/client/request.dart';
 import 'package:json_api/src/client/response.dart';
+import 'package:json_api/src/media_type.dart';
 
 /// A basic JSON:API client.
 ///
-/// The JSON:API [Request] is converted to [HttpRequest] and sent downstream
-/// using the [wrapped]. Received [HttpResponse] is then converted back to
+/// The JSON:API [Request] is converted to [interop.Request] and sent downstream
+/// using the [wrapped]. Received [interop.Response] is then converted back to
 /// JSON:API [Response]. JSON conversion is performed by the [codec].
 class Client {
   const Client(
       {PayloadCodec codec = const PayloadCodec(),
-      HttpHandler handler = const DisposableHandler()})
+      interop.Handler handler = const http.DisposableHandler()})
       : _codec = codec,
         _http = handler;
 
-  final HttpHandler _http;
+  final interop.Handler _http;
   final PayloadCodec _codec;
 
   /// Sends the [request] to the given [uri].
   Future<Response> send(Uri uri, Request request) async {
     final body = await _encode(request.document);
-    final response = await _http.handle(HttpRequest(
+    final response = await _http.handle(interop.Request(
         request.method,
         request.query.isEmpty
             ? uri
@@ -40,6 +42,11 @@ class Client {
   Future<String> _encode(Object? doc) async =>
       doc == null ? '' : await _codec.encode(doc);
 
-  Future<Map?> _decode(HttpResponse response) async =>
-      response.hasDocument ? await _codec.decode(response.body) : null;
+  Future<Map?> _decode(interop.Response response) async =>
+      (response.body.isNotEmpty &&
+              (response.headers['Content-Type'] ?? '')
+                  .toLowerCase()
+                  .startsWith(mediaType))
+          ? await _codec.decode(response.body)
+          : null;
 }

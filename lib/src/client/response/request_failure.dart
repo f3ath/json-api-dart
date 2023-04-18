@@ -1,5 +1,5 @@
+import 'package:http_interop/http_interop.dart' as interop;
 import 'package:json_api/document.dart';
-import 'package:json_api/http.dart';
 
 /// Thrown when the server returns a non-successful response.
 class RequestFailure implements Exception {
@@ -10,7 +10,7 @@ class RequestFailure implements Exception {
     }
   }
 
-  final HttpResponse http;
+  final interop.Response http;
 
   /// Error objects returned by the server
   final errors = <ErrorObject>[];

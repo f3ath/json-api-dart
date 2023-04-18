@@ -1,11 +1,13 @@
 import 'dart:convert';
 
+import 'package:http_interop/http_interop.dart' as interop;
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
+import 'package:json_api/src/media_type.dart';
 import 'package:json_api/src/nullable.dart';
 
 /// JSON:API response
-class Response<D extends OutboundDocument> extends HttpResponse {
+class Response<D extends OutboundDocument> extends interop.Response {
   Response(int statusCode, {this.document}) : super(statusCode) {
     if (document != null) {
       headers['Content-Type'] = mediaType;

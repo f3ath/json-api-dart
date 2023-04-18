@@ -1,8 +1,9 @@
+import 'package:http_interop/http_interop.dart' as interop;
 import 'package:json_api/document.dart';
-import 'package:json_api/http.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
+import 'package:json_api/src/client/payload_codec.dart';
 import 'package:json_api/src/nullable.dart';
 
 import 'relationship_node.dart';
@@ -18,7 +19,8 @@ class RepositoryController implements Controller {
   final design = StandardUriDesign.pathOnly;
 
   @override
-  Future<Response> fetchCollection(HttpRequest request, Target target) async {
+  Future<Response> fetchCollection(
+      interop.Request request, Target target) async {
     final resources = await _fetchAll(target.type).toList();
     final doc = OutboundDataDocument.collection(resources)
       ..links['self'] = Link(design.collection(target.type));
@@ -33,7 +35,7 @@ class RepositoryController implements Controller {
 
   @override
   Future<Response> fetchResource(
-      HttpRequest request, ResourceTarget target) async {
+      interop.Request request, ResourceTarget target) async {
     final resource = await _fetchLinkedResource(target.type, target.id);
     final doc = OutboundDataDocument.resource(resource)
       ..links['self'] = Link(design.resource(target.type, target.id));
@@ -45,7 +47,8 @@ class RepositoryController implements Controller {
   }
 
   @override
-  Future<Response> createResource(HttpRequest request, Target target) async {
+  Future<Response> createResource(
+      interop.Request request, Target target) async {
     final document = await _decode(request);
     final newResource = document.dataAsNewResource();
     final res = newResource.toResource(getId);
@@ -65,7 +68,7 @@ class RepositoryController implements Controller {
 
   @override
   Future<Response> addMany(
-      HttpRequest request, RelationshipTarget target) async {
+      interop.Request request, RelationshipTarget target) async {
     final many = (await _decode(request)).asRelationship<ToMany>();
     final refs = await repo
         .addMany(target.type, target.id, target.relationship, many)
@@ -75,14 +78,14 @@ class RepositoryController implements Controller {
 
   @override
   Future<Response> deleteResource(
-      HttpRequest request, ResourceTarget target) async {
+      interop.Request request, ResourceTarget target) async {
     await repo.delete(target.type, target.id);
     return Response.noContent();
   }
 
   @override
   Future<Response> updateResource(
-      HttpRequest request, ResourceTarget target) async {
+      interop.Request request, ResourceTarget target) async {
     await repo.update(target.type, target.id,
         ModelProps.fromResource((await _decode(request)).dataAsResource()));
     return Response.noContent();
@@ -90,7 +93,7 @@ class RepositoryController implements Controller {
 
   @override
   Future<Response> replaceRelationship(
-      HttpRequest request, RelationshipTarget target) async {
+      interop.Request request, RelationshipTarget target) async {
     final rel = (await _decode(request)).asRelationship();
     if (rel is ToOne) {
       final ref = rel.identifier;
@@ -109,7 +112,7 @@ class RepositoryController implements Controller {
 
   @override
   Future<Response> deleteMany(
-      HttpRequest request, RelationshipTarget target) async {
+      interop.Request request, RelationshipTarget target) async {
     final rel = (await _decode(request)).asToMany();
     final ids = await repo
         .deleteMany(target.type, target.id, target.relationship, rel)
@@ -119,7 +122,7 @@ class RepositoryController implements Controller {
 
   @override
   Future<Response> fetchRelationship(
-      HttpRequest request, RelationshipTarget target) async {
+      interop.Request request, RelationshipTarget target) async {
     final model = (await repo.fetch(target.type, target.id));
 
     if (model.one.containsKey(target.relationship)) {
@@ -137,7 +140,7 @@ class RepositoryController implements Controller {
 
   @override
   Future<Response> fetchRelated(
-      HttpRequest request, RelatedTarget target) async {
+      interop.Request request, RelatedTarget target) async {
     final model = await repo.fetch(target.type, target.id);
     if (model.one.containsKey(target.relationship)) {
       final related =
@@ -199,7 +202,7 @@ class RepositoryController implements Controller {
     }
   }
 
-  Future<InboundDocument> _decode(HttpRequest r) async =>
+  Future<InboundDocument> _decode(interop.Request r) async =>
       InboundDocument(await PayloadCodec().decode(r.body));
 }
 

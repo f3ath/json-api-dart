@@ -1,11 +1,11 @@
-import 'package:json_api/http.dart';
+import 'package:http_interop/http_interop.dart' as interop;
 
-class MockHandler implements HttpHandler {
-  late HttpRequest request;
-  late HttpResponse response;
+class MockHandler implements interop.Handler {
+  late interop.Request request;
+  late interop.Response response;
 
   @override
-  Future<HttpResponse> handle(HttpRequest request) async {
+  Future<interop.Response> handle(interop.Request request) async {
     this.request = request;
     return response;
   }
