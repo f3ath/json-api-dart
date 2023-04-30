@@ -1,4 +1,4 @@
-import 'package:http_interop/http_interop.dart' as interop;
+import 'package:http_interop/http_interop.dart';
 import 'package:json_api/document.dart';
 
 /// A response to a new resource creation request.
@@ -13,7 +13,7 @@ class ResourceCreated {
     included.addAll(InboundDocument(json).included());
   }
 
-  final interop.Response http;
+  final HttpResponse http;
 
   /// Created resource.
   final Resource resource;

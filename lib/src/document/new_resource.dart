@@ -1,5 +1,3 @@
-import 'package:json_api/src/document/identifier.dart';
-import 'package:json_api/src/document/local_identifier.dart';
 import 'package:json_api/src/document/new_identifier.dart';
 import 'package:json_api/src/document/new_relationship.dart';
 import 'package:json_api/src/document/new_to_many.dart';
@@ -72,16 +70,15 @@ class NewResource {
   }
 
   Identifier _toIdentifier(NewIdentifier identifier, String id) {
-    if (identifier is Identifier) {
-      return identifier;
+    switch (identifier) {
+      case Identifier():
+        return identifier;
+      case LocalIdentifier():
+        if (identifier.type == type && identifier.lid == lid) {
+          return identifier.toIdentifier(id);
+        }
+        throw StateError(
+            'Unmatched local id: "${identifier.lid}". Expected "$lid".');
     }
-    if (identifier is LocalIdentifier) {
-      if (identifier.type == type && identifier.lid == lid) {
-        return identifier.toIdentifier(id);
-      }
-      throw StateError(
-          'Unmatched local id: "${identifier.lid}". Expected "$lid".');
-    }
-    throw StateError('Unexpected implementation: ${identifier.runtimeType}');
   }
 }

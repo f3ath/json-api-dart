@@ -1,16 +1,16 @@
-import 'package:http_interop/http_interop.dart' as interop;
+import 'package:http_interop/http_interop.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 
 import '../example/server/in_memory_repo.dart';
 import '../example/server/repository_controller.dart';
 
-class TestHandler extends interop.LoggingHandler {
+class TestHandler extends LoggingHandler {
   TestHandler(
       {Iterable<String> types = const ['users', 'posts', 'comments'],
-      Function(interop.Request request)? onRequest,
-      Function(interop.Response response)? onResponse,
-      Future<interop.Response> Function(dynamic, StackTrace)? onError})
+      Function(HttpRequest request)? onRequest,
+      Function(HttpResponse response)? onResponse,
+      Future<HttpResponse> Function(dynamic, StackTrace)? onError})
       : super(
             TryCatchHandler(
                 Router(RepositoryController(InMemoryRepo(types), _id),

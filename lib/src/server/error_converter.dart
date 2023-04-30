@@ -1,4 +1,4 @@
-import 'package:http_interop/http_interop.dart' as interop;
+import 'package:http_interop/http_interop.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/src/server/errors/collection_not_found.dart';
 import 'package:json_api/src/server/errors/method_not_allowed.dart';
@@ -20,16 +20,15 @@ class ErrorConverter {
     this.onError,
   });
 
-  final Future<interop.Response> Function(MethodNotAllowed)? onMethodNotAllowed;
-  final Future<interop.Response> Function(UnmatchedTarget)? onUnmatchedTarget;
-  final Future<interop.Response> Function(CollectionNotFound)?
-      onCollectionNotFound;
-  final Future<interop.Response> Function(ResourceNotFound)? onResourceNotFound;
-  final Future<interop.Response> Function(RelationshipNotFound)?
+  final Future<HttpResponse> Function(MethodNotAllowed)? onMethodNotAllowed;
+  final Future<HttpResponse> Function(UnmatchedTarget)? onUnmatchedTarget;
+  final Future<HttpResponse> Function(CollectionNotFound)? onCollectionNotFound;
+  final Future<HttpResponse> Function(ResourceNotFound)? onResourceNotFound;
+  final Future<HttpResponse> Function(RelationshipNotFound)?
       onRelationshipNotFound;
-  final Future<interop.Response> Function(dynamic, StackTrace)? onError;
+  final Future<HttpResponse> Function(dynamic, StackTrace)? onError;
 
-  Future<interop.Response> call(dynamic error, StackTrace trace) async {
+  Future<HttpResponse> call(dynamic error, StackTrace trace) async {
     if (error is MethodNotAllowed) {
       return await onMethodNotAllowed?.call(error) ??
           Response.methodNotAllowed();

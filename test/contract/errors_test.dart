@@ -1,4 +1,4 @@
-import 'package:http_interop/http_interop.dart' as interop;
+import 'package:http_interop/http_interop.dart' ;
 import 'package:json_api/client.dart';
 import 'package:test/test.dart';
 
@@ -27,7 +27,7 @@ void main() {
     });
     test('Bad request when target can not be matched', () async {
       final r = await TestHandler()
-          .handle(interop.Request('get', Uri.parse('/a/long/prefix/')));
+          .handle(HttpRequest('get', Uri.parse('/a/long/prefix/')));
       expect(r.statusCode, 400);
     });
   });

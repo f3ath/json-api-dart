@@ -1,4 +1,4 @@
-import 'package:http_interop/http_interop.dart' as interop;
+import 'package:http_interop/http_interop.dart' ;
 import 'package:json_api/document.dart';
 
 /// A related resource response.
@@ -13,7 +13,7 @@ class RelatedResourceFetched {
     links.addAll(document.links());
   }
 
-  final interop.Response http;
+  final HttpResponse http;
 
   /// Related resource. May be null
   final Resource? resource;

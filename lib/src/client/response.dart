@@ -1,4 +1,4 @@
-import 'package:http_interop/http_interop.dart' as interop;
+import 'package:http_interop/http_interop.dart';
 import 'package:json_api/http.dart';
 
 /// A generic JSON:API response.
@@ -6,7 +6,7 @@ class Response {
   Response(this.http, this.document);
 
   /// HTTP response
-  final interop.Response http;
+  final HttpResponse http;
 
   /// Decoded JSON document
   final Map? document;

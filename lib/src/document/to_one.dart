@@ -1,4 +1,4 @@
-import 'package:json_api/src/document/identifier.dart';
+import 'package:json_api/src/document/new_identifier.dart';
 import 'package:json_api/src/document/relationship.dart';
 
 class ToOne extends Relationship {

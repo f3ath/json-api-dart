@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:http_interop/http_interop.dart' as interop;
+import 'package:http_interop/http_interop.dart';
 import 'package:http_interop_http/http_interop_http.dart';
 import 'package:test/test.dart';
 
@@ -27,7 +27,7 @@ void main() {
       );
 
       return dartHttp
-          .handle(interop.Request('get', Uri.parse('http://test.com')));
+          .handle(HttpRequest('get', Uri.parse('http://test.com')));
     }
 
     test('UTF-8 ru', () async {

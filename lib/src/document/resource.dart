@@ -1,5 +1,5 @@
-import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/new_identifier.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/to_many.dart';
 import 'package:json_api/src/document/to_one.dart';

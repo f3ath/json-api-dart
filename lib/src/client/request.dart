@@ -1,9 +1,9 @@
-import 'package:http_interop/http_interop.dart' as interop;
+import 'package:http_interop/http_interop.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/src/client/client.dart';
 
 /// A generic JSON:API request.
-class Request with interop.Headers {
+class Request with HttpHeaders {
   /// Creates a new instance if the request with the specified HTTP [method]
   /// and [document].
   Request(this.method, [this.document]);

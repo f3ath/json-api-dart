@@ -1,17 +1,17 @@
-import 'package:http_interop/http_interop.dart' as interop;
+import 'package:http_interop/http_interop.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/errors/method_not_allowed.dart';
 import 'package:json_api/src/server/errors/unmatched_target.dart';
 
-class Router implements interop.Handler {
+class Router implements HttpHandler {
   Router(this._controller, this._matchTarget);
 
   final Controller _controller;
   final Target? Function(Uri uri) _matchTarget;
 
   @override
-  Future<interop.Response> handle(interop.Request request) async {
+  Future<HttpResponse> handle(HttpRequest request) async {
     final target = _matchTarget(request.uri);
     if (target is RelationshipTarget) {
       if (request.isGet) {

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:http_interop/http_interop.dart' as interop;
+import 'package:http_interop/http_interop.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 import 'package:uuid/uuid.dart';
@@ -17,9 +17,9 @@ Future<void> main() async {
   final repo = InMemoryRepo(resources);
   await addColors(repo);
   final controller = RepositoryController(repo, Uuid().v4);
-  interop.Handler handler = Router(controller, StandardUriDesign.matchTarget);
+  HttpHandler handler = Router(controller, StandardUriDesign.matchTarget);
   handler = TryCatchHandler(handler, onError: ErrorConverter());
-  handler = interop.LoggingHandler(handler,
+  handler = LoggingHandler(handler,
       onRequest: (r) => print('${r.method.toUpperCase()} ${r.uri}'),
       onResponse: (r) => print('${r.statusCode}'));
   final server = JsonApiServer(handler, host: host, port: port);

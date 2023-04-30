@@ -1,6 +1,6 @@
 import 'package:json_api/client.dart';
+import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
-import 'package:json_api/src/document/local_identifier.dart';
 import 'package:test/test.dart';
 
 import '../test_handler.dart';

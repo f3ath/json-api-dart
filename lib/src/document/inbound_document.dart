@@ -1,8 +1,6 @@
 import 'package:json_api/src/document/error_object.dart';
 import 'package:json_api/src/document/error_source.dart';
-import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/local_identifier.dart';
 import 'package:json_api/src/document/new_identifier.dart';
 import 'package:json_api/src/document/new_relationship.dart';
 import 'package:json_api/src/document/new_resource.dart';
