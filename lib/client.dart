@@ -23,10 +23,7 @@
 /// The [RoutingClient] should be your default choice.
 library client;
 
-export 'package:http_interop_http/http_interop_http.dart';
-
-
-export 'package:json_api/src/client/client.dart';
+export 'package:http_interop_http/http_interop_http.dart';export 'package:json_api/src/client/client.dart';
 export 'package:json_api/src/client/persistent_handler.dart';
 export 'package:json_api/src/client/request.dart';
 export 'package:json_api/src/client/response/collection_fetched.dart';
