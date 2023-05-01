@@ -11,7 +11,8 @@ class PersistentHandler extends HandlerWrapper {
   /// the [client] when it's not longer needed.
   ///
   /// Use [messageConverter] to fine tune the HTTP request/response conversion.
-  PersistentHandler(Client client,
+  PersistentHandler(
+      Client client,
       {@Deprecated('Deprecated in favor of MessageConverter.'
           ' To be removed in version 6.0.0')
           this.defaultEncoding = utf8,
