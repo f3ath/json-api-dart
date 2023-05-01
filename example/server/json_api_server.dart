@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'dart:io';
 
+import 'package:http_interop_io/http_interop_io.dart';
 import 'package:json_api/http.dart';
 
 class JsonApiServer {
@@ -41,18 +41,7 @@ class JsonApiServer {
 
   Future<HttpServer> _createServer() async {
     final server = await HttpServer.bind(host, port);
-    server.listen((request) async {
-      final headers = <String, String>{};
-      request.headers.forEach((k, v) => headers[k] = v.join(','));
-      final response = await _handler.handle(HttpRequest(
-          request.method, request.requestedUri,
-          body: await request.cast<List<int>>().transform(utf8.decoder).join())
-        ..headers.addAll(headers));
-      response.headers.forEach(request.response.headers.add);
-      request.response.statusCode = response.statusCode;
-      request.response.write(response.body);
-      await request.response.close();
-    });
+    server.listen(listener(_handler));
     return server;
   }
 }
