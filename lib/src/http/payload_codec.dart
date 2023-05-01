@@ -2,9 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 /// Encodes/decodes JSON payload.
-///
-/// The methods are designed to be asynchronous to allow for conversion to be
-/// performed in isolates if needed.
 class PayloadCodec {
   const PayloadCodec();
 

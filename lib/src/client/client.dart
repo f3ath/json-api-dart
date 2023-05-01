@@ -1,5 +1,5 @@
+import 'package:http_interop_http/http_interop_http.dart';
 import 'package:json_api/http.dart';
-import 'package:json_api/src/client/disposable_handler.dart';
 import 'package:json_api/src/client/request.dart';
 import 'package:json_api/src/client/response.dart';
 

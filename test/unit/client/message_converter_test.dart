@@ -16,4 +16,9 @@ void main() {
     final r = converter.request(HttpRequest('OPTIONS', uri));
     expect(r.headers, isEmpty);
   });
+
+  test('No headers are set for DELETE requests', () {
+    final r = converter.request(HttpRequest('DELETE', uri));
+    expect(r.headers, isEmpty);
+  });
 }

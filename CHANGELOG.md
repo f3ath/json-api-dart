@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.4.0] - 2023-04-30
+### Changed
+- Switch to http\_interop packages.
+- Bump min SDK version to 2.19.
+
 ## [5.3.0] - 2022-12-29
 ### Added
 - Client MessageConverter class to control HTTP request/response conversion.
@@ -46,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sound null-safety support.
 
 ### Changed
-- Everything. Again. This is another major **BC-breaking** rework. Please refer to 
+- Everything. Again. This is another major **BC-breaking** rework. Please refer to
 the API documentation, examples and tests.
 
 ## [3.2.3] - 2020-08-06
@@ -87,11 +92,11 @@ is missing. Before in such cases a `FormatException` would be thrown ([pr](https
 
 ## [3.2.2] - 2020-01-07
 ### Fixed
--  Can not decode related resource which is null ([\#77](https://github.com/f3ath/json-api-dart/issues/77))
+- Can not decode related resource which is null ([\#77](https://github.com/f3ath/json-api-dart/issues/77))
 
 ## [3.2.1] - 2020-01-01
 ### Fixed
--  Incorrect URL in the example in the Client documentation ([\#74](https://github.com/f3ath/json-api-dart/issues/74))
+- Incorrect URL in the example in the Client documentation ([\#74](https://github.com/f3ath/json-api-dart/issues/74))
 
 ## [3.2.0] - 2019-12-30
 ### Added
@@ -157,14 +162,14 @@ is missing. Before in such cases a `FormatException` would be thrown ([pr](https
 
 ## [2.0.0] - 2019-07-12
 ### Changed
-- This package now consolidates the Client, the Server and the Document in one single library. 
-It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages 
+- This package now consolidates the Client, the Server and the Document in one single library.
+It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages
 from your `pubspec.yaml`.
 - The min Dart SDK version bumped to `2.3.0`
 - The Client requires an instance of HttpClient to be passed to the constructor explicitly.
-- Both the Document and the Server have been refactored with lots of **BREAKING CHANGES**. 
+- Both the Document and the Server have been refactored with lots of **BREAKING CHANGES**.
 See the examples and the functional tests for details.
-- Meta properties are not defensively copied, but set directly. Meta property behavior is unified across 
+- Meta properties are not defensively copied, but set directly. Meta property behavior is unified across
 the Document model.
 
 ### Removed
@@ -224,6 +229,7 @@ the Document model.
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
+[5.4.0]: https://github.com/f3ath/json-api-dart/compare/5.3.0...5.4.0
 [5.3.0]: https://github.com/f3ath/json-api-dart/compare/5.2.0...5.3.0
 [5.2.0]: https://github.com/f3ath/json-api-dart/compare/5.1.0...5.2.0
 [5.1.0]: https://github.com/f3ath/json-api-dart/compare/5.0.5...5.1.0
