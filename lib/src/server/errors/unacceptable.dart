@@ -1,0 +1,1 @@
+class Unacceptable implements Exception {}

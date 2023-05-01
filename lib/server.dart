@@ -9,5 +9,5 @@ export 'package:json_api/src/server/errors/relationship_not_found.dart';
 export 'package:json_api/src/server/errors/resource_not_found.dart';
 export 'package:json_api/src/server/errors/unmatched_target.dart';
 export 'package:json_api/src/server/response.dart';
-export 'package:json_api/src/server/router.dart';
+export 'package:json_api/src/server/controller_router.dart';
 export 'package:json_api/src/server/try_catch_handler.dart';

@@ -4,7 +4,9 @@ import 'package:json_api/src/server/errors/collection_not_found.dart';
 import 'package:json_api/src/server/errors/method_not_allowed.dart';
 import 'package:json_api/src/server/errors/relationship_not_found.dart';
 import 'package:json_api/src/server/errors/resource_not_found.dart';
+import 'package:json_api/src/server/errors/unacceptable.dart';
 import 'package:json_api/src/server/errors/unmatched_target.dart';
+import 'package:json_api/src/server/errors/unsupported_media_type.dart';
 import 'package:json_api/src/server/response.dart';
 
 /// The error converter maps server exceptions to JSON:API responses.
@@ -63,6 +65,12 @@ class ErrorConverter {
                   'Type: ${error.type}, id: ${error.id}, relationship: ${error.relationship}',
             )
           ]));
+    }
+    if (error is UnsupportedMediaType) {
+      return Response.unsupportedMediaType();
+    }
+    if (error is Unacceptable) {
+      return Response.unacceptable();
     }
     return await onError?.call(error, trace) ??
         Response(500,

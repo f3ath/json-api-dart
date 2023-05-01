@@ -36,4 +36,10 @@ class Response<D extends OutboundDocument> extends HttpResponse {
 
   static Response badRequest([OutboundErrorDocument? document]) =>
       Response(StatusCode.badRequest, document: document);
+
+  static Response unsupportedMediaType([OutboundErrorDocument? document]) =>
+      Response(StatusCode.unsupportedMediaType, document: document);
+
+  static Response unacceptable([OutboundErrorDocument? document]) =>
+      Response(StatusCode.unacceptable, document: document);
 }

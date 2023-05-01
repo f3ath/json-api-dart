@@ -17,7 +17,7 @@ Future<void> main() async {
   final repo = InMemoryRepo(resources);
   await addColors(repo);
   final controller = RepositoryController(repo, Uuid().v4);
-  HttpHandler handler = Router(controller, StandardUriDesign.matchTarget);
+  HttpHandler handler = ControllerRouter(controller, StandardUriDesign.matchTarget);
   handler = TryCatchHandler(handler, onError: ErrorConverter());
   handler = LoggingHandler(handler,
       onRequest: (r) => print('${r.method.toUpperCase()} ${r.uri}'),

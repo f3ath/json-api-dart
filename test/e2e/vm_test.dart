@@ -10,18 +10,19 @@ void main() {
   late RoutingClient client;
   late JsonApiServer server;
 
-  setUp(() async {
-    server = JsonApiServer(TestHandler(), port: 8001);
-    await server.start();
-    client = RoutingClient(StandardUriDesign(
-        Uri(scheme: 'http', host: server.host, port: server.port)));
-  });
+  group('On VM', () {
+    setUpAll(() async {
+      server = JsonApiServer(TestHandler(), port: 8001);
+      await server.start();
+      client = RoutingClient(StandardUriDesign(
+          Uri(scheme: 'http', host: server.host, port: server.port)));
+    });
 
-  tearDown(() async {
-    await server.stop();
-  });
+    tearDownAll(() async {
+      await server.stop();
+    });
 
-  test('On VM', () async {
-    await e2eTests(client);
+    testLocationIsSet(() => client);
+    testAllHttpMethods(() => client);
   }, testOn: 'vm');
 }

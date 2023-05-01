@@ -13,7 +13,7 @@ class TestHandler extends LoggingHandler {
       Future<HttpResponse> Function(dynamic, StackTrace)? onError})
       : super(
             TryCatchHandler(
-                Router(RepositoryController(InMemoryRepo(types), _id),
+                ControllerRouter(RepositoryController(InMemoryRepo(types), _id),
                     StandardUriDesign.matchTarget),
                 onError: ErrorConverter(
                     onError: onError ??

@@ -8,6 +8,8 @@ class StatusCode {
   static const badRequest = 400;
   static const notFound = 404;
   static const methodNotAllowed = 405;
+  static const unacceptable = 406;
+  static const unsupportedMediaType = 415;
 
   final int value;
 
