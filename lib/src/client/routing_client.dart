@@ -116,7 +116,7 @@ class RoutingClient {
     Map<String, String> headers = const {},
     Map<String, String> query = const {},
     Map<String, String> page = const {},
-    Map<String, String> filter = const {},
+    Map<String, Object> filter = const {},
     Iterable<String> include = const [],
     Iterable<String> sort = const [],
     Map<String, Iterable<String>> fields = const {},
@@ -152,7 +152,7 @@ class RoutingClient {
     String relationship, {
     Map<String, String> headers = const {},
     Map<String, String> page = const {},
-    Map<String, String> filter = const {},
+    Map<String, Object> filter = const {},
     Iterable<String> include = const [],
     Iterable<String> sort = const [],
     Map<String, Iterable<String>> fields = const {},
@@ -210,7 +210,7 @@ class RoutingClient {
     String relationship, {
     Map<String, String> headers = const {},
     Map<String, String> query = const {},
-    Map<String, String> filter = const {},
+    Map<String, Object> filter = const {},
     Iterable<String> include = const [],
     Map<String, Iterable<String>> fields = const {},
   }) async {
@@ -230,7 +230,7 @@ class RoutingClient {
     String type,
     String id, {
     Map<String, String> headers = const {},
-    Map<String, String> filter = const {},
+    Map<String, Object> filter = const {},
     Iterable<String> include = const [],
     Map<String, Iterable<String>> fields = const {},
     Map<String, String> query = const {},
