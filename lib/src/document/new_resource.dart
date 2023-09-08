@@ -61,6 +61,7 @@ class NewResource {
     if (r is NewToMany) {
       return ToMany(r.map((identifier) => _toIdentifier(identifier, id)));
     }
+    // coverage:ignore-line
     throw StateError('Unexpected relationship type: ${r.runtimeType}');
   }
 
