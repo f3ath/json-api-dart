@@ -1,4 +1,4 @@
-import 'package:http_interop/http_interop.dart';
+import 'package:http_interop/http_interop.dart' as http;
 import 'package:json_api/document.dart';
 import 'package:json_api/src/server/errors/collection_not_found.dart';
 import 'package:json_api/src/server/errors/method_not_allowed.dart';
@@ -22,59 +22,49 @@ class ErrorConverter {
     this.onError,
   });
 
-  final Future<HttpResponse> Function(MethodNotAllowed)? onMethodNotAllowed;
-  final Future<HttpResponse> Function(UnmatchedTarget)? onUnmatchedTarget;
-  final Future<HttpResponse> Function(CollectionNotFound)? onCollectionNotFound;
-  final Future<HttpResponse> Function(ResourceNotFound)? onResourceNotFound;
-  final Future<HttpResponse> Function(RelationshipNotFound)?
+  final Future<http.Response> Function(MethodNotAllowed)? onMethodNotAllowed;
+  final Future<http.Response> Function(UnmatchedTarget)? onUnmatchedTarget;
+  final Future<http.Response> Function(CollectionNotFound)?
+      onCollectionNotFound;
+  final Future<http.Response> Function(ResourceNotFound)? onResourceNotFound;
+  final Future<http.Response> Function(RelationshipNotFound)?
       onRelationshipNotFound;
-  final Future<HttpResponse> Function(dynamic, StackTrace)? onError;
+  final Future<http.Response> Function(dynamic, StackTrace)? onError;
 
-  Future<HttpResponse> call(dynamic error, StackTrace trace) async {
-    if (error is MethodNotAllowed) {
-      return await onMethodNotAllowed?.call(error) ??
-          Response.methodNotAllowed();
-    }
-    if (error is UnmatchedTarget) {
-      return await onUnmatchedTarget?.call(error) ?? Response.badRequest();
-    }
-    if (error is CollectionNotFound) {
-      return await onCollectionNotFound?.call(error) ??
-          Response.notFound(OutboundErrorDocument([
-            ErrorObject(
-              title: 'Collection Not Found',
-              detail: 'Type: ${error.type}',
-            )
-          ]));
-    }
-    if (error is ResourceNotFound) {
-      return await onResourceNotFound?.call(error) ??
-          Response.notFound(OutboundErrorDocument([
-            ErrorObject(
-              title: 'Resource Not Found',
-              detail: 'Type: ${error.type}, id: ${error.id}',
-            )
-          ]));
-    }
-    if (error is RelationshipNotFound) {
-      return await onRelationshipNotFound?.call(error) ??
-          Response.notFound(OutboundErrorDocument([
-            ErrorObject(
-              title: 'Relationship Not Found',
-              detail:
-                  'Type: ${error.type}, id: ${error.id}, relationship: ${error.relationship}',
-            )
-          ]));
-    }
-    if (error is UnsupportedMediaType) {
-      return Response.unsupportedMediaType();
-    }
-    if (error is Unacceptable) {
-      return Response.unacceptable();
-    }
-    return await onError?.call(error, trace) ??
-        Response(500,
-            document: OutboundErrorDocument(
-                [ErrorObject(title: 'Internal Server Error')]));
-  }
+  Future<http.Response> call(Object? error, StackTrace trace) async =>
+      switch (error) {
+        MethodNotAllowed() =>
+          await onMethodNotAllowed?.call(error) ?? Response.methodNotAllowed(),
+        UnmatchedTarget() =>
+          await onUnmatchedTarget?.call(error) ?? Response.badRequest(),
+        CollectionNotFound() => await onCollectionNotFound?.call(error) ??
+            Response.notFound(OutboundErrorDocument([
+              ErrorObject(
+                title: 'Collection Not Found',
+                detail: 'Type: ${error.type}',
+              )
+            ])),
+        ResourceNotFound() => await onResourceNotFound?.call(error) ??
+            Response.notFound(OutboundErrorDocument([
+              ErrorObject(
+                title: 'Resource Not Found',
+                detail: 'Type: ${error.type}, id: ${error.id}',
+              )
+            ])),
+        RelationshipNotFound() => await onRelationshipNotFound?.call(error) ??
+            Response.notFound(OutboundErrorDocument([
+              ErrorObject(
+                title: 'Relationship Not Found',
+                detail: 'Type: ${error.type}'
+                    ', id: ${error.id}'
+                    ', relationship: ${error.relationship}',
+              )
+            ])),
+        UnsupportedMediaType() => Response.unsupportedMediaType(),
+        Unacceptable() => Response.unacceptable(),
+        _ => await onError?.call(error, trace) ??
+            Response(500,
+                document: OutboundErrorDocument(
+                    [ErrorObject(title: 'Internal Server Error')]))
+      };
 }

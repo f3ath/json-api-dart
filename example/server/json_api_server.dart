@@ -16,7 +16,7 @@ class JsonApiServer {
   /// Server port
   final int port;
 
-  final HttpHandler _handler;
+  final Handler _handler;
   HttpServer? _server;
 
   /// Server uri

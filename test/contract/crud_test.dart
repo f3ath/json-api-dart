@@ -11,7 +11,7 @@ void main() {
 
   setUp(() async {
     client = RoutingClient(StandardUriDesign.pathOnly,
-        client: Client(handler: TestHandler()));
+        Client(TestHandler()));
   });
 
   group('CRUD', () {
@@ -48,7 +48,7 @@ void main() {
         Include(['author', 'comments', 'comments.author'])
       ]);
 
-      expect(response.http.statusCode, 200);
+      expect(response.httpResponse.statusCode, 200);
       expect(response.collection.length, 1);
       expect(response.included.length, 3);
 
@@ -176,7 +176,7 @@ void main() {
           await action();
           fail('Exception expected');
         } on RequestFailure catch (e) {
-          expect(e.http.statusCode, 404);
+          expect(e.httpResponse.statusCode, 404);
         }
       }
     });

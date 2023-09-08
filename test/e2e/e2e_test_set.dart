@@ -30,7 +30,7 @@ void testLocationIsSet(RoutingClient Function() client) {
   test('Location is set', () async {
     final r = await client()
         .createNew('posts', attributes: {'title': 'Location test'});
-    expect(r.http.headers['Location'], isNotEmpty);
+    expect(r.httpResponse.headers['Location'], isNotEmpty);
     await client().deleteResource('posts', r.resource.id);
   });
 }

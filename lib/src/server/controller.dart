@@ -1,41 +1,43 @@
-import 'package:http_interop/http_interop.dart';
+import 'package:http_interop/http_interop.dart' as http;
 import 'package:json_api/routing.dart';
 
 /// JSON:API controller
 abstract class Controller {
   /// Fetch a primary resource collection
-  Future<HttpResponse> fetchCollection(HttpRequest request, Target target);
+  Future<http.Response> fetchCollection(http.Request request, Target target);
 
   /// Create resource
-  Future<HttpResponse> createResource(HttpRequest request, Target target);
+  Future<http.Response> createResource(http.Request request, Target target);
 
   /// Fetch a single primary resource
-  Future<HttpResponse> fetchResource(
-      HttpRequest request, ResourceTarget target);
+  Future<http.Response> fetchResource(
+      http.Request request, ResourceTarget target);
 
   /// Updates a primary resource
-  Future<HttpResponse> updateResource(
-      HttpRequest request, ResourceTarget target);
+  Future<http.Response> updateResource(
+      http.Request request, ResourceTarget target);
 
   /// Deletes the primary resource
-  Future<HttpResponse> deleteResource(
-      HttpRequest request, ResourceTarget target);
+  Future<http.Response> deleteResource(
+      http.Request request, ResourceTarget target);
 
   /// Fetches a relationship
-  Future<HttpResponse> fetchRelationship(
-      HttpRequest rq, RelationshipTarget target);
+  Future<http.Response> fetchRelationship(
+      http.Request rq, RelationshipTarget target);
 
   /// Add new entries to a to-many relationship
-  Future<HttpResponse> addMany(HttpRequest request, RelationshipTarget target);
+  Future<http.Response> addMany(
+      http.Request request, RelationshipTarget target);
 
   /// Updates the relationship
-  Future<HttpResponse> replaceRelationship(
-      HttpRequest request, RelationshipTarget target);
+  Future<http.Response> replaceRelationship(
+      http.Request request, RelationshipTarget target);
 
   /// Deletes the members from the to-many relationship
-  Future<HttpResponse> deleteMany(
-      HttpRequest request, RelationshipTarget target);
+  Future<http.Response> deleteMany(
+      http.Request request, RelationshipTarget target);
 
   /// Fetches related resource or collection
-  Future<HttpResponse> fetchRelated(HttpRequest request, RelatedTarget target);
+  Future<http.Response> fetchRelated(
+      http.Request request, RelatedTarget target);
 }

@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:http_interop/http_interop.dart';
+import 'package:http_interop/http_interop.dart' as interop;
+import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 import 'package:uuid/uuid.dart';
@@ -13,14 +14,20 @@ import 'server/repository_controller.dart';
 Future<void> main() async {
   final host = 'localhost';
   final port = 8080;
-  final resources = ['colors'];
-  final repo = InMemoryRepo(resources);
-  await addColors(repo);
+  final repo = InMemoryRepo(['colors']);
+  await initRepo(repo);
   final controller = RepositoryController(repo, Uuid().v4);
-  HttpHandler handler = ControllerRouter(controller, StandardUriDesign.matchTarget);
-  handler = TryCatchHandler(handler, onError: ErrorConverter());
-  handler = LoggingHandler(handler,
-      onRequest: (r) => print('${r.method.toUpperCase()} ${r.uri}'),
+  interop.Handler handler =
+      ControllerRouter(controller, StandardUriDesign.matchTarget);
+  handler = TryCatchHandler(handler,
+      onError: ErrorConverter(onError: (e, stack) async {
+    stderr.writeln(e);
+    return Response(500,
+        document: OutboundErrorDocument(
+            [ErrorObject(title: 'Internal Server Error')]));
+  }));
+  handler = interop.LoggingHandler(handler,
+      onRequest: (r) => print('${r.method} ${r.uri}'),
       onResponse: (r) => print('${r.statusCode}'));
   final server = JsonApiServer(handler, host: host, port: port);
 
@@ -31,14 +38,10 @@ Future<void> main() async {
 
   await server.start();
 
-  print('The server is listening at $host:$port.'
-      ' Try opening the following URL(s) in your browser:');
-  for (var resource in resources) {
-    print('http://$host:$port/$resource');
-  }
+  print('The server is listening at $host:$port.');
 }
 
-Future addColors(Repository repo) async {
+Future initRepo(Repository repo) async {
   final models = {
     {'name': 'Salmon', 'r': 250, 'g': 128, 'b': 114},
     {'name': 'Pink', 'r': 255, 'g': 192, 'b': 203},

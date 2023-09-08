@@ -3,7 +3,7 @@ import 'package:json_api/query.dart';
 import 'package:json_api/src/client/client.dart';
 
 /// A generic JSON:API request.
-class Request with HttpHeaders {
+class Request {
   /// Creates a new instance if the request with the specified HTTP [method]
   /// and [document].
   Request(this.method, [this.document]);
@@ -20,13 +20,16 @@ class Request with HttpHeaders {
   /// Creates a PATCH request.
   Request.patch([Object? document]) : this('patch', document);
 
-  /// HTTP method
+  /// HTTP method.
   final String method;
 
   /// JSON:API document. This object can be of any type as long as it is
   /// encodable by the [PayloadCodec] used in the [Client].
   final Object? document;
 
-  /// Query parameters
+  /// Query parameters.
   final query = Query();
+
+  /// HTTP headers.
+  final headers = Headers({});
 }

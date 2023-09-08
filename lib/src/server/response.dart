@@ -1,23 +1,23 @@
 import 'dart:convert';
 
-import 'package:http_interop/http_interop.dart';
+import 'package:http_interop/http_interop.dart' as http;
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/src/media_type.dart';
-import 'package:json_api/src/nullable.dart';
 
 /// JSON:API response
-class Response<D extends OutboundDocument> extends HttpResponse {
-  Response(int statusCode, {this.document}) : super(statusCode) {
+class Response<D extends OutboundDocument> extends http.Response {
+  Response(int statusCode, {D? document})
+      : super(
+            statusCode,
+            document != null
+                ? http.Body(jsonEncode(document), utf8)
+                : http.Body.empty(),
+            http.Headers({})) {
     if (document != null) {
       headers['Content-Type'] = mediaType;
     }
   }
-
-  final D? document;
-
-  @override
-  String get body => nullable(jsonEncode)(document) ?? '';
 
   static Response ok(OutboundDocument document) =>
       Response(StatusCode.ok, document: document);

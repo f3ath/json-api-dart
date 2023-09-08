@@ -15,11 +15,10 @@ import 'package:json_api/src/client/response/resource_updated.dart';
 
 /// A routing JSON:API client
 class RoutingClient {
-  RoutingClient(this.baseUri, {Client client = const Client()})
-      : _client = client;
+  RoutingClient(this._baseUri, this._client);
 
   final Client _client;
-  final UriDesign baseUri;
+  final UriDesign _baseUri;
 
   /// Adds the [identifiers] to the to-many relationship
   /// identified by [type], [id], [relationship].
@@ -35,11 +34,11 @@ class RoutingClient {
     Map<String, String> headers = const {},
   }) async {
     final response = await send(
-        baseUri.relationship(type, id, relationship),
+        _baseUri.relationship(type, id, relationship),
         Request.post(
             OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
           ..headers.addAll(headers));
-    return RelationshipUpdated.many(response.http, response.document);
+    return RelationshipUpdated.many(response.httpResponse, response.document);
   }
 
   /// Creates a new resource with the given [type] and [id] on the server.
@@ -64,7 +63,7 @@ class RoutingClient {
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
-        baseUri.collection(type),
+        _baseUri.collection(type),
         Request.post(OutboundDataDocument.resource(Resource(type, id)
           ..attributes.addAll(attributes)
           ..relationships.addAll({
@@ -75,7 +74,7 @@ class RoutingClient {
           ..meta.addAll(documentMeta))
           ..headers.addAll(headers)
           ..query.mergeAll(query));
-    return ResourceUpdated(response.http, response.document);
+    return ResourceUpdated(response.httpResponse, response.document);
   }
 
   /// Creates a new resource in the collection of type [type].
@@ -102,7 +101,7 @@ class RoutingClient {
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
-        baseUri.collection(type),
+        _baseUri.collection(type),
         Request.post(
             OutboundDataDocument.newResource(NewResource(type, lid: lid)
               ..attributes.addAll(attributes)
@@ -116,7 +115,7 @@ class RoutingClient {
           ..query.mergeAll(query));
 
     return ResourceCreated(
-        response.http, response.document ?? (throw FormatException()));
+        response.httpResponse, response.document ?? (throw FormatException()));
   }
 
   /// Deletes the [identifiers] from the to-many relationship
@@ -134,12 +133,12 @@ class RoutingClient {
     Map<String, String> headers = const {},
   }) async {
     final response = await send(
-        baseUri.relationship(type, id, relationship),
+        _baseUri.relationship(type, id, relationship),
         Request.delete(
             OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
           ..headers.addAll(headers));
 
-    return RelationshipUpdated.many(response.http, response.document);
+    return RelationshipUpdated.many(response.httpResponse, response.document);
   }
 
   /// Fetches the primary collection of type [type].
@@ -153,12 +152,12 @@ class RoutingClient {
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
-        baseUri.collection(type),
+        _baseUri.collection(type),
         Request.get()
           ..headers.addAll(headers)
           ..query.mergeAll(query));
     return CollectionFetched(
-        response.http, response.document ?? (throw FormatException()));
+        response.httpResponse, response.document ?? (throw FormatException()));
   }
 
   /// Fetches the related resource collection
@@ -175,12 +174,12 @@ class RoutingClient {
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
-        baseUri.related(type, id, relationship),
+        _baseUri.related(type, id, relationship),
         Request.get()
           ..headers.addAll(headers)
           ..query.mergeAll(query));
     return CollectionFetched(
-        response.http, response.document ?? (throw FormatException()));
+        response.httpResponse, response.document ?? (throw FormatException()));
   }
 
   /// Fetches the to-one relationship
@@ -197,12 +196,12 @@ class RoutingClient {
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
-        baseUri.relationship(type, id, relationship),
+        _baseUri.relationship(type, id, relationship),
         Request.get()
           ..headers.addAll(headers)
           ..query.mergeAll(query));
     return RelationshipFetched.one(
-        response.http, response.document ?? (throw FormatException()));
+        response.httpResponse, response.document ?? (throw FormatException()));
   }
 
   /// Fetches the to-many relationship
@@ -219,12 +218,12 @@ class RoutingClient {
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
-        baseUri.relationship(type, id, relationship),
+        _baseUri.relationship(type, id, relationship),
         Request.get()
           ..headers.addAll(headers)
           ..query.mergeAll(query));
     return RelationshipFetched.many(
-        response.http, response.document ?? (throw FormatException()));
+        response.httpResponse, response.document ?? (throw FormatException()));
   }
 
   /// Fetches the related resource
@@ -241,12 +240,12 @@ class RoutingClient {
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
-        baseUri.related(type, id, relationship),
+        _baseUri.related(type, id, relationship),
         Request.get()
           ..headers.addAll(headers)
           ..query.mergeAll(query));
     return RelatedResourceFetched(
-        response.http, response.document ?? (throw FormatException()));
+        response.httpResponse, response.document ?? (throw FormatException()));
   }
 
   /// Fetches the resource identified by [type] and [id].
@@ -261,13 +260,13 @@ class RoutingClient {
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
-        baseUri.resource(type, id),
+        _baseUri.resource(type, id),
         Request.get()
           ..headers.addAll(headers)
           ..query.mergeAll(query));
 
     return ResourceFetched(
-        response.http, response.document ?? (throw FormatException()));
+        response.httpResponse, response.document ?? (throw FormatException()));
   }
 
   /// Updates the resource identified by [type] and [id].
@@ -292,7 +291,7 @@ class RoutingClient {
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
-        baseUri.resource(type, id),
+        _baseUri.resource(type, id),
         Request.patch(OutboundDataDocument.resource(Resource(type, id)
           ..attributes.addAll(attributes)
           ..relationships.addAll({
@@ -303,7 +302,7 @@ class RoutingClient {
           ..meta.addAll(documentMeta))
           ..headers.addAll(headers)
           ..query.mergeAll(query));
-    return ResourceUpdated(response.http, response.document);
+    return ResourceUpdated(response.httpResponse, response.document);
   }
 
   /// Replaces the to-one relationship
@@ -324,12 +323,12 @@ class RoutingClient {
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
-        baseUri.relationship(type, id, relationship),
+        _baseUri.relationship(type, id, relationship),
         Request.patch(
             OutboundDataDocument.one(ToOne(identifier)..meta.addAll(meta)))
           ..headers.addAll(headers)
           ..query.mergeAll(query));
-    return RelationshipUpdated.one(response.http, response.document);
+    return RelationshipUpdated.one(response.httpResponse, response.document);
   }
 
   /// Replaces the to-many relationship
@@ -350,12 +349,12 @@ class RoutingClient {
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
-        baseUri.relationship(type, id, relationship),
+        _baseUri.relationship(type, id, relationship),
         Request.patch(
             OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
           ..headers.addAll(headers)
           ..query.mergeAll(query));
-    return RelationshipUpdated.many(response.http, response.document);
+    return RelationshipUpdated.many(response.httpResponse, response.document);
   }
 
   /// Removes the to-one relationship
@@ -372,11 +371,11 @@ class RoutingClient {
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
-        baseUri.relationship(type, id, relationship),
+        _baseUri.relationship(type, id, relationship),
         Request.patch(OutboundDataDocument.one(ToOne.empty()))
           ..headers.addAll(headers)
           ..query.mergeAll(query));
-    return RelationshipUpdated.one(response.http, response.document);
+    return RelationshipUpdated.one(response.httpResponse, response.document);
   }
 
   /// Deletes the resource identified by [type] and [id].
@@ -391,7 +390,7 @@ class RoutingClient {
     Iterable<QueryEncodable> query = const [],
   }) =>
       send(
-          baseUri.resource(type, id),
+          _baseUri.resource(type, id),
           Request.delete()
             ..headers.addAll(headers)
             ..query.mergeAll(query));
@@ -401,7 +400,7 @@ class RoutingClient {
   Future<Response> send(Uri uri, Request request) async {
     final response = await _client.send(uri, request);
     if (response.isFailed) {
-      throw RequestFailure(response.http, response.document);
+      throw RequestFailure(response.httpResponse, response.document);
     }
     return response;
   }

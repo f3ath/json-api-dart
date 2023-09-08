@@ -7,62 +7,62 @@ import 'package:json_api/src/server/errors/unacceptable.dart';
 import 'package:json_api/src/server/errors/unmatched_target.dart';
 import 'package:json_api/src/server/errors/unsupported_media_type.dart';
 
-class ControllerRouter implements HttpHandler {
+class ControllerRouter implements Handler {
   ControllerRouter(this._controller, this._matchTarget);
 
   final Controller _controller;
   final Target? Function(Uri uri) _matchTarget;
 
   @override
-  Future<HttpResponse> handle(HttpRequest request) async {
+  Future<Response> handle(Request request) async {
     _validate(request);
     final target = _matchTarget(request.uri);
     if (target is RelationshipTarget) {
-      if (request.isGet) {
+      if (request.method.equals('GET')) {
         return await _controller.fetchRelationship(request, target);
       }
-      if (request.isPost) {
+      if (request.method.equals('POST')) {
         return await _controller.addMany(request, target);
       }
-      if (request.isPatch) {
+      if (request.method.equals('PATCH')) {
         return await _controller.replaceRelationship(request, target);
       }
-      if (request.isDelete) {
+      if (request.method.equals('DELETE')) {
         return await _controller.deleteMany(request, target);
       }
-      throw MethodNotAllowed(request.method);
+      throw MethodNotAllowed(request.method.value);
     }
     if (target is RelatedTarget) {
-      if (request.isGet) {
+      if (request.method.equals('GET')) {
         return await _controller.fetchRelated(request, target);
       }
-      throw MethodNotAllowed(request.method);
+      throw MethodNotAllowed(request.method.value);
     }
     if (target is ResourceTarget) {
-      if (request.isGet) {
+      if (request.method.equals('GET')) {
         return await _controller.fetchResource(request, target);
       }
-      if (request.isPatch) {
+      if (request.method.equals('PATCH')) {
         return await _controller.updateResource(request, target);
       }
-      if (request.isDelete) {
+      if (request.method.equals('DELETE')) {
         return await _controller.deleteResource(request, target);
       }
-      throw MethodNotAllowed(request.method);
+      throw MethodNotAllowed(request.method.value);
     }
     if (target is Target) {
-      if (request.isGet) {
+      if (request.method.equals('GET')) {
         return await _controller.fetchCollection(request, target);
       }
-      if (request.isPost) {
+      if (request.method.equals('POST')) {
         return await _controller.createResource(request, target);
       }
-      throw MethodNotAllowed(request.method);
+      throw MethodNotAllowed(request.method.value);
     }
     throw UnmatchedTarget(request.uri);
   }
 
-  void _validate(HttpRequest request) {
+  void _validate(Request request) {
     final contentType = request.headers['Content-Type'];
     if (contentType != null && !_isValid(MediaType.parse(contentType))) {
       throw UnsupportedMediaType();

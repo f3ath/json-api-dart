@@ -2,7 +2,7 @@ import 'package:http_interop/http_interop.dart';
 import 'package:json_api/document.dart';
 
 class CollectionFetched {
-  CollectionFetched(this.http, Map json) {
+  CollectionFetched(this.httpResponse, Map json) {
     final document = InboundDocument(json);
     collection.addAll(document.dataAsCollection());
     included.addAll(document.included());
@@ -10,7 +10,7 @@ class CollectionFetched {
     links.addAll(document.links());
   }
 
-  final HttpResponse http;
+  final Response httpResponse;
 
   /// The resource collection fetched from the server
   final collection = <Resource>[];

@@ -6,14 +6,14 @@ import 'package:json_api/document.dart';
 ///
 /// https://jsonapi.org/format/#crud-creating-responses-201
 class ResourceCreated {
-  ResourceCreated(this.http, Map json)
+  ResourceCreated(this.httpResponse, Map json)
       : resource = InboundDocument(json).dataAsResource() {
     meta.addAll(InboundDocument(json).meta());
     links.addAll(InboundDocument(json).links());
     included.addAll(InboundDocument(json).included());
   }
 
-  final HttpResponse http;
+  final Response httpResponse;
 
   /// Created resource.
   final Resource resource;

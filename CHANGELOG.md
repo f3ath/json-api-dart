@@ -5,8 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- A bunch of BC-breaking changes. Please refer to the tests.
+- Migrated to `http_interop`. You'll have to install `http_interop_http` to get the HTTP client.
+
 ### Added
-- Support for local ids
+- Partial support for JSON:API v1.1
 
 ### Removed
 - Query filter.
