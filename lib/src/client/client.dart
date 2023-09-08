@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http_interop/extensions.dart';
 import 'package:http_interop/http_interop.dart' as http;
+import 'package:json_api/http.dart';
 import 'package:json_api/src/client/payload_codec.dart';
 import 'package:json_api/src/client/request.dart';
 import 'package:json_api/src/client/response.dart';
@@ -24,8 +25,8 @@ class Client {
     final json = await _encode(request.document);
     final body = http.Body(json, utf8);
     final headers = http.Headers({
-      'Accept': mediaType,
-      if (json.isNotEmpty) 'Content-Type': mediaType,
+      'Accept': [mediaType],
+      if (json.isNotEmpty) 'Content-Type': [mediaType],
       ...request.headers
     });
     final url = request.query.isEmpty
@@ -44,9 +45,11 @@ class Client {
   Future<Map?> _decode(http.Response response) async {
     final json = await response.body.decode(utf8);
     if (json.isNotEmpty &&
-        (response.headers['Content-Type'] ?? '')
-            .toLowerCase()
-            .startsWith(mediaType)) {
+        response.headers
+                .last('Content-Type')
+                ?.toLowerCase()
+                .startsWith(mediaType) ==
+            true) {
       return await _codec.decode(json);
     }
     return null;

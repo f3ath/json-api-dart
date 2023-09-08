@@ -31,7 +31,7 @@ class RoutingClient {
     String relationship,
     List<Identifier> identifiers, {
     Map<String, Object?> meta = const {},
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
   }) async {
     final response = await send(
         _baseUri.relationship(type, id, relationship),
@@ -59,7 +59,7 @@ class RoutingClient {
     Map<String, Iterable<Identifier>> many = const {},
     Map<String, Object?> meta = const {},
     Map<String, Object?> documentMeta = const {},
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
@@ -97,7 +97,7 @@ class RoutingClient {
     Map<String, Iterable<NewIdentifier>> many = const {},
     Map<String, Object?> meta = const {},
     Map<String, Object?> documentMeta = const {},
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
@@ -130,7 +130,7 @@ class RoutingClient {
     String relationship,
     List<Identifier> identifiers, {
     Map<String, Object?> meta = const {},
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
   }) async {
     final response = await send(
         _baseUri.relationship(type, id, relationship),
@@ -148,7 +148,7 @@ class RoutingClient {
   /// - [query] - a collection of parameters to be included in the URI query
   Future<CollectionFetched> fetchCollection(
     String type, {
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
@@ -170,7 +170,7 @@ class RoutingClient {
     String type,
     String id,
     String relationship, {
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
@@ -192,7 +192,7 @@ class RoutingClient {
     String type,
     String id,
     String relationship, {
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
@@ -214,7 +214,7 @@ class RoutingClient {
     String type,
     String id,
     String relationship, {
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
@@ -236,7 +236,7 @@ class RoutingClient {
     String type,
     String id,
     String relationship, {
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
@@ -256,7 +256,7 @@ class RoutingClient {
   Future<ResourceFetched> fetchResource(
     String type,
     String id, {
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
@@ -287,7 +287,7 @@ class RoutingClient {
     Map<String, Iterable<Identifier>> many = const {},
     Map<String, Object?> meta = const {},
     Map<String, Object?> documentMeta = const {},
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
@@ -319,7 +319,7 @@ class RoutingClient {
     String relationship,
     Identifier identifier, {
     Map<String, Object?> meta = const {},
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
@@ -345,7 +345,7 @@ class RoutingClient {
     String relationship,
     Iterable<Identifier> identifiers, {
     Map<String, Object?> meta = const {},
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
@@ -367,7 +367,7 @@ class RoutingClient {
     String type,
     String id,
     String relationship, {
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
   }) async {
     final response = await send(
@@ -386,7 +386,7 @@ class RoutingClient {
   Future<Response> deleteResource(
     String type,
     String id, {
-    Map<String, String> headers = const {},
+    Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
   }) =>
       send(

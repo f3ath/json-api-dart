@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:http_interop/http_interop.dart' as interop;
 import 'package:json_api/document.dart';
+import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 import 'package:uuid/uuid.dart';
@@ -26,7 +27,7 @@ Future<void> main() async {
         document: OutboundErrorDocument(
             [ErrorObject(title: 'Internal Server Error')]));
   }));
-  handler = interop.LoggingHandler(handler,
+  handler = LoggingHandler(handler,
       onRequest: (r) => print('${r.method} ${r.uri}'),
       onResponse: (r) => print('${r.statusCode}'));
   final server = JsonApiServer(handler, host: host, port: port);

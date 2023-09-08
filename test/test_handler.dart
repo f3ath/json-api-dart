@@ -1,11 +1,12 @@
 import 'package:http_interop/http_interop.dart' as http;
+import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 
 import '../example/server/in_memory_repo.dart';
 import '../example/server/repository_controller.dart';
 
-class TestHandler extends http.LoggingHandler {
+class TestHandler extends LoggingHandler {
   TestHandler(
       {Iterable<String> types = const ['users', 'posts', 'comments'],
       Function(http.Request request)? onRequest,

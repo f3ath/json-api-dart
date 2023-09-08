@@ -47,14 +47,14 @@ void main() {
       expect(response.included, isEmpty);
       expect(http.request.method.value, 'get');
       expect(http.request.uri.toString(), '/articles');
-      expect(http.request.headers, {'Accept': 'application/vnd.api+json'});
+      expect(http.request.headers, {'Accept': ['application/vnd.api+json']});
     });
   });
 
   test('Full', () async {
     http.response = mock.collectionFull();
     final response = await client.fetchCollection('articles', headers: {
-      'foo': 'bar'
+      'foo': ['bar']
     }, query: [
       Query({
         'foo': ['bar']
@@ -79,7 +79,7 @@ void main() {
       'foo': 'bar'
     });
     expect(http.request.headers,
-        {'Accept': 'application/vnd.api+json', 'foo': 'bar'});
+        {'Accept': ['application/vnd.api+json'], 'foo':['bar']});
 
     expect(response.meta, {'hello': 'world'});
   });
@@ -92,14 +92,14 @@ void main() {
       expect(response.collection.length, 1);
       expect(http.request.method.equals('get'), true);
       expect(http.request.uri.path, '/people/1/articles');
-      expect(http.request.headers, {'Accept': 'application/vnd.api+json'});
+      expect(http.request.headers, {'Accept': ['application/vnd.api+json']});
     });
 
     test('Full', () async {
       http.response = mock.collectionFull();
       final response = await client
           .fetchRelatedCollection('people', '1', 'articles', headers: {
-        'foo': 'bar'
+        'foo': ['bar']
       }, query: [
         Query({
           'foo': ['bar']
@@ -124,7 +124,7 @@ void main() {
         'foo': 'bar'
       });
       expect(http.request.headers,
-          {'Accept': 'application/vnd.api+json', 'foo': 'bar'});
+          {'Accept': ['application/vnd.api+json'], 'foo': ['bar']});
 
       expect(response.meta, {'hello': 'world'});
     });
@@ -137,13 +137,13 @@ void main() {
       expect(response.resource.type, 'articles');
       expect(http.request.method.equals('get'), true);
       expect(http.request.uri.toString(), '/articles/1');
-      expect(http.request.headers, {'Accept': 'application/vnd.api+json'});
+      expect(http.request.headers, {'Accept': ['application/vnd.api+json']});
     });
 
     test('Full', () async {
       http.response = mock.primaryResource();
       final response = await client.fetchResource('articles', '1', headers: {
-        'foo': 'bar'
+        'foo': ['bar']
       }, query: [
         Query({
           'foo': ['bar']
@@ -160,7 +160,7 @@ void main() {
       expect(http.request.uri.queryParameters,
           {'include': 'author', 'fields[author]': 'name', 'foo': 'bar'});
       expect(http.request.headers,
-          {'Accept': 'application/vnd.api+json', 'foo': 'bar'});
+          {'Accept': ['application/vnd.api+json'], 'foo': ['bar']});
 
       expect(response.meta, {'hello': 'world'});
     });
@@ -175,14 +175,14 @@ void main() {
       expect(response.included.length, 3);
       expect(http.request.method.equals('get'), true);
       expect(http.request.uri.toString(), '/articles/1/author');
-      expect(http.request.headers, {'Accept': 'application/vnd.api+json'});
+      expect(http.request.headers, {'Accept': ['application/vnd.api+json']});
     });
 
     test('Full', () async {
       http.response = mock.primaryResource();
       final response = await client
           .fetchRelatedResource('articles', '1', 'author', headers: {
-        'foo': 'bar'
+        'foo': ['bar']
       }, query: [
         Query({
           'foo': ['bar']
@@ -199,7 +199,7 @@ void main() {
       expect(http.request.uri.queryParameters,
           {'include': 'author', 'fields[author]': 'name', 'foo': 'bar'});
       expect(http.request.headers,
-          {'Accept': 'application/vnd.api+json', 'foo': 'bar'});
+          {'Accept': ['application/vnd.api+json'], 'foo': ['bar']});
 
       expect(response.meta, {'hello': 'world'});
     });
@@ -212,7 +212,7 @@ void main() {
       expect(response.included, isEmpty);
       expect(http.request.method.equals('get'), true);
       expect(http.request.uri.toString(), '/articles/1/author');
-      expect(http.request.headers, {'Accept': 'application/vnd.api+json'});
+      expect(http.request.headers, {'Accept': ['application/vnd.api+json']});
     });
   });
 
@@ -223,14 +223,14 @@ void main() {
       expect(response.included.length, 3);
       expect(http.request.method.equals('get'), true);
       expect(http.request.uri.toString(), '/articles/1/relationships/author');
-      expect(http.request.headers, {'Accept': 'application/vnd.api+json'});
+      expect(http.request.headers, {'Accept': ['application/vnd.api+json']});
     });
 
     test('Full', () async {
       http.response = mock.one();
       final response =
           await client.fetchToOne('articles', '1', 'author', headers: {
-        'foo': 'bar'
+        'foo': ['bar']
       }, query: [
         Query({
           'foo': ['bar']
@@ -241,7 +241,7 @@ void main() {
       expect(http.request.uri.path, '/articles/1/relationships/author');
       expect(http.request.uri.queryParameters, {'foo': 'bar'});
       expect(http.request.headers,
-          {'Accept': 'application/vnd.api+json', 'foo': 'bar'});
+          {'Accept': ['application/vnd.api+json'], 'foo': ['bar']});
     });
   });
 
@@ -256,8 +256,8 @@ void main() {
       expect(http.request.method.equals('post'), true);
       expect(http.request.uri.toString(), '/articles');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': {'type': 'articles'}
@@ -277,7 +277,7 @@ void main() {
       }, documentMeta: {
         'hello': 'world'
       }, headers: {
-        'foo': 'bar'
+        'foo': ['bar']
       });
       expect(response.resource.type, 'articles');
       expect(
@@ -286,9 +286,9 @@ void main() {
       expect(http.request.method.equals('post'), true);
       expect(http.request.uri.toString(), '/articles');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json',
-        'foo': 'bar'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json'],
+        'foo':[ 'bar']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': {
@@ -326,8 +326,8 @@ void main() {
       expect(http.request.method.equals('post'), true);
       expect(http.request.uri.toString(), '/articles');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': {'type': 'articles', 'id': '1'}
@@ -341,8 +341,8 @@ void main() {
       expect(http.request.method.equals('post'), true);
       expect(http.request.uri.toString(), '/articles');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': {'type': 'articles', 'id': '1'}
@@ -362,15 +362,15 @@ void main() {
       }, documentMeta: {
         'hello': 'world'
       }, headers: {
-        'foo': 'bar'
+        'foo': ['bar']
       });
       expect(response.resource?.type, 'articles');
       expect(http.request.method.equals('post'), true);
       expect(http.request.uri.toString(), '/articles');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json',
-        'foo': 'bar'
+        'Accept':[ 'application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json'],
+        'foo': ['bar']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': {
@@ -409,8 +409,8 @@ void main() {
       expect(http.request.method.equals('patch'), true);
       expect(http.request.uri.toString(), '/articles/1');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': {'type': 'articles', 'id': '1'}
@@ -424,8 +424,8 @@ void main() {
       expect(http.request.method.equals('patch'), true);
       expect(http.request.uri.toString(), '/articles/1');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': {'type': 'articles', 'id': '1'}
@@ -446,15 +446,15 @@ void main() {
       }, documentMeta: {
         'hello': 'world'
       }, headers: {
-        'foo': 'bar'
+        'foo': ['bar']
       });
       expect(response.resource?.type, 'articles');
       expect(http.request.method.equals('patch'), true);
       expect(http.request.uri.toString(), '/articles/1');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json',
-        'foo': 'bar'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json'],
+        'foo': ['bar']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': {
@@ -494,8 +494,8 @@ void main() {
       expect(http.request.method.equals('patch'), true);
       expect(http.request.uri.toString(), '/articles/1/relationships/author');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': {'type': 'people', 'id': '42'}
@@ -506,14 +506,14 @@ void main() {
       http.response = mock.one();
       final response = await client.replaceToOne(
           'articles', '1', 'author', Identifier('people', '42'),
-          meta: {'hello': 'world'}, headers: {'foo': 'bar'});
+          meta: {'hello': 'world'}, headers: {'foo': ['bar']});
       expect(response.relationship, isA<ToOne>());
       expect(http.request.method.equals('patch'), true);
       expect(http.request.uri.toString(), '/articles/1/relationships/author');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json',
-        'foo': 'bar'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json'],
+        'foo': ['bar']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': {'type': 'people', 'id': '42'},
@@ -551,8 +551,8 @@ void main() {
       expect(http.request.method.equals('patch'), true);
       expect(http.request.uri.toString(), '/articles/1/relationships/author');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {'data': null});
     });
@@ -560,15 +560,15 @@ void main() {
     test('Full', () async {
       http.response = mock.oneEmpty();
       final response = await client
-          .deleteToOne('articles', '1', 'author', headers: {'foo': 'bar'});
+          .deleteToOne('articles', '1', 'author', headers: {'foo': ['bar']});
       expect(response.relationship, isA<ToOne>());
       expect(response.relationship!.identifier, isNull);
       expect(http.request.method.equals('patch'), true);
       expect(http.request.uri.toString(), '/articles/1/relationships/author');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json',
-        'foo': 'bar'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json'],
+        'foo': ['bar']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {'data': null});
     });
@@ -600,8 +600,8 @@ void main() {
       expect(http.request.method.equals('delete'), true);
       expect(http.request.uri.toString(), '/articles/1/relationships/tags');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': [
@@ -614,14 +614,14 @@ void main() {
       http.response = mock.many();
       final response = await client.deleteFromMany(
           'articles', '1', 'tags', [Identifier('tags', '1')],
-          meta: {'hello': 'world'}, headers: {'foo': 'bar'});
+          meta: {'hello': 'world'}, headers: {'foo': ['bar']});
       expect(response.relationship, isA<ToMany>());
       expect(http.request.method.equals('delete'), true);
       expect(http.request.uri.toString(), '/articles/1/relationships/tags');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json',
-        'foo': 'bar'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json'],
+        'foo': ['bar']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': [
@@ -661,8 +661,8 @@ void main() {
       expect(http.request.method.equals('patch'), true);
       expect(http.request.uri.toString(), '/articles/1/relationships/tags');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': [
@@ -675,14 +675,14 @@ void main() {
       http.response = mock.many();
       final response = await client.replaceToMany(
           'articles', '1', 'tags', [Identifier('tags', '1')],
-          meta: {'hello': 'world'}, headers: {'foo': 'bar'});
+          meta: {'hello': 'world'}, headers: {'foo': ['bar']});
       expect(response.relationship, isA<ToMany>());
       expect(http.request.method.equals('patch'), true);
       expect(http.request.uri.toString(), '/articles/1/relationships/tags');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json',
-        'foo': 'bar'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json'],
+        'foo': ['bar']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': [
@@ -722,8 +722,8 @@ void main() {
       expect(http.request.method.equals('post'), true);
       expect(http.request.uri.toString(), '/articles/1/relationships/tags');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type':[ 'application/vnd.api+json']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': [
@@ -736,14 +736,14 @@ void main() {
       http.response = mock.many();
       final response = await client.addMany(
           'articles', '1', 'tags', [Identifier('tags', '1')],
-          meta: {'hello': 'world'}, headers: {'foo': 'bar'});
+          meta: {'hello': 'world'}, headers: {'foo': ['bar']});
       expect(response.relationship, isA<ToMany>());
       expect(http.request.method.equals('post'), true);
       expect(http.request.uri.toString(), '/articles/1/relationships/tags');
       expect(http.request.headers, {
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json',
-        'foo': 'bar'
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json'],
+        'foo': ['bar']
       });
       expect(jsonDecode(await http.request.body.decode(utf8)), {
         'data': [

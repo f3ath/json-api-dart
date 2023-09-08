@@ -15,7 +15,7 @@ class Response<D extends OutboundDocument> extends http.Response {
                 : http.Body.empty(),
             http.Headers({})) {
     if (document != null) {
-      headers['Content-Type'] = mediaType;
+      headers['Content-Type'] = [mediaType];
     }
   }
 
@@ -26,7 +26,7 @@ class Response<D extends OutboundDocument> extends http.Response {
 
   static Response created(OutboundDocument document, String location) =>
       Response(StatusCode.created, document: document)
-        ..headers['location'] = location;
+        ..headers['location'] = [location];
 
   static Response notFound([OutboundErrorDocument? document]) =>
       Response(StatusCode.notFound, document: document);

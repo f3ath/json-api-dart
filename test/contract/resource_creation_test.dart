@@ -17,7 +17,7 @@ void main() {
       await client
           .createNew('posts', attributes: {'title': 'Hello world'}).then((r) {
         expect(r.httpResponse.statusCode, 201);
-        expect(r.httpResponse.headers['location'], '/posts/${r.resource.id}');
+        expect(r.httpResponse.headers['location'], ['/posts/${r.resource.id}']);
         expect(r.links['self'].toString(), '/posts/${r.resource.id}');
         expect(r.resource.type, 'posts');
         expect(r.resource.attributes['title'], 'Hello world');
@@ -31,7 +31,7 @@ void main() {
           attributes: {'title': 'Hello world'},
           one: {'self': LocalIdentifier('posts', 'lid')}).then((r) {
         expect(r.httpResponse.statusCode, 201);
-        expect(r.httpResponse.headers['location'], '/posts/${r.resource.id}');
+        expect(r.httpResponse.headers['location'], ['/posts/${r.resource.id}']);
         expect(r.links['self'].toString(), '/posts/${r.resource.id}');
         expect(r.resource.type, 'posts');
         expect(r.resource.attributes['title'], 'Hello world');

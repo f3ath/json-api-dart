@@ -47,3 +47,13 @@ class LoggingHandler implements Handler {
     return response;
   }
 }
+
+extension HeaderExt on Headers {
+  String? last(String key) {
+    final v = this[key];
+    if (v != null && v.isNotEmpty) {
+      return v.last;
+    }
+    return null;
+  }
+}

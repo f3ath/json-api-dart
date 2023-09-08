@@ -36,8 +36,8 @@ void main() {
           Uri.parse('/posts/1'),
           http.Body.empty(),
           http.Headers({
-            'Content-Type': 'application/vnd.api+json; ext=foobar',
-            'Accept': 'application/vnd.api+json'
+            'Content-Type': ['application/vnd.api+json; ext=foobar'],
+            'Accept': ['application/vnd.api+json']
           })));
       expect(r.statusCode, 415);
     });
@@ -47,8 +47,8 @@ void main() {
           Uri.parse('/posts/1'),
           http.Body.empty(),
           http.Headers({
-            'Content-Type': 'application/vnd.api+json',
-            'Accept': 'application/vnd.api+json; ext=foobar'
+            'Content-Type': ['application/vnd.api+json'],
+            'Accept': ['application/vnd.api+json; ext=foobar']
           })));
       expect(r.statusCode, 406);
     });

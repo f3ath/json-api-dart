@@ -20,7 +20,7 @@ void main() async {
   final httpHandler = ClientWrapper(httpClient);
 
   /// This is the basic JSON:API client. It is flexible but not very convenient
-  /// to use, because you would need to remember a lot of JSON:API protocol specifics.
+  /// to use, because you would need to remember a lot of JSON:API protocol details.
   /// We will use another wrapper on top of it.
   final jsonApiClient = Client(httpHandler);
 
