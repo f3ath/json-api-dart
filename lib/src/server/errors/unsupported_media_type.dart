@@ -1,0 +1,1 @@
+class UnsupportedMediaType implements Exception {}

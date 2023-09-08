@@ -2,6 +2,7 @@
 
 TL;DR:
 ```dart
+import 'package:http_interop_http/http_interop_http.dart';
 import 'package:json_api/client.dart';
 import 'package:json_api/routing.dart';
 
@@ -14,7 +15,7 @@ void main() async {
 
   /// The [RoutingClient] is most likely the right choice.
   /// It has methods covering many standard use cases.
-  final client = RoutingClient(uriDesign);
+  final client = RoutingClient(uriDesign, Client(OneOffHandler()));
 
   try {
     /// Fetch the collection.
@@ -31,14 +32,13 @@ void main() async {
     });
   } on RequestFailure catch (e) {
     /// Catch error response
-    e.errors.forEach((error) => print('${error.title}'));
+    for (var error in e.errors) {
+      print(error.title);
+    }
   }
 }
 ```
 This is a work-in-progress. You can help it by submitting a PR with a feature or documentation improvements.
-
-
-
 
 
 [JSON:API]: https://jsonapi.org

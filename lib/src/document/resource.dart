@@ -1,17 +1,49 @@
-import 'package:json_api/src/document/identity.dart';
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/resource_properties.dart';
+import 'package:json_api/src/document/new_identifier.dart';
+import 'package:json_api/src/document/relationship.dart';
+import 'package:json_api/src/document/to_many.dart';
+import 'package:json_api/src/document/to_one.dart';
 
-class Resource with ResourceProperties, Identity {
+class Resource {
   Resource(this.type, this.id);
 
-  @override
+  /// Resource type.
   final String type;
-  @override
+
+  /// Resource id.
   final String id;
 
   /// Resource links
   final links = <String, Link>{};
+
+  /// Resource meta data.
+  final meta = <String, Object?>{};
+
+  /// Resource attributes.
+  ///
+  /// See https://jsonapi.org/format/#document-resource-object-attributes
+  final attributes = <String, Object?>{};
+
+  /// Resource relationships.
+  ///
+  /// See https://jsonapi.org/format/#document-resource-object-relationships
+  final relationships = <String, Relationship>{};
+
+  /// Creates a new [Identifier] for this resource.
+  Identifier toIdentifier() => Identifier(type, id);
+
+  /// Returns a to-one relationship by its [name].
+  ToOne? one(String name) => _rel<ToOne>(name);
+
+  /// Returns a to-many relationship by its [name].
+  ToMany? many(String name) => _rel<ToMany>(name);
+
+  /// Returns a typed relationship by its [name].
+  R? _rel<R extends Relationship>(String name) {
+    final r = relationships[name];
+    if (r is R) return r;
+    return null;
+  }
 
   Map<String, Object> toJson() => {
         'type': type,

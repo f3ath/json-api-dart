@@ -25,7 +25,8 @@ void main() {
   });
 
   test('Can convert to query parameters', () {
-    expect(Include(['author', 'comments.author']).asQueryParameters,
-        {'include': 'author,comments.author'});
+    expect(Include(['author', 'comments.author']).toQuery(), {
+      'include': ['author,comments.author']
+    });
   });
 }

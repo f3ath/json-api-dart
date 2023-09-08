@@ -1,7 +1,7 @@
 import 'dart:io';
 
+import 'package:http_interop/http_interop.dart';
 import 'package:http_interop_io/http_interop_io.dart';
-import 'package:json_api/http.dart';
 
 class JsonApiServer {
   JsonApiServer(
@@ -16,7 +16,7 @@ class JsonApiServer {
   /// Server port
   final int port;
 
-  final HttpHandler _handler;
+  final Handler _handler;
   HttpServer? _server;
 
   /// Server uri

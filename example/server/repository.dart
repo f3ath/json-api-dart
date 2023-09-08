@@ -16,8 +16,8 @@ abstract class Repository {
   /// Throws [CollectionNotFound].
   /// Throws [ResourceNotFound].
   /// Throws [RelationshipNotFound].
-  Stream<Identity> addMany(
-      String type, String id, String rel, Iterable<Identity> refs);
+  Stream<Identifier> addMany(
+      String type, String id, String rel, Iterable<Identifier> many);
 
   /// Delete the resource
   Future<void> delete(String type, String id);
@@ -25,33 +25,26 @@ abstract class Repository {
   /// Updates the model
   Future<void> update(String type, String id, ModelProps props);
 
-  Future<void> replaceOne(String type, String id, String rel, Identity? ref);
+  Future<void> replaceOne(String type, String id, String rel, Identifier? one);
 
   /// Deletes refs from the to-many relationship.
   /// Returns the new actual refs.
-  Stream<Identity> deleteMany(
-      String type, String id, String rel, Iterable<Identity> refs);
+  Stream<Identifier> deleteMany(
+      String type, String id, String rel, Iterable<Identifier> many);
 
   /// Replaces refs in the to-many relationship.
   /// Returns the new actual refs.
-  Stream<Identity> replaceMany(
-      String type, String id, String rel, Iterable<Identity> refs);
+  Stream<Identifier> replaceMany(
+      String type, String id, String rel, Iterable<Identifier> many);
 }
 
-class CollectionNotFound implements Exception {}
+class Reference {
+  Reference(this.type, this.id);
 
-class ResourceNotFound implements Exception {}
+  static Reference of(Identifier id) => Reference(id.type, id.id);
 
-class RelationshipNotFound implements Exception {}
-
-class Ref with Identity {
-  Ref(this.type, this.id);
-
-  static Ref of(Identity identity) => Ref(identity.type, identity.id);
-
-  @override
+  Identifier toIdentifier() => Identifier(type, id);
   final String type;
-  @override
   final String id;
 
   @override
@@ -59,22 +52,22 @@ class Ref with Identity {
 
   @override
   bool operator ==(Object other) =>
-      other is Ref && type == other.type && id == other.id;
+      other is Reference && type == other.type && id == other.id;
 }
 
 class ModelProps {
-  static ModelProps fromResource(ResourceProperties res) {
+  static ModelProps fromResource(Resource res) {
     final props = ModelProps();
     res.attributes.forEach((key, value) {
       props.attributes[key] = value;
     });
     res.relationships.forEach((key, value) {
       if (value is ToOne) {
-        props.one[key] = nullable(Ref.of)(value.identifier);
+        props.one[key] = nullable(Reference.of)(value.identifier);
         return;
       }
       if (value is ToMany) {
-        props.many[key] = Set.of(value.map(Ref.of));
+        props.many[key] = Set.of(value.map(Reference.of));
         return;
       }
     });
@@ -82,8 +75,8 @@ class ModelProps {
   }
 
   final attributes = <String, Object?>{};
-  final one = <String, Ref?>{};
-  final many = <String, Set<Ref>>{};
+  final one = <String, Reference?>{};
+  final many = <String, Set<Reference>>{};
 
   void setFrom(ModelProps other) {
     other.attributes.forEach((key, value) {
@@ -111,10 +104,10 @@ class Model extends ModelProps {
     });
     one.forEach((key, value) {
       res.relationships[key] =
-          (value == null ? ToOne.empty() : ToOne(Identifier.of(value)));
+          (value == null ? ToOne.empty() : ToOne(value.toIdentifier()));
     });
     many.forEach((key, value) {
-      res.relationships[key] = ToMany(value.map(Identifier.of));
+      res.relationships[key] = ToMany(value.map((it) => it.toIdentifier()));
     });
     return res;
   }

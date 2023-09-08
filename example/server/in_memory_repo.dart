@@ -1,4 +1,5 @@
 import 'package:json_api/document.dart';
+import 'package:json_api/server.dart';
 import 'package:json_api/src/nullable.dart';
 
 import 'repository.dart';
@@ -28,11 +29,11 @@ class InMemoryRepo implements Repository {
   }
 
   @override
-  Stream<Identity> addMany(
-      String type, String id, String rel, Iterable<Identity> ids) {
+  Stream<Identifier> addMany(
+      String type, String id, String rel, Iterable<Identifier> ids) {
     final many = _many(type, id, rel);
-    many.addAll(ids.map(Ref.of));
-    return Stream.fromIterable(many);
+    many.addAll(ids.map(Reference.of));
+    return Stream.fromIterable(many).map((e) => e.toIdentifier());
   }
 
   @override
@@ -47,28 +48,32 @@ class InMemoryRepo implements Repository {
 
   @override
   Future<void> replaceOne(
-      String type, String id, String rel, Identity? one) async {
-    _model(type, id).one[rel] = nullable(Ref.of)(one);
+      String type, String id, String rel, Identifier? one) async {
+    _model(type, id).one[rel] = nullable(Reference.of)(one);
   }
 
   @override
-  Stream<Identity> deleteMany(
-          String type, String id, String rel, Iterable<Identity> many) =>
-      Stream.fromIterable(_many(type, id, rel)..removeAll(many.map(Ref.of)));
+  Stream<Identifier> deleteMany(
+          String type, String id, String rel, Iterable<Identifier> many) =>
+      Stream.fromIterable(
+              _many(type, id, rel)..removeAll(many.map(Reference.of)))
+          .map((it) => it.toIdentifier());
 
   @override
-  Stream<Identity> replaceMany(
-          String type, String id, String rel, Iterable<Identity> many) =>
-      Stream.fromIterable(_many(type, id, rel)
-        ..clear()
-        ..addAll(many.map(Ref.of)));
+  Stream<Identifier> replaceMany(
+      String type, String id, String rel, Iterable<Identifier> many) {
+    final set = _many(type, id, rel);
+    set.clear();
+    set.addAll(many.map(Reference.of));
+    return Stream.fromIterable(set).map((it) => it.toIdentifier());
+  }
 
   Map<String, Model> _collection(String type) =>
-      (_storage[type] ?? (throw CollectionNotFound()));
+      (_storage[type] ?? (throw CollectionNotFound(type)));
 
   Model _model(String type, String id) =>
-      _collection(type)[id] ?? (throw ResourceNotFound());
+      _collection(type)[id] ?? (throw ResourceNotFound(type, id));
 
-  Set<Ref> _many(String type, String id, String rel) =>
-      _model(type, id).many[rel] ?? (throw RelationshipNotFound());
+  Set<Reference> _many(String type, String id, String rel) =>
+      _model(type, id).many[rel] ?? (throw RelationshipNotFound(type, id, rel));
 }

@@ -1,16 +1,16 @@
 import 'package:json_api/client.dart';
 import 'package:json_api/document.dart';
+import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
 import 'package:test/test.dart';
 
-import '../../example/server/demo_handler.dart';
+import '../test_handler.dart';
 
 void main() {
   late RoutingClient client;
 
   setUp(() async {
-    client = RoutingClient(StandardUriDesign.pathOnly,
-        client: Client(handler: DemoHandler()));
+    client = RoutingClient(StandardUriDesign.pathOnly, Client(TestHandler()));
   });
 
   group('CRUD', () {
@@ -27,35 +27,37 @@ void main() {
           .resource;
       post = (await client.createNew('posts',
               attributes: {'title': 'Hello world'},
-              one: {'author': Identifier.of(alice)},
+              one: {'author': alice.toIdentifier()},
               many: {'comments': []}))
           .resource;
       comment = (await client.createNew('comments',
               attributes: {'text': 'Hi Alice'},
-              one: {'author': Identifier.of(bob)}))
+              one: {'author': bob.toIdentifier()}))
           .resource;
       secretComment = (await client.createNew('comments',
               attributes: {'text': 'Secret comment'},
-              one: {'author': Identifier.of(bob)}))
+              one: {'author': bob.toIdentifier()}))
           .resource;
       await client
-          .addMany(post.type, post.id, 'comments', [Identifier.of(comment)]);
+          .addMany(post.type, post.id, 'comments', [comment.toIdentifier()]);
     });
 
     test('Fetch a complex resource', () async {
-      final response = await client.fetchCollection('posts',
-          include: ['author', 'comments', 'comments.author']);
+      final response = await client.fetchCollection('posts', query: [
+        Include(['author', 'comments', 'comments.author'])
+      ]);
 
-      expect(response.http.statusCode, 200);
+      expect(response.httpResponse.statusCode, 200);
       expect(response.collection.length, 1);
       expect(response.included.length, 3);
 
       final fetchedPost = response.collection.first;
       expect(fetchedPost.attributes['title'], 'Hello world');
 
-      final fetchedAuthor =
-          fetchedPost.one('author')!.findIn(response.included);
-      expect(fetchedAuthor?.attributes['name'], 'Alice');
+      final fetchedAuthor = response.included
+          .where(fetchedPost.one('author')!.identifier!.identifies)
+          .single;
+      expect(fetchedAuthor.attributes['name'], 'Alice');
 
       final fetchedComment =
           fetchedPost.many('comments')!.findIn(response.included).single;
@@ -93,37 +95,43 @@ void main() {
 
     test('Fetch a to-one relationship', () async {
       await client.fetchToOne(post.type, post.id, 'author').then((r) {
-        expect(Identity.same(r.relationship.identifier!, alice), isTrue);
+        expect(r.relationship.identifier!.identifies(alice), isTrue);
       });
     });
 
     test('Fetch a to-many relationship', () async {
       await client.fetchToMany(post.type, post.id, 'comments').then((r) {
-        expect(Identity.same(r.relationship.single, comment), isTrue);
+        expect(r.relationship.single.identifies(comment), isTrue);
       });
     });
 
     test('Delete a to-one relationship', () async {
       await client.deleteToOne(post.type, post.id, 'author');
-      await client
-          .fetchResource(post.type, post.id, include: ['author']).then((r) {
+      await client.fetchResource(post.type, post.id, query: [
+        Include(['author'])
+      ]).then((r) {
         expect(r.resource.one('author'), isEmpty);
       });
     });
 
     test('Replace a to-one relationship', () async {
       await client.replaceToOne(
-          post.type, post.id, 'author', Identifier.of(bob));
-      await client
-          .fetchResource(post.type, post.id, include: ['author']).then((r) {
-        expect(r.resource.one('author')?.findIn(r.included)?.attributes['name'],
+          post.type, post.id, 'author', bob.toIdentifier());
+      await client.fetchResource(post.type, post.id, query: [
+        Include(['author'])
+      ]).then((r) {
+        expect(
+            r.included
+                .where(r.resource.one('author')!.identifier!.identifies)
+                .single
+                .attributes['name'],
             'Bob');
       });
     });
 
     test('Delete from a to-many relationship', () async {
       await client.deleteFromMany(
-          post.type, post.id, 'comments', [Identifier.of(comment)]);
+          post.type, post.id, 'comments', [comment.toIdentifier()]);
       await client.fetchResource(post.type, post.id).then((r) {
         expect(r.resource.many('comments'), isEmpty);
       });
@@ -131,9 +139,10 @@ void main() {
 
     test('Replace a to-many relationship', () async {
       await client.replaceToMany(
-          post.type, post.id, 'comments', [Identifier.of(secretComment)]);
-      await client
-          .fetchResource(post.type, post.id, include: ['comments']).then((r) {
+          post.type, post.id, 'comments', [secretComment.toIdentifier()]);
+      await client.fetchResource(post.type, post.id, query: [
+        Include(['comments'])
+      ]).then((r) {
         expect(
             r.resource
                 .many('comments')!
@@ -166,9 +175,23 @@ void main() {
           await action();
           fail('Exception expected');
         } on RequestFailure catch (e) {
-          expect(e.http.statusCode, 404);
+          expect(e.httpResponse.statusCode, 404);
         }
       }
     });
   });
+}
+
+extension _ToManyExt on ToMany {
+  /// Finds the referenced elements which are found in the [collection].
+  /// The resulting [Iterable] may contain fewer elements than referred by the
+  /// relationship if the [collection] does not have all of them.
+  Iterable<Resource> findIn(Iterable<Resource> collection) => collection.where(
+      (resource) => any((identifier) => identifier.identifies(resource)));
+}
+
+extension _IdentifierExt on Identifier {
+  /// True if this identifier identifies the [resource].
+  bool identifies(Resource resource) =>
+      type == resource.type && id == resource.id;
 }

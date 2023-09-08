@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.0] - 2023-09-07
+### Added
+- Partial support for JSON:API v1.1
+
+### Changed
+- A bunch of BC-breaking changes. Please refer to the tests.
+- Min SDK version is 3.0.0
+- Migrated to `http_interop`. You'll have to install `http_interop_http` or another implementation to get the HTTP client.
+
+### Removed
+- Query filter.
+
 ## [5.4.0] - 2023-04-30
 ### Changed
 - Switch to http\_interop packages.
@@ -12,9 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [5.3.0] - 2022-12-29
 ### Added
 - Client MessageConverter class to control HTTP request/response conversion.
-
-### Fixed
-- Content-Type being set for GET/OPTIONS requests ([issue](https://github.com/f3ath/json-api-dart/issues/129)).
 
 ## [5.2.0] - 2022-06-01
 ### Added
@@ -229,6 +238,7 @@ the Document model.
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
+[6.0.0]: https://github.com/f3ath/json-api-dart/compare/5.4.0...6.0.0
 [5.4.0]: https://github.com/f3ath/json-api-dart/compare/5.3.0...5.4.0
 [5.3.0]: https://github.com/f3ath/json-api-dart/compare/5.2.0...5.3.0
 [5.2.0]: https://github.com/f3ath/json-api-dart/compare/5.1.0...5.2.0

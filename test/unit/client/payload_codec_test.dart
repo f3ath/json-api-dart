@@ -1,4 +1,4 @@
-import 'package:json_api/http.dart';
+import 'package:json_api/src/client/payload_codec.dart';
 import 'package:test/test.dart';
 
 void main() {

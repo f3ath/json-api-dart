@@ -1,8 +1,8 @@
+import 'package:http_interop/http_interop.dart';
 import 'package:json_api/document.dart';
-import 'package:json_api/http.dart';
 
 class ResourceUpdated {
-  ResourceUpdated(this.http, Map? json) : resource = _resource(json) {
+  ResourceUpdated(this.httpResponse, Map? json) : resource = _resource(json) {
     if (json != null) {
       included.addAll(InboundDocument(json).included());
       meta.addAll(InboundDocument(json).meta());
@@ -20,7 +20,7 @@ class ResourceUpdated {
     return null;
   }
 
-  final HttpResponse http;
+  final Response httpResponse;
 
   /// The created resource. Null for "204 No Content" responses.
   late final Resource? resource;
@@ -32,5 +32,5 @@ class ResourceUpdated {
   final links = <String, Link>{};
 
   /// Included resources
-  final included = ResourceCollection();
+  final included = <Resource>[];
 }

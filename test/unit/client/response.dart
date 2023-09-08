@@ -1,17 +1,23 @@
-import 'dart:convert';
-
+import 'package:http_interop/http_interop.dart';
 import 'package:json_api/http.dart';
+import 'package:json_api/src/media_type.dart';
 
-final collectionMin = HttpResponse(200,
-    body: jsonEncode({
+final headers = Headers({
+  'Content-Type': [mediaType]
+});
+
+collectionMin() => Response(
+    200,
+    Json({
       'data': [
         {'type': 'articles', 'id': '1'}
       ]
-    }))
-  ..headers.addAll({'Content-Type': mediaType});
+    }),
+    headers);
 
-final collectionFull = HttpResponse(200,
-    body: jsonEncode({
+collectionFull() => Response(
+    200,
+    Json({
       'links': {
         'self': 'http://example.com/articles',
         'next': 'http://example.com/articles?page[offset]=2',
@@ -79,11 +85,12 @@ final collectionFull = HttpResponse(200,
           'links': {'self': 'http://example.com/comments/12'}
         }
       ]
-    }))
-  ..headers.addAll({'Content-Type': mediaType});
+    }),
+    headers);
 
-final primaryResource = HttpResponse(200,
-    body: jsonEncode({
+primaryResource() => Response(
+    200,
+    Json({
       'links': {'self': 'http://example.com/articles/1'},
       'meta': {'hello': 'world'},
       'data': {
@@ -130,17 +137,21 @@ final primaryResource = HttpResponse(200,
           'links': {'self': 'http://example.com/comments/12'}
         }
       ]
-    }))
-  ..headers.addAll({'Content-Type': mediaType});
-final relatedResourceNull = HttpResponse(200,
-    body: jsonEncode({
+    }),
+    headers);
+
+relatedResourceNull() => Response(
+    200,
+    Json({
       'links': {'self': 'http://example.com/articles/1/author'},
       'meta': {'hello': 'world'},
       'data': null
-    }))
-  ..headers.addAll({'Content-Type': mediaType});
-final one = HttpResponse(200,
-    body: jsonEncode({
+    }),
+    headers);
+
+one() => Response(
+    200,
+    Json({
       'links': {
         'self': '/articles/1/relationships/author',
         'related': '/articles/1/author'
@@ -181,11 +192,12 @@ final one = HttpResponse(200,
           'links': {'self': 'http://example.com/comments/12'}
         }
       ]
-    }))
-  ..headers.addAll({'Content-Type': mediaType});
+    }),
+    headers);
 
-final oneEmpty = HttpResponse(200,
-    body: jsonEncode({
+oneEmpty() => Response(
+    200,
+    Json({
       'links': {
         'self': '/articles/1/relationships/author',
         'related': '/articles/1/author'
@@ -226,11 +238,12 @@ final oneEmpty = HttpResponse(200,
           'links': {'self': 'http://example.com/comments/12'}
         }
       ]
-    }))
-  ..headers.addAll({'Content-Type': mediaType});
+    }),
+    headers);
 
-final many = HttpResponse(200,
-    body: jsonEncode({
+many() => Response(
+    200,
+    Json({
       'links': {
         'self': '/articles/1/relationships/tags',
         'related': '/articles/1/tags'
@@ -239,13 +252,14 @@ final many = HttpResponse(200,
       'data': [
         {'type': 'tags', 'id': '12'}
       ]
-    }))
-  ..headers.addAll({'Content-Type': mediaType});
+    }),
+    headers);
 
-final noContent = HttpResponse(204);
+noContent() => Response(204, Body.empty(), Headers({}));
 
-final error422 = HttpResponse(422,
-    body: jsonEncode({
+error422() => Response(
+    422,
+    Json({
       'meta': {'hello': 'world'},
       'errors': [
         {
@@ -255,7 +269,7 @@ final error422 = HttpResponse(422,
           'detail': 'First name must contain at least three characters.'
         }
       ]
-    }))
-  ..headers.addAll({'Content-Type': mediaType});
+    }),
+    headers);
 
-final error500 = HttpResponse(500);
+error500() => Response(500, Body.empty(), Headers({}));

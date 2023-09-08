@@ -1,12 +1,15 @@
 import 'package:json_api/src/document/error_object.dart';
 import 'package:json_api/src/document/error_source.dart';
-import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/many.dart';
+import 'package:json_api/src/document/new_identifier.dart';
+import 'package:json_api/src/document/new_relationship.dart';
 import 'package:json_api/src/document/new_resource.dart';
-import 'package:json_api/src/document/one.dart';
+import 'package:json_api/src/document/new_to_many.dart';
+import 'package:json_api/src/document/new_to_one.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
+import 'package:json_api/src/document/to_many.dart';
+import 'package:json_api/src/document/to_one.dart';
 import 'package:json_api/src/nullable.dart';
 
 /// Inbound JSON:API document
@@ -79,24 +82,52 @@ class _Parser {
     return rel;
   }
 
-  Resource resource(Map json) =>
-      Resource(json.get<String>('type'), json.get<String>('id'))
+  NewRelationship newRelationship(Map json) {
+    final rel =
+        json.containsKey('data') ? _newRel(json['data']) : NewRelationship();
+    rel.links.addAll(links(json));
+    rel.meta.addAll(meta(json));
+    return rel;
+  }
+
+  Resource resource(Map json) => Resource(
+        json.get<String>('type'),
+        json.get<String>('id'),
+      )
         ..attributes.addAll(_getAttributes(json))
         ..relationships.addAll(_getRelationships(json))
         ..links.addAll(links(json))
         ..meta.addAll(meta(json));
 
-  NewResource newResource(Map json) => NewResource(json.get<String>('type'),
-      json.containsKey('id') ? json.get<String>('id') : null)
-    ..attributes.addAll(_getAttributes(json))
-    ..relationships.addAll(_getRelationships(json))
-    ..meta.addAll(meta(json));
+  NewResource newResource(Map json) => NewResource(
+        json.get<String>('type'),
+        id: json.getIfDefined('id'),
+        lid: json.getIfDefined('lid'),
+      )
+        ..attributes.addAll(_getAttributes(json))
+        ..relationships.addAll(_getNewRelationships(json))
+        ..meta.addAll(meta(json));
 
   /// Decodes Identifier from [json]. Returns the decoded object.
   /// If the [json] has incorrect format, throws  [FormatException].
   Identifier identifier(Map json) =>
       Identifier(json.get<String>('type'), json.get<String>('id'))
         ..meta.addAll(meta(json));
+
+  /// Decodes NewIdentifier from [json]. Returns the decoded object.
+  /// If the [json] has incorrect format, throws  [FormatException].
+  NewIdentifier newIdentifier(Map json) {
+    final type = json.get<String>('type');
+    final id = json.getIfDefined<String>('id');
+    final lid = json.getIfDefined<String>('lid');
+    if (id != null) {
+      return Identifier(type, id)..meta.addAll(meta(json));
+    }
+    if (lid != null) {
+      return LocalIdentifier(type, lid)..meta.addAll(meta(json));
+    }
+    throw FormatException('Invalid JSON');
+  }
 
   ErrorObject errorObject(Map json) => ErrorObject(
       id: json.get<String>('id', orGet: () => ''),
@@ -131,23 +162,46 @@ class _Parser {
       .get<Map>('relationships', orGet: () => {})
       .map((key, value) => MapEntry(key, relationship(value)));
 
+  Map<String, NewRelationship> _getNewRelationships(Map json) => json
+      .get<Map>('relationships', orGet: () => {})
+      .map((key, value) => MapEntry(key, newRelationship(value)));
+
   Relationship _rel(data) {
     if (data == null) return ToOne.empty();
     if (data is Map) return ToOne(identifier(data));
     if (data is List) return ToMany(data.whereType<Map>().map(identifier));
     throw FormatException('Invalid relationship object');
   }
+
+  NewRelationship _newRel(data) {
+    if (data == null) {
+      return NewToOne.empty();
+    }
+    if (data is Map) {
+      return NewToOne(newIdentifier(data));
+    }
+    if (data is List) {
+      return NewToMany(data.whereType<Map>().map(newIdentifier));
+    }
+    throw FormatException('Invalid relationship object');
+  }
 }
 
 extension _TypedGeter on Map {
   T get<T>(String key, {T Function()? orGet}) {
-    if (containsKey(key)) {
-      final val = this[key];
-      if (val is T) return val;
-      throw FormatException(
-          'Key "$key": expected $T, found ${val.runtimeType}');
-    }
+    if (containsKey(key)) return _get(key);
     if (orGet != null) return orGet();
     throw FormatException('Key "$key" does not exist');
+  }
+
+  T? getIfDefined<T>(String key, {T Function()? orGet}) {
+    if (containsKey(key)) return _get(key);
+    return null;
+  }
+
+  T _get<T>(String key) {
+    final val = this[key];
+    if (val is T) return val;
+    throw FormatException('Key "$key": expected $T, found ${val.runtimeType}');
   }
 }

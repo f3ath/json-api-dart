@@ -10,17 +10,24 @@ void main() {
           jsonEncode({'type': 'test_type'}));
 
       expect(
-          jsonEncode(NewResource('test_type')
+          jsonEncode(NewResource('test_type', id: 'test_id', lid: 'test_lid')
             ..meta['foo'] = [42]
             ..attributes['color'] = 'green'
             ..relationships['one'] =
-                (ToOne(Identifier('rel', '1')..meta['rel'] = 1)
+                (NewToOne(Identifier('rel', '1')..meta['rel'] = 1)
                   ..meta['one'] = 1)
-            ..relationships['many'] =
-                (ToMany([Identifier('rel', '1')..meta['rel'] = 1])
-                  ..meta['many'] = 1)),
+            ..relationships['self'] = (NewToOne(
+                LocalIdentifier('test_type', 'test_lid')..meta['rel'] = 1)
+              ..meta['one'] = 1)
+            ..relationships['many'] = (NewToMany([
+              Identifier('rel', '1')..meta['rel'] = 1,
+              LocalIdentifier('test_type', 'test_lid')..meta['rel'] = 1,
+            ])
+              ..meta['many'] = 1)),
           jsonEncode({
             'type': 'test_type',
+            'id': 'test_id',
+            'lid': 'test_lid',
             'attributes': {'color': 'green'},
             'relationships': {
               'one': {
@@ -31,11 +38,24 @@ void main() {
                 },
                 'meta': {'one': 1}
               },
+              'self': {
+                'data': {
+                  'type': 'test_type',
+                  'lid': 'test_lid',
+                  'meta': {'rel': 1}
+                },
+                'meta': {'one': 1}
+              },
               'many': {
                 'data': [
                   {
                     'type': 'rel',
                     'id': '1',
+                    'meta': {'rel': 1}
+                  },
+                  {
+                    'type': 'test_type',
+                    'lid': 'test_lid',
                     'meta': {'rel': 1}
                   },
                 ],

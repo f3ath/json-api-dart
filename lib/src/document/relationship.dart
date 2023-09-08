@@ -1,7 +1,7 @@
 import 'dart:collection';
 
-import 'package:json_api/src/document/identifier.dart';
 import 'package:json_api/src/document/link.dart';
+import 'package:json_api/src/document/new_identifier.dart';
 
 class Relationship with IterableMixin<Identifier> {
   final links = <String, Link>{};
@@ -13,5 +13,5 @@ class Relationship with IterableMixin<Identifier> {
       };
 
   @override
-  Iterator<Identifier> get iterator => const <Identifier>[].iterator;
+  Iterator<Identifier> get iterator => <Identifier>[].iterator;
 }

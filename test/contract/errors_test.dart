@@ -1,14 +1,14 @@
+import 'package:http_interop/http_interop.dart' as http;
 import 'package:json_api/client.dart';
-import 'package:json_api/http.dart';
 import 'package:test/test.dart';
 
-import '../../example/server/demo_handler.dart';
+import '../test_handler.dart';
 
 void main() {
   late Client client;
 
   setUp(() async {
-    client = Client(handler: DemoHandler());
+    client = Client(TestHandler());
   });
 
   group('Errors', () {
@@ -22,13 +22,35 @@ void main() {
       ];
       for (final action in actions) {
         final response = await action();
-        expect(response.http.statusCode, 405);
+        expect(response.httpResponse.statusCode, 405);
       }
     });
     test('Bad request when target can not be matched', () async {
-      final r = await DemoHandler()
-          .handle(HttpRequest('get', Uri.parse('/a/long/prefix/')));
+      final r = await TestHandler().handle(http.Request(http.Method('get'),
+          Uri.parse('/a/long/prefix/'), http.Body.empty(), http.Headers({})));
       expect(r.statusCode, 400);
+    });
+    test('Unsupported extension', () async {
+      final r = await TestHandler().handle(http.Request(
+          http.Method('get'),
+          Uri.parse('/posts/1'),
+          http.Body.empty(),
+          http.Headers({
+            'Content-Type': ['application/vnd.api+json; ext=foobar'],
+            'Accept': ['application/vnd.api+json']
+          })));
+      expect(r.statusCode, 415);
+    });
+    test('Unacceptable', () async {
+      final r = await TestHandler().handle(http.Request(
+          http.Method('get'),
+          Uri.parse('/posts/1'),
+          http.Body.empty(),
+          http.Headers({
+            'Content-Type': ['application/vnd.api+json'],
+            'Accept': ['application/vnd.api+json; ext=foobar']
+          })));
+      expect(r.statusCode, 406);
     });
   });
 }
