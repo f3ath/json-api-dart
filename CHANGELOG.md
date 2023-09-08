@@ -4,13 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-### Changed
-- A bunch of BC-breaking changes. Please refer to the tests.
-- Migrated to `http_interop`. You'll have to install `http_interop_http` to get the HTTP client.
-
+## [6.0.0] - 2023-09-07
 ### Added
 - Partial support for JSON:API v1.1
+
+### Changed
+- A bunch of BC-breaking changes. Please refer to the tests.
+- Min SDK version is 3.0.0
+- Migrated to `http_interop`. You'll have to install `http_interop_http` or another implementation to get the HTTP client.
 
 ### Removed
 - Query filter.
@@ -59,7 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sound null-safety support.
 
 ### Changed
-- Everything. Again. This is another major **BC-breaking** rework. Please refer to 
+- Everything. Again. This is another major **BC-breaking** rework. Please refer to
 the API documentation, examples and tests.
 
 ## [3.2.3] - 2020-08-06
@@ -100,11 +101,11 @@ is missing. Before in such cases a `FormatException` would be thrown ([pr](https
 
 ## [3.2.2] - 2020-01-07
 ### Fixed
--  Can not decode related resource which is null ([\#77](https://github.com/f3ath/json-api-dart/issues/77))
+- Can not decode related resource which is null ([\#77](https://github.com/f3ath/json-api-dart/issues/77))
 
 ## [3.2.1] - 2020-01-01
 ### Fixed
--  Incorrect URL in the example in the Client documentation ([\#74](https://github.com/f3ath/json-api-dart/issues/74))
+- Incorrect URL in the example in the Client documentation ([\#74](https://github.com/f3ath/json-api-dart/issues/74))
 
 ## [3.2.0] - 2019-12-30
 ### Added
@@ -170,14 +171,14 @@ is missing. Before in such cases a `FormatException` would be thrown ([pr](https
 
 ## [2.0.0] - 2019-07-12
 ### Changed
-- This package now consolidates the Client, the Server and the Document in one single library. 
-It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages 
+- This package now consolidates the Client, the Server and the Document in one single library.
+It does not depend on `json_api_document` and `json_api_server` anymore, please remove these packages
 from your `pubspec.yaml`.
 - The min Dart SDK version bumped to `2.3.0`
 - The Client requires an instance of HttpClient to be passed to the constructor explicitly.
-- Both the Document and the Server have been refactored with lots of **BREAKING CHANGES**. 
+- Both the Document and the Server have been refactored with lots of **BREAKING CHANGES**.
 See the examples and the functional tests for details.
-- Meta properties are not defensively copied, but set directly. Meta property behavior is unified across 
+- Meta properties are not defensively copied, but set directly. Meta property behavior is unified across
 the Document model.
 
 ### Removed
@@ -237,7 +238,7 @@ the Document model.
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
-[Unreleased]: https://github.com/f3ath/json-api-dart/compare/5.4.0...HEAD
+[6.0.0]: https://github.com/f3ath/json-api-dart/compare/5.4.0...6.0.0
 [5.4.0]: https://github.com/f3ath/json-api-dart/compare/5.3.0...5.4.0
 [5.3.0]: https://github.com/f3ath/json-api-dart/compare/5.2.0...5.3.0
 [5.2.0]: https://github.com/f3ath/json-api-dart/compare/5.1.0...5.2.0
