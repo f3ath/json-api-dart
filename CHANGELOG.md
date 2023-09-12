@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.1] - 2023-09-11
+### Fixed
+- `NewRelationship` was not exported
+
 ## [6.0.0] - 2023-09-07
 ### Added
 - Partial support for JSON:API v1.1
@@ -238,6 +242,7 @@ the Document model.
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
+[6.0.1]: https://github.com/f3ath/json-api-dart/compare/6.0.0...6.0.1
 [6.0.0]: https://github.com/f3ath/json-api-dart/compare/5.4.0...6.0.0
 [5.4.0]: https://github.com/f3ath/json-api-dart/compare/5.3.0...5.4.0
 [5.3.0]: https://github.com/f3ath/json-api-dart/compare/5.2.0...5.3.0

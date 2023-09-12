@@ -5,6 +5,7 @@ export 'package:json_api/src/document/error_object.dart';
 export 'package:json_api/src/document/inbound_document.dart';
 export 'package:json_api/src/document/link.dart';
 export 'package:json_api/src/document/new_identifier.dart';
+export 'package:json_api/src/document/new_relationship.dart';
 export 'package:json_api/src/document/new_resource.dart';
 export 'package:json_api/src/document/new_to_many.dart';
 export 'package:json_api/src/document/new_to_one.dart';
