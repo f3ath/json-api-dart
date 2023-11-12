@@ -147,3 +147,27 @@ final resource = {
     }
   }
 };
+
+final newResourceInvalidRelationship = {
+  'data': {
+    'type': 'articles',
+    'attributes': {'title': 'JSON:API paints my bikeshed!'},
+    'relationships': {
+      'author': {
+        'data': true,
+      },
+    }
+  }
+};
+
+final newResourceIncompleteRelationship = {
+  'data': {
+    'type': 'articles',
+    'attributes': {'title': 'JSON:API paints my bikeshed!'},
+    'relationships': {
+      'author': {
+        'data': {'type': 'person'},
+      },
+    }
+  }
+};
