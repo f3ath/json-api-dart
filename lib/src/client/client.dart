@@ -23,8 +23,8 @@ class Client {
   /// Sends the [request] to the given [uri].
   Future<Response> send(Uri uri, Request request) async {
     final json = await _encode(request.document);
-    final body = http.Body(json, utf8);
-    final headers = http.Headers({
+    final body = http.Body.text(json, utf8);
+    final headers = http.Headers.from({
       'Accept': [mediaType],
       if (json.isNotEmpty) 'Content-Type': [mediaType],
       ...request.headers
@@ -32,8 +32,8 @@ class Client {
     final url = request.query.isEmpty
         ? uri
         : uri.replace(queryParameters: request.query.toQuery());
-    final response = await _handler
-        .handle(http.Request(http.Method(request.method), url, body, headers));
+    final response =
+        await _handler.handle(http.Request(request.method, url, body, headers));
 
     final document = await _decode(response);
     return Response(response, document);

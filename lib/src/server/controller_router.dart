@@ -18,49 +18,31 @@ class ControllerRouter implements Handler {
   Future<Response> handle(Request request) async {
     _validate(request);
     final target = _matchTarget(request.uri);
-    if (target is RelationshipTarget) {
-      if (request.method.equals('GET')) {
-        return await _controller.fetchRelationship(request, target);
-      }
-      if (request.method.equals('POST')) {
-        return await _controller.addMany(request, target);
-      }
-      if (request.method.equals('PATCH')) {
-        return await _controller.replaceRelationship(request, target);
-      }
-      if (request.method.equals('DELETE')) {
-        return await _controller.deleteMany(request, target);
-      }
-      throw MethodNotAllowed(request.method.value);
-    }
-    if (target is RelatedTarget) {
-      if (request.method.equals('GET')) {
-        return await _controller.fetchRelated(request, target);
-      }
-      throw MethodNotAllowed(request.method.value);
-    }
-    if (target is ResourceTarget) {
-      if (request.method.equals('GET')) {
-        return await _controller.fetchResource(request, target);
-      }
-      if (request.method.equals('PATCH')) {
-        return await _controller.updateResource(request, target);
-      }
-      if (request.method.equals('DELETE')) {
-        return await _controller.deleteResource(request, target);
-      }
-      throw MethodNotAllowed(request.method.value);
-    }
-    if (target is Target) {
-      if (request.method.equals('GET')) {
-        return await _controller.fetchCollection(request, target);
-      }
-      if (request.method.equals('POST')) {
-        return await _controller.createResource(request, target);
-      }
-      throw MethodNotAllowed(request.method.value);
-    }
-    throw UnmatchedTarget(request.uri);
+    return await switch (target) {
+      RelationshipTarget() => switch (request.method) {
+          'get' => _controller.fetchRelationship(request, target),
+          'post' => _controller.addMany(request, target),
+          'patch' => _controller.replaceRelationship(request, target),
+          'delete' => _controller.deleteMany(request, target),
+          _ => throw MethodNotAllowed(request.method)
+        },
+      RelatedTarget() => switch (request.method) {
+          'get' => _controller.fetchRelated(request, target),
+          _ => throw MethodNotAllowed(request.method)
+        },
+      ResourceTarget() => switch (request.method) {
+          'get' => _controller.fetchResource(request, target),
+          'patch' => _controller.updateResource(request, target),
+          'delete' => _controller.deleteResource(request, target),
+          _ => throw MethodNotAllowed(request.method)
+        },
+      Target() => switch (request.method) {
+          'get' => _controller.fetchCollection(request, target),
+          'post' => _controller.createResource(request, target),
+          _ => throw MethodNotAllowed(request.method)
+        },
+      _ => throw UnmatchedTarget(request.uri)
+    };
   }
 
   void _validate(Request request) {
