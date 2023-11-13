@@ -13,12 +13,12 @@ class CorsHandler implements Handler {
       'Access-Control-Expose-Headers': ['Location'],
     };
 
-    if (request.method.equals('OPTIONS')) {
+    if (request.method == 'options') {
       const methods = ['POST', 'GET', 'DELETE', 'PATCH', 'OPTIONS'];
       return Response(
           204,
-          Body.empty(),
-          Headers({
+          Body(),
+          Headers.from({
             ...headers,
             'Access-Control-Allow-Methods':
                 request.headers['Access-Control-Request-Method'] ?? methods,

@@ -26,16 +26,16 @@ void main() {
       }
     });
     test('Bad request when target can not be matched', () async {
-      final r = await TestHandler().handle(http.Request(http.Method('get'),
-          Uri.parse('/a/long/prefix/'), http.Body.empty(), http.Headers({})));
+      final r = await TestHandler().handle(http.Request(
+          'get', Uri.parse('/a/long/prefix/'), http.Body(), http.Headers()));
       expect(r.statusCode, 400);
     });
     test('Unsupported extension', () async {
       final r = await TestHandler().handle(http.Request(
-          http.Method('get'),
+          'get',
           Uri.parse('/posts/1'),
-          http.Body.empty(),
-          http.Headers({
+          http.Body(),
+          http.Headers.from({
             'Content-Type': ['application/vnd.api+json; ext=foobar'],
             'Accept': ['application/vnd.api+json']
           })));
@@ -43,10 +43,10 @@ void main() {
     });
     test('Unacceptable', () async {
       final r = await TestHandler().handle(http.Request(
-          http.Method('get'),
+          'get',
           Uri.parse('/posts/1'),
-          http.Body.empty(),
-          http.Headers({
+          http.Body(),
+          http.Headers.from({
             'Content-Type': ['application/vnd.api+json'],
             'Accept': ['application/vnd.api+json; ext=foobar']
           })));

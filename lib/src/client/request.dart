@@ -31,5 +31,5 @@ class Request {
   final query = Query();
 
   /// HTTP headers.
-  final headers = Headers({});
+  final headers = Headers();
 }

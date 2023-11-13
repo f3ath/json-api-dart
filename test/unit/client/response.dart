@@ -2,7 +2,7 @@ import 'package:http_interop/http_interop.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/src/media_type.dart';
 
-final headers = Headers({
+final headers = Headers.from({
   'Content-Type': [mediaType]
 });
 
@@ -255,7 +255,7 @@ many() => Response(
     }),
     headers);
 
-noContent() => Response(204, Body.empty(), Headers({}));
+noContent() => Response(204, Body(), Headers());
 
 error422() => Response(
     422,
@@ -272,4 +272,4 @@ error422() => Response(
     }),
     headers);
 
-error500() => Response(500, Body.empty(), Headers({}));
+error500() => Response(500, Body(), Headers());

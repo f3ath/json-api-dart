@@ -61,7 +61,6 @@ class NewResource {
     if (r is NewToMany) {
       return ToMany(r.map((identifier) => _toIdentifier(identifier, id)));
     }
-    // coverage:ignore-line
     throw StateError('Unexpected relationship type: ${r.runtimeType}');
   }
 
@@ -70,16 +69,12 @@ class NewResource {
     return _toIdentifier(identifier, id);
   }
 
-  Identifier _toIdentifier(NewIdentifier identifier, String id) {
-    switch (identifier) {
-      case Identifier():
-        return identifier;
-      case LocalIdentifier():
-        if (identifier.type == type && identifier.lid == lid) {
-          return identifier.toIdentifier(id);
-        }
-        throw StateError(
-            'Unmatched local id: "${identifier.lid}". Expected "$lid".');
-    }
-  }
+  Identifier _toIdentifier(NewIdentifier identifier, String id) =>
+      switch (identifier) {
+        Identifier() => identifier,
+        LocalIdentifier() => (identifier.type == type && identifier.lid == lid)
+            ? identifier.toIdentifier(id)
+            : throw StateError(
+                'Unmatched local id: "${identifier.lid}". Expected "$lid".')
+      };
 }

@@ -22,11 +22,11 @@ Future<void> main() async {
       ControllerRouter(controller, StandardUriDesign.matchTarget);
   handler = TryCatchHandler(handler,
       onError: ErrorConverter(onError: (e, stack) async {
-    stderr.writeln(e);
-    return Response(500,
-        document: OutboundErrorDocument(
-            [ErrorObject(title: 'Internal Server Error')]));
-  }));
+        stderr.writeln(e);
+        return Response(500,
+            document: OutboundErrorDocument(
+                [ErrorObject(title: 'Internal Server Error')]));
+      }).call);
   handler = LoggingHandler(handler,
       onRequest: (r) => print('${r.method} ${r.uri}'),
       onResponse: (r) => print('${r.statusCode}'));

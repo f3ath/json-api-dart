@@ -11,22 +11,14 @@ class StandardUriDesign implements UriDesign {
   /// `/books`, `/books/42`, `/books/42/authors`
   static final pathOnly = StandardUriDesign(Uri(path: '/'));
 
-  static Target? matchTarget(Uri uri) {
-    final s = uri.pathSegments;
-    if (s.length == 1) {
-      return Target(s.first);
-    }
-    if (s.length == 2) {
-      return ResourceTarget(s.first, s.last);
-    }
-    if (s.length == 3) {
-      return RelatedTarget(s.first, s[1], s.last);
-    }
-    if (s.length == 4 && s[2] == 'relationships') {
-      return RelationshipTarget(s.first, s[1], s.last);
-    }
-    return null;
-  }
+  static Target? matchTarget(Uri uri) => switch ((uri.pathSegments)) {
+        [var type] => Target(type),
+        [var type, var id] => ResourceTarget(type, id),
+        [var type, var id, var rel] => RelatedTarget(type, id, rel),
+        [var type, var id, 'relationships', var rel] =>
+          RelationshipTarget(type, id, rel),
+        _ => null
+      };
 
   final Uri base;
 

@@ -17,11 +17,12 @@ class TestHandler extends LoggingHandler {
                 ControllerRouter(RepositoryController(InMemoryRepo(types), _id),
                     StandardUriDesign.matchTarget),
                 onError: ErrorConverter(
-                    onError: onError ??
-                        (err, trace) {
-                          print(trace);
-                          throw err;
-                        })),
+                        onError: onError ??
+                            (err, trace) {
+                              print(trace);
+                              throw err;
+                            })
+                    .call),
             onRequest: onRequest,
             onResponse: onResponse);
 }

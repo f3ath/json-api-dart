@@ -188,6 +188,20 @@ void main() {
         expect(() => InboundDocument(payload.many).asToOne(),
             throwsFormatException);
       });
+
+      test('throws on invalid new relationship', () {
+        expect(
+            () => InboundDocument(payload.newResourceInvalidRelationship)
+                .dataAsNewResource(),
+            throwsFormatException);
+      });
+
+      test('throws on incomplete new relationship', () {
+        expect(
+            () => InboundDocument(payload.newResourceIncompleteRelationship)
+                .dataAsNewResource(),
+            throwsFormatException);
+      });
     });
   });
 }

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:http_interop/http_interop.dart';
 
 class StatusCode {
@@ -29,7 +27,7 @@ class StatusCode {
 }
 
 class Json extends Body {
-  Json(Map<String, Object?> json) : super(jsonEncode(json), utf8);
+  Json(Map<String, Object?> super.object) : super.json();
 }
 
 class LoggingHandler implements Handler {

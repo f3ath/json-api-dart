@@ -12,8 +12,6 @@ class NewRelationship with IterableMixin<NewIdentifier> {
         if (meta.isNotEmpty) 'meta': meta,
       };
 
-  // coverage:ignore-start
   @override
   Iterator<NewIdentifier> get iterator => <NewIdentifier>[].iterator;
-// coverage:ignore-end
 }

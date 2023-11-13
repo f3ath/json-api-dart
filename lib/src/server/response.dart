@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:http_interop/http_interop.dart' as http;
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
@@ -10,10 +8,8 @@ class Response<D extends OutboundDocument> extends http.Response {
   Response(int statusCode, {D? document})
       : super(
             statusCode,
-            document != null
-                ? http.Body(jsonEncode(document), utf8)
-                : http.Body.empty(),
-            http.Headers({})) {
+            document != null ? http.Body.json(document) : http.Body(),
+            http.Headers()) {
     if (document != null) {
       headers['Content-Type'] = [mediaType];
     }
