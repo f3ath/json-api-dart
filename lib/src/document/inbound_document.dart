@@ -147,13 +147,11 @@ class _Parser {
 
   /// Decodes Link from [json]. Returns the decoded object.
   /// If the [json] has incorrect format, throws  [FormatException].
-  Link _link(Object json) {
-    if (json is String) return Link(Uri.parse(json));
-    if (json is Map) {
-      return Link(Uri.parse(json['href']))..meta.addAll(meta(json));
-    }
-    throw FormatException('Invalid JSON');
-  }
+  Link _link(Object json) => switch (json) {
+        String() => Link(Uri.parse(json)),
+        Map() => Link(Uri.parse(json['href']))..meta.addAll(meta(json)),
+        _ => throw FormatException('Invalid JSON')
+      };
 
   Map<String, Object?> _getAttributes(Map json) =>
       json.get<Map<String, Object?>>('attributes', orGet: () => {});
@@ -166,25 +164,19 @@ class _Parser {
       .get<Map>('relationships', orGet: () => {})
       .map((key, value) => MapEntry(key, newRelationship(value)));
 
-  Relationship _rel(data) {
-    if (data == null) return ToOne.empty();
-    if (data is Map) return ToOne(identifier(data));
-    if (data is List) return ToMany(data.whereType<Map>().map(identifier));
-    throw FormatException('Invalid relationship object');
-  }
+  Relationship _rel(data) => switch (data) {
+        null => ToOne.empty(),
+        Map() => ToOne(identifier(data)),
+        List() => ToMany(data.whereType<Map>().map(identifier)),
+        _ => throw FormatException('Invalid relationship object')
+      };
 
-  NewRelationship _newRel(data) {
-    if (data == null) {
-      return NewToOne.empty();
-    }
-    if (data is Map) {
-      return NewToOne(newIdentifier(data));
-    }
-    if (data is List) {
-      return NewToMany(data.whereType<Map>().map(newIdentifier));
-    }
-    throw FormatException('Invalid relationship object');
-  }
+  NewRelationship _newRel(data) => switch (data) {
+        null => NewToOne.empty(),
+        Map() => NewToOne(newIdentifier(data)),
+        List() => NewToMany(data.whereType<Map>().map(newIdentifier)),
+        _ => throw FormatException('Invalid relationship object')
+      };
 }
 
 extension _TypedGeter on Map {
