@@ -2,6 +2,7 @@ import 'package:http_interop/http_interop.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:json_api/http.dart';
 import 'package:json_api/routing.dart';
+import 'package:json_api/src/media_type.dart';
 import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/errors/method_not_allowed.dart';
 import 'package:json_api/src/server/errors/unacceptable.dart';
@@ -47,16 +48,19 @@ class ControllerRouter implements Handler {
 
   void _validate(Request request) {
     final contentType = request.headers.last('Content-Type');
-    if (contentType != null && !_isValid(MediaType.parse(contentType))) {
+    if (contentType != null && _isInvalid(MediaType.parse(contentType))) {
       throw UnsupportedMediaType();
     }
-    final accept = request.headers.last('Accept');
-    if (accept != null && !_isValid(MediaType.parse(accept))) {
+    if ((request.headers['Accept'] ?? [])
+        .expand((it) => it.split(','))
+        .map((it) => it.trim())
+        .map(MediaType.parse)
+        .any(_isInvalid)) {
       throw Unacceptable();
     }
   }
 
-  bool _isValid(MediaType mediaType) {
-    return mediaType.parameters.isEmpty; // TODO: check for ext and profile
-  }
+  bool _isInvalid(MediaType mt) =>
+      mt.mimeType == mediaType &&
+      mt.parameters.isNotEmpty; // TODO: check for ext and profile
 }

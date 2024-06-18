@@ -23,6 +23,7 @@ Future<void> main() async {
   handler = TryCatchHandler(handler,
       onError: ErrorConverter(onError: (e, stack) async {
         stderr.writeln(e);
+        stderr.writeln(stack);
         return Response(500,
             document: OutboundErrorDocument(
                 [ErrorObject(title: 'Internal Server Error')]));
