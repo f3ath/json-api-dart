@@ -14,7 +14,7 @@ class Include with IterableMixin<String> implements QueryEncodable {
   }
 
   static Include fromUri(Uri uri) => Include(
-      uri.queryParametersAll['include']?.expand((_) => _.split(',')) ?? []);
+      uri.queryParametersAll['include']?.expand((it) => it.split(',')) ?? []);
 
   final _ = <String>[];
 
