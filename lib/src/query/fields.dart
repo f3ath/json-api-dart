@@ -19,7 +19,7 @@ class Fields with MapMixin<String, Iterable<String>> implements QueryEncodable {
   static Fields fromUri(Uri uri) =>
       Fields(uri.queryParametersAll.map((k, v) => MapEntry(
           _regex.firstMatch(k)?.group(1) ?? '',
-          v.expand((_) => _.split(',')).toList()))
+          v.expand((it) => it.split(',')).toList()))
         ..removeWhere((k, v) => k.isEmpty));
 
   static final _regex = RegExp(r'^fields\[(.+)\]$');
