@@ -8,7 +8,7 @@ final headers = Headers.from({
 
 collectionMin() => Response(
     200,
-    Json({
+    Body.json({
       'data': [
         {'type': 'articles', 'id': '1'}
       ]
@@ -17,7 +17,7 @@ collectionMin() => Response(
 
 collectionFull() => Response(
     200,
-    Json({
+    Body.json({
       'links': {
         'self': 'http://example.com/articles',
         'next': 'http://example.com/articles?page[offset]=2',
@@ -90,7 +90,7 @@ collectionFull() => Response(
 
 primaryResource() => Response(
     200,
-    Json({
+    Body.json({
       'links': {'self': 'http://example.com/articles/1'},
       'meta': {'hello': 'world'},
       'data': {
@@ -142,7 +142,7 @@ primaryResource() => Response(
 
 relatedResourceNull() => Response(
     200,
-    Json({
+    Body.json({
       'links': {'self': 'http://example.com/articles/1/author'},
       'meta': {'hello': 'world'},
       'data': null
@@ -151,7 +151,7 @@ relatedResourceNull() => Response(
 
 one() => Response(
     200,
-    Json({
+    Body.json({
       'links': {
         'self': '/articles/1/relationships/author',
         'related': '/articles/1/author'
@@ -197,7 +197,7 @@ one() => Response(
 
 oneEmpty() => Response(
     200,
-    Json({
+    Body.json({
       'links': {
         'self': '/articles/1/relationships/author',
         'related': '/articles/1/author'
@@ -243,7 +243,7 @@ oneEmpty() => Response(
 
 many() => Response(
     200,
-    Json({
+    Body.json({
       'links': {
         'self': '/articles/1/relationships/tags',
         'related': '/articles/1/tags'
@@ -259,7 +259,7 @@ noContent() => Response(204, Body(), Headers());
 
 error422() => Response(
     422,
-    Json({
+    Body.json({
       'meta': {'hello': 'world'},
       'errors': [
         {

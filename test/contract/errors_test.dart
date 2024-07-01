@@ -8,7 +8,7 @@ void main() {
   late Client client;
 
   setUp(() async {
-    client = Client(TestHandler());
+    client = Client(testHandler());
   });
 
   group('Errors', () {
@@ -26,12 +26,12 @@ void main() {
       }
     });
     test('Bad request when target can not be matched', () async {
-      final r = await TestHandler().handle(http.Request(
+      final r = await testHandler()(http.Request(
           'get', Uri.parse('/a/long/prefix/'), http.Body(), http.Headers()));
       expect(r.statusCode, 400);
     });
     test('Unsupported extension', () async {
-      final r = await TestHandler().handle(http.Request(
+      final r = await testHandler()(http.Request(
           'get',
           Uri.parse('/posts/1'),
           http.Body(),
@@ -42,7 +42,7 @@ void main() {
       expect(r.statusCode, 415);
     });
     test('Unacceptable', () async {
-      final r = await TestHandler().handle(http.Request(
+      final r = await testHandler()(http.Request(
           'get',
           Uri.parse('/posts/1'),
           http.Body(),

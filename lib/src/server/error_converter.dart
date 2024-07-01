@@ -34,25 +34,25 @@ class ErrorConverter {
   Future<http.Response> call(Object? error, StackTrace trace) async =>
       switch (error) {
         MethodNotAllowed() =>
-          await onMethodNotAllowed?.call(error) ?? Response.methodNotAllowed(),
+          await onMethodNotAllowed?.call(error) ?? methodNotAllowed(),
         UnmatchedTarget() =>
-          await onUnmatchedTarget?.call(error) ?? Response.badRequest(),
+          await onUnmatchedTarget?.call(error) ?? badRequest(),
         CollectionNotFound() => await onCollectionNotFound?.call(error) ??
-            Response.notFound(OutboundErrorDocument([
+            notFound(OutboundErrorDocument([
               ErrorObject(
                 title: 'Collection Not Found',
                 detail: 'Type: ${error.type}',
               )
             ])),
         ResourceNotFound() => await onResourceNotFound?.call(error) ??
-            Response.notFound(OutboundErrorDocument([
+            notFound(OutboundErrorDocument([
               ErrorObject(
                 title: 'Resource Not Found',
                 detail: 'Type: ${error.type}, id: ${error.id}',
               )
             ])),
         RelationshipNotFound() => await onRelationshipNotFound?.call(error) ??
-            Response.notFound(OutboundErrorDocument([
+            notFound(OutboundErrorDocument([
               ErrorObject(
                 title: 'Relationship Not Found',
                 detail: 'Type: ${error.type}'
@@ -60,10 +60,10 @@ class ErrorConverter {
                     ', relationship: ${error.relationship}',
               )
             ])),
-        UnsupportedMediaType() => Response.unsupportedMediaType(),
-        Unacceptable() => Response.unacceptable(),
+        UnsupportedMediaType() => unsupportedMediaType(),
+        Unacceptable() => unacceptable(),
         _ => await onError?.call(error, trace) ??
-            Response(500,
+            response(500,
                 document: OutboundErrorDocument(
                     [ErrorObject(title: 'Internal Server Error')]))
       };

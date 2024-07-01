@@ -9,13 +9,12 @@ import 'package:json_api/src/server/errors/unacceptable.dart';
 import 'package:json_api/src/server/errors/unmatched_target.dart';
 import 'package:json_api/src/server/errors/unsupported_media_type.dart';
 
-class ControllerRouter implements Handler {
+class ControllerRouter {
   ControllerRouter(this._controller, this._matchTarget);
 
   final Controller _controller;
   final Target? Function(Uri uri) _matchTarget;
 
-  @override
   Future<Response> handle(Request request) async {
     _validate(request);
     final target = _matchTarget(request.uri);

@@ -26,25 +26,15 @@ class StatusCode {
   bool get isFailed => !isSuccessful && !isPending;
 }
 
-class Json extends Body {
-  Json(Map<String, Object?> super.object) : super.json();
-}
-
-class LoggingHandler implements Handler {
-  LoggingHandler(this.handler, {this.onRequest, this.onResponse});
-
-  final Handler handler;
-  final Function(Request request)? onRequest;
-  final Function(Response response)? onResponse;
-
-  @override
-  Future<Response> handle(Request request) async {
-    onRequest?.call(request);
-    final response = await handler.handle(request);
-    onResponse?.call(response);
-    return response;
-  }
-}
+Handler loggingMiddleware(Handler handler,
+        {Function(Request request)? onRequest,
+        Function(Response response)? onResponse}) =>
+    (Request request) async {
+      onRequest?.call(request);
+      final response = await handler(request);
+      onResponse?.call(response);
+      return response;
+    };
 
 extension HeaderExt on Headers {
   String? last(String key) {
