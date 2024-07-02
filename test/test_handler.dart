@@ -12,7 +12,7 @@ Handler testHandler(
         Function(Response response)? onResponse,
         Future<Response> Function(dynamic, StackTrace)? onError}) =>
     loggingMiddleware(
-        tryCatchMiddleware(
+        corsMiddleware(tryCatchMiddleware(
             ControllerRouter(
                     RepositoryController(
                         InMemoryRepo(types), () => (_counter++).toString()),
@@ -24,7 +24,7 @@ Handler testHandler(
                           print(trace);
                           throw err;
                         })
-                .call),
+                .call)),
         onRequest: onRequest,
         onResponse: onResponse);
 

@@ -36,12 +36,34 @@ Handler loggingMiddleware(Handler handler,
       return response;
     };
 
+/// CORS middleware
+Handler corsMiddleware(Handler handler) => (Request request) async {
+      final corsHeaders = {
+        'Access-Control-Allow-Origin': [request.headers.last('origin') ?? '*'],
+        'Access-Control-Expose-Headers': ['Location'],
+      };
+
+      if (request.method == 'options') {
+        const methods = ['POST', 'GET', 'DELETE', 'PATCH', 'OPTIONS'];
+        return Response(
+            204,
+            Body(),
+            Headers.from({
+              ...corsHeaders,
+              'Access-Control-Allow-Methods':
+                  request.headers['Access-Control-Request-Method'] ?? methods,
+              'Access-Control-Allow-Headers':
+                  request.headers['Access-Control-Request-Headers'] ?? ['*'],
+            }));
+      }
+      final response = await handler(request);
+      response.headers.addAll(corsHeaders);
+      return response;
+    };
+
 extension HeaderExt on Headers {
   String? last(String key) {
     final v = this[key];
-    if (v != null && v.isNotEmpty) {
-      return v.last;
-    }
-    return null;
+    return (v != null && v.isNotEmpty) ? v.last : null;
   }
 }

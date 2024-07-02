@@ -1,5 +1,4 @@
 import 'package:http_interop/http_interop.dart';
-import 'package:json_api/http.dart';
 import 'package:json_api/src/media_type.dart';
 
 final headers = Headers.from({

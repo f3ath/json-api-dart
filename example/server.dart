@@ -30,7 +30,6 @@ Future<void> main() async {
                 [ErrorObject(title: 'Internal Server Error')]));
       }).call);
 
-
   handler = loggingMiddleware(handler,
       onRequest: (r) => print('${r.method} ${r.uri}'),
       onResponse: (r) => print('${r.statusCode}'));

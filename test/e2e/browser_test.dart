@@ -11,7 +11,6 @@ void main() {
     setUpAll(() async {
       final channel = spawnHybridUri('hybrid_server.dart');
       final serverUrl = await channel.stream.first;
-
       client = RoutingClient(StandardUriDesign(Uri.parse(serverUrl.toString())),
           Client(oneOffHandler));
     });

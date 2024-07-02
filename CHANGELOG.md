@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.0.0] - 2024-07-01
+### Added
+- CORS middware
+
+### Changed
+- Bump http\_interop to v2.0
+
 ## [7.0.1] - 2024-06-17
 ### Fixed
 - "Accept" header with multiple values was being mishandled
@@ -250,6 +257,7 @@ the Document model.
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
+[8.0.0]: https://github.com/f3ath/json-api-dart/compare/7.0.1...8.0.0
 [7.0.1]: https://github.com/f3ath/json-api-dart/compare/7.0.0...7.0.1
 [7.0.0]: https://github.com/f3ath/json-api-dart/compare/6.0.1...7.0.0
 [6.0.1]: https://github.com/f3ath/json-api-dart/compare/6.0.0...6.0.1
