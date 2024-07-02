@@ -9,7 +9,7 @@ void main() {
   late RoutingClient client;
 
   setUp(() async {
-    client = RoutingClient(StandardUriDesign.pathOnly, Client(TestHandler()));
+    client = RoutingClient(StandardUriDesign.pathOnly, Client(testHandler()));
   });
 
   group('Resource creation', () {

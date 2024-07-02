@@ -26,32 +26,44 @@ class StatusCode {
   bool get isFailed => !isSuccessful && !isPending;
 }
 
-class Json extends Body {
-  Json(Map<String, Object?> super.object) : super.json();
-}
+Handler loggingMiddleware(Handler handler,
+        {Function(Request request)? onRequest,
+        Function(Response response)? onResponse}) =>
+    (Request request) async {
+      onRequest?.call(request);
+      final response = await handler(request);
+      onResponse?.call(response);
+      return response;
+    };
 
-class LoggingHandler implements Handler {
-  LoggingHandler(this.handler, {this.onRequest, this.onResponse});
+/// CORS middleware
+Handler corsMiddleware(Handler handler) => (Request request) async {
+      final corsHeaders = {
+        'Access-Control-Allow-Origin': [request.headers.last('origin') ?? '*'],
+        'Access-Control-Expose-Headers': ['Location'],
+      };
 
-  final Handler handler;
-  final Function(Request request)? onRequest;
-  final Function(Response response)? onResponse;
-
-  @override
-  Future<Response> handle(Request request) async {
-    onRequest?.call(request);
-    final response = await handler.handle(request);
-    onResponse?.call(response);
-    return response;
-  }
-}
+      if (request.method == 'options') {
+        const methods = ['POST', 'GET', 'DELETE', 'PATCH', 'OPTIONS'];
+        return Response(
+            204,
+            Body(),
+            Headers.from({
+              ...corsHeaders,
+              'Access-Control-Allow-Methods':
+                  request.headers['Access-Control-Request-Method'] ?? methods,
+              'Access-Control-Allow-Headers':
+                  request.headers['Access-Control-Request-Headers'] ?? ['*'],
+            }));
+      }
+      final response = await handler(request);
+      response.headers.addAll(corsHeaders);
+      return response;
+    };
 
 extension HeaderExt on Headers {
   String? last(String key) {
     final v = this[key];
-    if (v != null && v.isNotEmpty) {
-      return v.last;
-    }
-    return null;
+    return (v != null && v.isNotEmpty) ? v.last : null;
   }
 }

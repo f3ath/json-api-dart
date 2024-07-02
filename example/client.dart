@@ -14,10 +14,10 @@ void main() async {
   /// Do not forget to close it in the end.
   final httpClient = http.Client();
 
-  /// This is the adapter which decouples this JSON:API implementation
+  /// This is the interface which decouples this JSON:API implementation
   /// from the HTTP client.
   /// Learn more: https://pub.dev/packages/http_interop
-  final httpHandler = ClientWrapper(httpClient);
+  final httpHandler = httpClient.handleInterop;
 
   /// This is the basic JSON:API client. It is flexible but not very convenient
   /// to use, because you would need to remember a lot of JSON:API protocol details.

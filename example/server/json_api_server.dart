@@ -41,7 +41,7 @@ class JsonApiServer {
 
   Future<HttpServer> _createServer() async {
     final server = await HttpServer.bind(host, port);
-    server.listen(listener(_handler));
+    server.listenInterop(_handler);
     return server;
   }
 }

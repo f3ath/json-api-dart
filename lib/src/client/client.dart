@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http_interop/extensions.dart';
-import 'package:http_interop/http_interop.dart' as http;
+import 'package:http_interop/http_interop.dart' as i;
 import 'package:json_api/http.dart';
 import 'package:json_api/src/client/payload_codec.dart';
 import 'package:json_api/src/client/request.dart';
@@ -17,14 +17,14 @@ class Client {
   const Client(this._handler, {PayloadCodec codec = const PayloadCodec()})
       : _codec = codec;
 
-  final http.Handler _handler;
+  final i.Handler _handler;
   final PayloadCodec _codec;
 
   /// Sends the [request] to the given [uri].
   Future<Response> send(Uri uri, Request request) async {
     final json = await _encode(request.document);
-    final body = http.Body.text(json, utf8);
-    final headers = http.Headers.from({
+    final body = i.Body.text(json, utf8);
+    final headers = i.Headers.from({
       'Accept': [mediaType],
       if (json.isNotEmpty) 'Content-Type': [mediaType],
       ...request.headers
@@ -33,7 +33,7 @@ class Client {
         ? uri
         : uri.replace(queryParameters: request.query.toQuery());
     final response =
-        await _handler.handle(http.Request(request.method, url, body, headers));
+        await _handler(i.Request(request.method, url, body, headers));
 
     final document = await _decode(response);
     return Response(response, document);
@@ -42,7 +42,7 @@ class Client {
   Future<String> _encode(Object? doc) async =>
       doc == null ? '' : await _codec.encode(doc);
 
-  Future<Map?> _decode(http.Response response) async {
+  Future<Map?> _decode(i.Response response) async {
     final json = await response.body.decode(utf8);
     if (json.isNotEmpty &&
         response.headers

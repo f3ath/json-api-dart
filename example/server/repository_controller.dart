@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http_interop/extensions.dart';
-import 'package:http_interop/http_interop.dart' as http;
+import 'package:http_interop/http_interop.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
@@ -22,7 +22,7 @@ class RepositoryController implements Controller {
   final design = StandardUriDesign.pathOnly;
 
   @override
-  Future<Response> fetchCollection(http.Request request, Target target) async {
+  Future<Response> fetchCollection(Request request, Target target) async {
     final resources = await _fetchAll(target.type).toList();
     final doc = OutboundDataDocument.collection(resources)
       ..links['self'] = Link(design.collection(target.type));
@@ -32,12 +32,11 @@ class RepositoryController implements Controller {
         doc.included.add(r);
       }
     }
-    return Response.ok(doc);
+    return ok(doc);
   }
 
   @override
-  Future<Response> fetchResource(
-      http.Request request, ResourceTarget target) async {
+  Future<Response> fetchResource(Request request, ResourceTarget target) async {
     final resource = await _fetchLinkedResource(target.type, target.id);
     final doc = OutboundDataDocument.resource(resource)
       ..links['self'] = Link(design.resource(target.type, target.id));
@@ -45,115 +44,113 @@ class RepositoryController implements Controller {
     await for (final r in _getAllRelated(resource, forest)) {
       doc.included.add(r);
     }
-    return Response.ok(doc);
+    return ok(doc);
   }
 
   @override
-  Future<Response> createResource(http.Request request, Target target) async {
+  Future<Response> createResource(Request request, Target target) async {
     final document = await _decode(request);
     final newResource = document.dataAsNewResource();
     final res = newResource.toResource(getId);
     await repo.persist(
         res.type, Model(res.id)..setFrom(ModelProps.fromResource(res)));
     if (newResource.id != null) {
-      return Response.noContent();
+      return noContent();
     }
     final ref = Reference.of(res.toIdentifier());
     final self = Link(design.resource(ref.type, ref.id));
     final resource = (await _fetchResource(ref.type, ref.id))
       ..links['self'] = self;
-    return Response.created(
+    return created(
         OutboundDataDocument.resource(resource)..links['self'] = self,
         self.uri.toString());
   }
 
   @override
-  Future<Response> addMany(
-      http.Request request, RelationshipTarget target) async {
+  Future<Response> addMany(Request request, RelationshipTarget target) async {
     final many = (await _decode(request)).asRelationship<ToMany>();
     final refs = await repo
         .addMany(target.type, target.id, target.relationship, many)
         .toList();
-    return Response.ok(OutboundDataDocument.many(ToMany(refs)));
+    return ok(OutboundDataDocument.many(ToMany(refs)));
   }
 
   @override
   Future<Response> deleteResource(
-      http.Request request, ResourceTarget target) async {
+      Request request, ResourceTarget target) async {
     await repo.delete(target.type, target.id);
-    return Response.noContent();
+    return noContent();
   }
 
   @override
   Future<Response> updateResource(
-      http.Request request, ResourceTarget target) async {
+      Request request, ResourceTarget target) async {
     await repo.update(target.type, target.id,
         ModelProps.fromResource((await _decode(request)).dataAsResource()));
-    return Response.noContent();
+    return noContent();
   }
 
   @override
   Future<Response> replaceRelationship(
-      http.Request request, RelationshipTarget target) async {
+      Request request, RelationshipTarget target) async {
     final rel = (await _decode(request)).asRelationship();
     if (rel is ToOne) {
       final ref = rel.identifier;
       await repo.replaceOne(target.type, target.id, target.relationship, ref);
-      return Response.ok(
+      return ok(
           OutboundDataDocument.one(ref == null ? ToOne.empty() : ToOne(ref)));
     }
     if (rel is ToMany) {
       final ids = await repo
           .replaceMany(target.type, target.id, target.relationship, rel)
           .toList();
-      return Response.ok(OutboundDataDocument.many(ToMany(ids)));
+      return ok(OutboundDataDocument.many(ToMany(ids)));
     }
     throw FormatException('Incomplete relationship');
   }
 
   @override
   Future<Response> deleteMany(
-      http.Request request, RelationshipTarget target) async {
+      Request request, RelationshipTarget target) async {
     final rel = (await _decode(request)).asToMany();
     final ids = await repo
         .deleteMany(target.type, target.id, target.relationship, rel)
         .toList();
-    return Response.ok(OutboundDataDocument.many(ToMany(ids)));
+    return ok(OutboundDataDocument.many(ToMany(ids)));
   }
 
   @override
   Future<Response> fetchRelationship(
-      http.Request request, RelationshipTarget target) async {
+      Request request, RelationshipTarget target) async {
     final model = (await repo.fetch(target.type, target.id));
 
     if (model.one.containsKey(target.relationship)) {
-      return Response.ok(OutboundDataDocument.one(
+      return ok(OutboundDataDocument.one(
           ToOne(model.one[target.relationship]?.toIdentifier())));
     }
     final many =
         model.many[target.relationship]?.map((it) => it.toIdentifier());
     if (many != null) {
       final doc = OutboundDataDocument.many(ToMany(many));
-      return Response.ok(doc);
+      return ok(doc);
     }
     throw RelationshipNotFound(target.type, target.id, target.relationship);
   }
 
   @override
-  Future<Response> fetchRelated(
-      http.Request request, RelatedTarget target) async {
+  Future<Response> fetchRelated(Request request, RelatedTarget target) async {
     final model = await repo.fetch(target.type, target.id);
     if (model.one.containsKey(target.relationship)) {
       final related =
           await nullable(_fetchRelatedResource)(model.one[target.relationship]);
       final doc = OutboundDataDocument.resource(related);
-      return Response.ok(doc);
+      return ok(doc);
     }
     if (model.many.containsKey(target.relationship)) {
       final many = model.many[target.relationship] ?? {};
       final doc = OutboundDataDocument.collection(
           await _fetchRelatedCollection(many).toList());
-      return Response.ok(doc);
+      return ok(doc);
     }
     throw RelationshipNotFound(target.type, target.id, target.relationship);
   }
@@ -171,10 +168,10 @@ class RepositoryController implements Controller {
 
   /// Returns a stream of related resources
   Stream<Resource> _getRelated(Resource resource, String relationship) async* {
-    for (final _ in resource.relationships[relationship] ??
+    for (final rel in resource.relationships[relationship] ??
         (throw RelationshipNotFound(
             resource.type, resource.id, relationship))) {
-      yield await _fetchLinkedResource(_.type, _.id);
+      yield await _fetchLinkedResource(rel.type, rel.id);
     }
   }
 
@@ -185,7 +182,7 @@ class RepositoryController implements Controller {
   }
 
   Stream<Resource> _fetchAll(String type) =>
-      repo.fetchCollection(type).map((_) => _.toResource(type));
+      repo.fetchCollection(type).map((model) => model.toResource(type));
 
   /// Fetches and builds a resource object
   Future<Resource> _fetchResource(String type, String id) async {
@@ -203,7 +200,7 @@ class RepositoryController implements Controller {
     }
   }
 
-  Future<InboundDocument> _decode(http.Request r) => r.body
+  Future<InboundDocument> _decode(Request r) => r.body
       .decode(utf8)
       .then(const PayloadCodec().decode)
       .then(InboundDocument.new);

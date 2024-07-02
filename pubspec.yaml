@@ -1,24 +1,24 @@
 name: json_api
-version: 7.0.1
+version: 8.0.0
 homepage: https://github.com/f3ath/json-api-dart
 description: A framework-agnostic implementations of JSON:API Client and Server. Supports JSON:API v1.0 (https://jsonapi.org)
 environment:
-  sdk: '>=3.1.0 <4.0.0'
+  sdk: '>=3.4.0 <4.0.0'
 
 dependencies:
   http_parser: ^4.0.0
-  http_interop: ^1.0.0
+  http_interop: ^2.0.0
 
 dev_dependencies:
-  lints: ^3.0.0
+  lints: ^4.0.0
   test: ^1.21.1
   stream_channel: ^2.1.0
   uuid: ^4.2.0
   coverage: ^1.3.0
   check_coverage: ^0.0.4
-  http: ^1.1.0
-  http_interop_http: ^0.7.0
-  http_interop_io: ^0.7.0
+  http: ^1.2.1
+  http_interop_http: ^0.9.0
+  http_interop_io: ^0.9.0
 
 
 cider:
