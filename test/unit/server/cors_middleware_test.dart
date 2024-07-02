@@ -6,13 +6,9 @@ import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
 main() {
-  Request request;
   Response response = Response(200, Body.text('hello', utf8), Headers());
 
-  Future<Response> handler(Request rq) async {
-    request = rq;
-    return response;
-  }
+  Future<Response> handler(Request rq) async => response;
 
   group('CORS Middleware', () {
     test('Sets the headers', () async {
