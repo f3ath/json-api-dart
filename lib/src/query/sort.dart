@@ -15,8 +15,8 @@ class Sort with IterableMixin<SortField> implements QueryEncodable {
     _.addAll(fields.map((SortField.parse)));
   }
 
-  static Sort fromUri(Uri uri) =>
-      Sort((uri.queryParametersAll['sort']?.expand((_) => _.split(',')) ?? []));
+  static Sort fromUri(Uri uri) => Sort(
+      (uri.queryParametersAll['sort']?.expand((it) => it.split(',')) ?? []));
 
   final _ = <SortField>[];
 
