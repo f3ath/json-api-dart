@@ -12,13 +12,13 @@ class Sort with IterableMixin<SortField> implements QueryEncodable {
   /// Sort(['-created', 'title']);
   /// ```
   Sort([Iterable<String> fields = const []]) {
-    _.addAll(fields.map((SortField.parse)));
+    _fields.addAll(fields.map((SortField.parse)));
   }
 
   static Sort fromUri(Uri uri) => Sort(
       (uri.queryParametersAll['sort']?.expand((it) => it.split(',')) ?? []));
 
-  final _ = <SortField>[];
+  final _fields = <SortField>[];
 
   /// Converts to a map of query parameters
   @override
@@ -27,10 +27,10 @@ class Sort with IterableMixin<SortField> implements QueryEncodable {
       };
 
   @override
-  int get length => _.length;
+  int get length => _fields.length;
 
   @override
-  Iterator<SortField> get iterator => _.iterator;
+  Iterator<SortField> get iterator => _fields.iterator;
 }
 
 abstract class SortField {
