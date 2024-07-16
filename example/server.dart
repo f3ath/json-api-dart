@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 
 import 'server/in_memory_repo.dart';
 import 'server/json_api_server.dart';
+import 'server/logger_middleware.dart';
 import 'server/repository.dart';
 import 'server/repository_controller.dart';
 
@@ -19,7 +20,7 @@ Future<void> main() async {
 
   final handler = errorConverter()
       .add(loggerMiddleware)
-      .call(routingHandler(controller, StandardUriDesign.matchTarget));
+      .call(router(controller, StandardUriDesign.matchTarget));
 
   final server = JsonApiServer(handler, host: host, port: port);
 

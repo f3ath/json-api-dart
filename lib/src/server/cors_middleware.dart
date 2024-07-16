@@ -1,4 +1,3 @@
-// CORS middleware
 import 'package:http_interop/http_interop.dart';
 
 Handler corsMiddleware(Handler handler) =>

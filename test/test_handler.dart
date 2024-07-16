@@ -10,9 +10,9 @@ Handler testHandler(
         {Iterable<String> types = const ['users', 'posts', 'comments'],
         Function(Request request)? onRequest,
         Function(Response response)? onResponse}) =>
-    errorConverter().add(corsMiddleware).call(routingHandler(
-        RepositoryController(
-            InMemoryRepo(types), () => (_counter++).toString()),
-        StandardUriDesign.matchTarget));
+    corsMiddleware.add(requestValidator).add(errorConverter()).call(
+        router(RepositoryController(InMemoryRepo(types), _nextId),
+            StandardUriDesign.matchTarget));
 
+String _nextId() => (_counter++).toString();
 int _counter = 0;
