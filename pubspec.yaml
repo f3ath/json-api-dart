@@ -8,6 +8,7 @@ environment:
 dependencies:
   http_parser: ^4.0.0
   http_interop: ^2.0.0
+  http_interop_middleware: ^0.1.0
 
 dev_dependencies:
   lints: ^4.0.0

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:http_interop/extensions.dart';
 import 'package:http_interop/http_interop.dart' as i;
-import 'package:json_api/http.dart';
 import 'package:json_api/src/client/payload_codec.dart';
 import 'package:json_api/src/client/request.dart';
 import 'package:json_api/src/client/response.dart';
@@ -45,9 +44,8 @@ class Client {
   Future<Map?> _decode(i.Response response) async {
     final json = await response.body.decode(utf8);
     if (json.isNotEmpty &&
-        response.headers
-                .last('Content-Type')
-                ?.toLowerCase()
+        response.headers['Content-Type']?.last
+                .toLowerCase()
                 .startsWith(mediaType) ==
             true) {
       return await _codec.decode(json);

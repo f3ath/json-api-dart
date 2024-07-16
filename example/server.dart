@@ -1,8 +1,6 @@
 import 'dart:io';
 
-import 'package:http_interop/http_interop.dart' as interop;
-import 'package:json_api/document.dart';
-import 'package:json_api/http.dart';
+import 'package:http_interop_middleware/http_interop_middleware.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 import 'package:uuid/uuid.dart';
@@ -18,21 +16,11 @@ Future<void> main() async {
   final repo = InMemoryRepo(['colors']);
   await initRepo(repo);
   final controller = RepositoryController(repo, Uuid().v4);
-  interop.Handler handler =
-      ControllerRouter(controller, StandardUriDesign.matchTarget).handle;
 
-  handler = tryCatchMiddleware(handler,
-      onError: ErrorConverter(onError: (e, stack) async {
-        stderr.writeln(e);
-        stderr.writeln(stack);
-        return response(500,
-            document: OutboundErrorDocument(
-                [ErrorObject(title: 'Internal Server Error')]));
-      }).call);
+  final handler = errorConverter()
+      .add(loggerMiddleware)
+      .call(routingHandler(controller, StandardUriDesign.matchTarget));
 
-  handler = loggingMiddleware(handler,
-      onRequest: (r) => print('${r.method} ${r.uri}'),
-      onResponse: (r) => print('${r.statusCode}'));
   final server = JsonApiServer(handler, host: host, port: port);
 
   ProcessSignal.sigint.watch().listen((event) async {
