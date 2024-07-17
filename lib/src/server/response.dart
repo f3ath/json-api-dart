@@ -34,5 +34,8 @@ Response badRequest([OutboundErrorDocument? document]) =>
 Response unsupportedMediaType([OutboundErrorDocument? document]) =>
     response(StatusCode.unsupportedMediaType, document: document);
 
-Response unacceptable([OutboundErrorDocument? document]) =>
-    response(StatusCode.unacceptable, document: document);
+Response notAcceptable([OutboundErrorDocument? document]) =>
+    response(StatusCode.notAcceptable, document: document);
+
+Response internalServerError([OutboundErrorDocument? document]) =>
+    response(StatusCode.internalServerError, document: document);

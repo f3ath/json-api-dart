@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.0.0] - 2024-07-01
 ### Added
-- CORS middware
+- CORS middleware
 
 ### Changed
 - Bump http\_interop to v2.0

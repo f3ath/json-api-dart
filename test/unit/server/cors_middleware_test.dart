@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http_interop/http_interop.dart';
-import 'package:json_api/http.dart';
+import 'package:json_api/server.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
