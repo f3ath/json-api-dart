@@ -6,8 +6,9 @@ extension type StatusCode(int value) {
   static const badRequest = 400;
   static const notFound = 404;
   static const methodNotAllowed = 405;
-  static const unacceptable = 406;
+  static const notAcceptable = 406;
   static const unsupportedMediaType = 415;
+  static const internalServerError = 500;
 
   /// True for the requests processed asynchronously.
   /// @see https://jsonapi.org/recommendations/#asynchronous-processing).
