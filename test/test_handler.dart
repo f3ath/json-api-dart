@@ -12,7 +12,7 @@ Handler testHandler(
         Function(Response response)? onResponse}) =>
     corsMiddleware.add(requestValidator).add(errorConverter()).call(router(
         RepositoryController(InMemoryRepo(types), _nextId),
-        StandardUriDesign.matchTarget));
+        StandardUriDesign.pathOnly.matchTarget));
 
 String _nextId() => (_counter++).toString();
 int _counter = 0;

@@ -11,14 +11,20 @@ class StandardUriDesign implements UriDesign {
   /// `/books`, `/books/42`, `/books/42/authors`
   static final pathOnly = StandardUriDesign(Uri(path: '/'));
 
-  static Target? matchTarget(Uri uri) => switch ((uri.pathSegments)) {
-        [var type] => Target(type),
-        [var type, var id] => ResourceTarget(type, id),
-        [var type, var id, var rel] => RelatedTarget(type, id, rel),
-        [var type, var id, 'relationships', var rel] =>
-          RelationshipTarget(type, id, rel),
-        _ => null
-      };
+  /// Matches a [uri] to a [Target] object.
+  Target? matchTarget(Uri uri) => !uri.path.startsWith(base.path) ||
+          (base.scheme.isNotEmpty && uri.scheme != base.scheme) ||
+          (base.host.isNotEmpty && uri.host != base.host) ||
+          (base.port != 0 && uri.port != base.port)
+      ? null
+      : switch (uri.pathSegments.sublist(base.pathSegments.length)) {
+          [var type] => Target(type),
+          [var type, var id] => ResourceTarget(type, id),
+          [var type, var id, var rel] => RelatedTarget(type, id, rel),
+          [var type, var id, 'relationships', var rel] =>
+            RelationshipTarget(type, id, rel),
+          _ => null
+        };
 
   final Uri base;
 
