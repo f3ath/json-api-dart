@@ -12,12 +12,12 @@ import 'package:json_api/src/server/response.dart';
 
 /// Creates a middleware that maps server exceptions to HTTP responses.
 Middleware errorConverter({
-  Future<Response> Function(MethodNotAllowed)? onMethodNotAllowed,
-  Future<Response> Function(UnmatchedTarget)? onUnmatchedTarget,
-  Future<Response> Function(CollectionNotFound)? onCollectionNotFound,
-  Future<Response> Function(ResourceNotFound)? onResourceNotFound,
-  Future<Response> Function(RelationshipNotFound)? onRelationshipNotFound,
-  Future<Response> Function(Object, StackTrace)? onError,
+  Future<Response?> Function(MethodNotAllowed)? onMethodNotAllowed,
+  Future<Response?> Function(UnmatchedTarget)? onUnmatchedTarget,
+  Future<Response?> Function(CollectionNotFound)? onCollectionNotFound,
+  Future<Response?> Function(ResourceNotFound)? onResourceNotFound,
+  Future<Response?> Function(RelationshipNotFound)? onRelationshipNotFound,
+  Future<Response?> Function(Object, StackTrace)? onError,
 }) =>
     middleware(
         onError: (error, trace, _) async => switch (error) {

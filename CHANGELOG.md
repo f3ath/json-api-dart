@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - URL Design matching now respects the base URL
+- Allo null to be returned by error interceptors
 
 ## [8.0.0] - 2024-07-01
 ### Added
