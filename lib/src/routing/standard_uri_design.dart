@@ -5,7 +5,10 @@ import 'package:json_api/routing.dart';
 class StandardUriDesign implements UriDesign {
   /// Creates an instance of [UriDesign] recommended by JSON:API standard.
   /// The [base] URI will be used as a prefix for the generated URIs.
-  const StandardUriDesign(this.base);
+  StandardUriDesign(Uri base)
+      : base = base.path.endsWith('/')
+            ? base
+            : base.replace(path: '${base.path}/');
 
   /// A "path only" version of the recommended URL design, e.g.
   /// `/books`, `/books/42`, `/books/42/authors`
@@ -17,7 +20,8 @@ class StandardUriDesign implements UriDesign {
           (base.host.isNotEmpty && uri.host != base.host) ||
           (base.port != 0 && uri.port != base.port)
       ? null
-      : switch (uri.pathSegments.sublist(base.pathSegments.length)) {
+      : switch (uri.pathSegments
+          .sublist(base.pathSegments.where((it) => it.isNotEmpty).length)) {
           [var type] => Target(type),
           [var type, var id] => ResourceTarget(type, id),
           [var type, var id, var rel] => RelatedTarget(type, id, rel),

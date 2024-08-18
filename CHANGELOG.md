@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - URL Design matching now respects the base URL
 - Allo null to be returned by error interceptors
 
+### Fixed
+- StandardUriDesign working incosistently depending on the trailing slash in the path
+
 ## [8.0.0] - 2024-07-01
 ### Added
 - CORS middleware
