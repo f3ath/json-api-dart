@@ -1,7 +1,6 @@
 import 'package:http_interop/http_interop.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
-import 'package:json_api/src/document/to_json_encodable.dart';
 import 'package:json_api/src/media_type.dart';
 
 /// JSON:API response
