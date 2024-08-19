@@ -1,17 +1,19 @@
 import 'package:http_interop/http_interop.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/http.dart';
+import 'package:json_api/src/document/document_encoder.dart';
 import 'package:json_api/src/media_type.dart';
 
 /// JSON:API response
-Response response(int statusCode, {OutboundDocument? document}) {
-  final r = Response(
-      statusCode, document != null ? Body.json(document) : Body(), Headers());
-  if (document != null) {
-    r.headers['Content-Type'] = [mediaType];
-  }
-  return r;
-}
+Response response(int statusCode, {OutboundDocument? document}) => Response(
+    statusCode,
+    document != null
+        ? Body.json(document, toEncodable: documentEncoder)
+        : Body(),
+    Headers())
+  ..headers.addAll({
+    if (document != null) 'Content-Type': [mediaType]
+  });
 
 Response ok(OutboundDocument document) =>
     response(StatusCode.ok, document: document);

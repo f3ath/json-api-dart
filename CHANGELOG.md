@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Automatically encode DateTime objects as an ISO-8601 string
+
 ### Changed
 - URL Design matching now respects the base URL
 - Allo null to be returned by error interceptors
