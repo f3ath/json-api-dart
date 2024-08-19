@@ -1,10 +1,10 @@
+import 'package:json_api/document.dart';
 import 'package:json_api/src/document/error_source.dart';
-import 'package:json_api/src/document/link.dart';
 
 /// [ErrorObject] represents an error occurred on the server.
 ///
 /// More on this: https://jsonapi.org/format/#errors
-class ErrorObject {
+class ErrorObject implements JsonEncodable {
   /// Creates an instance of a JSON:API Error.
   /// The [links] map may contain custom links. The about link
   /// passed through the [links['about']] argument takes precedence and will overwrite
@@ -43,6 +43,7 @@ class ErrorObject {
   /// Meta data.
   final meta = <String, Object?>{};
 
+  @override
   Map<String, Object> toJson() => {
         if (id.isNotEmpty) 'id': id,
         if (status.isNotEmpty) 'status': status,

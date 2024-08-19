@@ -1,4 +1,5 @@
 import 'package:json_api/src/document/error_object.dart';
+import 'package:json_api/src/document/json_encodable.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/new_resource.dart';
 import 'package:json_api/src/document/resource.dart';
@@ -6,11 +7,11 @@ import 'package:json_api/src/document/to_many.dart';
 import 'package:json_api/src/document/to_one.dart';
 
 /// A sever-to-client document.
-class OutboundDocument {
+class OutboundDocument implements JsonEncodable {
   /// The document "meta" object.
   final meta = <String, Object?>{};
 
-  /// Returns the JSON representation.
+  @override
   Map<String, Object?> toJson() => {'meta': meta};
 }
 

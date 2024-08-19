@@ -3,6 +3,7 @@ library document;
 
 export 'package:json_api/src/document/error_object.dart';
 export 'package:json_api/src/document/inbound_document.dart';
+export 'package:json_api/src/document/json_encodable.dart';
 export 'package:json_api/src/document/link.dart';
 export 'package:json_api/src/document/new_identifier.dart';
 export 'package:json_api/src/document/new_relationship.dart';

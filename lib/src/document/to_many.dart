@@ -9,9 +9,9 @@ class ToMany extends Relationship {
   final _ids = <Identifier>[];
 
   @override
-  Map<String, Object> toJson() => {
+  Map<String, Object?> toJson() => {
         'data': [..._ids],
-        ...super.toJson()
+        ...super.toJson(),
       };
 
   @override

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:json_api/src/document/document_encoder.dart';
+import 'package:json_api/src/document/to_json_encodable.dart';
 
 /// Encodes/decodes JSON payload.
 ///
@@ -19,5 +19,5 @@ class PayloadCodec {
 
   /// Encodes a JSON:API document into a JSON string.
   FutureOr<String> encode(Object document) =>
-      jsonEncode(document, toEncodable: documentEncoder);
+      jsonEncode(document, toEncodable: toJsonEncodable);
 }

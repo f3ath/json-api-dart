@@ -1,3 +1,4 @@
+import 'package:json_api/src/document/json_encodable.dart';
 import 'package:json_api/src/document/new_identifier.dart';
 import 'package:json_api/src/document/new_relationship.dart';
 import 'package:json_api/src/document/new_to_many.dart';
@@ -8,7 +9,7 @@ import 'package:json_api/src/document/to_many.dart';
 import 'package:json_api/src/document/to_one.dart';
 
 /// A set of properties for a to-be-created resource which does not have the id yet.
-class NewResource {
+class NewResource implements JsonEncodable {
   NewResource(this.type, {this.id, this.lid});
 
   /// Resource type
@@ -33,6 +34,7 @@ class NewResource {
   /// See https://jsonapi.org/format/#document-resource-object-relationships
   final relationships = <String, NewRelationship>{};
 
+  @override
   Map<String, Object> toJson() => {
         'type': type,
         if (id != null) 'id': id!,

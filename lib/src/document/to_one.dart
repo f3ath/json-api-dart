@@ -7,7 +7,7 @@ class ToOne extends Relationship {
   ToOne.empty() : this(null);
 
   @override
-  Map<String, dynamic> toJson() => {'data': identifier, ...super.toJson()};
+  Map<String, Object?> toJson() => {'data': identifier, ...super.toJson()};
 
   final Identifier? identifier;
 
