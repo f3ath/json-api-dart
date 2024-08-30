@@ -22,7 +22,7 @@ void main() {
         await client.fetchCollection('articles');
         fail('Exception expected');
       } on RequestFailure catch (e) {
-        expect(e.httpResponse.statusCode, 422);
+        expect(e.rawResponse.httpResponse.statusCode, 422);
         expect(e.errors.first.status, '422');
         expect(e.errors.first.title, 'Invalid Attribute');
       }
@@ -33,7 +33,7 @@ void main() {
         await client.fetchCollection('articles');
         fail('Exception expected');
       } on RequestFailure catch (e) {
-        expect(e.httpResponse.statusCode, 500);
+        expect(e.rawResponse.httpResponse.statusCode, 500);
       }
     });
   });
@@ -558,7 +558,7 @@ void main() {
             'articles', '1', 'author', Identifier('people', '42'));
         fail('Exception expected');
       } on RequestFailure catch (e) {
-        expect(e.httpResponse.statusCode, 422);
+        expect(e.rawResponse.httpResponse.statusCode, 422);
         expect(e.errors.first.status, '422');
       }
     });
@@ -615,7 +615,7 @@ void main() {
         await client.deleteToOne('articles', '1', 'author');
         fail('Exception expected');
       } on RequestFailure catch (e) {
-        expect(e.httpResponse.statusCode, 422);
+        expect(e.rawResponse.httpResponse.statusCode, 422);
         expect(e.errors.first.status, '422');
       }
     });
@@ -680,7 +680,7 @@ void main() {
             .deleteFromMany('articles', '1', 'tags', [Identifier('tags', '1')]);
         fail('Exception expected');
       } on RequestFailure catch (e) {
-        expect(e.httpResponse.statusCode, 422);
+        expect(e.rawResponse.httpResponse.statusCode, 422);
         expect(e.errors.first.status, '422');
       }
     });
@@ -747,7 +747,7 @@ void main() {
             .replaceToMany('articles', '1', 'tags', [Identifier('tags', '1')]);
         fail('Exception expected');
       } on RequestFailure catch (e) {
-        expect(e.httpResponse.statusCode, 422);
+        expect(e.rawResponse.httpResponse.statusCode, 422);
         expect(e.errors.first.status, '422');
       }
     });
@@ -814,7 +814,7 @@ void main() {
             .addMany('articles', '1', 'tags', [Identifier('tags', '1')]);
         fail('Exception expected');
       } on RequestFailure catch (e) {
-        expect(e.httpResponse.statusCode, 422);
+        expect(e.rawResponse.httpResponse.statusCode, 422);
         expect(e.errors.first.status, '422');
         expect(e.toString(), contains('422'));
       }

@@ -1,22 +1,32 @@
-import 'package:http_interop/http_interop.dart';
+import 'package:http_interop/http_interop.dart' as i;
 import 'package:json_api/document.dart';
+import 'package:json_api/src/client/response.dart';
 
 /// A response to a new resource creation request.
 /// This is always a "201 Created" response.
 ///
 /// https://jsonapi.org/format/#crud-creating-responses-201
 class ResourceCreated {
-  ResourceCreated(this.httpResponse, Map json)
-      : resource = InboundDocument(json).dataAsResource() {
-    meta.addAll(InboundDocument(json).meta());
-    links.addAll(InboundDocument(json).links());
-    included.addAll(InboundDocument(json).included());
+  ResourceCreated(this.rawResponse) {
+    final document = InboundDocument(rawResponse.document ??
+        (throw FormatException('The document must not be empty')));
+    resource = document.dataAsResource();
+    included.addAll(document.included());
+    meta.addAll(document.meta());
+    links.addAll(document.links());
   }
 
-  final Response httpResponse;
+  // coverage:ignore-start
+  /// The raw HTTP response
+  @Deprecated('Use rawResponse.httpResponse instead')
+  i.Response get httpResponse => rawResponse.httpResponse;
+  // coverage:ignore-end
+
+  /// The raw JSON:API response
+  final Response rawResponse;
 
   /// Created resource.
-  final Resource resource;
+  late final Resource resource;
 
   /// Top-level meta data
   final meta = <String, Object?>{};

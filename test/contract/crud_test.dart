@@ -47,7 +47,7 @@ void main() {
         Include(['author', 'comments', 'comments.author'])
       ]);
 
-      expect(response.httpResponse.statusCode, 200);
+      expect(response.rawResponse.httpResponse.statusCode, 200);
       expect(response.collection.length, 1);
       expect(response.included.length, 3);
 
@@ -175,7 +175,7 @@ void main() {
           await action();
           fail('Exception expected');
         } on RequestFailure catch (e) {
-          expect(e.httpResponse.statusCode, 404);
+          expect(e.rawResponse.httpResponse.statusCode, 404);
         }
       }
     });
