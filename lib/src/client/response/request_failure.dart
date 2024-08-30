@@ -1,4 +1,3 @@
-import 'package:http_interop/http_interop.dart' as i;
 import 'package:json_api/document.dart';
 import 'package:json_api/src/client/response.dart';
 
@@ -11,12 +10,6 @@ class RequestFailure implements Exception {
     errors.addAll(document.errors());
     meta.addAll(document.meta());
   }
-
-  // coverage:ignore-start
-  /// The raw HTTP response
-  @Deprecated('Use rawResponse.httpResponse instead')
-  i.Response get httpResponse => rawResponse.httpResponse;
-  // coverage:ignore-end
 
   /// The raw JSON:API response
   final Response rawResponse;
