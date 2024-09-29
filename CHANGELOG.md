@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - StandardUriDesign working incosistently depending on the trailing slash in the path
 
+## [8.1.0] - 2024-08-29
+### Added
+- The rawResponse property to the responses of the RoutingClient
+
+### Deprecated
+- The httpResponse property of the responses of the RoutingClient
+
 ## [8.0.0] - 2024-07-01
 ### Added
 - CORS middleware
@@ -268,7 +275,8 @@ the Document model.
 ### Added
 - Client: fetch resources, collections, related resources and relationships
 
-[Unreleased]: https://github.com/f3ath/json-api-dart/compare/8.0.0...HEAD
+[Unreleased]: https://github.com/f3ath/json-api-dart/compare/8.1.0...HEAD
+[8.1.0]: https://github.com/f3ath/json-api-dart/compare/8.0.0...8.1.0
 [8.0.0]: https://github.com/f3ath/json-api-dart/compare/7.0.1...8.0.0
 [7.0.1]: https://github.com/f3ath/json-api-dart/compare/7.0.0...7.0.1
 [7.0.0]: https://github.com/f3ath/json-api-dart/compare/6.0.1...7.0.0
