@@ -1,6 +1,6 @@
 /// JSON:API server on top of dart:io.
 /// WARNING: This library is in beta stage. The API is subject to change.
-library server;
+library;
 
 export 'package:json_api/src/server/controller.dart';
 export 'package:json_api/src/server/cors_middleware.dart';

@@ -10,10 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - URL Design matching now respects the base URL
-- Allo null to be returned by error interceptors
+- Allow null to be returned by error interceptors
 
 ### Fixed
-- StandardUriDesign working incosistently depending on the trailing slash in the path
+- StandardUriDesign working inconsistently, depending on the trailing slash in the path
 
 ## [8.1.0] - 2024-08-29
 ### Added

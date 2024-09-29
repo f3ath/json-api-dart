@@ -1,23 +1,22 @@
 import 'package:http_interop/http_interop.dart';
+import 'package:http_interop_middleware/http_interop_middleware.dart';
 
-Handler corsMiddleware(Handler handler) =>
-    (Request request) async => switch (request.method) {
+final corsMiddleware = middleware(
+    onRequest: (rq) async => switch (rq.method) {
           'options' => Response(
               204,
               Body(),
               Headers.from({
                 'Access-Control-Allow-Methods':
-                    request.headers['Access-Control-Request-Method'] ??
+                    rq.headers['Access-Control-Request-Method'] ??
                         const ['POST', 'GET', 'DELETE', 'PATCH', 'OPTIONS'],
                 'Access-Control-Allow-Headers':
-                    request.headers['Access-Control-Request-Headers'] ??
-                        const ['*'],
+                    rq.headers['Access-Control-Request-Headers'] ?? const ['*'],
               })),
-          _ => await handler(request)
-        }
-          ..headers.addAll({
-            'Access-Control-Allow-Origin': [
-              request.headers['origin']?.last ?? '*'
-            ],
-            'Access-Control-Expose-Headers': const ['Location'],
-          });
+          _ => null
+        },
+    onResponse: (rs, rq) async => rs
+      ..headers.addAll({
+        'Access-Control-Allow-Origin': [rq.headers['origin']?.last ?? '*'],
+        'Access-Control-Expose-Headers': const ['Location'],
+      }));

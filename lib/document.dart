@@ -1,5 +1,5 @@
 /// JSON:API Document model.
-library document;
+library;
 
 export 'package:json_api/src/document/error_object.dart';
 export 'package:json_api/src/document/inbound_document.dart';
