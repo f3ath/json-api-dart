@@ -7,7 +7,7 @@ extension type StatusCode(int value) {
   static const notFound = 404;
   static const methodNotAllowed = 405;
   static const notAcceptable = 406;
-  static const conflict = 406;
+  static const conflict = 409;
   static const unsupportedMediaType = 415;
   static const internalServerError = 500;
 

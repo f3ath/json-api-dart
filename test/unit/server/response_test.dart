@@ -15,4 +15,9 @@ void main() {
           }));
     });
   });
+
+  test('conflict', () async {
+    final r = conflict();
+    expect(r.statusCode, equals(409));
+  });
 }
