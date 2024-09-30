@@ -1,5 +1,7 @@
+import 'package:json_api/src/document/json_encodable.dart';
+
 /// A new Resource Identifier object, used when creating new resources on the server.
-sealed class NewIdentifier {
+sealed class NewIdentifier implements JsonEncodable {
   /// Resource type.
   String get type;
 
@@ -12,6 +14,7 @@ sealed class NewIdentifier {
   /// Identifier meta-data.
   Map<String, Object?> get meta;
 
+  @override
   Map<String, Object> toJson();
 }
 
