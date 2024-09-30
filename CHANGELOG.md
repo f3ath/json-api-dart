@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Automatically encode DateTime objects as an ISO-8601 string
+- The &quot;conflict&quot; server response
 
 ### Changed
 - URL Design matching now respects the base URL

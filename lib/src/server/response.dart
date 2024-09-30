@@ -26,6 +26,9 @@ Response created(OutboundDocument document, String location) =>
 Response notFound([OutboundErrorDocument? document]) =>
     response(StatusCode.notFound, document: document);
 
+Response conflict([OutboundErrorDocument? document]) =>
+    response(StatusCode.conflict, document: document);
+
 Response methodNotAllowed([OutboundErrorDocument? document]) =>
     response(StatusCode.methodNotAllowed, document: document);
 
