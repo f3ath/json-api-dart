@@ -148,4 +148,4 @@ void main() {
   });
 }
 
-Map<String, dynamic> toObject(v) => jsonDecode(jsonEncode(v));
+Map<String, dynamic> toObject(Object? v) => jsonDecode(jsonEncode(v));

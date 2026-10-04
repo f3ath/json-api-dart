@@ -165,14 +165,14 @@ class _Parser {
       .get<Map>('relationships', orGet: () => {})
       .map((key, value) => MapEntry(key, newRelationship(value)));
 
-  Relationship _rel(data) => switch (data) {
+  Relationship _rel(Object? data) => switch (data) {
     null => ToOne.empty(),
     Map() => ToOne(identifier(data)),
     List() => ToMany(data.whereType<Map>().map(identifier)),
     _ => throw FormatException('Invalid relationship object'),
   };
 
-  NewRelationship _newRel(data) => switch (data) {
+  NewRelationship _newRel(Object?data) => switch (data) {
     null => NewToOne.empty(),
     Map() => NewToOne(newIdentifier(data)),
     List() => NewToMany(data.whereType<Map>().map(newIdentifier)),

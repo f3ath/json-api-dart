@@ -35,8 +35,8 @@ class NewResource(
   @override
   Map<String, Object> toJson() => {
     'type': type,
-    if (id != null) 'id': id!,
-    if (lid != null) 'lid': lid!,
+    'id': ?id,
+    'lid': ?lid,
     if (attributes.isNotEmpty) 'attributes': attributes,
     if (relationships.isNotEmpty) 'relationships': relationships,
     if (meta.isNotEmpty) 'meta': meta,

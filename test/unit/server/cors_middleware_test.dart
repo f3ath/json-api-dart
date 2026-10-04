@@ -5,7 +5,7 @@ import 'package:json_api/server.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
-main() {
+void main() {
   Response response = Response(200, Body.text('hello', utf8), Headers());
 
   Future<Response> handler(Request rq) async => response;

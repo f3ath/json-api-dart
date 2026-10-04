@@ -5,7 +5,7 @@ final headers = Headers.from({
   'Content-Type': [mediaType],
 });
 
-collectionMin() => Response(
+Response collectionMin() => Response(
   200,
   Body.json({
     'data': [
@@ -15,7 +15,7 @@ collectionMin() => Response(
   headers,
 );
 
-collectionFull() => Response(
+Response collectionFull() => Response(
   200,
   Body.json({
     'links': {
@@ -89,7 +89,7 @@ collectionFull() => Response(
   headers,
 );
 
-primaryResource() => Response(
+Response primaryResource() => Response(
   200,
   Body.json({
     'links': {'self': 'http://example.com/articles/1'},
@@ -142,7 +142,7 @@ primaryResource() => Response(
   headers,
 );
 
-relatedResourceNull() => Response(
+Response relatedResourceNull() => Response(
   200,
   Body.json({
     'links': {'self': 'http://example.com/articles/1/author'},
@@ -152,7 +152,7 @@ relatedResourceNull() => Response(
   headers,
 );
 
-one() => Response(
+Response one() => Response(
   200,
   Body.json({
     'links': {
@@ -199,7 +199,7 @@ one() => Response(
   headers,
 );
 
-oneEmpty() => Response(
+Response oneEmpty() => Response(
   200,
   Body.json({
     'links': {
@@ -246,7 +246,7 @@ oneEmpty() => Response(
   headers,
 );
 
-many() => Response(
+Response many() => Response(
   200,
   Body.json({
     'links': {
@@ -261,9 +261,9 @@ many() => Response(
   headers,
 );
 
-noContent() => Response(204, Body(), Headers());
+Response noContent() => Response(204, Body(), Headers());
 
-error422() => Response(
+Response error422() => Response(
   422,
   Body.json({
     'meta': {'hello': 'world'},
@@ -279,4 +279,4 @@ error422() => Response(
   headers,
 );
 
-error500() => Response(500, Body(), Headers());
+Response error500() => Response(500, Body(), Headers());

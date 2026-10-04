@@ -54,7 +54,7 @@ void main() {
       onCollectionNotFound: (_) async => Response(552, Body(), Headers()),
       onResourceNotFound: (_) async => Response(553, Body(), Headers()),
       onRelationshipNotFound: (_) async => Response(554, Body(), Headers()),
-      onError: (_, __) async => Response(555, Body(), Headers()),
+      onError: (_, _) async => Response(555, Body(), Headers()),
     );
     test('can catch MethodNotAllowed', () async {
       final r = await converter((_) => throw MethodNotAllowed('foo'))(get);
