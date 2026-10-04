@@ -12,9 +12,9 @@ class NewRelationship
 
   @override
   Map<String, dynamic> toJson() => {
-        if (links.isNotEmpty) 'links': links,
-        if (meta.isNotEmpty) 'meta': meta,
-      };
+    if (links.isNotEmpty) 'links': links,
+    if (meta.isNotEmpty) 'meta': meta,
+  };
 
   @override
   Iterator<NewIdentifier> get iterator => <NewIdentifier>[].iterator;

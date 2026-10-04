@@ -12,12 +12,10 @@ import 'package:json_api/src/media_type.dart';
 /// The JSON:API [Request] is converted to [HttpRequest] and sent downstream
 /// using the [_handler]. Received [HttpResponse] is then converted back to
 /// JSON:API [Response]. JSON conversion is performed by the [codec].
-class Client {
-  const Client(this._handler, {PayloadCodec codec = const PayloadCodec()})
-      : _codec = codec;
-
-  final i.Handler _handler;
-  final PayloadCodec _codec;
+class const Client(
+  final i.Handler _handler, {
+  final PayloadCodec _codec = const PayloadCodec(),
+}) {
 
   /// Sends the [request] to the given [uri].
   Future<Response> send(Uri uri, Request request) async {
@@ -26,13 +24,14 @@ class Client {
     final headers = i.Headers.from({
       'Accept': [mediaType],
       if (json.isNotEmpty) 'Content-Type': [mediaType],
-      ...request.headers
+      ...request.headers,
     });
     final url = request.query.isEmpty
         ? uri
         : uri.replace(queryParameters: request.query.toQuery());
-    final response =
-        await _handler(i.Request(request.method, url, body, headers));
+    final response = await _handler(
+      i.Request(request.method, url, body, headers),
+    );
 
     final document = await _decode(response);
     return Response(response, document);
@@ -44,9 +43,9 @@ class Client {
   Future<Map?> _decode(i.Response response) async {
     final json = await response.body.decode(utf8);
     if (json.isNotEmpty &&
-        response.headers['Content-Type']?.last
-                .toLowerCase()
-                .startsWith(mediaType) ==
+        response.headers['Content-Type']?.last.toLowerCase().startsWith(
+              mediaType,
+            ) ==
             true) {
       return await _codec.decode(json);
     }

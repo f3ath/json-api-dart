@@ -1,9 +1,8 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/client/response.dart';
 
-class ResourceUpdated {
-  ResourceUpdated(this.rawResponse)
-      : resource = _resource(rawResponse.document) {
+class ResourceUpdated(final Response rawResponse) {
+  this : resource = _resource(rawResponse.document) {
     final document = rawResponse.document;
     if (document != null) {
       included.addAll(InboundDocument(document).included());
@@ -19,9 +18,6 @@ class ResourceUpdated {
     }
     return null;
   }
-
-  /// The raw JSON:API response
-  final Response rawResponse;
 
   /// The created resource. Null for "204 No Content" responses.
   late final Resource? resource;

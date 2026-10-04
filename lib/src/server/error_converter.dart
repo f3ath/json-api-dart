@@ -18,40 +18,52 @@ Middleware errorConverter({
   Future<Response?> Function(ResourceNotFound)? onResourceNotFound,
   Future<Response?> Function(RelationshipNotFound)? onRelationshipNotFound,
   Future<Response?> Function(Object, StackTrace)? onError,
-}) =>
-    middleware(
-        onError: (error, trace, _) async => switch (error) {
-              MethodNotAllowed() =>
-                await onMethodNotAllowed?.call(error) ?? methodNotAllowed(),
-              UnmatchedTarget() =>
-                await onUnmatchedTarget?.call(error) ?? badRequest(),
-              CollectionNotFound() => await onCollectionNotFound?.call(error) ??
-                  notFound(OutboundErrorDocument([
-                    ErrorObject(
-                      title: 'Collection Not Found',
-                      detail: 'Type: ${error.type}',
-                    )
-                  ])),
-              ResourceNotFound() => await onResourceNotFound?.call(error) ??
-                  notFound(OutboundErrorDocument([
-                    ErrorObject(
-                      title: 'Resource Not Found',
-                      detail: 'Type: ${error.type}, id: ${error.id}',
-                    )
-                  ])),
-              RelationshipNotFound() =>
-                await onRelationshipNotFound?.call(error) ??
-                    notFound(OutboundErrorDocument([
-                      ErrorObject(
-                        title: 'Relationship Not Found',
-                        detail: 'Type: ${error.type}'
-                            ', id: ${error.id}'
-                            ', relationship: ${error.relationship}',
-                      )
-                    ])),
-              UnsupportedMediaType() => unsupportedMediaType(),
-              NotAcceptable() => notAcceptable(),
-              _ => await onError?.call(error, trace) ??
-                  internalServerError(OutboundErrorDocument(
-                      [ErrorObject(title: 'Internal Server Error')]))
-            });
+}) => middleware(
+  onError: (error, trace, _) async => switch (error) {
+    MethodNotAllowed() =>
+      await onMethodNotAllowed?.call(error) ?? methodNotAllowed(),
+    UnmatchedTarget() => await onUnmatchedTarget?.call(error) ?? badRequest(),
+    CollectionNotFound() =>
+      await onCollectionNotFound?.call(error) ??
+          notFound(
+            OutboundErrorDocument([
+              ErrorObject(
+                title: 'Collection Not Found',
+                detail: 'Type: ${error.type}',
+              ),
+            ]),
+          ),
+    ResourceNotFound() =>
+      await onResourceNotFound?.call(error) ??
+          notFound(
+            OutboundErrorDocument([
+              ErrorObject(
+                title: 'Resource Not Found',
+                detail: 'Type: ${error.type}, id: ${error.id}',
+              ),
+            ]),
+          ),
+    RelationshipNotFound() =>
+      await onRelationshipNotFound?.call(error) ??
+          notFound(
+            OutboundErrorDocument([
+              ErrorObject(
+                title: 'Relationship Not Found',
+                detail:
+                    'Type: ${error.type}'
+                    ', id: ${error.id}'
+                    ', relationship: ${error.relationship}',
+              ),
+            ]),
+          ),
+    UnsupportedMediaType() => unsupportedMediaType(),
+    NotAcceptable() => notAcceptable(),
+    _ =>
+      await onError?.call(error, trace) ??
+          internalServerError(
+            OutboundErrorDocument([
+              ErrorObject(title: 'Internal Server Error'),
+            ]),
+          ),
+  },
+);

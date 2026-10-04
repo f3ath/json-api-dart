@@ -7,9 +7,7 @@ import 'package:json_api/src/document/to_json_encodable.dart';
 ///
 /// The methods are designed to be asynchronous to allow for conversion to be
 /// performed in isolates if needed.
-class PayloadCodec {
-  const PayloadCodec();
-
+class const PayloadCodec() {
   /// Decodes a JSON string into a Map
   FutureOr<Map> decode(String json) {
     final decoded = jsonDecode(json);

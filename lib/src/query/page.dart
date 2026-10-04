@@ -4,7 +4,9 @@ import 'package:json_api/src/query/query_encodable.dart';
 
 /// Query parameters defining the pagination data.
 /// @see https://jsonapi.org/format/#fetching-pagination
-class Page with MapMixin<String, String> implements QueryEncodable {
+class Page([Map<String, String> parameters = const {}])
+    with MapMixin<String, String>
+    implements QueryEncodable {
   /// Example:
   /// ```dart
   /// Page({'limit': '10', 'offset': '20'}).addTo(url);
@@ -14,13 +16,15 @@ class Page with MapMixin<String, String> implements QueryEncodable {
   /// ?page[limit]=10&page[offset]=20
   /// ```
   ///
-  Page([Map<String, String> parameters = const {}]) {
+  this {
     addAll(parameters);
   }
 
-  static Page fromUri(Uri uri) => Page(uri.queryParametersAll
-      .map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1) ?? '', v.last))
-    ..removeWhere((k, v) => k.isEmpty));
+  static Page fromUri(Uri uri) => Page(
+    uri.queryParametersAll.map(
+      (k, v) => MapEntry(_regex.firstMatch(k)?.group(1) ?? '', v.last),
+    )..removeWhere((k, v) => k.isEmpty),
+  );
   static final _regex = RegExp(r'^page\[(.+)\]$');
 
   final _ = <String, String>{};

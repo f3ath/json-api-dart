@@ -1,8 +1,8 @@
 import 'package:json_api/src/document/new_identifier.dart';
 import 'package:json_api/src/document/relationship.dart';
 
-class ToMany extends Relationship {
-  ToMany(Iterable<Identifier> identifiers) {
+class ToMany(Iterable<Identifier> identifiers) extends Relationship {
+  this {
     _ids.addAll(identifiers);
   }
 
@@ -10,9 +10,9 @@ class ToMany extends Relationship {
 
   @override
   Map<String, Object?> toJson() => {
-        'data': [..._ids],
-        ...super.toJson(),
-      };
+    'data': [..._ids],
+    ...super.toJson(),
+  };
 
   @override
   Iterator<Identifier> get iterator => _ids.iterator;

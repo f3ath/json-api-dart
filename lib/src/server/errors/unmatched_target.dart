@@ -1,5 +1,1 @@
-class UnmatchedTarget implements Exception {
-  UnmatchedTarget(this.uri);
-
-  final Uri uri;
-}
+class UnmatchedTarget(final Uri uri) implements Exception;

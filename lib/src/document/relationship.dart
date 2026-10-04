@@ -10,9 +10,9 @@ class Relationship with IterableMixin<Identifier> implements JsonEncodable {
 
   @override
   Map<String, Object?> toJson() => {
-        if (links.isNotEmpty) 'links': links,
-        if (meta.isNotEmpty) 'meta': meta,
-      };
+    if (links.isNotEmpty) 'links': links,
+    if (meta.isNotEmpty) 'meta': meta,
+  };
 
   @override
   Iterator<Identifier> get iterator => <Identifier>[].iterator;

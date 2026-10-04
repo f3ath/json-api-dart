@@ -1,15 +1,11 @@
 import 'package:json_api/src/document/new_identifier.dart';
 import 'package:json_api/src/document/relationship.dart';
 
-class ToOne extends Relationship {
-  ToOne(this.identifier);
-
+class ToOne(final Identifier? identifier) extends Relationship {
   ToOne.empty() : this(null);
 
   @override
   Map<String, Object?> toJson() => {'data': identifier, ...super.toJson()};
-
-  final Identifier? identifier;
 
   @override
   Iterator<Identifier> get iterator =>

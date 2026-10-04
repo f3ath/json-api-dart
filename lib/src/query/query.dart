@@ -1,8 +1,9 @@
 import 'package:json_api/src/query/query_encodable.dart';
 
 /// Arbitrary query parameters.
-class Query implements QueryEncodable {
-  Query([Map<String, Iterable<String>> parameters = const {}]) {
+class Query([Map<String, Iterable<String>> parameters = const {}])
+    implements QueryEncodable {
+  this {
     mergeMap(parameters);
   }
 

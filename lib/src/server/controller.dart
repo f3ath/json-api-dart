@@ -26,7 +26,9 @@ abstract class Controller {
 
   /// Updates the relationship
   Future<Response> replaceRelationship(
-      Request request, RelationshipTarget target);
+    Request request,
+    RelationshipTarget target,
+  );
 
   /// Deletes the members from the to-many relationship
   Future<Response> deleteMany(Request request, RelationshipTarget target);
