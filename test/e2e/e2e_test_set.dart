@@ -12,8 +12,11 @@ Future<void> testAllHttpMethods(RoutingClient Function() client) async {
     });
   });
   test('PATCH', () async {
-    await client()
-        .updateResource('posts', id, attributes: {'title': 'Bye world'});
+    await client().updateResource(
+      'posts',
+      id,
+      attributes: {'title': 'Bye world'},
+    );
     await client().fetchResource('posts', id).then((r) {
       expect(r.resource.attributes['title'], 'Bye world');
     });
@@ -28,8 +31,10 @@ Future<void> testAllHttpMethods(RoutingClient Function() client) async {
 
 void testLocationIsSet(RoutingClient Function() client) {
   test('Location is set', () async {
-    final r = await client()
-        .createNew('posts', attributes: {'title': 'Location test'});
+    final r = await client().createNew(
+      'posts',
+      attributes: {'title': 'Location test'},
+    );
     expect(r.rawResponse.httpResponse.headers['Location'], isNotEmpty);
     await client().deleteResource('posts', r.resource.id);
   });

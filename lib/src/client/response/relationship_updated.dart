@@ -3,9 +3,10 @@ import 'package:json_api/src/client/response.dart';
 
 /// A response to a relationship request.
 class RelationshipUpdated<R extends Relationship>(
-/// The raw JSON:API response
+  /// The raw JSON:API response
   final Response rawResponse,
-/// Updated relationship. Null if "204 No Content" is returned
+
+  /// Updated relationship. Null if "204 No Content" is returned
   final R? relationship,
 ) {
   static RelationshipUpdated<ToMany> many(Response response) {

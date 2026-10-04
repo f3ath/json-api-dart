@@ -3,7 +3,7 @@ import 'package:json_api/src/client/response.dart';
 
 /// A response to a relationship fetch request.
 class RelationshipFetched<R extends Relationship>(
-/// The raw JSON:API response
+  /// The raw JSON:API response
   final Response rawResponse,
   final R relationship,
 ) {

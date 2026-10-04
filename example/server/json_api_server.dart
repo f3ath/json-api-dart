@@ -4,11 +4,7 @@ import 'package:http_interop/http_interop.dart';
 import 'package:http_interop_io/http_interop_io.dart';
 
 class JsonApiServer {
-  JsonApiServer(
-    this._handler, {
-    this.host = 'localhost',
-    this.port = 8080,
-  });
+  JsonApiServer(this._handler, {this.host = 'localhost', this.port = 8080});
 
   /// Server host name
   final String host;

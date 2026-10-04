@@ -6,13 +6,19 @@ import 'package:json_api/server.dart';
 import '../example/server/in_memory_repo.dart';
 import '../example/server/repository_controller.dart';
 
-Handler testHandler(
-        {Iterable<String> types = const ['users', 'posts', 'comments'],
-        Function(Request request)? onRequest,
-        Function(Response response)? onResponse}) =>
-    corsMiddleware.add(requestValidator).add(errorConverter()).call(router(
+Handler testHandler({
+  Iterable<String> types = const ['users', 'posts', 'comments'],
+  Function(Request request)? onRequest,
+  Function(Response response)? onResponse,
+}) => corsMiddleware
+    .add(requestValidator)
+    .add(errorConverter())
+    .call(
+      router(
         RepositoryController(InMemoryRepo(types), _nextId),
-        StandardUriDesign.pathOnly.matchTarget));
+        StandardUriDesign.pathOnly.matchTarget,
+      ),
+    );
 
 String _nextId() => (_counter++).toString();
 int _counter = 0;

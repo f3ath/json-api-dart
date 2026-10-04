@@ -11,29 +11,32 @@ void main() {
     });
     test('Full', () {
       expect(
-          jsonEncode(ErrorObject(
+        jsonEncode(
+          ErrorObject(
               id: 'test_id',
               status: 'test_status',
               code: 'test_code',
               title: 'test_title',
               detail: 'test_detail',
               source: ErrorSource(
-                  parameter: 'test_parameter', pointer: 'test_pointer'))
+                parameter: 'test_parameter',
+                pointer: 'test_pointer',
+              ),
+            )
             ..links['foo'] = Link(Uri.parse('/bar'))
-            ..meta['foo'] = 42),
-          jsonEncode({
-            'id': 'test_id',
-            'status': 'test_status',
-            'code': 'test_code',
-            'title': 'test_title',
-            'detail': 'test_detail',
-            'source': {
-              'parameter': 'test_parameter',
-              'pointer': 'test_pointer'
-            },
-            'links': {'foo': '/bar'},
-            'meta': {'foo': 42},
-          }));
+            ..meta['foo'] = 42,
+        ),
+        jsonEncode({
+          'id': 'test_id',
+          'status': 'test_status',
+          'code': 'test_code',
+          'title': 'test_title',
+          'detail': 'test_detail',
+          'source': {'parameter': 'test_parameter', 'pointer': 'test_pointer'},
+          'links': {'foo': '/bar'},
+          'meta': {'foo': 42},
+        }),
+      );
     });
   });
 }

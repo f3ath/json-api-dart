@@ -17,7 +17,11 @@ abstract class Repository {
   /// Throws [ResourceNotFound].
   /// Throws [RelationshipNotFound].
   Stream<Identifier> addMany(
-      String type, String id, String rel, Iterable<Identifier> many);
+    String type,
+    String id,
+    String rel,
+    Iterable<Identifier> many,
+  );
 
   /// Delete the resource
   Future<void> delete(String type, String id);
@@ -30,12 +34,20 @@ abstract class Repository {
   /// Deletes refs from the to-many relationship.
   /// Returns the new actual refs.
   Stream<Identifier> deleteMany(
-      String type, String id, String rel, Iterable<Identifier> many);
+    String type,
+    String id,
+    String rel,
+    Iterable<Identifier> many,
+  );
 
   /// Replaces refs in the to-many relationship.
   /// Returns the new actual refs.
   Stream<Identifier> replaceMany(
-      String type, String id, String rel, Iterable<Identifier> many);
+    String type,
+    String id,
+    String rel,
+    Iterable<Identifier> many,
+  );
 }
 
 class Reference {
@@ -103,8 +115,9 @@ class Model extends ModelProps {
       res.attributes[key] = value;
     });
     one.forEach((key, value) {
-      res.relationships[key] =
-          (value == null ? ToOne.empty() : ToOne(value.toIdentifier()));
+      res.relationships[key] = (value == null
+          ? ToOne.empty()
+          : ToOne(value.toIdentifier()));
     });
     many.forEach((key, value) {
       res.relationships[key] = ToMany(value.map((it) => it.toIdentifier()));

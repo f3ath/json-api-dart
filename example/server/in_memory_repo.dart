@@ -30,7 +30,11 @@ class InMemoryRepo implements Repository {
 
   @override
   Stream<Identifier> addMany(
-      String type, String id, String rel, Iterable<Identifier> ids) {
+    String type,
+    String id,
+    String rel,
+    Iterable<Identifier> ids,
+  ) {
     final many = _many(type, id, rel);
     many.addAll(ids.map(Reference.of));
     return Stream.fromIterable(many).map((e) => e.toIdentifier());
@@ -48,20 +52,31 @@ class InMemoryRepo implements Repository {
 
   @override
   Future<void> replaceOne(
-      String type, String id, String rel, Identifier? one) async {
+    String type,
+    String id,
+    String rel,
+    Identifier? one,
+  ) async {
     _model(type, id).one[rel] = nullable(Reference.of)(one);
   }
 
   @override
   Stream<Identifier> deleteMany(
-          String type, String id, String rel, Iterable<Identifier> many) =>
-      Stream.fromIterable(
-              _many(type, id, rel)..removeAll(many.map(Reference.of)))
-          .map((it) => it.toIdentifier());
+    String type,
+    String id,
+    String rel,
+    Iterable<Identifier> many,
+  ) => Stream.fromIterable(
+    _many(type, id, rel)..removeAll(many.map(Reference.of)),
+  ).map((it) => it.toIdentifier());
 
   @override
   Stream<Identifier> replaceMany(
-      String type, String id, String rel, Iterable<Identifier> many) {
+    String type,
+    String id,
+    String rel,
+    Iterable<Identifier> many,
+  ) {
     final set = _many(type, id, rel);
     set.clear();
     set.addAll(many.map(Reference.of));

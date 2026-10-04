@@ -35,16 +35,19 @@ Future<void> main() async {
 }
 
 Future initRepo(Repository repo) async {
-  final models = {
-    {'name': 'Salmon', 'r': 250, 'g': 128, 'b': 114},
-    {'name': 'Pink', 'r': 255, 'g': 192, 'b': 203},
-    {'name': 'Lime', 'r': 0, 'g': 255, 'b': 0},
-    {'name': 'Peru', 'r': 205, 'g': 133, 'b': 63},
-  }.map((color) => Model(Uuid().v4())
-    ..attributes['name'] = color['name']
-    ..attributes['red'] = color['r']
-    ..attributes['green'] = color['g']
-    ..attributes['blue'] = color['b']);
+  final models =
+      {
+        {'name': 'Salmon', 'r': 250, 'g': 128, 'b': 114},
+        {'name': 'Pink', 'r': 255, 'g': 192, 'b': 203},
+        {'name': 'Lime', 'r': 0, 'g': 255, 'b': 0},
+        {'name': 'Peru', 'r': 205, 'g': 133, 'b': 63},
+      }.map(
+        (color) => Model(Uuid().v4())
+          ..attributes['name'] = color['name']
+          ..attributes['red'] = color['r']
+          ..attributes['green'] = color['g']
+          ..attributes['blue'] = color['b'],
+      );
   for (final model in models) {
     await repo.persist('colors', model);
   }

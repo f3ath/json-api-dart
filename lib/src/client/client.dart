@@ -16,7 +16,6 @@ class const Client(
   final i.Handler _handler, {
   final PayloadCodec _codec = const PayloadCodec(),
 }) {
-
   /// Sends the [request] to the given [uri].
   Future<Response> send(Uri uri, Request request) async {
     final json = await _encode(request.document);
