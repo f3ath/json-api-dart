@@ -4,7 +4,7 @@ import 'package:json_api/src/server/controller.dart';
 import 'package:json_api/src/server/errors/method_not_allowed.dart';
 import 'package:json_api/src/server/errors/unmatched_target.dart';
 
-Handler router(Controller controller, Target? Function(Uri uri) matchTarget) =>
+Handler router(Controller controller, TargetMatcher matchTarget) =>
     (request) => switch (matchTarget(request.uri)) {
       RelationshipTarget target => switch (request.method) {
         'get' => controller.fetchRelationship(request, target),

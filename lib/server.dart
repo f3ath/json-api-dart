@@ -2,6 +2,7 @@
 /// WARNING: This library is in beta stage. The API is subject to change.
 library;
 
+export 'package:json_api/src/server/base_controller.dart';
 export 'package:json_api/src/server/controller.dart';
 export 'package:json_api/src/server/cors_middleware.dart';
 export 'package:json_api/src/server/error_converter.dart';
@@ -12,6 +13,7 @@ export 'package:json_api/src/server/errors/relationship_not_found.dart';
 export 'package:json_api/src/server/errors/resource_not_found.dart';
 export 'package:json_api/src/server/errors/unmatched_target.dart';
 export 'package:json_api/src/server/errors/unsupported_media_type.dart';
-export 'package:json_api/src/server/request_validator.dart';
+export 'package:json_api/src/server/mapping_controller.dart';
+export 'package:json_api/src/server/request_validator_middleware.dart';
 export 'package:json_api/src/server/response.dart';
 export 'package:json_api/src/server/router.dart';

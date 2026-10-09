@@ -11,7 +11,7 @@ Handler testHandler({
   Function(Request request)? onRequest,
   Function(Response response)? onResponse,
 }) => corsMiddleware
-    .add(requestValidator)
+    .add(requestValidatorMiddleware)
     .add(errorConverter())
     .call(
       router(

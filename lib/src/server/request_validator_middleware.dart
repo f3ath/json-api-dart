@@ -5,7 +5,7 @@ import 'package:json_api/src/media_type.dart';
 import 'package:json_api/src/server/errors/not_acceptable.dart';
 import 'package:json_api/src/server/errors/unsupported_media_type.dart';
 
-final requestValidator = middleware(
+final requestValidatorMiddleware = middleware(
   onRequest: (Request request) async {
     final contentType = request.headers['Content-Type']?.last;
     if (contentType != null && _isInvalid(MediaType.parse(contentType))) {

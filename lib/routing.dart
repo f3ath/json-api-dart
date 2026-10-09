@@ -4,4 +4,5 @@ library;
 
 export 'package:json_api/src/routing/standard_uri_design.dart';
 export 'package:json_api/src/routing/target.dart';
+export 'package:json_api/src/routing/target_matcher.dart';
 export 'package:json_api/src/routing/uri_design.dart';
