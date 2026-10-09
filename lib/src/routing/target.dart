@@ -1,35 +1,16 @@
-class Target {
-  const Target(this.type);
+class const Target(final String type);
 
-  final String type;
-}
+class const ResourceTarget(@override final String type, final String id)
+    implements Target;
 
-class ResourceTarget implements Target {
-  const ResourceTarget(this.type, this.id);
+class const RelatedTarget(
+  @override final String type,
+  @override final String id,
+  final String relationship,
+) implements ResourceTarget;
 
-  @override
-  final String type;
-  final String id;
-}
-
-class RelatedTarget implements ResourceTarget {
-  const RelatedTarget(this.type, this.id, this.relationship);
-
-  @override
-  final String type;
-  @override
-  final String id;
-
-  final String relationship;
-}
-
-class RelationshipTarget implements ResourceTarget {
-  const RelationshipTarget(this.type, this.id, this.relationship);
-
-  @override
-  final String type;
-  @override
-  final String id;
-
-  final String relationship;
-}
+class const RelationshipTarget(
+  @override final String type,
+  @override final String id,
+  final String relationship,
+) implements ResourceTarget;

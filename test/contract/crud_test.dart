@@ -21,31 +21,42 @@ void main() {
     late Resource secretComment;
 
     setUp(() async {
-      alice = (await client.createNew('users', attributes: {'name': 'Alice'}))
-          .resource;
-      bob = (await client.createNew('users', attributes: {'name': 'Bob'}))
-          .resource;
-      post = (await client.createNew('posts',
-              attributes: {'title': 'Hello world'},
-              one: {'author': alice.toIdentifier()},
-              many: {'comments': []}))
-          .resource;
-      comment = (await client.createNew('comments',
-              attributes: {'text': 'Hi Alice'},
-              one: {'author': bob.toIdentifier()}))
-          .resource;
-      secretComment = (await client.createNew('comments',
-              attributes: {'text': 'Secret comment'},
-              one: {'author': bob.toIdentifier()}))
-          .resource;
-      await client
-          .addMany(post.type, post.id, 'comments', [comment.toIdentifier()]);
+      alice = (await client.createNew(
+        'users',
+        attributes: {'name': 'Alice'},
+      )).resource;
+      bob = (await client.createNew(
+        'users',
+        attributes: {'name': 'Bob'},
+      )).resource;
+      post = (await client.createNew(
+        'posts',
+        attributes: {'title': 'Hello world'},
+        one: {'author': alice.toIdentifier()},
+        many: {'comments': []},
+      )).resource;
+      comment = (await client.createNew(
+        'comments',
+        attributes: {'text': 'Hi Alice'},
+        one: {'author': bob.toIdentifier()},
+      )).resource;
+      secretComment = (await client.createNew(
+        'comments',
+        attributes: {'text': 'Secret comment'},
+        one: {'author': bob.toIdentifier()},
+      )).resource;
+      await client.addMany(post.type, post.id, 'comments', [
+        comment.toIdentifier(),
+      ]);
     });
 
     test('Fetch a complex resource', () async {
-      final response = await client.fetchCollection('posts', query: [
-        Include(['author', 'comments', 'comments.author'])
-      ]);
+      final response = await client.fetchCollection(
+        'posts',
+        query: [
+          Include(['author', 'comments', 'comments.author']),
+        ],
+      );
 
       expect(response.rawResponse.httpResponse.statusCode, 200);
       expect(response.collection.length, 1);
@@ -59,8 +70,10 @@ void main() {
           .single;
       expect(fetchedAuthor.attributes['name'], 'Alice');
 
-      final fetchedComment =
-          fetchedPost.many('comments')!.findIn(response.included).single;
+      final fetchedComment = fetchedPost
+          .many('comments')!
+          .findIn(response.included)
+          .single;
       expect(fetchedComment.attributes['text'], 'Hi Alice');
     });
 
@@ -72,8 +85,11 @@ void main() {
     });
 
     test('Update a resource', () async {
-      await client.updateResource(post.type, post.id,
-          attributes: {'title': 'Bob was here'});
+      await client.updateResource(
+        post.type,
+        post.id,
+        attributes: {'title': 'Bob was here'},
+      );
       await client.fetchCollection('posts').then((r) {
         expect(r.collection.single.attributes['title'], 'Bob was here');
       });
@@ -86,9 +102,9 @@ void main() {
     });
 
     test('Fetch a related collection', () async {
-      await client
-          .fetchRelatedCollection(post.type, post.id, 'comments')
-          .then((r) {
+      await client.fetchRelatedCollection(post.type, post.id, 'comments').then((
+        r,
+      ) {
         expect(r.collection.single.attributes['text'], 'Hi Alice');
       });
     });
@@ -107,57 +123,84 @@ void main() {
 
     test('Delete a to-one relationship', () async {
       await client.deleteToOne(post.type, post.id, 'author');
-      await client.fetchResource(post.type, post.id, query: [
-        Include(['author'])
-      ]).then((r) {
-        expect(r.resource.one('author'), isEmpty);
-      });
+      await client
+          .fetchResource(
+            post.type,
+            post.id,
+            query: [
+              Include(['author']),
+            ],
+          )
+          .then((r) {
+            expect(r.resource.one('author'), isEmpty);
+          });
     });
 
     test('Replace a to-one relationship', () async {
       await client.replaceToOne(
-          post.type, post.id, 'author', bob.toIdentifier());
-      await client.fetchResource(post.type, post.id, query: [
-        Include(['author'])
-      ]).then((r) {
-        expect(
-            r.included
-                .where(r.resource.one('author')!.identifier!.identifies)
-                .single
-                .attributes['name'],
-            'Bob');
-      });
+        post.type,
+        post.id,
+        'author',
+        bob.toIdentifier(),
+      );
+      await client
+          .fetchResource(
+            post.type,
+            post.id,
+            query: [
+              Include(['author']),
+            ],
+          )
+          .then((r) {
+            expect(
+              r.included
+                  .where(r.resource.one('author')!.identifier!.identifies)
+                  .single
+                  .attributes['name'],
+              'Bob',
+            );
+          });
     });
 
     test('Delete from a to-many relationship', () async {
-      await client.deleteFromMany(
-          post.type, post.id, 'comments', [comment.toIdentifier()]);
+      await client.deleteFromMany(post.type, post.id, 'comments', [
+        comment.toIdentifier(),
+      ]);
       await client.fetchResource(post.type, post.id).then((r) {
         expect(r.resource.many('comments'), isEmpty);
       });
     });
 
     test('Replace a to-many relationship', () async {
-      await client.replaceToMany(
-          post.type, post.id, 'comments', [secretComment.toIdentifier()]);
-      await client.fetchResource(post.type, post.id, query: [
-        Include(['comments'])
-      ]).then((r) {
-        expect(
-            r.resource
-                .many('comments')!
-                .findIn(r.included)
-                .single
-                .attributes['text'],
-            'Secret comment');
-        expect(
-            r.resource
-                .many('comments')!
-                .findIn(r.included)
-                .single
-                .attributes['text'],
-            'Secret comment');
-      });
+      await client.replaceToMany(post.type, post.id, 'comments', [
+        secretComment.toIdentifier(),
+      ]);
+      await client
+          .fetchResource(
+            post.type,
+            post.id,
+            query: [
+              Include(['comments']),
+            ],
+          )
+          .then((r) {
+            expect(
+              r.resource
+                  .many('comments')!
+                  .findIn(r.included)
+                  .single
+                  .attributes['text'],
+              'Secret comment',
+            );
+            expect(
+              r.resource
+                  .many('comments')!
+                  .findIn(r.included)
+                  .single
+                  .attributes['text'],
+              'Secret comment',
+            );
+          });
     });
 
     test('Incomplete relationship', () async {});
@@ -187,7 +230,8 @@ extension _ToManyExt on ToMany {
   /// The resulting [Iterable] may contain fewer elements than referred by the
   /// relationship if the [collection] does not have all of them.
   Iterable<Resource> findIn(Iterable<Resource> collection) => collection.where(
-      (resource) => any((identifier) => identifier.identifies(resource)));
+    (resource) => any((identifier) => identifier.identifies(resource)),
+  );
 }
 
 extension _IdentifierExt on Identifier {

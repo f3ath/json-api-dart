@@ -38,12 +38,8 @@ void main() async {
     /// The fetched collection allows us to iterate over the resources
     /// and to look into their attributes
     for (final resource in response.collection) {
-      final {
-        'name': name,
-        'red': red,
-        'green': green,
-        'blue': blue,
-      } = resource.attributes;
+      final {'name': name, 'red': red, 'green': green, 'blue': blue} =
+          resource.attributes;
       print('${resource.type}:${resource.id}');
       print('$name - $red:$green:$blue');
     }

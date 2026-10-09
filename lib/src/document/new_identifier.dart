@@ -1,5 +1,7 @@
+import 'package:json_api/src/document/json_encodable.dart';
+
 /// A new Resource Identifier object, used when creating new resources on the server.
-sealed class NewIdentifier {
+sealed class NewIdentifier implements JsonEncodable {
   /// Resource type.
   String get type;
 
@@ -12,21 +14,18 @@ sealed class NewIdentifier {
   /// Identifier meta-data.
   Map<String, Object?> get meta;
 
+  @override
   Map<String, Object> toJson();
 }
 
 /// A Resource Identifier object
-class Identifier implements NewIdentifier {
-  Identifier(this.type, this.id);
-
+class Identifier(
   /// Resource type.
-  @override
-  final String type;
+  @override final String type,
 
   /// Resource id.
-  @override
-  final String id;
-
+  @override final String id,
+) implements NewIdentifier {
   @override
   final lid = null;
 
@@ -35,24 +34,23 @@ class Identifier implements NewIdentifier {
   final meta = <String, Object?>{};
 
   @override
-  Map<String, Object> toJson() =>
-      {'type': type, 'id': id, if (meta.isNotEmpty) 'meta': meta};
+  Map<String, Object> toJson() => {
+    'type': type,
+    'id': id,
+    if (meta.isNotEmpty) 'meta': meta,
+  };
 }
 
-class LocalIdentifier implements NewIdentifier {
-  LocalIdentifier(this.type, this.lid);
-
+class LocalIdentifier(
   /// Resource type.
-  @override
-  final String type;
+  @override final String type,
 
+  /// Local Resource id.
+  @override final String lid,
+) implements NewIdentifier {
   /// Resource id.
   @override
   final id = null;
-
-  /// Local Resource id.
-  @override
-  final String lid;
 
   /// Identifier meta-data.
   @override
@@ -60,10 +58,10 @@ class LocalIdentifier implements NewIdentifier {
 
   @override
   Map<String, Object> toJson() => {
-        'type': type,
-        'lid': lid,
-        if (meta.isNotEmpty) 'meta': meta,
-      };
+    'type': type,
+    'lid': lid,
+    if (meta.isNotEmpty) 'meta': meta,
+  };
 
   Identifier toIdentifier(String id) => Identifier(type, id)..meta.addAll(meta);
 }

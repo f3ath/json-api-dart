@@ -16,9 +16,11 @@ void main() {
       server = JsonApiServer(testHandler(), port: 8001);
       await server.start();
       client = RoutingClient(
-          StandardUriDesign(
-              Uri(scheme: 'http', host: server.host, port: server.port)),
-          Client(oneOffHandler));
+        StandardUriDesign(
+          Uri(scheme: 'http', host: server.host, port: server.port),
+        ),
+        Client(oneOffHandler),
+      );
     });
 
     tearDownAll(() async {

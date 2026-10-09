@@ -1,4 +1,5 @@
 import 'package:json_api/src/document/error_object.dart';
+import 'package:json_api/src/document/json_encodable.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/new_resource.dart';
 import 'package:json_api/src/document/resource.dart';
@@ -6,17 +7,18 @@ import 'package:json_api/src/document/to_many.dart';
 import 'package:json_api/src/document/to_one.dart';
 
 /// A sever-to-client document.
-class OutboundDocument {
+class OutboundDocument implements JsonEncodable {
   /// The document "meta" object.
   final meta = <String, Object?>{};
 
-  /// Returns the JSON representation.
+  @override
   Map<String, Object?> toJson() => {'meta': meta};
 }
 
 /// A sever-to-client document with errors.
-class OutboundErrorDocument extends OutboundDocument {
-  OutboundErrorDocument(Iterable<ErrorObject> errors) {
+class OutboundErrorDocument(Iterable<ErrorObject> errors)
+    extends OutboundDocument {
+  this {
     this.errors.addAll(errors);
   }
 
@@ -25,9 +27,9 @@ class OutboundErrorDocument extends OutboundDocument {
 
   @override
   Map<String, Object> toJson() => {
-        'errors': errors,
-        if (meta.isNotEmpty) 'meta': meta,
-      };
+    'errors': errors,
+    if (meta.isNotEmpty) 'meta': meta,
+  };
 }
 
 /// A sever-to-client document with data.
@@ -40,7 +42,7 @@ class OutboundDataDocument extends OutboundDocument {
 
   /// Creates an instance of a document containing a collection of resources as the primary data.
   OutboundDataDocument.collection(Iterable<Resource> collection)
-      : data = collection.toList();
+    : data = collection.toList();
 
   /// Creates an instance of a document containing a to-one relationship.
   OutboundDataDocument.one(ToOne one) : data = one.identifier {
@@ -65,9 +67,9 @@ class OutboundDataDocument extends OutboundDocument {
 
   @override
   Map<String, Object?> toJson() => {
-        'data': data,
-        if (links.isNotEmpty) 'links': links,
-        if (included.isNotEmpty) 'included': included,
-        if (meta.isNotEmpty) 'meta': meta,
-      };
+    'data': data,
+    if (links.isNotEmpty) 'links': links,
+    if (included.isNotEmpty) 'included': included,
+    if (meta.isNotEmpty) 'meta': meta,
+  };
 }

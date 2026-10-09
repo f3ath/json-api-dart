@@ -1,4 +1,3 @@
-import 'package:http_interop/http_interop.dart' as i;
 import 'package:json_api/document.dart';
 import 'package:json_api/src/client/response.dart';
 
@@ -6,24 +5,17 @@ import 'package:json_api/src/client/response.dart';
 /// This is always a "201 Created" response.
 ///
 /// https://jsonapi.org/format/#crud-creating-responses-201
-class ResourceCreated {
-  ResourceCreated(this.rawResponse) {
-    final document = InboundDocument(rawResponse.document ??
-        (throw FormatException('The document must not be empty')));
+class ResourceCreated(final Response rawResponse) {
+  this {
+    final document = InboundDocument(
+      rawResponse.document ??
+          (throw FormatException('The document must not be empty')),
+    );
     resource = document.dataAsResource();
     included.addAll(document.included());
     meta.addAll(document.meta());
     links.addAll(document.links());
   }
-
-  // coverage:ignore-start
-  /// The raw HTTP response
-  @Deprecated('Use rawResponse.httpResponse instead')
-  i.Response get httpResponse => rawResponse.httpResponse;
-  // coverage:ignore-end
-
-  /// The raw JSON:API response
-  final Response rawResponse;
 
   /// Created resource.
   late final Resource resource;

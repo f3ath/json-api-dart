@@ -1,7 +1,5 @@
 /// A collection is not found on the server.
-class CollectionNotFound implements Exception {
-  CollectionNotFound(this.type);
-
+class CollectionNotFound(
   /// Collection type.
-  final String type;
-}
+  final String type,
+) implements Exception;

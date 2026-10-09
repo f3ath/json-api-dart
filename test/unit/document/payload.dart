@@ -2,7 +2,7 @@ final example = {
   'links': {
     'self': 'http://example.com/articles',
     'next': 'http://example.com/articles?page[offset]=2',
-    'last': 'http://example.com/articles?page[offset]=10'
+    'last': 'http://example.com/articles?page[offset]=10',
   },
   'data': [
     {
@@ -13,23 +13,23 @@ final example = {
         'author': {
           'links': {
             'self': 'http://example.com/articles/1/relationships/author',
-            'related': 'http://example.com/articles/1/author'
+            'related': 'http://example.com/articles/1/author',
           },
-          'data': {'type': 'people', 'id': '9'}
+          'data': {'type': 'people', 'id': '9'},
         },
         'comments': {
           'links': {
             'self': 'http://example.com/articles/1/relationships/comments',
-            'related': 'http://example.com/articles/1/comments'
+            'related': 'http://example.com/articles/1/comments',
           },
           'data': [
             {'type': 'comments', 'id': '5'},
-            {'type': 'comments', 'id': '12'}
-          ]
-        }
+            {'type': 'comments', 'id': '12'},
+          ],
+        },
       },
-      'links': {'self': 'http://example.com/articles/1'}
-    }
+      'links': {'self': 'http://example.com/articles/1'},
+    },
   ],
   'included': [
     {
@@ -38,9 +38,9 @@ final example = {
       'attributes': {
         'firstName': 'Dan',
         'lastName': 'Gebhardt',
-        'twitter': 'dgeb'
+        'twitter': 'dgeb',
       },
-      'links': {'self': 'http://example.com/people/9'}
+      'links': {'self': 'http://example.com/people/9'},
     },
     {
       'type': 'comments',
@@ -48,10 +48,10 @@ final example = {
       'attributes': {'body': 'First!'},
       'relationships': {
         'author': {
-          'data': {'type': 'people', 'id': '2'}
-        }
+          'data': {'type': 'people', 'id': '2'},
+        },
       },
-      'links': {'self': 'http://example.com/comments/5'}
+      'links': {'self': 'http://example.com/comments/5'},
     },
     {
       'type': 'comments',
@@ -59,21 +59,17 @@ final example = {
       'attributes': {'body': 'I like XML better'},
       'relationships': {
         'author': {
-          'data': {'type': 'people', 'id': '9'}
-        }
+          'data': {'type': 'people', 'id': '9'},
+        },
       },
-      'links': {'self': 'http://example.com/comments/12'}
-    }
-  ]
+      'links': {'self': 'http://example.com/comments/12'},
+    },
+  ],
 };
 
 final nullLink = {
-  'links': {
-    'self': 'http://example.com/articles',
-    'next': null,
-    'last': null,
-  },
-  'data': []
+  'links': {'self': 'http://example.com/articles', 'next': null, 'last': null},
+  'data': [],
 };
 
 final newResource = {
@@ -82,58 +78,58 @@ final newResource = {
     'attributes': {'title': 'A new article'},
     'relationships': {
       'author': {
-        'data': {'type': 'people', 'id': '42'}
-      }
-    }
-  }
+        'data': {'type': 'people', 'id': '42'},
+      },
+    },
+  },
 };
 
 final many = {
   'links': {
     'self': '/articles/1/relationships/tags',
-    'related': '/articles/1/tags'
+    'related': '/articles/1/tags',
   },
   'data': [
     {'type': 'tags', 'id': '2'},
-    {'type': 'tags', 'id': '3'}
-  ]
+    {'type': 'tags', 'id': '3'},
+  ],
 };
 
 final manyEmpty = {
   'links': {
     'self': '/articles/1/relationships/tags',
-    'related': '/articles/1/tags'
+    'related': '/articles/1/tags',
   },
-  'data': []
+  'data': [],
 };
 
 final one = {
   'links': {
     'self': '/articles/1/relationships/author',
-    'related': '/articles/1/author'
+    'related': '/articles/1/author',
   },
-  'data': {'type': 'people', 'id': '12'}
+  'data': {'type': 'people', 'id': '12'},
 };
 
 final oneEmpty = {
   'links': {
     'self': '/articles/1/relationships/author',
-    'related': '/articles/1/author'
+    'related': '/articles/1/author',
   },
-  'data': null
+  'data': null,
 };
 
 final relatedEmpty = {
   'links': {'self': 'http://example.com/articles/1/author'},
-  'data': null
+  'data': null,
 };
 
 final resource = {
   'links': {
     'self': {
       'href': 'http://example.com/articles/1',
-      'meta': {'answer': 42}
-    }
+      'meta': {'answer': 42},
+    },
   },
   'data': {
     'type': 'articles',
@@ -141,11 +137,11 @@ final resource = {
     'attributes': {'title': 'JSON:API paints my bikeshed!'},
     'relationships': {
       'author': {
-        'links': {'related': 'http://example.com/articles/1/author'}
+        'links': {'related': 'http://example.com/articles/1/author'},
       },
-      'reviewer': {'data': null}
-    }
-  }
+      'reviewer': {'data': null},
+    },
+  },
 };
 
 final newResourceInvalidRelationship = {
@@ -153,11 +149,9 @@ final newResourceInvalidRelationship = {
     'type': 'articles',
     'attributes': {'title': 'JSON:API paints my bikeshed!'},
     'relationships': {
-      'author': {
-        'data': true,
-      },
-    }
-  }
+      'author': {'data': true},
+    },
+  },
 };
 
 final newResourceIncompleteRelationship = {
@@ -168,6 +162,6 @@ final newResourceIncompleteRelationship = {
       'author': {
         'data': {'type': 'person'},
       },
-    }
-  }
+    },
+  },
 };

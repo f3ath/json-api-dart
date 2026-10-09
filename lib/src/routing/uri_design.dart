@@ -1,4 +1,4 @@
-abstract class UriDesign {
+abstract interface class UriDesign {
   Uri collection(String type);
 
   Uri resource(String type, String id);

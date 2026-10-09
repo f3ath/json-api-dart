@@ -1,5 +1,5 @@
 /// A set of builders/parsers for special query parameters used in JSON:API.
-library query;
+library;
 
 export 'package:json_api/src/query/fields.dart';
 export 'package:json_api/src/query/include.dart';

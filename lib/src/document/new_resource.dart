@@ -1,3 +1,4 @@
+import 'package:json_api/src/document/json_encodable.dart';
 import 'package:json_api/src/document/new_identifier.dart';
 import 'package:json_api/src/document/new_relationship.dart';
 import 'package:json_api/src/document/new_to_many.dart';
@@ -8,18 +9,16 @@ import 'package:json_api/src/document/to_many.dart';
 import 'package:json_api/src/document/to_one.dart';
 
 /// A set of properties for a to-be-created resource which does not have the id yet.
-class NewResource {
-  NewResource(this.type, {this.id, this.lid});
-
+class NewResource(
   /// Resource type
-  final String type;
+  final String type, {
 
   /// Resource id.
-  final String? id;
+  final String? id,
 
   /// Local resource id.
-  final String? lid;
-
+  final String? lid,
+}) implements JsonEncodable {
   /// Resource meta data.
   final meta = <String, Object?>{};
 
@@ -33,14 +32,15 @@ class NewResource {
   /// See https://jsonapi.org/format/#document-resource-object-relationships
   final relationships = <String, NewRelationship>{};
 
+  @override
   Map<String, Object> toJson() => {
-        'type': type,
-        if (id != null) 'id': id!,
-        if (lid != null) 'lid': lid!,
-        if (attributes.isNotEmpty) 'attributes': attributes,
-        if (relationships.isNotEmpty) 'relationships': relationships,
-        if (meta.isNotEmpty) 'meta': meta,
-      };
+    'type': type,
+    'id': ?id,
+    'lid': ?lid,
+    if (attributes.isNotEmpty) 'attributes': attributes,
+    if (relationships.isNotEmpty) 'relationships': relationships,
+    if (meta.isNotEmpty) 'meta': meta,
+  };
 
   /// Converts this to a real [Resource] object, assigning the id if necessary.
   Resource toResource(String Function() getId) {
@@ -51,8 +51,9 @@ class NewResource {
     return resource;
   }
 
-  Map<String, Relationship> _toRelationships(String id) => relationships
-      .map((k, v) => MapEntry(k, _toRelationship(v, id)..meta.addAll(v.meta)));
+  Map<String, Relationship> _toRelationships(String id) => relationships.map(
+    (k, v) => MapEntry(k, _toRelationship(v, id)..meta.addAll(v.meta)),
+  );
 
   Relationship _toRelationship(NewRelationship r, String id) {
     if (r is NewToOne) {
@@ -72,9 +73,11 @@ class NewResource {
   Identifier _toIdentifier(NewIdentifier identifier, String id) =>
       switch (identifier) {
         Identifier() => identifier,
-        LocalIdentifier() => (identifier.type == type && identifier.lid == lid)
-            ? identifier.toIdentifier(id)
-            : throw StateError(
-                'Unmatched local id: "${identifier.lid}". Expected "$lid".')
+        LocalIdentifier() =>
+          (identifier.type == type && identifier.lid == lid)
+              ? identifier.toIdentifier(id)
+              : throw StateError(
+                  'Unmatched local id: "${identifier.lid}". Expected "$lid".',
+                ),
       };
 }

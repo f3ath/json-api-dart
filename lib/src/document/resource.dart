@@ -1,18 +1,17 @@
+import 'package:json_api/src/document/json_encodable.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/new_identifier.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/to_many.dart';
 import 'package:json_api/src/document/to_one.dart';
 
-class Resource {
-  Resource(this.type, this.id);
-
+class Resource(
   /// Resource type.
-  final String type;
+  final String type,
 
   /// Resource id.
-  final String id;
-
+  final String id,
+) implements JsonEncodable {
   /// Resource links
   final links = <String, Link>{};
 
@@ -45,12 +44,13 @@ class Resource {
     return null;
   }
 
+  @override
   Map<String, Object> toJson() => {
-        'type': type,
-        'id': id,
-        if (attributes.isNotEmpty) 'attributes': attributes,
-        if (relationships.isNotEmpty) 'relationships': relationships,
-        if (links.isNotEmpty) 'links': links,
-        if (meta.isNotEmpty) 'meta': meta,
-      };
+    'type': type,
+    'id': id,
+    if (attributes.isNotEmpty) 'attributes': attributes,
+    if (relationships.isNotEmpty) 'relationships': relationships,
+    if (links.isNotEmpty) 'links': links,
+    if (meta.isNotEmpty) 'meta': meta,
+  };
 }

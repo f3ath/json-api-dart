@@ -1,15 +1,16 @@
 import 'package:json_api/src/query/query_encodable.dart';
 
 /// Arbitrary query parameters.
-class Query implements QueryEncodable {
-  Query([Map<String, Iterable<String>> parameters = const {}]) {
+class Query([Map<String, Iterable<String>> parameters = const {}])
+    implements QueryEncodable {
+  this {
     mergeMap(parameters);
   }
 
   final _parameters = <String, List<String>>{};
 
   /// Returns true if the collection is empty.
-  get isEmpty => _parameters.isEmpty;
+  bool get isEmpty => _parameters.isEmpty;
 
   /// Adds a new [value] for the [key].
   void addValue(String key, String value) {
