@@ -40,12 +40,15 @@ class MappingController() implements Controller {
       _controller(target.type).fetchResource(request, target);
 
   @override
-  Future<Response> replaceRelationship(Request request, RelationshipTarget target) =>
-      _controller(target.type).replaceRelationship(request, target);
+  Future<Response> replaceRelationship(
+    Request request,
+    RelationshipTarget target,
+  ) => _controller(target.type).replaceRelationship(request, target);
 
   @override
   Future<Response> updateResource(Request request, ResourceTarget target) =>
       _controller(target.type).updateResource(request, target);
 
-  Controller _controller(String type) => map[type] ?? (throw CollectionNotFound(type));
+  Controller _controller(String type) =>
+      map[type] ?? (throw CollectionNotFound(type));
 }

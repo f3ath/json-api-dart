@@ -172,7 +172,7 @@ class _Parser {
     _ => throw FormatException('Invalid relationship object'),
   };
 
-  NewRelationship _newRel(Object?data) => switch (data) {
+  NewRelationship _newRel(Object? data) => switch (data) {
     null => NewToOne.empty(),
     Map() => NewToOne(newIdentifier(data)),
     List() => NewToMany(data.whereType<Map>().map(newIdentifier)),

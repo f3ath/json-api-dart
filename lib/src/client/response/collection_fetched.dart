@@ -11,6 +11,7 @@ class CollectionFetched(
     meta.addAll(document.meta());
     links.addAll(document.links());
   }
+
   final document = InboundDocument(
     rawResponse.document ??
         (throw FormatException('The document must not be empty')),
