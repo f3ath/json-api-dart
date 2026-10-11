@@ -1,5 +1,4 @@
 import 'package:json_api/query.dart';
-import 'package:json_api/src/query/filter.dart';
 import 'package:test/test.dart';
 
 void main() {
