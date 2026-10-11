@@ -4,15 +4,15 @@ import 'package:json_api/src/query/query_encodable.dart';
 
 /// Query parameters defining Sparse Fieldsets
 /// @see https://jsonapi.org/format/#fetching-sparse-fieldsets
+/// The [fields] argument maps the resource type to a list of fields.
+///
+/// Example:
+/// ```dart
+/// Fields({'articles': ['title', 'body'], 'people': ['name']});
+/// ```
 class Fields([Map<String, Iterable<String>> fields = const {}])
     with MapMixin<String, Iterable<String>>
     implements QueryEncodable {
-  /// The [fields] argument maps the resource type to a list of fields.
-  ///
-  /// Example:
-  /// ```dart
-  /// Fields({'articles': ['title', 'body'], 'people': ['name']});
-  /// ```
   this {
     addAll(fields);
   }

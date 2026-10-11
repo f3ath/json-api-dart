@@ -4,18 +4,18 @@ import 'package:json_api/src/query/query_encodable.dart';
 
 /// Query parameters defining the pagination data.
 /// @see https://jsonapi.org/format/#fetching-pagination
+/// Example:
+/// ```dart
+/// Page({'limit': '10', 'offset': '20'}).addTo(url);
+/// ```
+/// encodes into
+/// ```
+/// ?page[limit]=10&page[offset]=20
+/// ```
+///
 class Page([Map<String, String> parameters = const {}])
     with MapMixin<String, String>
     implements QueryEncodable {
-  /// Example:
-  /// ```dart
-  /// Page({'limit': '10', 'offset': '20'}).addTo(url);
-  /// ```
-  /// encodes into
-  /// ```
-  /// ?page[limit]=10&page[offset]=20
-  /// ```
-  ///
   this {
     addAll(parameters);
   }

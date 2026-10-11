@@ -4,13 +4,13 @@ import 'package:json_api/src/query/query_encodable.dart';
 
 /// Query parameter defining inclusion of related resources.
 /// @see https://jsonapi.org/format/#fetching-includes
+/// Example:
+/// ```dart
+/// Include(['comments', 'comments.author']);
+/// ```
 class Include([Iterable<String> resources = const []])
     with IterableMixin<String>
     implements QueryEncodable {
-  /// Example:
-  /// ```dart
-  /// Include(['comments', 'comments.author']);
-  /// ```
   this {
     _.addAll(resources);
   }
