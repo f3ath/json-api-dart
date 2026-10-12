@@ -2,7 +2,7 @@ import 'package:http_interop/http_interop.dart';
 import 'package:json_api/routing.dart';
 
 /// JSON:API controller
-abstract class Controller() {
+abstract interface class Controller() {
   /// Fetch a primary resource collection
   Future<Response> fetchCollection(Request request, CollectionTarget target);
 
