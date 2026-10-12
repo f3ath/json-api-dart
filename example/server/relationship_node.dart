@@ -1,7 +1,8 @@
 /// Relationship tree node
 class RelationshipNode(
   /// The name of the relationship
-  final String name) {
+  final String name,
+) {
   static Iterable<RelationshipNode> forest(Iterable<String> relationships) {
     final root = RelationshipNode('');
     relationships.map((rel) => rel.trim().split('.').map((e) => e.trim())).forEach(root.add);
