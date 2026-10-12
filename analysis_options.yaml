@@ -1,1 +1,12 @@
 include: package:lints/recommended.yaml
+formatter:
+  page_width: 100
+
+linter:
+  rules:
+  - use_primary_constructors
+  - use_declaring_parameters
+  - unnecessary_primary_constructor_body
+  - unnecessary_type_name_in_constructor
+
+  - prefer_if_null_operators

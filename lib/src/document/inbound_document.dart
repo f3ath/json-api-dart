@@ -22,10 +22,8 @@ class InboundDocument(
   bool get hasData => json.containsKey('data');
 
   /// Included resources
-  Iterable<Resource> included() => json
-      .get<List>('included', orGet: () => [])
-      .whereType<Map>()
-      .map(_parse.resource);
+  Iterable<Resource> included() =>
+      json.get<List>('included', orGet: () => []).whereType<Map>().map(_parse.resource);
 
   /// Top-level meta data.
   Map<String, Object?> meta() => _parse.meta(json);
@@ -34,13 +32,10 @@ class InboundDocument(
   Map<String, Link> links() => _parse.links(json);
 
   /// Errors (for an Error Document)
-  Iterable<ErrorObject> errors() => json
-      .get<List>('errors', orGet: () => [])
-      .whereType<Map>()
-      .map(_parse.errorObject);
+  Iterable<ErrorObject> errors() =>
+      json.get<List>('errors', orGet: () => []).whereType<Map>().map(_parse.errorObject);
 
-  Iterable<Resource> dataAsCollection() =>
-      _data<List>().whereType<Map>().map(_parse.resource);
+  Iterable<Resource> dataAsCollection() => _data<List>().whereType<Map>().map(_parse.resource);
 
   Resource dataAsResource() => _parse.resource(_data<Map>());
 
@@ -61,11 +56,8 @@ class InboundDocument(
   T _data<T>() => json.get<T>('data');
 }
 
-class _Parser {
-  const _Parser();
-
-  Map<String, Object?> meta(Map json) =>
-      json.get<Map<String, Object?>>('meta', orGet: () => {});
+class const _Parser() {
+  Map<String, Object?> meta(Map json) => json.get<Map<String, Object?>>('meta', orGet: () => {});
 
   Map<String, Link> links(Map json) {
     var links = json.get<Map>('links', orGet: () => {});
@@ -81,20 +73,17 @@ class _Parser {
   }
 
   NewRelationship newRelationship(Map json) {
-    final rel = json.containsKey('data')
-        ? _newRel(json['data'])
-        : NewRelationship();
+    final rel = json.containsKey('data') ? _newRel(json['data']) : NewRelationship();
     rel.links.addAll(links(json));
     rel.meta.addAll(meta(json));
     return rel;
   }
 
-  Resource resource(Map json) =>
-      Resource(json.get<String>('type'), json.get<String>('id'))
-        ..attributes.addAll(_getAttributes(json))
-        ..relationships.addAll(_getRelationships(json))
-        ..links.addAll(links(json))
-        ..meta.addAll(meta(json));
+  Resource resource(Map json) => Resource(json.get<String>('type'), json.get<String>('id'))
+    ..attributes.addAll(_getAttributes(json))
+    ..relationships.addAll(_getRelationships(json))
+    ..links.addAll(links(json))
+    ..meta.addAll(meta(json));
 
   NewResource newResource(Map json) =>
       NewResource(
@@ -109,8 +98,7 @@ class _Parser {
   /// Decodes Identifier from [json]. Returns the decoded object.
   /// If the [json] has incorrect format, throws  [FormatException].
   Identifier identifier(Map json) =>
-      Identifier(json.get<String>('type'), json.get<String>('id'))
-        ..meta.addAll(meta(json));
+      Identifier(json.get<String>('type'), json.get<String>('id'))..meta.addAll(meta(json));
 
   /// Decodes NewIdentifier from [json]. Returns the decoded object.
   /// If the [json] has incorrect format, throws  [FormatException].

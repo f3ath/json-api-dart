@@ -14,16 +14,16 @@ class Request(
   final Object? document,
 ]) {
   /// Creates a GET request.
-  Request.get() : this('get');
+  new get() : this('get');
 
   /// Creates a POST request.
-  Request.post([Object? document]) : this('post', document);
+  new post([Object? document]) : this('post', document);
 
   /// Creates a DELETE request.
-  Request.delete([Object? document]) : this('delete', document);
+  new delete([Object? document]) : this('delete', document);
 
   /// Creates a PATCH request.
-  Request.patch([Object? document]) : this('patch', document);
+  new patch([Object? document]) : this('patch', document);
 
   /// Query parameters.
   final query = Query();

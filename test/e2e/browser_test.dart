@@ -12,7 +12,7 @@ void main() {
       final channel = spawnHybridUri('hybrid_server.dart');
       final serverUrl = await channel.stream.first;
       client = RoutingClient(
-        StandardUriDesign(Uri.parse(serverUrl.toString())),
+        StandardUriDesign(Uri.parse(serverUrl.toString())).uri,
         Client(oneOffHandler),
       );
     });

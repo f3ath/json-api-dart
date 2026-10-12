@@ -14,10 +14,7 @@ Handler testHandler({
     .add(requestValidatorMiddleware)
     .add(errorConverter())
     .call(
-      router(
-        RepositoryController(InMemoryRepo(types), _nextId),
-        StandardUriDesign.pathOnly.matchTarget,
-      ),
+      router(RepositoryController(InMemoryRepo(types), _nextId), StandardUriDesign.pathOnly.target),
     );
 
 String _nextId() => (_counter++).toString();

@@ -20,7 +20,7 @@ Future<void> main() async {
 
   final handler = errorConverter()
       .add(loggerMiddleware)
-      .call(router(controller, StandardUriDesign.pathOnly.matchTarget));
+      .call(router(controller, StandardUriDesign.pathOnly.target));
 
   final server = JsonApiServer(handler, host: host, port: port);
 

@@ -15,9 +15,8 @@ class Include([Iterable<String> resources = const []])
     _.addAll(resources);
   }
 
-  static Include fromUri(Uri uri) => Include(
-    uri.queryParametersAll['include']?.expand((it) => it.split(',')) ?? [],
-  );
+  static Include fromUri(Uri uri) =>
+      Include(uri.queryParametersAll['include']?.expand((it) => it.split(',')) ?? []);
 
   final _ = <String>[];
 

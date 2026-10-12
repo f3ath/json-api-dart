@@ -13,6 +13,5 @@ class Link(
   String toString() => uri.toString();
 
   @override
-  Object toJson() =>
-      meta.isEmpty ? uri.toString() : {'href': uri.toString(), 'meta': meta};
+  Object toJson() => meta.isEmpty ? uri.toString() : {'href': uri.toString(), 'meta': meta};
 }

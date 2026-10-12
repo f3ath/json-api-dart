@@ -14,26 +14,17 @@ void main() {
 
   group('RelatedResourceFetched', () {
     test('throws on empty body', () {
-      expect(
-        () => RelatedResourceFetched(emptyResponse),
-        throwsFormatException,
-      );
+      expect(() => RelatedResourceFetched(emptyResponse), throwsFormatException);
     });
   });
 
   group('RelationshipFetched', () {
     test('.many() throws on empty body', () {
-      expect(
-        () => RelationshipFetched.many(emptyResponse),
-        throwsFormatException,
-      );
+      expect(() => RelationshipFetched.many(emptyResponse), throwsFormatException);
     });
 
     test('.one() throws on empty body', () {
-      expect(
-        () => RelationshipFetched.one(emptyResponse),
-        throwsFormatException,
-      );
+      expect(() => RelationshipFetched.one(emptyResponse), throwsFormatException);
     });
   });
 

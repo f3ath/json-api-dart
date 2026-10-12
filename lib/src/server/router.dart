@@ -23,7 +23,7 @@ Handler router(Controller controller, TargetMatcher matchTarget) =>
         'delete' => controller.deleteResource(request, target),
         _ => throw MethodNotAllowed(request.method),
       },
-      Target target => switch (request.method) {
+      CollectionTarget target => switch (request.method) {
         'get' => controller.fetchCollection(request, target),
         'post' => controller.createResource(request, target),
         _ => throw MethodNotAllowed(request.method),

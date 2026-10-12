@@ -9,20 +9,16 @@ class RelationshipFetched<R extends Relationship>(
 ) {
   static RelationshipFetched<ToMany> many(Response response) {
     final document = InboundDocument(
-      response.document ??
-          (throw FormatException('The document must not be empty')),
+      response.document ?? (throw FormatException('The document must not be empty')),
     );
-    return RelationshipFetched(response, document.asToMany())
-      ..included.addAll(document.included());
+    return RelationshipFetched(response, document.asToMany())..included.addAll(document.included());
   }
 
   static RelationshipFetched<ToOne> one(Response response) {
     final document = InboundDocument(
-      response.document ??
-          (throw FormatException('The document must not be empty')),
+      response.document ?? (throw FormatException('The document must not be empty')),
     );
-    return RelationshipFetched(response, document.asToOne())
-      ..included.addAll(document.included());
+    return RelationshipFetched(response, document.asToOne())..included.addAll(document.included());
   }
 
   final included = <Resource>[];

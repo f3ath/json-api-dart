@@ -22,10 +22,7 @@ void main() {
       });
       test('full', () {
         expect(
-          toObject(
-            OutboundErrorDocument([ErrorObject(detail: 'Some issue')])
-              ..meta['foo'] = 42,
-          ),
+          toObject(OutboundErrorDocument([ErrorObject(detail: 'Some issue')])..meta['foo'] = 42),
           {
             'errors': [
               {'detail': 'Some issue'},
@@ -94,9 +91,7 @@ void main() {
 
     group('One', () {
       test('minimal', () {
-        expect(toObject(OutboundDataDocument.one(ToOne.empty())), {
-          'data': null,
-        });
+        expect(toObject(OutboundDataDocument.one(ToOne.empty())), {'data': null});
       });
       test('full', () {
         expect(

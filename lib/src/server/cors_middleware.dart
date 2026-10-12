@@ -10,8 +10,7 @@ final corsMiddleware = middleware(
         'Access-Control-Allow-Methods':
             rq.headers['Access-Control-Request-Method'] ??
             const ['POST', 'GET', 'DELETE', 'PATCH', 'OPTIONS'],
-        'Access-Control-Allow-Headers':
-            rq.headers['Access-Control-Request-Headers'] ?? const ['*'],
+        'Access-Control-Allow-Headers': rq.headers['Access-Control-Request-Headers'] ?? const ['*'],
       }),
     ),
     _ => null,

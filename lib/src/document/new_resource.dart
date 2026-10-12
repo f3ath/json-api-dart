@@ -51,9 +51,8 @@ class NewResource(
     return resource;
   }
 
-  Map<String, Relationship> _toRelationships(String id) => relationships.map(
-    (k, v) => MapEntry(k, _toRelationship(v, id)..meta.addAll(v.meta)),
-  );
+  Map<String, Relationship> _toRelationships(String id) =>
+      relationships.map((k, v) => MapEntry(k, _toRelationship(v, id)..meta.addAll(v.meta)));
 
   Relationship _toRelationship(NewRelationship r, String id) {
     if (r is NewToOne) {
@@ -70,14 +69,11 @@ class NewResource(
     return _toIdentifier(identifier, id);
   }
 
-  Identifier _toIdentifier(NewIdentifier identifier, String id) =>
-      switch (identifier) {
-        Identifier() => identifier,
-        LocalIdentifier() =>
-          (identifier.type == type && identifier.lid == lid)
-              ? identifier.toIdentifier(id)
-              : throw StateError(
-                  'Unmatched local id: "${identifier.lid}". Expected "$lid".',
-                ),
-      };
+  Identifier _toIdentifier(NewIdentifier identifier, String id) => switch (identifier) {
+    Identifier() => identifier,
+    LocalIdentifier() =>
+      (identifier.type == type && identifier.lid == lid)
+          ? identifier.toIdentifier(id)
+          : throw StateError('Unmatched local id: "${identifier.lid}". Expected "$lid".'),
+  };
 }

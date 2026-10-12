@@ -13,8 +13,7 @@ class CollectionFetched(
   }
 
   final document = InboundDocument(
-    rawResponse.document ??
-        (throw FormatException('The document must not be empty')),
+    rawResponse.document ?? (throw FormatException('The document must not be empty')),
   );
 
   /// The resource collection fetched from the server

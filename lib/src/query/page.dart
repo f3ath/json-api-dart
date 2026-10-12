@@ -21,9 +21,8 @@ class Page([Map<String, String> parameters = const {}])
   }
 
   static Page fromUri(Uri uri) => Page(
-    uri.queryParametersAll.map(
-      (k, v) => MapEntry(_regex.firstMatch(k)?.group(1) ?? '', v.last),
-    )..removeWhere((k, v) => k.isEmpty),
+    uri.queryParametersAll.map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1) ?? '', v.last))
+      ..removeWhere((k, v) => k.isEmpty),
   );
   static final _regex = RegExp(r'^page\[(.+)\]$');
 
@@ -31,8 +30,7 @@ class Page([Map<String, String> parameters = const {}])
 
   /// Converts to a map of query parameters
   @override
-  Map<String, List<String>> toQuery() =>
-      _.map((k, v) => MapEntry('page[$k]', [v]));
+  Map<String, List<String>> toQuery() => _.map((k, v) => MapEntry('page[$k]', [v]));
 
   @override
   String? operator [](Object? key) => _[key];

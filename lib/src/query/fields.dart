@@ -20,10 +20,8 @@ class Fields([Map<String, Iterable<String>> fields = const {}])
   /// Extracts the requested fields from the [uri].
   static Fields fromUri(Uri uri) => Fields(
     uri.queryParametersAll.map(
-      (k, v) => MapEntry(
-        _regex.firstMatch(k)?.group(1) ?? '',
-        v.expand((it) => it.split(',')).toList(),
-      ),
+      (k, v) =>
+          MapEntry(_regex.firstMatch(k)?.group(1) ?? '', v.expand((it) => it.split(',')).toList()),
     )..removeWhere((k, v) => k.isEmpty),
   );
 
@@ -33,8 +31,7 @@ class Fields([Map<String, Iterable<String>> fields = const {}])
 
   /// Converts to a map of query parameters
   @override
-  Map<String, List<String>> toQuery() =>
-      _map.map((k, v) => MapEntry('fields[$k]', [v.join(',')]));
+  Map<String, List<String>> toQuery() => _map.map((k, v) => MapEntry('fields[$k]', [v.join(',')]));
 
   @override
   void operator []=(String key, Iterable<String> value) => _map[key] = value;

@@ -55,11 +55,7 @@ Response collectionFull() => Response(
       {
         'type': 'people',
         'id': '9',
-        'attributes': {
-          'firstName': 'Dan',
-          'lastName': 'Gebhardt',
-          'twitter': 'dgeb',
-        },
+        'attributes': {'firstName': 'Dan', 'lastName': 'Gebhardt', 'twitter': 'dgeb'},
         'links': {'self': 'http://example.com/people/9'},
       },
       {
@@ -108,11 +104,7 @@ Response primaryResource() => Response(
       {
         'type': 'people',
         'id': '9',
-        'attributes': {
-          'firstName': 'Dan',
-          'lastName': 'Gebhardt',
-          'twitter': 'dgeb',
-        },
+        'attributes': {'firstName': 'Dan', 'lastName': 'Gebhardt', 'twitter': 'dgeb'},
         'links': {'self': 'http://example.com/people/9'},
       },
       {
@@ -155,21 +147,14 @@ Response relatedResourceNull() => Response(
 Response one() => Response(
   200,
   Body.json({
-    'links': {
-      'self': '/articles/1/relationships/author',
-      'related': '/articles/1/author',
-    },
+    'links': {'self': '/articles/1/relationships/author', 'related': '/articles/1/author'},
     'meta': {'hello': 'world'},
     'data': {'type': 'people', 'id': '12'},
     'included': [
       {
         'type': 'people',
         'id': '9',
-        'attributes': {
-          'firstName': 'Dan',
-          'lastName': 'Gebhardt',
-          'twitter': 'dgeb',
-        },
+        'attributes': {'firstName': 'Dan', 'lastName': 'Gebhardt', 'twitter': 'dgeb'},
         'links': {'self': 'http://example.com/people/9'},
       },
       {
@@ -202,21 +187,14 @@ Response one() => Response(
 Response oneEmpty() => Response(
   200,
   Body.json({
-    'links': {
-      'self': '/articles/1/relationships/author',
-      'related': '/articles/1/author',
-    },
+    'links': {'self': '/articles/1/relationships/author', 'related': '/articles/1/author'},
     'meta': {'hello': 'world'},
     'data': null,
     'included': [
       {
         'type': 'people',
         'id': '9',
-        'attributes': {
-          'firstName': 'Dan',
-          'lastName': 'Gebhardt',
-          'twitter': 'dgeb',
-        },
+        'attributes': {'firstName': 'Dan', 'lastName': 'Gebhardt', 'twitter': 'dgeb'},
         'links': {'self': 'http://example.com/people/9'},
       },
       {
@@ -249,10 +227,7 @@ Response oneEmpty() => Response(
 Response many() => Response(
   200,
   Body.json({
-    'links': {
-      'self': '/articles/1/relationships/tags',
-      'related': '/articles/1/tags',
-    },
+    'links': {'self': '/articles/1/relationships/tags', 'related': '/articles/1/tags'},
     'meta': {'hello': 'world'},
     'data': [
       {'type': 'tags', 'id': '12'},

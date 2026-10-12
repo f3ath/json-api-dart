@@ -17,10 +17,7 @@ void main() {
         () => client.send(Uri.parse('/posts'), Request('delete')),
         () => client.send(Uri.parse('/posts/1'), Request('post')),
         () => client.send(Uri.parse('/posts/1/author'), Request('post')),
-        () => client.send(
-          Uri.parse('/posts/1/relationships/author'),
-          Request('head'),
-        ),
+        () => client.send(Uri.parse('/posts/1/relationships/author'), Request('head')),
       ];
       for (final action in actions) {
         final response = await action();
@@ -29,12 +26,7 @@ void main() {
     });
     test('Bad request when target can not be matched', () async {
       final r = await testHandler()(
-        http.Request(
-          'get',
-          Uri.parse('/a/long/prefix/'),
-          http.Body(),
-          http.Headers(),
-        ),
+        http.Request('get', Uri.parse('/a/long/prefix/'), http.Body(), http.Headers()),
       );
       expect(r.statusCode, 400);
     });

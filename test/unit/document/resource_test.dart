@@ -16,12 +16,10 @@ void main() {
           Resource('test_type', 'test_id')
             ..meta['foo'] = [42]
             ..attributes['color'] = 'green'
-            ..relationships['one'] = (ToOne(
-              Identifier('rel', '1')..meta['rel'] = 1,
-            )..meta['one'] = 1)
-            ..relationships['many'] = (ToMany([
-              Identifier('rel', '1')..meta['rel'] = 1,
-            ])..meta['many'] = 1)
+            ..relationships['one'] = (ToOne(Identifier('rel', '1')..meta['rel'] = 1)
+              ..meta['one'] = 1)
+            ..relationships['many'] = (ToMany([Identifier('rel', '1')..meta['rel'] = 1])
+              ..meta['many'] = 1)
             ..links['self'] = (Link(Uri.parse('/apples/42'))..meta['a'] = 1),
         ),
         jsonEncode({

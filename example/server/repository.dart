@@ -1,7 +1,7 @@
 import 'package:json_api/document.dart';
 import 'package:json_api/src/nullable.dart';
 
-abstract class Repository {
+abstract class Repository() {
   /// Fetches a collection.
   /// Throws [CollectionNotFound].
   Stream<Model> fetchCollection(String type);
@@ -16,12 +16,7 @@ abstract class Repository {
   /// Throws [CollectionNotFound].
   /// Throws [ResourceNotFound].
   /// Throws [RelationshipNotFound].
-  Stream<Identifier> addMany(
-    String type,
-    String id,
-    String rel,
-    Iterable<Identifier> many,
-  );
+  Stream<Identifier> addMany(String type, String id, String rel, Iterable<Identifier> many);
 
   /// Delete the resource
   Future<void> delete(String type, String id);
@@ -33,41 +28,25 @@ abstract class Repository {
 
   /// Deletes refs from the to-many relationship.
   /// Returns the new actual refs.
-  Stream<Identifier> deleteMany(
-    String type,
-    String id,
-    String rel,
-    Iterable<Identifier> many,
-  );
+  Stream<Identifier> deleteMany(String type, String id, String rel, Iterable<Identifier> many);
 
   /// Replaces refs in the to-many relationship.
   /// Returns the new actual refs.
-  Stream<Identifier> replaceMany(
-    String type,
-    String id,
-    String rel,
-    Iterable<Identifier> many,
-  );
+  Stream<Identifier> replaceMany(String type, String id, String rel, Iterable<Identifier> many);
 }
 
-class Reference {
-  Reference(this.type, this.id);
-
+class Reference(final String type, final String id) {
   static Reference of(Identifier id) => Reference(id.type, id.id);
 
   Identifier toIdentifier() => Identifier(type, id);
-  final String type;
-  final String id;
-
   @override
   final hashCode = 0;
 
   @override
-  bool operator ==(Object other) =>
-      other is Reference && type == other.type && id == other.id;
+  bool operator ==(Object other) => other is Reference && type == other.type && id == other.id;
 }
 
-class ModelProps {
+class ModelProps() {
   static ModelProps fromResource(Resource res) {
     final props = ModelProps();
     res.attributes.forEach((key, value) {
@@ -104,20 +83,14 @@ class ModelProps {
 }
 
 /// A model of a resource. Essentially, this is the core of a resource object.
-class Model extends ModelProps {
-  Model(this.id);
-
-  final String id;
-
+class Model(final String id) extends ModelProps {
   Resource toResource(String type) {
     final res = Resource(type, id);
     attributes.forEach((key, value) {
       res.attributes[key] = value;
     });
     one.forEach((key, value) {
-      res.relationships[key] = (value == null
-          ? ToOne.empty()
-          : ToOne(value.toIdentifier()));
+      res.relationships[key] = (value == null ? ToOne.empty() : ToOne(value.toIdentifier()));
     });
     many.forEach((key, value) {
       res.relationships[key] = ToMany(value.map((it) => it.toIdentifier()));

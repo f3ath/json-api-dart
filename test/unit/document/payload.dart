@@ -35,11 +35,7 @@ final example = {
     {
       'type': 'people',
       'id': '9',
-      'attributes': {
-        'firstName': 'Dan',
-        'lastName': 'Gebhardt',
-        'twitter': 'dgeb',
-      },
+      'attributes': {'firstName': 'Dan', 'lastName': 'Gebhardt', 'twitter': 'dgeb'},
       'links': {'self': 'http://example.com/people/9'},
     },
     {
@@ -85,10 +81,7 @@ final newResource = {
 };
 
 final many = {
-  'links': {
-    'self': '/articles/1/relationships/tags',
-    'related': '/articles/1/tags',
-  },
+  'links': {'self': '/articles/1/relationships/tags', 'related': '/articles/1/tags'},
   'data': [
     {'type': 'tags', 'id': '2'},
     {'type': 'tags', 'id': '3'},
@@ -96,26 +89,17 @@ final many = {
 };
 
 final manyEmpty = {
-  'links': {
-    'self': '/articles/1/relationships/tags',
-    'related': '/articles/1/tags',
-  },
+  'links': {'self': '/articles/1/relationships/tags', 'related': '/articles/1/tags'},
   'data': [],
 };
 
 final one = {
-  'links': {
-    'self': '/articles/1/relationships/author',
-    'related': '/articles/1/author',
-  },
+  'links': {'self': '/articles/1/relationships/author', 'related': '/articles/1/author'},
   'data': {'type': 'people', 'id': '12'},
 };
 
 final oneEmpty = {
-  'links': {
-    'self': '/articles/1/relationships/author',
-    'related': '/articles/1/author',
-  },
+  'links': {'self': '/articles/1/relationships/author', 'related': '/articles/1/author'},
   'data': null,
 };
 

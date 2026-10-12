@@ -12,10 +12,7 @@ import 'response.dart' as mock;
 
 void main() {
   final mockHandler = MockHandler();
-  final client = RoutingClient(
-    StandardUriDesign.pathOnly,
-    Client(mockHandler.handle),
-  );
+  final client = RoutingClient(StandardUriDesign.pathOnly.uri, Client(mockHandler.handle));
 
   group('Failure', () {
     test('RequestFailure', () async {
@@ -97,11 +94,7 @@ void main() {
   group('Fetch Related Collection', () {
     test('Min', () async {
       mockHandler.response = mock.collectionFull();
-      final response = await client.fetchRelatedCollection(
-        'people',
-        '1',
-        'articles',
-      );
+      final response = await client.fetchRelatedCollection('people', '1', 'articles');
       expect(response.collection.length, 1);
       expect(mockHandler.request.method, equals('get'));
       expect(mockHandler.request.uri.path, '/people/1/articles');
@@ -203,11 +196,7 @@ void main() {
   group('Fetch Related Resource', () {
     test('Min', () async {
       mockHandler.response = mock.primaryResource();
-      final response = await client.fetchRelatedResource(
-        'articles',
-        '1',
-        'author',
-      );
+      final response = await client.fetchRelatedResource('articles', '1', 'author');
       expect(response.resource?.type, 'articles');
       expect(response.included.length, 3);
       expect(mockHandler.request.method, equals('get'));
@@ -255,11 +244,7 @@ void main() {
 
     test('Missing resource', () async {
       mockHandler.response = mock.relatedResourceNull();
-      final response = await client.fetchRelatedResource(
-        'articles',
-        '1',
-        'author',
-      );
+      final response = await client.fetchRelatedResource('articles', '1', 'author');
       expect(response.resource, isNull);
       expect(response.included, isEmpty);
       expect(mockHandler.request.method, equals('get'));
@@ -276,10 +261,7 @@ void main() {
       final response = await client.fetchToOne('articles', '1', 'author');
       expect(response.included.length, 3);
       expect(mockHandler.request.method, equals('get'));
-      expect(
-        mockHandler.request.uri.toString(),
-        '/articles/1/relationships/author',
-      );
+      expect(mockHandler.request.uri.toString(), '/articles/1/relationships/author');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
       });
@@ -316,10 +298,7 @@ void main() {
       mockHandler.response = mock.primaryResource();
       final response = await client.createNew('articles');
       expect(response.resource.type, 'articles');
-      expect(
-        response.links['self'].toString(),
-        'http://example.com/articles/1',
-      );
+      expect(response.links['self'].toString(), 'http://example.com/articles/1');
       expect(response.included.length, 3);
       expect(mockHandler.request.method, equals('post'));
       expect(mockHandler.request.uri.toString(), '/articles');
@@ -350,10 +329,7 @@ void main() {
         },
       );
       expect(response.resource.type, 'articles');
-      expect(
-        response.links['self'].toString(),
-        'http://example.com/articles/1',
-      );
+      expect(response.links['self'].toString(), 'http://example.com/articles/1');
       expect(response.included.length, 3);
       expect(mockHandler.request.method, equals('post'));
       expect(mockHandler.request.uri.toString(), '/articles');
@@ -573,10 +549,7 @@ void main() {
       );
       expect(response.relationship, isA<ToOne>());
       expect(mockHandler.request.method, equals('patch'));
-      expect(
-        mockHandler.request.uri.toString(),
-        '/articles/1/relationships/author',
-      );
+      expect(mockHandler.request.uri.toString(), '/articles/1/relationships/author');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
         'Content-Type': ['application/vnd.api+json'],
@@ -600,10 +573,7 @@ void main() {
       );
       expect(response.relationship, isA<ToOne>());
       expect(mockHandler.request.method, equals('patch'));
-      expect(
-        mockHandler.request.uri.toString(),
-        '/articles/1/relationships/author',
-      );
+      expect(mockHandler.request.uri.toString(), '/articles/1/relationships/author');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
         'Content-Type': ['application/vnd.api+json'],
@@ -618,12 +588,7 @@ void main() {
     test('Throws RequestFailure', () async {
       mockHandler.response = mock.error422();
       try {
-        await client.replaceToOne(
-          'articles',
-          '1',
-          'author',
-          Identifier('people', '42'),
-        );
+        await client.replaceToOne('articles', '1', 'author', Identifier('people', '42'));
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.rawResponse.httpResponse.statusCode, 422);
@@ -634,12 +599,7 @@ void main() {
     test('Throws FormatException', () async {
       mockHandler.response = mock.many();
       expect(
-        () => client.replaceToOne(
-          'articles',
-          '1',
-          'author',
-          Identifier('people', '42'),
-        ),
+        () => client.replaceToOne('articles', '1', 'author', Identifier('people', '42')),
         throwsFormatException,
       );
     });
@@ -652,17 +612,12 @@ void main() {
       expect(response.relationship, isA<ToOne>());
       expect(response.relationship!.identifier, isNull);
       expect(mockHandler.request.method, equals('patch'));
-      expect(
-        mockHandler.request.uri.toString(),
-        '/articles/1/relationships/author',
-      );
+      expect(mockHandler.request.uri.toString(), '/articles/1/relationships/author');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
         'Content-Type': ['application/vnd.api+json'],
       });
-      expect(jsonDecode(await mockHandler.request.body.decode(utf8)), {
-        'data': null,
-      });
+      expect(jsonDecode(await mockHandler.request.body.decode(utf8)), {'data': null});
     });
 
     test('Full', () async {
@@ -678,18 +633,13 @@ void main() {
       expect(response.relationship, isA<ToOne>());
       expect(response.relationship!.identifier, isNull);
       expect(mockHandler.request.method, equals('patch'));
-      expect(
-        mockHandler.request.uri.toString(),
-        '/articles/1/relationships/author',
-      );
+      expect(mockHandler.request.uri.toString(), '/articles/1/relationships/author');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
         'Content-Type': ['application/vnd.api+json'],
         'foo': ['bar'],
       });
-      expect(jsonDecode(await mockHandler.request.body.decode(utf8)), {
-        'data': null,
-      });
+      expect(jsonDecode(await mockHandler.request.body.decode(utf8)), {'data': null});
     });
 
     test('Throws RequestFailure', () async {
@@ -705,10 +655,7 @@ void main() {
 
     test('Throws FormatException', () async {
       mockHandler.response = mock.many();
-      expect(
-        () => client.deleteToOne('articles', '1', 'author'),
-        throwsFormatException,
-      );
+      expect(() => client.deleteToOne('articles', '1', 'author'), throwsFormatException);
     });
   });
 
@@ -720,10 +667,7 @@ void main() {
       ]);
       expect(response.relationship, isA<ToMany>());
       expect(mockHandler.request.method, equals('delete'));
-      expect(
-        mockHandler.request.uri.toString(),
-        '/articles/1/relationships/tags',
-      );
+      expect(mockHandler.request.uri.toString(), '/articles/1/relationships/tags');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
         'Content-Type': ['application/vnd.api+json'],
@@ -749,10 +693,7 @@ void main() {
       );
       expect(response.relationship, isA<ToMany>());
       expect(mockHandler.request.method, equals('delete'));
-      expect(
-        mockHandler.request.uri.toString(),
-        '/articles/1/relationships/tags',
-      );
+      expect(mockHandler.request.uri.toString(), '/articles/1/relationships/tags');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
         'Content-Type': ['application/vnd.api+json'],
@@ -769,9 +710,7 @@ void main() {
     test('Throws RequestFailure', () async {
       mockHandler.response = mock.error422();
       try {
-        await client.deleteFromMany('articles', '1', 'tags', [
-          Identifier('tags', '1'),
-        ]);
+        await client.deleteFromMany('articles', '1', 'tags', [Identifier('tags', '1')]);
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.rawResponse.httpResponse.statusCode, 422);
@@ -782,9 +721,7 @@ void main() {
     test('Throws FormatException', () async {
       mockHandler.response = mock.one();
       expect(
-        () => client.deleteFromMany('articles', '1', 'tags', [
-          Identifier('tags', '1'),
-        ]),
+        () => client.deleteFromMany('articles', '1', 'tags', [Identifier('tags', '1')]),
         throwsFormatException,
       );
     });
@@ -798,10 +735,7 @@ void main() {
       ]);
       expect(response.relationship, isA<ToMany>());
       expect(mockHandler.request.method, equals('patch'));
-      expect(
-        mockHandler.request.uri.toString(),
-        '/articles/1/relationships/tags',
-      );
+      expect(mockHandler.request.uri.toString(), '/articles/1/relationships/tags');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
         'Content-Type': ['application/vnd.api+json'],
@@ -827,10 +761,7 @@ void main() {
       );
       expect(response.relationship, isA<ToMany>());
       expect(mockHandler.request.method, equals('patch'));
-      expect(
-        mockHandler.request.uri.toString(),
-        '/articles/1/relationships/tags',
-      );
+      expect(mockHandler.request.uri.toString(), '/articles/1/relationships/tags');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
         'Content-Type': ['application/vnd.api+json'],
@@ -847,9 +778,7 @@ void main() {
     test('Throws RequestFailure', () async {
       mockHandler.response = mock.error422();
       try {
-        await client.replaceToMany('articles', '1', 'tags', [
-          Identifier('tags', '1'),
-        ]);
+        await client.replaceToMany('articles', '1', 'tags', [Identifier('tags', '1')]);
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.rawResponse.httpResponse.statusCode, 422);
@@ -860,9 +789,7 @@ void main() {
     test('Throws FormatException', () async {
       mockHandler.response = mock.one();
       expect(
-        () => client.replaceToMany('articles', '1', 'tags', [
-          Identifier('tags', '1'),
-        ]),
+        () => client.replaceToMany('articles', '1', 'tags', [Identifier('tags', '1')]),
         throwsFormatException,
       );
     });
@@ -871,15 +798,10 @@ void main() {
   group('Add Many', () {
     test('Min', () async {
       mockHandler.response = mock.many();
-      final response = await client.addMany('articles', '1', 'tags', [
-        Identifier('tags', '1'),
-      ]);
+      final response = await client.addMany('articles', '1', 'tags', [Identifier('tags', '1')]);
       expect(response.relationship, isA<ToMany>());
       expect(mockHandler.request.method, equals('post'));
-      expect(
-        mockHandler.request.uri.toString(),
-        '/articles/1/relationships/tags',
-      );
+      expect(mockHandler.request.uri.toString(), '/articles/1/relationships/tags');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
         'Content-Type': ['application/vnd.api+json'],
@@ -905,10 +827,7 @@ void main() {
       );
       expect(response.relationship, isA<ToMany>());
       expect(mockHandler.request.method, equals('post'));
-      expect(
-        mockHandler.request.uri.toString(),
-        '/articles/1/relationships/tags',
-      );
+      expect(mockHandler.request.uri.toString(), '/articles/1/relationships/tags');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
         'Content-Type': ['application/vnd.api+json'],
@@ -925,9 +844,7 @@ void main() {
     test('Throws RequestFailure', () async {
       mockHandler.response = mock.error422();
       try {
-        await client.addMany('articles', '1', 'tags', [
-          Identifier('tags', '1'),
-        ]);
+        await client.addMany('articles', '1', 'tags', [Identifier('tags', '1')]);
         fail('Exception expected');
       } on RequestFailure catch (e) {
         expect(e.rawResponse.httpResponse.statusCode, 422);
@@ -939,8 +856,7 @@ void main() {
     test('Throws FormatException', () async {
       mockHandler.response = mock.one();
       expect(
-        () =>
-            client.addMany('articles', '1', 'tags', [Identifier('tags', '1')]),
+        () => client.addMany('articles', '1', 'tags', [Identifier('tags', '1')]),
         throwsFormatException,
       );
     });

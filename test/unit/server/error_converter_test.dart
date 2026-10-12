@@ -22,15 +22,11 @@ void main() {
       expect(r.statusCode, equals(StatusCode.notFound));
     });
     test('can catch ResourceNotFound', () async {
-      final r = await converter((_) => throw ResourceNotFound('foo', 'bar'))(
-        get,
-      );
+      final r = await converter((_) => throw ResourceNotFound('foo', 'bar'))(get);
       expect(r.statusCode, equals(StatusCode.notFound));
     });
     test('can catch RelationshipNotFound', () async {
-      final r = await converter(
-        (_) => throw RelationshipNotFound('foo', 'bar', 'baz'),
-      )(get);
+      final r = await converter((_) => throw RelationshipNotFound('foo', 'bar', 'baz'))(get);
       expect(r.statusCode, equals(StatusCode.notFound));
     });
     test('can catch UnsupportedMediaType', () async {
@@ -69,15 +65,11 @@ void main() {
       expect(r.statusCode, equals(552));
     });
     test('can catch ResourceNotFound', () async {
-      final r = await converter((_) => throw ResourceNotFound('foo', 'bar'))(
-        get,
-      );
+      final r = await converter((_) => throw ResourceNotFound('foo', 'bar'))(get);
       expect(r.statusCode, equals(553));
     });
     test('can catch RelationshipNotFound', () async {
-      final r = await converter(
-        (_) => throw RelationshipNotFound('foo', 'bar', 'baz'),
-      )(get);
+      final r = await converter((_) => throw RelationshipNotFound('foo', 'bar', 'baz'))(get);
       expect(r.statusCode, equals(554));
     });
     test('can catch any other error', () async {

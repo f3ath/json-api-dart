@@ -20,9 +20,8 @@ class Filter([Map<String, String> parameters = const {}])
   }
 
   static Filter fromUri(Uri uri) => Filter(
-    uri.queryParametersAll.map(
-      (k, v) => MapEntry(_regex.firstMatch(k)?.group(1) ?? '', v.last),
-    )..removeWhere((k, v) => k.isEmpty),
+    uri.queryParametersAll.map((k, v) => MapEntry(_regex.firstMatch(k)?.group(1) ?? '', v.last))
+      ..removeWhere((k, v) => k.isEmpty),
   );
   static final _regex = RegExp(r'^filter\[(.+)\]$');
 
@@ -30,8 +29,7 @@ class Filter([Map<String, String> parameters = const {}])
 
   /// Converts to a map of query parameters
   @override
-  Map<String, List<String>> toQuery() =>
-      _.map((k, v) => MapEntry('filter[$k]', [v]));
+  Map<String, List<String>> toQuery() => _.map((k, v) => MapEntry('filter[$k]', [v]));
 
   @override
   String? operator [](Object? key) => _[key];

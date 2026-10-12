@@ -12,7 +12,7 @@ class MappingController() implements Controller {
       _controller(target.type).addMany(request, target);
 
   @override
-  Future<Response> createResource(Request request, Target target) =>
+  Future<Response> createResource(Request request, CollectionTarget target) =>
       _controller(target.type).createResource(request, target);
 
   @override
@@ -24,7 +24,7 @@ class MappingController() implements Controller {
       _controller(target.type).deleteResource(request, target);
 
   @override
-  Future<Response> fetchCollection(Request request, Target target) =>
+  Future<Response> fetchCollection(Request request, CollectionTarget target) =>
       _controller(target.type).fetchCollection(request, target);
 
   @override
@@ -40,15 +40,12 @@ class MappingController() implements Controller {
       _controller(target.type).fetchResource(request, target);
 
   @override
-  Future<Response> replaceRelationship(
-    Request request,
-    RelationshipTarget target,
-  ) => _controller(target.type).replaceRelationship(request, target);
+  Future<Response> replaceRelationship(Request request, RelationshipTarget target) =>
+      _controller(target.type).replaceRelationship(request, target);
 
   @override
   Future<Response> updateResource(Request request, ResourceTarget target) =>
       _controller(target.type).updateResource(request, target);
 
-  Controller _controller(String type) =>
-      map[type] ?? (throw CollectionNotFound(type));
+  Controller _controller(String type) => map[type] ?? (throw CollectionNotFound(type));
 }

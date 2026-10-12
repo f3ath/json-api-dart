@@ -44,10 +44,7 @@ abstract class BaseController() implements Controller {
   }
 
   @override
-  Future<Response> replaceRelationship(
-    Request request,
-    RelationshipTarget target,
-  ) {
+  Future<Response> replaceRelationship(Request request, RelationshipTarget target) {
     throw UnimplementedError();
   }
 

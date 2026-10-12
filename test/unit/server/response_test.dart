@@ -6,10 +6,7 @@ import 'package:test/test.dart';
 void main() {
   group('Response', () {
     test('converts DateTime to ISO-8601', () async {
-      final r = response(
-        200,
-        document: OutboundDocument()..meta['date'] = DateTime(2021),
-      );
+      final r = response(200, document: OutboundDocument()..meta['date'] = DateTime(2021));
       expect(
         await r.body.decodeJson(),
         equals({

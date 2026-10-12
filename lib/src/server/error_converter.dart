@@ -20,17 +20,13 @@ Middleware errorConverter({
   Future<Response?> Function(Object, StackTrace)? onError,
 }) => middleware(
   onError: (error, trace, _) async => switch (error) {
-    MethodNotAllowed() =>
-      await onMethodNotAllowed?.call(error) ?? methodNotAllowed(),
+    MethodNotAllowed() => await onMethodNotAllowed?.call(error) ?? methodNotAllowed(),
     UnmatchedTarget() => await onUnmatchedTarget?.call(error) ?? badRequest(),
     CollectionNotFound() =>
       await onCollectionNotFound?.call(error) ??
           notFound(
             OutboundErrorDocument([
-              ErrorObject(
-                title: 'Collection Not Found',
-                detail: 'Type: ${error.type}',
-              ),
+              ErrorObject(title: 'Collection Not Found', detail: 'Type: ${error.type}'),
             ]),
           ),
     ResourceNotFound() =>
@@ -60,10 +56,6 @@ Middleware errorConverter({
     NotAcceptable() => notAcceptable(),
     _ =>
       await onError?.call(error, trace) ??
-          internalServerError(
-            OutboundErrorDocument([
-              ErrorObject(title: 'Internal Server Error'),
-            ]),
-          ),
+          internalServerError(OutboundErrorDocument([ErrorObject(title: 'Internal Server Error')])),
   },
 );

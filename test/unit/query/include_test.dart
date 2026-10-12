@@ -18,9 +18,7 @@ void main() {
   });
 
   test('Can decode url with duplicate keys', () {
-    final uri = Uri.parse(
-      '/articles/1?include=author,comments.author&include=tags',
-    );
+    final uri = Uri.parse('/articles/1?include=author,comments.author&include=tags');
     final include = Include.fromUri(uri);
     expect(include, equals(['author', 'comments.author', 'tags']));
   });

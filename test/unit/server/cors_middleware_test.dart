@@ -61,14 +61,8 @@ void main() {
       expect(rs.statusCode, equals(204));
       expect(rs.headers['Access-Control-Allow-Origin'], equals(['foo']));
       expect(rs.headers['Access-Control-Expose-Headers'], equals(['Location']));
-      expect(
-        rs.headers['Access-Control-Allow-Methods'],
-        equals(['PUT', 'POST']),
-      );
-      expect(
-        rs.headers['Access-Control-Allow-Headers'],
-        equals(['foo', 'bar']),
-      );
+      expect(rs.headers['Access-Control-Allow-Methods'], equals(['PUT', 'POST']));
+      expect(rs.headers['Access-Control-Allow-Headers'], equals(['foo', 'bar']));
     });
   });
 }

@@ -1,1 +1,1 @@
-class NotAcceptable implements Exception {}
+class NotAcceptable() implements Exception {}

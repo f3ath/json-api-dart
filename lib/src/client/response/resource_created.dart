@@ -8,8 +8,7 @@ import 'package:json_api/src/client/response.dart';
 class ResourceCreated(final Response rawResponse) {
   this {
     final document = InboundDocument(
-      rawResponse.document ??
-          (throw FormatException('The document must not be empty')),
+      rawResponse.document ?? (throw FormatException('The document must not be empty')),
     );
     resource = document.dataAsResource();
     included.addAll(document.included());

@@ -7,7 +7,7 @@ void main() {
   group('BaseController', () {
     final controller = _Controller();
     final request = Request('get', Uri(), Body(), Headers());
-    const target = Target('articles');
+    const target = CollectionTarget('articles');
     const resourceTarget = ResourceTarget('articles', '1');
     const relationshipTarget = RelationshipTarget('articles', '1', 'author');
     const relatedTarget = RelatedTarget('articles', '1', 'author');
@@ -33,4 +33,4 @@ void main() {
   });
 }
 
-final class _Controller extends BaseController {}
+final class _Controller() extends BaseController {}

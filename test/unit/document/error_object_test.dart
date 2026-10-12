@@ -18,10 +18,7 @@ void main() {
               code: 'test_code',
               title: 'test_title',
               detail: 'test_detail',
-              source: ErrorSource(
-                parameter: 'test_parameter',
-                pointer: 'test_pointer',
-              ),
+              source: ErrorSource(parameter: 'test_parameter', pointer: 'test_pointer'),
             )
             ..links['foo'] = Link(Uri.parse('/bar'))
             ..meta['foo'] = 42,

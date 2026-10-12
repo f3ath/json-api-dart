@@ -2,12 +2,12 @@ import 'package:http_interop/http_interop.dart';
 import 'package:json_api/routing.dart';
 
 /// JSON:API controller
-abstract class Controller {
+abstract class Controller() {
   /// Fetch a primary resource collection
-  Future<Response> fetchCollection(Request request, Target target);
+  Future<Response> fetchCollection(Request request, CollectionTarget target);
 
   /// Create resource
-  Future<Response> createResource(Request request, Target target);
+  Future<Response> createResource(Request request, CollectionTarget target);
 
   /// Fetch a single primary resource
   Future<Response> fetchResource(Request request, ResourceTarget target);
@@ -25,10 +25,7 @@ abstract class Controller {
   Future<Response> addMany(Request request, RelationshipTarget target);
 
   /// Updates the relationship
-  Future<Response> replaceRelationship(
-    Request request,
-    RelationshipTarget target,
-  );
+  Future<Response> replaceRelationship(Request request, RelationshipTarget target);
 
   /// Deletes the members from the to-many relationship
   Future<Response> deleteMany(Request request, RelationshipTarget target);

@@ -4,9 +4,7 @@ import 'package:json_api/src/document/json_encodable.dart';
 import 'package:json_api/src/document/link.dart';
 import 'package:json_api/src/document/new_identifier.dart';
 
-class NewRelationship
-    with IterableMixin<NewIdentifier>
-    implements JsonEncodable {
+class NewRelationship() with IterableMixin<NewIdentifier> implements JsonEncodable {
   final links = <String, Link>{};
   final meta = <String, Object?>{};
 

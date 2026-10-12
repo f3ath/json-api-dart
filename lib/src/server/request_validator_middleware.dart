@@ -23,5 +23,4 @@ final requestValidatorMiddleware = middleware(
 );
 
 bool _isInvalid(MediaType mt) =>
-    mt.mimeType == mediaType &&
-    mt.parameters.isNotEmpty; // TODO: check for ext and profile
+    mt.mimeType == mediaType && mt.parameters.isNotEmpty; // TODO: check for ext and profile

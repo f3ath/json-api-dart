@@ -10,7 +10,7 @@ void main() {
   late RoutingClient client;
 
   setUp(() async {
-    client = RoutingClient(StandardUriDesign.pathOnly, Client(testHandler()));
+    client = RoutingClient(StandardUriDesign.pathOnly.uri, Client(testHandler()));
   });
 
   group('CRUD', () {
@@ -21,14 +21,8 @@ void main() {
     late Resource secretComment;
 
     setUp(() async {
-      alice = (await client.createNew(
-        'users',
-        attributes: {'name': 'Alice'},
-      )).resource;
-      bob = (await client.createNew(
-        'users',
-        attributes: {'name': 'Bob'},
-      )).resource;
+      alice = (await client.createNew('users', attributes: {'name': 'Alice'})).resource;
+      bob = (await client.createNew('users', attributes: {'name': 'Bob'})).resource;
       post = (await client.createNew(
         'posts',
         attributes: {'title': 'Hello world'},
@@ -45,9 +39,7 @@ void main() {
         attributes: {'text': 'Secret comment'},
         one: {'author': bob.toIdentifier()},
       )).resource;
-      await client.addMany(post.type, post.id, 'comments', [
-        comment.toIdentifier(),
-      ]);
+      await client.addMany(post.type, post.id, 'comments', [comment.toIdentifier()]);
     });
 
     test('Fetch a complex resource', () async {
@@ -70,10 +62,7 @@ void main() {
           .single;
       expect(fetchedAuthor.attributes['name'], 'Alice');
 
-      final fetchedComment = fetchedPost
-          .many('comments')!
-          .findIn(response.included)
-          .single;
+      final fetchedComment = fetchedPost.many('comments')!.findIn(response.included).single;
       expect(fetchedComment.attributes['text'], 'Hi Alice');
     });
 
@@ -85,11 +74,7 @@ void main() {
     });
 
     test('Update a resource', () async {
-      await client.updateResource(
-        post.type,
-        post.id,
-        attributes: {'title': 'Bob was here'},
-      );
+      await client.updateResource(post.type, post.id, attributes: {'title': 'Bob was here'});
       await client.fetchCollection('posts').then((r) {
         expect(r.collection.single.attributes['title'], 'Bob was here');
       });
@@ -102,9 +87,7 @@ void main() {
     });
 
     test('Fetch a related collection', () async {
-      await client.fetchRelatedCollection(post.type, post.id, 'comments').then((
-        r,
-      ) {
+      await client.fetchRelatedCollection(post.type, post.id, 'comments').then((r) {
         expect(r.collection.single.attributes['text'], 'Hi Alice');
       });
     });
@@ -137,12 +120,7 @@ void main() {
     });
 
     test('Replace a to-one relationship', () async {
-      await client.replaceToOne(
-        post.type,
-        post.id,
-        'author',
-        bob.toIdentifier(),
-      );
+      await client.replaceToOne(post.type, post.id, 'author', bob.toIdentifier());
       await client
           .fetchResource(
             post.type,
@@ -163,18 +141,14 @@ void main() {
     });
 
     test('Delete from a to-many relationship', () async {
-      await client.deleteFromMany(post.type, post.id, 'comments', [
-        comment.toIdentifier(),
-      ]);
+      await client.deleteFromMany(post.type, post.id, 'comments', [comment.toIdentifier()]);
       await client.fetchResource(post.type, post.id).then((r) {
         expect(r.resource.many('comments'), isEmpty);
       });
     });
 
     test('Replace a to-many relationship', () async {
-      await client.replaceToMany(post.type, post.id, 'comments', [
-        secretComment.toIdentifier(),
-      ]);
+      await client.replaceToMany(post.type, post.id, 'comments', [secretComment.toIdentifier()]);
       await client
           .fetchResource(
             post.type,
@@ -185,19 +159,11 @@ void main() {
           )
           .then((r) {
             expect(
-              r.resource
-                  .many('comments')!
-                  .findIn(r.included)
-                  .single
-                  .attributes['text'],
+              r.resource.many('comments')!.findIn(r.included).single.attributes['text'],
               'Secret comment',
             );
             expect(
-              r.resource
-                  .many('comments')!
-                  .findIn(r.included)
-                  .single
-                  .attributes['text'],
+              r.resource.many('comments')!.findIn(r.included).single.attributes['text'],
               'Secret comment',
             );
           });
@@ -229,13 +195,11 @@ extension _ToManyExt on ToMany {
   /// Finds the referenced elements which are found in the [collection].
   /// The resulting [Iterable] may contain fewer elements than referred by the
   /// relationship if the [collection] does not have all of them.
-  Iterable<Resource> findIn(Iterable<Resource> collection) => collection.where(
-    (resource) => any((identifier) => identifier.identifies(resource)),
-  );
+  Iterable<Resource> findIn(Iterable<Resource> collection) =>
+      collection.where((resource) => any((identifier) => identifier.identifies(resource)));
 }
 
 extension _IdentifierExt on Identifier {
   /// True if this identifier identifies the [resource].
-  bool identifies(Resource resource) =>
-      type == resource.type && id == resource.id;
+  bool identifies(Resource resource) => type == resource.type && id == resource.id;
 }

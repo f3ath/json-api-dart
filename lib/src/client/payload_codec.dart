@@ -16,6 +16,5 @@ class const PayloadCodec() {
   }
 
   /// Encodes a JSON:API document into a JSON string.
-  FutureOr<String> encode(Object document) =>
-      jsonEncode(document, toEncodable: toJsonEncodable);
+  FutureOr<String> encode(Object document) => jsonEncode(document, toEncodable: toJsonEncodable);
 }

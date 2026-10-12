@@ -1,7 +1,7 @@
 import 'package:json_api/src/document/json_encodable.dart';
 
 /// A new Resource Identifier object, used when creating new resources on the server.
-sealed class NewIdentifier implements JsonEncodable {
+sealed class NewIdentifier() implements JsonEncodable {
   /// Resource type.
   String get type;
 
@@ -34,11 +34,7 @@ class Identifier(
   final meta = <String, Object?>{};
 
   @override
-  Map<String, Object> toJson() => {
-    'type': type,
-    'id': id,
-    if (meta.isNotEmpty) 'meta': meta,
-  };
+  Map<String, Object> toJson() => {'type': type, 'id': id, if (meta.isNotEmpty) 'meta': meta};
 }
 
 class LocalIdentifier(
@@ -57,11 +53,7 @@ class LocalIdentifier(
   final meta = <String, Object?>{};
 
   @override
-  Map<String, Object> toJson() => {
-    'type': type,
-    'lid': lid,
-    if (meta.isNotEmpty) 'meta': meta,
-  };
+  Map<String, Object> toJson() => {'type': type, 'lid': lid, if (meta.isNotEmpty) 'meta': meta};
 
   Identifier toIdentifier(String id) => Identifier(type, id)..meta.addAll(meta);
 }

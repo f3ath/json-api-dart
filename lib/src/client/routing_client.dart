@@ -14,7 +14,7 @@ import 'package:json_api/src/client/response/resource_fetched.dart';
 import 'package:json_api/src/client/response/resource_updated.dart';
 
 /// A routing JSON:API client
-class RoutingClient(final UriDesign _baseUri, final Client _client) {
+class RoutingClient(final UriBuilder _uriFor, final Client _client) {
   /// Adds the [identifiers] to the to-many relationship
   /// identified by [type], [id], [relationship].
   ///
@@ -29,10 +29,9 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Map<String, List<String>> headers = const {},
   }) async => RelationshipUpdated.many(
     await send(
-      _baseUri.relationship(type, id, relationship),
-      Request.post(
-        OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)),
-      )..headers.addAll(headers),
+      _uriFor(RelationshipTarget(type, id, relationship)),
+      Request.post(OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
+        ..headers.addAll(headers),
     ),
   );
 
@@ -58,7 +57,7 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Iterable<QueryEncodable> query = const [],
   }) async => ResourceUpdated(
     await send(
-      _baseUri.collection(type),
+      _uriFor(CollectionTarget(type)),
       Request.post(
           OutboundDataDocument.resource(
             Resource(type, id)
@@ -99,7 +98,7 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Iterable<QueryEncodable> query = const [],
   }) async => ResourceCreated(
     await send(
-      _baseUri.collection(type),
+      _uriFor(CollectionTarget(type)),
       Request.post(
           OutboundDataDocument.newResource(
             NewResource(type, lid: lid)
@@ -131,10 +130,9 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Map<String, List<String>> headers = const {},
   }) async => RelationshipUpdated.many(
     await send(
-      _baseUri.relationship(type, id, relationship),
-      Request.delete(
-        OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)),
-      )..headers.addAll(headers),
+      _uriFor(RelationshipTarget(type, id, relationship)),
+      Request.delete(OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
+        ..headers.addAll(headers),
     ),
   );
 
@@ -149,7 +147,7 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Iterable<QueryEncodable> query = const [],
   }) async => CollectionFetched(
     await send(
-      _baseUri.collection(type),
+      _uriFor(CollectionTarget(type)),
       Request.get()
         ..headers.addAll(headers)
         ..query.mergeAll(query),
@@ -170,7 +168,7 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Iterable<QueryEncodable> query = const [],
   }) async => CollectionFetched(
     await send(
-      _baseUri.related(type, id, relationship),
+      _uriFor(RelatedTarget(type, id, relationship)),
       Request.get()
         ..headers.addAll(headers)
         ..query.mergeAll(query),
@@ -191,7 +189,7 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Iterable<QueryEncodable> query = const [],
   }) async => RelationshipFetched.one(
     await send(
-      _baseUri.relationship(type, id, relationship),
+      _uriFor(RelationshipTarget(type, id, relationship)),
       Request.get()
         ..headers.addAll(headers)
         ..query.mergeAll(query),
@@ -212,7 +210,7 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Iterable<QueryEncodable> query = const [],
   }) async => RelationshipFetched.many(
     await send(
-      _baseUri.relationship(type, id, relationship),
+      _uriFor(RelationshipTarget(type, id, relationship)),
       Request.get()
         ..headers.addAll(headers)
         ..query.mergeAll(query),
@@ -233,7 +231,7 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Iterable<QueryEncodable> query = const [],
   }) async => RelatedResourceFetched(
     await send(
-      _baseUri.related(type, id, relationship),
+      _uriFor(RelatedTarget(type, id, relationship)),
       Request.get()
         ..headers.addAll(headers)
         ..query.mergeAll(query),
@@ -252,7 +250,7 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Iterable<QueryEncodable> query = const [],
   }) async => ResourceFetched(
     await send(
-      _baseUri.resource(type, id),
+      _uriFor(ResourceTarget(type, id)),
       Request.get()
         ..headers.addAll(headers)
         ..query.mergeAll(query),
@@ -281,7 +279,7 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Iterable<QueryEncodable> query = const [],
   }) async => ResourceUpdated(
     await send(
-      _baseUri.resource(type, id),
+      _uriFor(ResourceTarget(type, id)),
       Request.patch(
           OutboundDataDocument.resource(
             Resource(type, id)
@@ -316,10 +314,8 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Iterable<QueryEncodable> query = const [],
   }) async => RelationshipUpdated.one(
     await send(
-      _baseUri.relationship(type, id, relationship),
-      Request.patch(
-          OutboundDataDocument.one(ToOne(identifier)..meta.addAll(meta)),
-        )
+      _uriFor(RelationshipTarget(type, id, relationship)),
+      Request.patch(OutboundDataDocument.one(ToOne(identifier)..meta.addAll(meta)))
         ..headers.addAll(headers)
         ..query.mergeAll(query),
     ),
@@ -343,10 +339,8 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Iterable<QueryEncodable> query = const [],
   }) async => RelationshipUpdated.many(
     await send(
-      _baseUri.relationship(type, id, relationship),
-      Request.patch(
-          OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)),
-        )
+      _uriFor(RelationshipTarget(type, id, relationship)),
+      Request.patch(OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
         ..headers.addAll(headers)
         ..query.mergeAll(query),
     ),
@@ -366,7 +360,7 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Iterable<QueryEncodable> query = const [],
   }) async => RelationshipUpdated.one(
     await send(
-      _baseUri.relationship(type, id, relationship),
+      _uriFor(RelationshipTarget(type, id, relationship)),
       Request.patch(OutboundDataDocument.one(ToOne.empty()))
         ..headers.addAll(headers)
         ..query.mergeAll(query),
@@ -384,7 +378,7 @@ class RoutingClient(final UriDesign _baseUri, final Client _client) {
     Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
   }) => send(
-    _baseUri.resource(type, id),
+    _uriFor(ResourceTarget(type, id)),
     Request.delete()
       ..headers.addAll(headers)
       ..query.mergeAll(query),

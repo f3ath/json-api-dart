@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 void main() {
   group('MappingController', () {
     final request = Request('get', Uri(), Body(), Headers());
-    const target = Target('articles');
+    const target = CollectionTarget('articles');
     const resourceTarget = ResourceTarget('articles', '1');
     const relationshipTarget = RelationshipTarget('articles', '1', 'author');
     const relatedTarget = RelatedTarget('articles', '1', 'author');
@@ -48,53 +48,45 @@ void main() {
 
     test('throws CollectionNotFound when target type is not mapped', () {
       expect(
-        () => controller.fetchCollection(request, const Target('people')),
+        () => controller.fetchCollection(request, const CollectionTarget('people')),
         throwsA(isA<CollectionNotFound>()),
       );
     });
   });
 }
 
-final class _Controller implements Controller {
+final class _Controller() implements Controller {
   final calls = <String>[];
 
   @override
-  Future<Response> addMany(Request request, RelationshipTarget target) =>
-      _call('addMany');
+  Future<Response> addMany(Request request, RelationshipTarget target) => _call('addMany');
 
   @override
-  Future<Response> createResource(Request request, Target target) =>
-      _call('createResource');
+  Future<Response> createResource(Request request, Target target) => _call('createResource');
 
   @override
-  Future<Response> deleteMany(Request request, RelationshipTarget target) =>
-      _call('deleteMany');
+  Future<Response> deleteMany(Request request, RelationshipTarget target) => _call('deleteMany');
 
   @override
   Future<Response> deleteResource(Request request, ResourceTarget target) =>
       _call('deleteResource');
 
   @override
-  Future<Response> fetchCollection(Request request, Target target) =>
-      _call('fetchCollection');
+  Future<Response> fetchCollection(Request request, Target target) => _call('fetchCollection');
 
   @override
-  Future<Response> fetchRelated(Request request, RelatedTarget target) =>
-      _call('fetchRelated');
+  Future<Response> fetchRelated(Request request, RelatedTarget target) => _call('fetchRelated');
 
   @override
   Future<Response> fetchRelationship(Request rq, RelationshipTarget target) =>
       _call('fetchRelationship');
 
   @override
-  Future<Response> fetchResource(Request request, ResourceTarget target) =>
-      _call('fetchResource');
+  Future<Response> fetchResource(Request request, ResourceTarget target) => _call('fetchResource');
 
   @override
-  Future<Response> replaceRelationship(
-    Request request,
-    RelationshipTarget target,
-  ) => _call('replaceRelationship');
+  Future<Response> replaceRelationship(Request request, RelationshipTarget target) =>
+      _call('replaceRelationship');
 
   @override
   Future<Response> updateResource(Request request, ResourceTarget target) =>

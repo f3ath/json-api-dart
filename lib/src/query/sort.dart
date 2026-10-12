@@ -17,9 +17,8 @@ class Sort([Iterable<String> fields = const []])
     _fields.addAll(fields.map((SortField.parse)));
   }
 
-  static Sort fromUri(Uri uri) => Sort(
-    (uri.queryParametersAll['sort']?.expand((it) => it.split(',')) ?? []),
-  );
+  static Sort fromUri(Uri uri) =>
+      Sort((uri.queryParametersAll['sort']?.expand((it) => it.split(',')) ?? []));
 
   final _fields = <SortField>[];
 
@@ -36,10 +35,9 @@ class Sort([Iterable<String> fields = const []])
   Iterator<SortField> get iterator => _fields.iterator;
 }
 
-abstract class SortField {
-  static SortField parse(String queryParam) => queryParam.startsWith('-')
-      ? Desc(queryParam.substring(1))
-      : Asc(queryParam);
+abstract class SortField() {
+  static SortField parse(String queryParam) =>
+      queryParam.startsWith('-') ? Desc(queryParam.substring(1)) : Asc(queryParam);
 
   String get name;
 

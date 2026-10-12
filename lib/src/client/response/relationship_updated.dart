@@ -11,17 +11,11 @@ class RelationshipUpdated<R extends Relationship>(
 ) {
   static RelationshipUpdated<ToMany> many(Response response) {
     final json = response.document;
-    return RelationshipUpdated(
-      response,
-      json == null ? null : InboundDocument(json).asToMany(),
-    );
+    return RelationshipUpdated(response, json == null ? null : InboundDocument(json).asToMany());
   }
 
   static RelationshipUpdated<ToOne> one(Response response) {
     final json = response.document;
-    return RelationshipUpdated(
-      response,
-      json == null ? null : InboundDocument(json).asToOne(),
-    );
+    return RelationshipUpdated(response, json == null ? null : InboundDocument(json).asToOne());
   }
 }
