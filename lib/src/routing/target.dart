@@ -1,4 +1,4 @@
-sealed class Target() {
+sealed class Target {
   String get type;
 }
 

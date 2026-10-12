@@ -35,7 +35,7 @@ class Sort([Iterable<String> fields = const []])
   Iterator<SortField> get iterator => _fields.iterator;
 }
 
-abstract class SortField() {
+abstract interface class SortField {
   static SortField parse(String queryParam) =>
       queryParam.startsWith('-') ? Desc(queryParam.substring(1)) : Asc(queryParam);
 

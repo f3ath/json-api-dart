@@ -4,7 +4,6 @@ formatter:
 
 linter:
   rules:
-  - use_primary_constructors
   - use_declaring_parameters
   - unnecessary_primary_constructor_body
   - unnecessary_type_name_in_constructor

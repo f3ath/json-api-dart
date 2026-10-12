@@ -1,6 +1,6 @@
 import 'package:json_api/routing.dart';
 
-abstract interface class UriDesign() {
+abstract interface class UriDesign {
   Uri uri(Target target);
 
   Target? target(Uri uri);
