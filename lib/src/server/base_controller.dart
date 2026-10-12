@@ -9,7 +9,7 @@ abstract class BaseController() implements Controller {
   }
 
   @override
-  Future<Response> createResource(Request request, Target target) {
+  Future<Response> createResource(Request request, CollectionTarget target) {
     throw UnimplementedError();
   }
 
@@ -24,7 +24,7 @@ abstract class BaseController() implements Controller {
   }
 
   @override
-  Future<Response> fetchCollection(Request request, Target target) {
+  Future<Response> fetchCollection(Request request, CollectionTarget target) {
     throw UnimplementedError();
   }
 
