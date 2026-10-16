@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:http_interop/extensions.dart';
 import 'package:http_interop/http_interop.dart' as i;
-import 'package:json_api/src/client/payload_codec.dart';
 import 'package:json_api/src/client/request.dart';
 import 'package:json_api/src/client/response.dart';
+import 'package:json_api/src/document/payload_codec.dart';
 import 'package:json_api/src/media_type.dart';
 
 /// A basic JSON:API client.

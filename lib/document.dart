@@ -11,6 +11,7 @@ export 'package:json_api/src/document/new_resource.dart';
 export 'package:json_api/src/document/new_to_many.dart';
 export 'package:json_api/src/document/new_to_one.dart';
 export 'package:json_api/src/document/outbound_document.dart';
+export 'package:json_api/src/document/payload_codec.dart';
 export 'package:json_api/src/document/relationship.dart';
 export 'package:json_api/src/document/resource.dart';
 export 'package:json_api/src/document/to_json_encodable.dart';

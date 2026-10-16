@@ -9,7 +9,7 @@ import 'package:json_api/src/document/to_json_encodable.dart';
 /// performed in isolates if needed.
 class const PayloadCodec() {
   /// Decodes a JSON string into a Map
-  FutureOr<Map> decode(String json) {
+  Future<Map> decode(String json) async {
     final decoded = jsonDecode(json);
     if (decoded is Map) return decoded;
     throw FormatException('Invalid JSON payload: ${decoded.runtimeType}');

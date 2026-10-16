@@ -17,3 +17,30 @@ class Relationship() with IterableMixin<Identifier> implements JsonEncodable {
   @override
   Iterator<Identifier> get iterator => <Identifier>[].iterator;
 }
+
+class ToMany(Iterable<Identifier> identifiers) extends Relationship {
+  this {
+    _ids.addAll(identifiers);
+  }
+
+  final _ids = <Identifier>[];
+
+  @override
+  Map<String, Object?> toJson() => {
+    'data': [..._ids],
+    ...super.toJson(),
+  };
+
+  @override
+  Iterator<Identifier> get iterator => _ids.iterator;
+}
+
+class ToOne(final Identifier? identifier) extends Relationship {
+  new empty() : this(null);
+
+  @override
+  Map<String, Object?> toJson() => {'data': identifier, ...super.toJson()};
+
+  @override
+  Iterator<Identifier> get iterator => identifier == null ? super.iterator : [identifier!].iterator;
+}

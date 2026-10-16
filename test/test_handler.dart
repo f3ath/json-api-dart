@@ -10,12 +10,13 @@ Handler testHandler({
   Iterable<String> types = const ['users', 'posts', 'comments'],
   Function(Request request)? onRequest,
   Function(Response response)? onResponse,
-}) => corsMiddleware
-    .add(requestValidatorMiddleware)
-    .add(errorConverter())
-    .call(
-      router(RepositoryController(InMemoryRepo(types), _nextId), StandardUriDesign.pathOnly.target),
-    );
+}) {
+  final controller = RepositoryController(InMemoryRepo(types), _nextId);
+  return corsMiddleware
+      .add(requestValidatorMiddleware)
+      .add(errorConverter(onError: (e, _) => throw e))
+      .call(router((_) => controller, StandardUriDesign.pathOnly.target));
+}
 
 String _nextId() => (_counter++).toString();
 int _counter = 0;

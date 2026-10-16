@@ -8,8 +8,6 @@ import 'package:json_api/src/document/new_to_many.dart';
 import 'package:json_api/src/document/new_to_one.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
-import 'package:json_api/src/document/to_many.dart';
-import 'package:json_api/src/document/to_one.dart';
 import 'package:json_api/src/nullable.dart';
 
 /// Inbound JSON:API document

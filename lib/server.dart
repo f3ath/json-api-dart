@@ -13,7 +13,6 @@ export 'package:json_api/src/server/errors/relationship_not_found.dart';
 export 'package:json_api/src/server/errors/resource_not_found.dart';
 export 'package:json_api/src/server/errors/unmatched_target.dart';
 export 'package:json_api/src/server/errors/unsupported_media_type.dart';
-export 'package:json_api/src/server/mapping_controller.dart';
 export 'package:json_api/src/server/request_validator_middleware.dart';
 export 'package:json_api/src/server/response.dart';
 export 'package:json_api/src/server/router.dart';

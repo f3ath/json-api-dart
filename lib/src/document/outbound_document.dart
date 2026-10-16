@@ -1,10 +1,4 @@
-import 'package:json_api/src/document/error_object.dart';
-import 'package:json_api/src/document/json_encodable.dart';
-import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/new_resource.dart';
-import 'package:json_api/src/document/resource.dart';
-import 'package:json_api/src/document/to_many.dart';
-import 'package:json_api/src/document/to_one.dart';
+import 'package:json_api/document.dart';
 
 /// A sever-to-client document.
 class OutboundDocument() implements JsonEncodable {

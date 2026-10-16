@@ -1,20 +1,25 @@
 import 'package:http_interop/http_interop.dart';
+import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 
 abstract class BaseController() implements Controller {
   @override
-  Future<Response> addMany(Request request, RelationshipTarget target) {
+  Future<Response> addMany(Request request, RelationshipTarget target, ToMany rel) {
     throw UnimplementedError();
   }
 
   @override
-  Future<Response> createResource(Request request, CollectionTarget target) {
+  Future<Response> createResource(
+    Request request,
+    CollectionTarget target,
+    NewResource newResource,
+  ) {
     throw UnimplementedError();
   }
 
   @override
-  Future<Response> deleteMany(Request request, RelationshipTarget target) {
+  Future<Response> deleteMany(Request request, RelationshipTarget target, ToMany rel) {
     throw UnimplementedError();
   }
 
@@ -44,12 +49,16 @@ abstract class BaseController() implements Controller {
   }
 
   @override
-  Future<Response> replaceRelationship(Request request, RelationshipTarget target) {
+  Future<Response> replaceRelationship(
+    Request request,
+    RelationshipTarget target,
+    Relationship rel,
+  ) {
     throw UnimplementedError();
   }
 
   @override
-  Future<Response> updateResource(Request request, ResourceTarget target) {
+  Future<Response> updateResource(Request request, ResourceTarget target, Resource res) {
     throw UnimplementedError();
   }
 }

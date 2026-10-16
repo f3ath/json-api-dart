@@ -1,12 +1,8 @@
-import 'dart:convert';
-
-import 'package:http_interop/extensions.dart';
 import 'package:http_interop/http_interop.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/query.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
-import 'package:json_api/src/client/payload_codec.dart';
 import 'package:json_api/src/nullable.dart';
 
 import 'relationship_node.dart';
@@ -44,17 +40,15 @@ class RepositoryController(final Repository repo, final IdGenerator getId) imple
   }
 
   @override
-  Future<Response> createResource(Request request, Target target) async {
-    final document = await _decode(request);
-    final newResource = document.dataAsNewResource();
+  Future<Response> createResource(Request request, Target target, NewResource newResource) async {
     final res = newResource.toResource(getId);
     await repo.persist(res.type, Model(res.id)..setFrom(ModelProps.fromResource(res)));
     if (newResource.id != null) {
       return noContent();
     }
     final ref = Reference.of(res.toIdentifier());
-    var type = ref.type;
-    var id = ref.id;
+    final type = ref.type;
+    final id = ref.id;
     final self = Link(design.uri(ResourceTarget(type, id)));
     final resource = (await _fetchResource(ref.type, ref.id))..links['self'] = self;
     return created(
@@ -64,9 +58,8 @@ class RepositoryController(final Repository repo, final IdGenerator getId) imple
   }
 
   @override
-  Future<Response> addMany(Request request, RelationshipTarget target) async {
-    final many = (await _decode(request)).asRelationship<ToMany>();
-    final refs = await repo.addMany(target.type, target.id, target.relationship, many).toList();
+  Future<Response> addMany(Request request, RelationshipTarget target, ToMany rel) async {
+    final refs = await repo.addMany(target.type, target.id, target.relationship, rel).toList();
     return ok(OutboundDataDocument.many(ToMany(refs)));
   }
 
@@ -77,18 +70,17 @@ class RepositoryController(final Repository repo, final IdGenerator getId) imple
   }
 
   @override
-  Future<Response> updateResource(Request request, ResourceTarget target) async {
-    await repo.update(
-      target.type,
-      target.id,
-      ModelProps.fromResource((await _decode(request)).dataAsResource()),
-    );
+  Future<Response> updateResource(Request request, ResourceTarget target, Resource res) async {
+    await repo.update(target.type, target.id, ModelProps.fromResource(res));
     return noContent();
   }
 
   @override
-  Future<Response> replaceRelationship(Request request, RelationshipTarget target) async {
-    final rel = (await _decode(request)).asRelationship();
+  Future<Response> replaceRelationship(
+    Request request,
+    RelationshipTarget target,
+    Relationship rel,
+  ) async {
     if (rel is ToOne) {
       final ref = rel.identifier;
       await repo.replaceOne(target.type, target.id, target.relationship, ref);
@@ -102,8 +94,7 @@ class RepositoryController(final Repository repo, final IdGenerator getId) imple
   }
 
   @override
-  Future<Response> deleteMany(Request request, RelationshipTarget target) async {
-    final rel = (await _decode(request)).asToMany();
+  Future<Response> deleteMany(Request request, RelationshipTarget target, ToMany rel) async {
     final ids = await repo.deleteMany(target.type, target.id, target.relationship, rel).toList();
     return ok(OutboundDataDocument.many(ToMany(ids)));
   }
@@ -182,9 +173,6 @@ class RepositoryController(final Repository repo, final IdGenerator getId) imple
       if (r != null) yield r;
     }
   }
-
-  Future<InboundDocument> _decode(Request r) =>
-      r.body.decode(utf8).then(const PayloadCodec().decode).then(InboundDocument.new);
 }
 
 typedef IdGenerator = String Function();
