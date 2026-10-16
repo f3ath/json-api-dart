@@ -1,19 +1,20 @@
-/// An object containing references to the source of the error.
-class ErrorSource {
-  const ErrorSource({this.pointer = '', this.parameter = ''});
+import 'package:json_api/src/document/json_encodable.dart';
 
+/// An object containing references to the source of the error.
+class const ErrorSource({
   /// A JSON Pointer [RFC6901] to the associated entity in the request document.
-  final String pointer;
+  final String pointer = '',
 
   /// A string indicating which URI query parameter caused the error.
-  final String parameter;
-
+  final String parameter = '',
+}) implements JsonEncodable {
   bool get isEmpty => pointer.isEmpty && parameter.isEmpty;
 
   bool get isNotEmpty => !isEmpty;
 
+  @override
   Map<String, String> toJson() => {
-        if (parameter.isNotEmpty) 'parameter': parameter,
-        if (pointer.isNotEmpty) 'pointer': pointer
-      };
+    if (parameter.isNotEmpty) 'parameter': parameter,
+    if (pointer.isNotEmpty) 'pointer': pointer,
+  };
 }

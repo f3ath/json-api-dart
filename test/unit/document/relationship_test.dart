@@ -19,22 +19,25 @@ void main() {
 
       expect(ToMany([a]), isNotEmpty);
       expect(
-          [
-            ...ToMany([a])
-          ].first,
-          a);
+        [
+          ...ToMany([a]),
+        ].first,
+        a,
+      );
 
       expect(ToMany([a, b]), isNotEmpty);
       expect(
-          [
-            ...ToMany([a, b])
-          ].first,
-          a);
+        [
+          ...ToMany([a, b]),
+        ].first,
+        a,
+      );
       expect(
-          [
-            ...ToMany([a, b])
-          ].last,
-          b);
+        [
+          ...ToMany([a, b]),
+        ].last,
+        b,
+      );
     });
   });
 
