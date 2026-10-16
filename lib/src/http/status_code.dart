@@ -4,6 +4,7 @@ extension type StatusCode(int value) {
   static const accepted = 202;
   static const noContent = 204;
   static const badRequest = 400;
+  static const forbidden = 403;
   static const notFound = 404;
   static const methodNotAllowed = 405;
   static const notAcceptable = 406;

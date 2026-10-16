@@ -18,7 +18,7 @@ abstract interface class Controller {
   Future<Response> fetchResource(Request request, ResourceTarget target);
 
   /// Updates a primary resource
-  Future<Response> updateResource(Request request, ResourceTarget target, Resource res);
+  Future<Response> updateResource(Request request, ResourceTarget target, Resource resource);
 
   /// Deletes the primary resource
   Future<Response> deleteResource(Request request, ResourceTarget target);
@@ -27,17 +27,17 @@ abstract interface class Controller {
   Future<Response> fetchRelationship(Request rq, RelationshipTarget target);
 
   /// Add new entries to a to-many relationship
-  Future<Response> addMany(Request request, RelationshipTarget target, ToMany rel);
+  Future<Response> addMany(Request request, RelationshipTarget target, ToMany relationship);
 
   /// Updates the relationship
   Future<Response> replaceRelationship(
     Request request,
     RelationshipTarget target,
-    Relationship rel,
+    Relationship relationship,
   );
 
   /// Deletes the members from the to-many relationship
-  Future<Response> deleteMany(Request request, RelationshipTarget target, ToMany rel);
+  Future<Response> deleteMany(Request request, RelationshipTarget target, ToMany relationship);
 
   /// Fetches related resource or collection
   Future<Response> fetchRelated(Request request, RelatedTarget target);

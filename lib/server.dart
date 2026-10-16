@@ -5,6 +5,7 @@ library;
 export 'package:json_api/src/server/controller.dart';
 export 'package:json_api/src/server/cors_middleware.dart';
 export 'package:json_api/src/server/error_converter.dart';
+export 'package:json_api/src/server/errors/client_generated_id_not_supported.dart';
 export 'package:json_api/src/server/errors/collection_not_found.dart';
 export 'package:json_api/src/server/errors/method_not_allowed.dart';
 export 'package:json_api/src/server/errors/not_acceptable.dart';

@@ -7,11 +7,16 @@ import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 
 typedef ControllerMapper = Controller? Function(String);
+typedef PayloadValidator = Future<void> Function(
+  Request request,
+  Target target,
+  InboundDocument doc,
+);
 
 Handler router(
   ControllerMapper getController,
   TargetMatcher matchTarget, {
-  Future<void> Function(Request request, Target target, InboundDocument doc)? validatePayload,
+  PayloadValidator? validatePayload,
 }) => (request) async {
   final target = matchTarget(request.uri) ?? (throw UnmatchedTarget(request.uri));
   final controller = getController(target.type) ?? (throw CollectionNotFound(target.type));

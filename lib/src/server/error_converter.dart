@@ -1,6 +1,7 @@
 import 'package:http_interop/http_interop.dart';
 import 'package:http_interop_middleware/http_interop_middleware.dart';
 import 'package:json_api/document.dart';
+import 'package:json_api/src/server/errors/client_generated_id_not_supported.dart';
 import 'package:json_api/src/server/errors/collection_not_found.dart';
 import 'package:json_api/src/server/errors/method_not_allowed.dart';
 import 'package:json_api/src/server/errors/not_acceptable.dart';
@@ -57,6 +58,7 @@ Middleware errorConverter({
     UnsupportedMediaType() => unsupportedMediaType(),
     PayloadMissing() => badRequest(),
     PayloadInvalid() => badRequest(),
+    ClientGeneratedIdNotSupported() => forbidden(),
     NotAcceptable() => notAcceptable(),
     _ =>
       await onError?.call(error, trace) ??

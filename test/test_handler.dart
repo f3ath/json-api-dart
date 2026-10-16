@@ -10,12 +10,19 @@ Handler testHandler({
   Iterable<String> types = const ['users', 'posts', 'comments'],
   Function(Request request)? onRequest,
   Function(Response response)? onResponse,
+  PayloadValidator? validatePayload,
 }) {
   final controller = RepositoryController(InMemoryRepo(types), _nextId);
   return corsMiddleware
       .add(requestValidatorMiddleware)
       .add(errorConverter(onError: (e, _) => throw e))
-      .call(router((_) => controller, StandardUriDesign.pathOnly.target));
+      .call(
+        router(
+          (_) => controller,
+          StandardUriDesign.pathOnly.target,
+          validatePayload: validatePayload,
+        ),
+      );
 }
 
 String _nextId() => (_counter++).toString();

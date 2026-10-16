@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:http_interop/http_interop.dart' as http;
 import 'package:json_api/client.dart';
+import 'package:json_api/routing.dart';
+import 'package:json_api/server.dart';
 import 'package:test/test.dart';
 
 import '../test_handler.dart';
@@ -10,10 +12,27 @@ void main() {
   late Client client;
 
   setUp(() async {
-    client = Client(testHandler());
+    client = Client(
+      testHandler(
+        validatePayload: (rq, target, doc) async {
+          if (target is CollectionTarget && doc.dataAsNewResource().id != null) {
+            throw ClientGeneratedIdNotSupported();
+          }
+        },
+      ),
+    );
   });
 
   group('Errors', () {
+    test('Forbidden when client-generated id is not supported', () async {
+      final r = await client.send(
+        Uri.parse('/posts'),
+        Request.post({
+          'data': {'type': 'posts', 'id': 'client-generated-id'},
+        }),
+      );
+      expect(r.httpResponse.statusCode, 403);
+    });
     test('Bad request when payload is missing', () async {
       final r = await testHandler()(
         http.Request('post', Uri.parse('/posts'), http.Body(), http.Headers()),

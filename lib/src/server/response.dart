@@ -33,6 +33,9 @@ Response methodNotAllowed([OutboundErrorDocument? document]) =>
 Response badRequest([OutboundErrorDocument? document]) =>
     response(StatusCode.badRequest, document: document);
 
+Response forbidden([OutboundErrorDocument? document]) =>
+    response(StatusCode.forbidden, document: document);
+
 Response unsupportedMediaType([OutboundErrorDocument? document]) =>
     response(StatusCode.unsupportedMediaType, document: document);
 
