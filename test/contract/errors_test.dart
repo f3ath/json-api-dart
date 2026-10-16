@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http_interop/http_interop.dart' as http;
 import 'package:json_api/client.dart';
 import 'package:test/test.dart';
@@ -12,6 +14,25 @@ void main() {
   });
 
   group('Errors', () {
+    test('Bad request when payload is missing', () async {
+      final r = await testHandler()(
+        http.Request('post', Uri.parse('/posts'), http.Body(), http.Headers()),
+      );
+      expect(r.statusCode, 400);
+    });
+    for (final payload in ['{', '[]', 'null', '42', '"text"']) {
+      test('Bad request when payload is invalid: $payload', () async {
+        final r = await testHandler()(
+          http.Request(
+            'post',
+            Uri.parse('/posts'),
+            http.Body.text(payload, utf8),
+            http.Headers(),
+          ),
+        );
+        expect(r.statusCode, 400);
+      });
+    }
     test('Method not allowed', () async {
       final actions = [
         () => client.send(Uri.parse('/posts'), Request('delete')),

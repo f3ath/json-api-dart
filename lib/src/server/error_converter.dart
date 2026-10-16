@@ -4,6 +4,8 @@ import 'package:json_api/document.dart';
 import 'package:json_api/src/server/errors/collection_not_found.dart';
 import 'package:json_api/src/server/errors/method_not_allowed.dart';
 import 'package:json_api/src/server/errors/not_acceptable.dart';
+import 'package:json_api/src/server/errors/payload_invalid.dart';
+import 'package:json_api/src/server/errors/payload_missing.dart';
 import 'package:json_api/src/server/errors/relationship_not_found.dart';
 import 'package:json_api/src/server/errors/resource_not_found.dart';
 import 'package:json_api/src/server/errors/unmatched_target.dart';
@@ -53,6 +55,8 @@ Middleware errorConverter({
             ]),
           ),
     UnsupportedMediaType() => unsupportedMediaType(),
+    PayloadMissing() => badRequest(),
+    PayloadInvalid() => badRequest(),
     NotAcceptable() => notAcceptable(),
     _ =>
       await onError?.call(error, trace) ??

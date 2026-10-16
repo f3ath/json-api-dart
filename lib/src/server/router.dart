@@ -5,7 +5,7 @@ import 'package:http_interop/http_interop.dart';
 import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
-import 'package:json_api/src/server/errors/invalid_payload.dart';
+import 'package:json_api/src/server/errors/payload_invalid.dart';
 import 'package:json_api/src/server/errors/payload_missing.dart';
 
 typedef ControllerMapper = Controller? Function(String);
@@ -53,6 +53,6 @@ Future<InboundDocument?> _decode(Request r) async {
   try {
     return InboundDocument(await const PayloadCodec().decode(body));
   } on FormatException {
-    throw InvalidPayload();
+    throw PayloadInvalid();
   }
 }
