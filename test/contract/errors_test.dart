@@ -23,12 +23,7 @@ void main() {
     for (final payload in ['{', '[]', 'null', '42', '"text"']) {
       test('Bad request when payload is invalid: $payload', () async {
         final r = await testHandler()(
-          http.Request(
-            'post',
-            Uri.parse('/posts'),
-            http.Body.text(payload, utf8),
-            http.Headers(),
-          ),
+          http.Request('post', Uri.parse('/posts'), http.Body.text(payload, utf8), http.Headers()),
         );
         expect(r.statusCode, 400);
       });
