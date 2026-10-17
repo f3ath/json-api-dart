@@ -15,10 +15,10 @@ typedef PayloadValidator = Future<void> Function(
 
 Handler router(
   ControllerMapper getController,
-  TargetMatcher matchTarget, {
+  Target? Function(Request) getTarget, {
   PayloadValidator? validatePayload,
 }) => (request) async {
-  final target = matchTarget(request.uri) ?? (throw UnmatchedTarget(request.uri));
+  final target = getTarget(request) ?? (throw UnmatchedTarget(request.uri));
   final controller = getController(target.type) ?? (throw CollectionNotFound(target.type));
   final docOrNull = await _decode(request);
   if (docOrNull != null) await validatePayload?.call(request, target, docOrNull);

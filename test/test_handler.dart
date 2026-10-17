@@ -19,7 +19,7 @@ Handler testHandler({
       .call(
         router(
           (_) => controller,
-          StandardUriDesign.pathOnly.target,
+          (rq) => StandardUriDesign.pathOnly.target(rq.uri),
           validatePayload: validatePayload,
         ),
       );
