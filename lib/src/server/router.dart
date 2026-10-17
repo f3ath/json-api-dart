@@ -6,22 +6,26 @@ import 'package:json_api/document.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 
-typedef ControllerMapper = Controller? Function(String);
-typedef PayloadValidator = Future<void> Function(
+typedef TargetResolver = Target? Function(Request);
+typedef ControllerResolver = Controller? Function(Request, Target);
+typedef PayloadHandler = Future<Response?> Function(
   Request request,
   Target target,
   InboundDocument doc,
 );
 
-Handler router(
-  ControllerMapper getController,
-  Target? Function(Request) getTarget, {
-  PayloadValidator? validatePayload,
+Handler router({
+  required Target? Function(Request) getTarget,
+  required Controller? Function(Request, Target) getController,
+  PayloadHandler? onPayload,
 }) => (request) async {
   final target = getTarget(request) ?? (throw UnmatchedTarget(request.uri));
-  final controller = getController(target.type) ?? (throw CollectionNotFound(target.type));
+  final controller = getController(request, target) ?? (throw CollectionNotFound(target.type));
   final docOrNull = await _decode(request);
-  if (docOrNull != null) await validatePayload?.call(request, target, docOrNull);
+  if (docOrNull != null) {
+    final response = await onPayload?.call(request, target, docOrNull);
+    if (response != null) return response;
+  }
   InboundDocument doc() => docOrNull ?? (throw PayloadMissing());
 
   return switch (target) {

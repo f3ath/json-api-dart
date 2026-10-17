@@ -10,7 +10,7 @@ Handler testHandler({
   Iterable<String> types = const ['users', 'posts', 'comments'],
   Function(Request request)? onRequest,
   Function(Response response)? onResponse,
-  PayloadValidator? validatePayload,
+  PayloadHandler? onPayload,
 }) {
   final controller = RepositoryController(InMemoryRepo(types), _nextId);
   return corsMiddleware
@@ -18,9 +18,9 @@ Handler testHandler({
       .add(errorConverter(onError: (e, _) => throw e))
       .call(
         router(
-          (_) => controller,
-          (rq) => StandardUriDesign.pathOnly.target(rq.uri),
-          validatePayload: validatePayload,
+          getTarget: (rq) => StandardUriDesign.pathOnly.target(rq.uri),
+          getController: (_, _) => controller,
+          onPayload: onPayload,
         ),
       );
 }

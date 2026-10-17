@@ -14,7 +14,7 @@ void main() {
   setUp(() async {
     client = Client(
       testHandler(
-        validatePayload: (rq, target, doc) async {
+        onPayload: (rq, target, doc) async {
           if (target is CollectionTarget && doc.dataAsNewResource().id != null) {
             throw ClientGeneratedIdNotSupported();
           }
