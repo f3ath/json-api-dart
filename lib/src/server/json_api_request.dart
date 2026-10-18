@@ -50,7 +50,7 @@ sealed class JsonApiRequest {
     };
   }
 
-  Request get request;
+  Request get httpRequest;
 
   Target get target;
 
@@ -59,15 +59,16 @@ sealed class JsonApiRequest {
 }
 
 final class const FetchCollectionRequest(
-  @override final Request request,
+  @override final Request httpRequest,
   @override final CollectionTarget target,
 ) implements JsonApiRequest {
   @override
-  Future<Response> dispatch(Controller controller) => controller.fetchCollection(request, target);
+  Future<Response> dispatch(Controller controller) =>
+      controller.fetchCollection(httpRequest, target);
 }
 
 final class const CreateResourceRequest(
-  @override final Request request,
+  @override final Request httpRequest,
   @override final CollectionTarget target,
   final InboundDocument doc,
 ) implements JsonApiRequest {
@@ -75,19 +76,19 @@ final class const CreateResourceRequest(
 
   @override
   Future<Response> dispatch(Controller controller) =>
-      controller.createResource(request, target, newResource);
+      controller.createResource(httpRequest, target, newResource);
 }
 
 final class const FetchResourceRequest(
-  @override final Request request,
+  @override final Request httpRequest,
   @override final ResourceTarget target,
 ) implements JsonApiRequest {
   @override
-  Future<Response> dispatch(Controller controller) => controller.fetchResource(request, target);
+  Future<Response> dispatch(Controller controller) => controller.fetchResource(httpRequest, target);
 }
 
 final class const UpdateResourceRequest(
-  @override final Request request,
+  @override final Request httpRequest,
   @override final ResourceTarget target,
   final InboundDocument doc,
 ) implements JsonApiRequest {
@@ -95,35 +96,37 @@ final class const UpdateResourceRequest(
 
   @override
   Future<Response> dispatch(Controller controller) =>
-      controller.updateResource(request, target, resource);
+      controller.updateResource(httpRequest, target, resource);
 }
 
 final class const DeleteResourceRequest(
-  @override final Request request,
+  @override final Request httpRequest,
   @override final ResourceTarget target,
 ) implements JsonApiRequest {
   @override
-  Future<Response> dispatch(Controller controller) => controller.deleteResource(request, target);
+  Future<Response> dispatch(Controller controller) =>
+      controller.deleteResource(httpRequest, target);
 }
 
 final class const FetchRelatedRequest(
-  @override final Request request,
+  @override final Request httpRequest,
   @override final RelatedTarget target,
 ) implements JsonApiRequest {
   @override
-  Future<Response> dispatch(Controller controller) => controller.fetchRelated(request, target);
+  Future<Response> dispatch(Controller controller) => controller.fetchRelated(httpRequest, target);
 }
 
 final class const FetchRelationshipRequest(
-  @override final Request request,
+  @override final Request httpRequest,
   @override final RelationshipTarget target,
 ) implements JsonApiRequest {
   @override
-  Future<Response> dispatch(Controller controller) => controller.fetchRelationship(request, target);
+  Future<Response> dispatch(Controller controller) =>
+      controller.fetchRelationship(httpRequest, target);
 }
 
 final class const AddManyRequest(
-  @override final Request request,
+  @override final Request httpRequest,
   @override final RelationshipTarget target,
   final InboundDocument doc,
 ) implements JsonApiRequest {
@@ -131,11 +134,11 @@ final class const AddManyRequest(
 
   @override
   Future<Response> dispatch(Controller controller) =>
-      controller.addMany(request, target, relationship);
+      controller.addMany(httpRequest, target, relationship);
 }
 
 final class const ReplaceRelationshipRequest(
-  @override final Request request,
+  @override final Request httpRequest,
   @override final RelationshipTarget target,
   final InboundDocument doc,
 ) implements JsonApiRequest {
@@ -143,11 +146,11 @@ final class const ReplaceRelationshipRequest(
 
   @override
   Future<Response> dispatch(Controller controller) =>
-      controller.replaceRelationship(request, target, relationship);
+      controller.replaceRelationship(httpRequest, target, relationship);
 }
 
 final class const DeleteManyRequest(
-  @override final Request request,
+  @override final Request httpRequest,
   @override final RelationshipTarget target,
   final InboundDocument doc,
 ) implements JsonApiRequest {
@@ -155,7 +158,7 @@ final class const DeleteManyRequest(
 
   @override
   Future<Response> dispatch(Controller controller) =>
-      controller.deleteMany(request, target, relationship);
+      controller.deleteMany(httpRequest, target, relationship);
 }
 
 Future<InboundDocument?> _decode(Request r) async {

@@ -69,7 +69,7 @@ void main() {
       );
       final request = await JsonApiRequest.resolve(httpRequest, target);
       expect(request, matcher);
-      expect(request.request, same(httpRequest));
+      expect(request.httpRequest, same(httpRequest));
       expect(request.target, same(target));
       final uppercaseRequest = Request(
         method.toUpperCase(),
