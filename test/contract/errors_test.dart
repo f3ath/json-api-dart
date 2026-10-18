@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:http_interop/http_interop.dart' as http;
 import 'package:json_api/client.dart';
-import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
 import 'package:test/test.dart';
 
@@ -14,10 +13,11 @@ void main() {
   setUp(() async {
     client = Client(
       testHandler(
-        onPayload: (rq, target, doc) async {
-          if (target is CollectionTarget && doc.dataAsNewResource().id != null) {
+        onPayload: (request, controller) async {
+          if (request is CreateResourceRequest && request.newResource.id != null) {
             throw ClientGeneratedIdNotSupported();
           }
+          return null;
         },
       ),
     );

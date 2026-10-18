@@ -17,4 +17,5 @@ export 'package:json_api/src/server/errors/unmatched_target.dart';
 export 'package:json_api/src/server/errors/unsupported_media_type.dart';
 export 'package:json_api/src/server/request_validator_middleware.dart';
 export 'package:json_api/src/server/response.dart';
+export 'package:json_api/src/server/json_api_request.dart';
 export 'package:json_api/src/server/router.dart';

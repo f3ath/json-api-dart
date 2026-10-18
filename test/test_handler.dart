@@ -20,7 +20,7 @@ Handler testHandler({
         router(
           getTarget: (rq) => StandardUriDesign.pathOnly.target(rq.uri),
           getController: (_, _) => controller,
-          onPayload: onPayload,
+          beforeDispatch: onPayload,
         ),
       );
 }

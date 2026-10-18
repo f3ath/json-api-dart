@@ -19,7 +19,7 @@ dev_dependencies:
   check_coverage: ^0.0.4
   http: ^1.2.1
   http_interop_http: ^0.9.0
-  http_interop_io: ^0.9.0
+  http_interop_io: ^0.9.1
 
 
 cider:
