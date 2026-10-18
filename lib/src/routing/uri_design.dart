@@ -1,9 +1,10 @@
-abstract class UriDesign {
-  Uri collection(String type);
+import 'package:json_api/routing.dart';
 
-  Uri resource(String type, String id);
+abstract interface class UriDesign {
+  Uri uri(Target target);
 
-  Uri related(String type, String id, String relationship);
-
-  Uri relationship(String type, String id, String relationship);
+  Target? target(Uri uri);
 }
+
+typedef UriBuilder = Uri Function(Target target);
+typedef TargetMatcher = Target? Function(Uri uri);

@@ -1,0 +1,1 @@
+class PayloadMissing() implements Exception;

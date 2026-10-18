@@ -1,5 +1,1 @@
-class MethodNotAllowed implements Exception {
-  MethodNotAllowed(this.method);
-
-  final String method;
-}
+class MethodNotAllowed(final String method) implements Exception;
