@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:http_interop/http_interop.dart';
 import 'package:json_api/routing.dart';
 import 'package:json_api/server.dart';
@@ -15,7 +13,12 @@ void main() {
     final httpRequest = Request(
       'post',
       Uri.parse('/books'),
-      Body.text('{"data":{"type":"books","attributes":{"title":"Dune"}}}', utf8),
+      Body.json({
+        "data": {
+          "type": "books",
+          "attributes": {"title": "Dune"},
+        },
+      }),
       Headers(),
     );
     final request = await JsonApiRequest.resolve(httpRequest, collection) as CreateResourceRequest;
@@ -25,7 +28,7 @@ void main() {
 
   for (final body in ['{', '[]', 'null', '42']) {
     test('resolve rejects invalid payload $body', () async {
-      final request = Request('post', Uri.parse('/books'), Body.text(body, utf8), Headers());
+      final request = Request('post', Uri.parse('/books'), Body.text(body), Headers());
       await expectLater(
         JsonApiRequest.resolve(request, collection),
         throwsA(isA<PayloadInvalid>()),
@@ -54,7 +57,7 @@ void main() {
     ('delete', relationship),
   ]) {
     test('$method ${target.runtimeType} requires a document', () async {
-      final request = Request(method, Uri.parse('/books'), Body(), Headers());
+      final request = Request(method, Uri.parse('/books'), Body.empty(), Headers());
       await expectLater(JsonApiRequest.resolve(request, target), throwsA(isA<PayloadMissing>()));
     });
   }
@@ -64,7 +67,7 @@ void main() {
       final httpRequest = Request(
         method,
         Uri.parse('/books'),
-        Body.text('{"data":null}', utf8),
+        Body.json({'data': null}),
         Headers(),
       );
       final request = await JsonApiRequest.resolve(httpRequest, target);
@@ -74,7 +77,7 @@ void main() {
       final uppercaseRequest = Request(
         method.toUpperCase(),
         Uri.parse('/books'),
-        Body.text('{"data":null}', utf8),
+        Body.json({'data': null}),
         Headers(),
       );
       expect(await JsonApiRequest.resolve(uppercaseRequest, target), matcher);
@@ -85,7 +88,7 @@ void main() {
     for (final method in ['get', 'post', 'patch', 'delete', 'put', 'head', 'options']) {
       if (cases.any((entry) => entry.$1 == method && identical(entry.$2, target))) continue;
       test('$method ${target.runtimeType} is not allowed', () async {
-        final request = Request(method, Uri.parse('/books'), Body(), Headers());
+        final request = Request(method, Uri.parse('/books'), Body.empty(), Headers());
         await expectLater(
           JsonApiRequest.resolve(request, target),
           throwsA(isA<MethodNotAllowed>().having((error) => error.method, 'method', method)),

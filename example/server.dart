@@ -19,7 +19,7 @@ Future<void> main() async {
   final controller = RepositoryController(repo, Uuid().v4);
 
   final handler = errorConverter()
-      .add(loggerMiddleware)
+      .wrapIn(loggerMiddleware)
       .call(
         router(
           getTarget: (rq) => StandardUriDesign.pathOnly.target(rq.uri),

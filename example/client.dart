@@ -17,7 +17,7 @@ void main() async {
   /// This is the interface which decouples this JSON:API implementation
   /// from the HTTP client.
   /// Learn more: https://pub.dev/packages/http_interop
-  final httpHandler = httpClient.handleInterop;
+  final httpHandler = httpClient.sendInterop;
 
   /// This is the basic JSON:API client. It is flexible but not very convenient
   /// to use, because you would need to remember a lot of JSON:API protocol details.

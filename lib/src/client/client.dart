@@ -16,7 +16,7 @@ class const Client(final i.Handler _handler, {final PayloadCodec _codec = const 
   /// Sends the [request] to the given [uri].
   Future<Response> send(Uri uri, Request request) async {
     final json = await _encode(request.document);
-    final body = i.Body.text(json, utf8);
+    final body = i.Body.text(json);
     final headers = i.Headers.from({
       'Accept': [mediaType],
       if (json.isNotEmpty) 'Content-Type': [mediaType],

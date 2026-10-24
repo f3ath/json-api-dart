@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:http_interop/http_interop.dart' as http;
 import 'package:json_api/client.dart';
 import 'package:json_api/server.dart';
@@ -35,14 +33,14 @@ void main() {
     });
     test('Bad request when payload is missing', () async {
       final r = await testHandler()(
-        http.Request('post', Uri.parse('/posts'), http.Body(), http.Headers()),
+        http.Request('post', Uri.parse('/posts'), http.Body.empty(), http.Headers()),
       );
       expect(r.statusCode, 400);
     });
     for (final payload in ['{', '[]', 'null', '42', '"text"']) {
       test('Bad request when payload is invalid: $payload', () async {
         final r = await testHandler()(
-          http.Request('post', Uri.parse('/posts'), http.Body.text(payload, utf8), http.Headers()),
+          http.Request('post', Uri.parse('/posts'), http.Body.text(payload), http.Headers()),
         );
         expect(r.statusCode, 400);
       });
@@ -61,7 +59,7 @@ void main() {
     });
     test('Bad request when target can not be matched', () async {
       final r = await testHandler()(
-        http.Request('get', Uri.parse('/a/long/prefix/'), http.Body(), http.Headers()),
+        http.Request('get', Uri.parse('/a/long/prefix/'), http.Body.empty(), http.Headers()),
       );
       expect(r.statusCode, 400);
     });
@@ -70,7 +68,7 @@ void main() {
         http.Request(
           'get',
           Uri.parse('/posts/1'),
-          http.Body(),
+          http.Body.empty(),
           http.Headers.from({
             'Content-Type': ['application/vnd.api+json; ext=foobar'],
             'Accept': ['application/vnd.api+json'],
@@ -84,7 +82,7 @@ void main() {
         http.Request(
           'get',
           Uri.parse('/posts/1'),
-          http.Body(),
+          http.Body.empty(),
           http.Headers.from({
             'Content-Type': ['application/vnd.api+json'],
             'Accept': ['application/vnd.api+json; ext=foobar'],

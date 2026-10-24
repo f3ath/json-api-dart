@@ -7,7 +7,7 @@ import 'package:json_api/src/media_type.dart';
 Response response(int statusCode, {OutboundDocument? document}) =>
     Response(
         statusCode,
-        document != null ? Body.json(document, toEncodable: toJsonEncodable) : Body(),
+        document != null ? Body.json(document, toEncodable: toJsonEncodable) : Body.empty(),
         Headers(),
       )
       ..headers.addAll({

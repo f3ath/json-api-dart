@@ -5,7 +5,7 @@ import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
 void main() {
-  final emptyResponse = Response(i.Response(200, i.Body(), i.Headers()), null);
+  final emptyResponse = Response(i.Response(200, i.Body.empty(), i.Headers()), null);
   group('CollectionFetched', () {
     test('throws on empty body', () {
       expect(() => CollectionFetched(emptyResponse), throwsFormatException);

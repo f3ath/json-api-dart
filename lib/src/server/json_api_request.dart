@@ -15,33 +15,33 @@ sealed class JsonApiRequest {
   /// Throws [MethodNotAllowed] for unsupported combinations.
   static Future<JsonApiRequest> resolve(Request request, Target target) async {
     final doc = await _decode(request);
-    return switch ((request.method, target)) {
-      ('get', CollectionTarget target) => FetchCollectionRequest(request, target),
-      ('post', CollectionTarget target) => CreateResourceRequest(
+    return switch ((request.method.toUpperCase(), target)) {
+      ('GET', CollectionTarget target) => FetchCollectionRequest(request, target),
+      ('POST', CollectionTarget target) => CreateResourceRequest(
         request,
         target,
         doc ?? (throw PayloadMissing()),
       ),
-      ('get', ResourceTarget target) => FetchResourceRequest(request, target),
-      ('patch', ResourceTarget target) => UpdateResourceRequest(
+      ('GET', ResourceTarget target) => FetchResourceRequest(request, target),
+      ('PATCH', ResourceTarget target) => UpdateResourceRequest(
         request,
         target,
         doc ?? (throw PayloadMissing()),
       ),
-      ('delete', ResourceTarget target) => DeleteResourceRequest(request, target),
-      ('get', RelatedTarget target) => FetchRelatedRequest(request, target),
-      ('get', RelationshipTarget target) => FetchRelationshipRequest(request, target),
-      ('post', RelationshipTarget target) => AddManyRequest(
+      ('DELETE', ResourceTarget target) => DeleteResourceRequest(request, target),
+      ('GET', RelatedTarget target) => FetchRelatedRequest(request, target),
+      ('GET', RelationshipTarget target) => FetchRelationshipRequest(request, target),
+      ('POST', RelationshipTarget target) => AddManyRequest(
         request,
         target,
         doc ?? (throw PayloadMissing()),
       ),
-      ('patch', RelationshipTarget target) => ReplaceRelationshipRequest(
+      ('PATCH', RelationshipTarget target) => ReplaceRelationshipRequest(
         request,
         target,
         doc ?? (throw PayloadMissing()),
       ),
-      ('delete', RelationshipTarget target) => DeleteManyRequest(
+      ('DELETE', RelationshipTarget target) => DeleteManyRequest(
         request,
         target,
         doc ?? (throw PayloadMissing()),

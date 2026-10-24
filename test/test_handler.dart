@@ -13,16 +13,17 @@ Handler testHandler({
   PayloadHandler? onPayload,
 }) {
   final controller = RepositoryController(InMemoryRepo(types), _nextId);
-  return corsMiddleware
-      .add(requestValidatorMiddleware)
-      .add(errorConverter(onError: (e, _) => throw e))
-      .call(
-        router(
-          getTarget: (rq) => StandardUriDesign.pathOnly.target(rq.uri),
-          getController: (_, _) => controller,
-          beforeDispatch: onPayload,
-        ),
-      );
+  return [
+    corsMiddleware,
+    requestValidatorMiddleware,
+    errorConverter(onError: (e, _) => throw e),
+  ].combine().call(
+    router(
+      getTarget: (rq) => StandardUriDesign.pathOnly.target(rq.uri),
+      getController: (_, _) => controller,
+      beforeDispatch: onPayload,
+    ),
+  );
 }
 
 String _nextId() => (_counter++).toString();

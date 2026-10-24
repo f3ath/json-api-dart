@@ -1,12 +1,10 @@
-import 'dart:convert';
-
 import 'package:http_interop/http_interop.dart';
 import 'package:json_api/server.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
 void main() {
-  Response response = Response(200, Body.text('hello', utf8), Headers());
+  Response response = Response(200, Body.text('hello'), Headers());
 
   Future<Response> handler(Request rq) async => response;
 
@@ -15,7 +13,7 @@ void main() {
       final rq = Request(
         'get',
         Uri(host: 'localhost'),
-        Body(),
+        Body.empty(),
         Headers.from({
           'origin': ['foo'],
         }),
@@ -30,7 +28,7 @@ void main() {
       final rq = Request(
         'options',
         Uri(host: 'localhost'),
-        Body(),
+        Body.empty(),
         Headers.from({
           'origin': ['foo'],
         }),
@@ -50,7 +48,7 @@ void main() {
       final rq = Request(
         'options',
         Uri(host: 'localhost'),
-        Body(),
+        Body.empty(),
         Headers.from({
           'origin': ['foo'],
           'Access-Control-Request-Method': ['PUT', 'POST'],

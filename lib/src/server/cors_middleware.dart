@@ -5,7 +5,7 @@ final corsMiddleware = middleware(
   onRequest: (rq) async => switch (rq.method) {
     'options' => Response(
       204,
-      Body(),
+      Body.empty(),
       Headers.from({
         'Access-Control-Allow-Methods':
             rq.headers['Access-Control-Request-Method'] ??

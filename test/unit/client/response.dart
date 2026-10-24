@@ -236,7 +236,7 @@ Response many() => Response(
   headers,
 );
 
-Response noContent() => Response(204, Body(), Headers());
+Response noContent() => Response(204, Body.empty(), Headers());
 
 Response error422() => Response(
   422,
@@ -254,4 +254,4 @@ Response error422() => Response(
   headers,
 );
 
-Response error500() => Response(500, Body(), Headers());
+Response error500() => Response(500, Body.empty(), Headers());

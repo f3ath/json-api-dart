@@ -5,7 +5,7 @@ import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
 void main() {
-  final get = Request('get', Uri(), Body(), Headers());
+  final get = Request('get', Uri(), Body.empty(), Headers());
 
   group('default handlers', () {
     final converter = errorConverter();
@@ -45,12 +45,12 @@ void main() {
 
   group('custom handlers', () {
     final converter = errorConverter(
-      onMethodNotAllowed: (_) async => Response(550, Body(), Headers()),
-      onUnmatchedTarget: (_) async => Response(551, Body(), Headers()),
-      onCollectionNotFound: (_) async => Response(552, Body(), Headers()),
-      onResourceNotFound: (_) async => Response(553, Body(), Headers()),
-      onRelationshipNotFound: (_) async => Response(554, Body(), Headers()),
-      onError: (_, _) async => Response(555, Body(), Headers()),
+      onMethodNotAllowed: (_) async => Response(550, Body.empty(), Headers()),
+      onUnmatchedTarget: (_) async => Response(551, Body.empty(), Headers()),
+      onCollectionNotFound: (_) async => Response(552, Body.empty(), Headers()),
+      onResourceNotFound: (_) async => Response(553, Body.empty(), Headers()),
+      onRelationshipNotFound: (_) async => Response(554, Body.empty(), Headers()),
+      onError: (_, _) async => Response(555, Body.empty(), Headers()),
     );
     test('can catch MethodNotAllowed', () async {
       final r = await converter((_) => throw MethodNotAllowed('foo'))(get);
