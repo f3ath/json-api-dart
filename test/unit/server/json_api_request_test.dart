@@ -11,7 +11,7 @@ void main() {
 
   test('resolve decodes and stores the document', () async {
     final httpRequest = Request(
-      'post',
+      'POST',
       Uri.parse('/books'),
       Body.json({
         "data": {
@@ -28,7 +28,7 @@ void main() {
 
   for (final body in ['{', '[]', 'null', '42']) {
     test('resolve rejects invalid payload $body', () async {
-      final request = Request('post', Uri.parse('/books'), Body.text(body), Headers());
+      final request = Request('POST', Uri.parse('/books'), Body.text(body), Headers());
       await expectLater(
         JsonApiRequest.resolve(request, collection),
         throwsA(isA<PayloadInvalid>()),
@@ -37,24 +37,24 @@ void main() {
   }
 
   final cases = [
-    ('get', collection, isA<FetchCollectionRequest>()),
-    ('post', collection, isA<CreateResourceRequest>()),
-    ('get', resource, isA<FetchResourceRequest>()),
-    ('patch', resource, isA<UpdateResourceRequest>()),
-    ('delete', resource, isA<DeleteResourceRequest>()),
-    ('get', related, isA<FetchRelatedRequest>()),
-    ('get', relationship, isA<FetchRelationshipRequest>()),
-    ('post', relationship, isA<AddManyRequest>()),
-    ('patch', relationship, isA<ReplaceRelationshipRequest>()),
-    ('delete', relationship, isA<DeleteManyRequest>()),
+    ('GET', collection, isA<FetchCollectionRequest>()),
+    ('POST', collection, isA<CreateResourceRequest>()),
+    ('GET', resource, isA<FetchResourceRequest>()),
+    ('PATCH', resource, isA<UpdateResourceRequest>()),
+    ('DELETE', resource, isA<DeleteResourceRequest>()),
+    ('GET', related, isA<FetchRelatedRequest>()),
+    ('GET', relationship, isA<FetchRelationshipRequest>()),
+    ('POST', relationship, isA<AddManyRequest>()),
+    ('PATCH', relationship, isA<ReplaceRelationshipRequest>()),
+    ('DELETE', relationship, isA<DeleteManyRequest>()),
   ];
 
   for (final (method, target) in [
-    ('post', collection),
-    ('patch', resource),
-    ('post', relationship),
-    ('patch', relationship),
-    ('delete', relationship),
+    ('POST', collection),
+    ('PATCH', resource),
+    ('POST', relationship),
+    ('PATCH', relationship),
+    ('DELETE', relationship),
   ]) {
     test('$method ${target.runtimeType} requires a document', () async {
       final request = Request(method, Uri.parse('/books'), Body.empty(), Headers());
@@ -85,7 +85,7 @@ void main() {
   }
 
   for (final target in [collection, resource, related, relationship]) {
-    for (final method in ['get', 'post', 'patch', 'delete', 'put', 'head', 'options']) {
+    for (final method in ['GET', 'POST', 'PATCH', 'DELETE', 'put', 'head', 'options']) {
       if (cases.any((entry) => entry.$1 == method && identical(entry.$2, target))) continue;
       test('$method ${target.runtimeType} is not allowed', () async {
         final request = Request(method, Uri.parse('/books'), Body.empty(), Headers());

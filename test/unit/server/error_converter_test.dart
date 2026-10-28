@@ -5,7 +5,7 @@ import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
 void main() {
-  final get = Request('get', Uri(), Body.empty(), Headers());
+  final get = Request('GET', Uri(), Body.empty(), Headers());
 
   group('default handlers', () {
     final converter = errorConverter();

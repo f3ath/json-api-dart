@@ -33,23 +33,23 @@ void main() {
     });
     test('Bad request when payload is missing', () async {
       final r = await testHandler()(
-        http.Request('post', Uri.parse('/posts'), http.Body.empty(), http.Headers()),
+        http.Request('POST', Uri.parse('/posts'), http.Body.empty(), http.Headers()),
       );
       expect(r.statusCode, 400);
     });
     for (final payload in ['{', '[]', 'null', '42', '"text"']) {
       test('Bad request when payload is invalid: $payload', () async {
         final r = await testHandler()(
-          http.Request('post', Uri.parse('/posts'), http.Body.text(payload), http.Headers()),
+          http.Request('POST', Uri.parse('/posts'), http.Body.text(payload), http.Headers()),
         );
         expect(r.statusCode, 400);
       });
     }
     test('Method not allowed', () async {
       final actions = [
-        () => client.send(Uri.parse('/posts'), Request('delete')),
-        () => client.send(Uri.parse('/posts/1'), Request('post')),
-        () => client.send(Uri.parse('/posts/1/author'), Request('post')),
+        () => client.send(Uri.parse('/posts'), Request('DELETE')),
+        () => client.send(Uri.parse('/posts/1'), Request('POST')),
+        () => client.send(Uri.parse('/posts/1/author'), Request('POST')),
         () => client.send(Uri.parse('/posts/1/relationships/author'), Request('head')),
       ];
       for (final action in actions) {
@@ -59,14 +59,14 @@ void main() {
     });
     test('Bad request when target can not be matched', () async {
       final r = await testHandler()(
-        http.Request('get', Uri.parse('/a/long/prefix/'), http.Body.empty(), http.Headers()),
+        http.Request('GET', Uri.parse('/a/long/prefix/'), http.Body.empty(), http.Headers()),
       );
       expect(r.statusCode, 400);
     });
     test('Unsupported extension', () async {
       final r = await testHandler()(
         http.Request(
-          'get',
+          'GET',
           Uri.parse('/posts/1'),
           http.Body.empty(),
           http.Headers.from({
@@ -80,7 +80,7 @@ void main() {
     test('Unacceptable', () async {
       final r = await testHandler()(
         http.Request(
-          'get',
+          'GET',
           Uri.parse('/posts/1'),
           http.Body.empty(),
           http.Headers.from({

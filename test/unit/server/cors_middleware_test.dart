@@ -11,7 +11,7 @@ void main() {
   group('CORS Middleware', () {
     test('Sets the headers', () async {
       final rq = Request(
-        'get',
+        'GET',
         Uri(host: 'localhost'),
         Body.empty(),
         Headers.from({

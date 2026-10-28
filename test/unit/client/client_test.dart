@@ -44,7 +44,7 @@ void main() {
       expect(response.collection.single.type, 'articles');
       expect(response.collection.single.id, '1');
       expect(response.included, isEmpty);
-      expect(mockHandler.request.method, equals('get'));
+      expect(mockHandler.request.method, equals('GET'));
       expect(mockHandler.request.uri.toString(), '/articles');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -74,7 +74,7 @@ void main() {
 
     expect(response.collection.length, 1);
     expect(response.included.length, 3);
-    expect(mockHandler.request.method, equals('get'));
+    expect(mockHandler.request.method, equals('GET'));
     expect(mockHandler.request.uri.path, '/articles');
     expect(mockHandler.request.uri.queryParameters, {
       'include': 'author',
@@ -96,7 +96,7 @@ void main() {
       mockHandler.response = mock.collectionFull();
       final response = await client.fetchRelatedCollection('people', '1', 'articles');
       expect(response.collection.length, 1);
-      expect(mockHandler.request.method, equals('get'));
+      expect(mockHandler.request.method, equals('GET'));
       expect(mockHandler.request.uri.path, '/people/1/articles');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -127,7 +127,7 @@ void main() {
 
       expect(response.collection.length, 1);
       expect(response.included.length, 3);
-      expect(mockHandler.request.method, equals('get'));
+      expect(mockHandler.request.method, equals('GET'));
       expect(mockHandler.request.uri.path, '/people/1/articles');
       expect(mockHandler.request.uri.queryParameters, {
         'include': 'author',
@@ -150,7 +150,7 @@ void main() {
       mockHandler.response = mock.primaryResource();
       final response = await client.fetchResource('articles', '1');
       expect(response.resource.type, 'articles');
-      expect(mockHandler.request.method, equals('get'));
+      expect(mockHandler.request.method, equals('GET'));
       expect(mockHandler.request.uri.toString(), '/articles/1');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -177,7 +177,7 @@ void main() {
       );
       expect(response.resource.type, 'articles');
       expect(response.included.length, 3);
-      expect(mockHandler.request.method, equals('get'));
+      expect(mockHandler.request.method, equals('GET'));
       expect(mockHandler.request.uri.path, '/articles/1');
       expect(mockHandler.request.uri.queryParameters, {
         'include': 'author',
@@ -199,7 +199,7 @@ void main() {
       final response = await client.fetchRelatedResource('articles', '1', 'author');
       expect(response.resource?.type, 'articles');
       expect(response.included.length, 3);
-      expect(mockHandler.request.method, equals('get'));
+      expect(mockHandler.request.method, equals('GET'));
       expect(mockHandler.request.uri.toString(), '/articles/1/author');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -227,7 +227,7 @@ void main() {
       );
       expect(response.resource?.type, 'articles');
       expect(response.included.length, 3);
-      expect(mockHandler.request.method, equals('get'));
+      expect(mockHandler.request.method, equals('GET'));
       expect(mockHandler.request.uri.path, '/articles/1/author');
       expect(mockHandler.request.uri.queryParameters, {
         'include': 'author',
@@ -247,7 +247,7 @@ void main() {
       final response = await client.fetchRelatedResource('articles', '1', 'author');
       expect(response.resource, isNull);
       expect(response.included, isEmpty);
-      expect(mockHandler.request.method, equals('get'));
+      expect(mockHandler.request.method, equals('GET'));
       expect(mockHandler.request.uri.toString(), '/articles/1/author');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -260,7 +260,7 @@ void main() {
       mockHandler.response = mock.one();
       final response = await client.fetchToOne('articles', '1', 'author');
       expect(response.included.length, 3);
-      expect(mockHandler.request.method, equals('get'));
+      expect(mockHandler.request.method, equals('GET'));
       expect(mockHandler.request.uri.toString(), '/articles/1/relationships/author');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -283,7 +283,7 @@ void main() {
         ],
       );
       expect(response.included.length, 3);
-      expect(mockHandler.request.method, equals('get'));
+      expect(mockHandler.request.method, equals('GET'));
       expect(mockHandler.request.uri.path, '/articles/1/relationships/author');
       expect(mockHandler.request.uri.queryParameters, {'foo': 'bar'});
       expect(mockHandler.request.headers, {
@@ -300,7 +300,7 @@ void main() {
       expect(response.resource.type, 'articles');
       expect(response.links['self'].toString(), 'http://example.com/articles/1');
       expect(response.included.length, 3);
-      expect(mockHandler.request.method, equals('post'));
+      expect(mockHandler.request.method, equals('POST'));
       expect(mockHandler.request.uri.toString(), '/articles');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -331,7 +331,7 @@ void main() {
       expect(response.resource.type, 'articles');
       expect(response.links['self'].toString(), 'http://example.com/articles/1');
       expect(response.included.length, 3);
-      expect(mockHandler.request.method, equals('post'));
+      expect(mockHandler.request.method, equals('POST'));
       expect(mockHandler.request.uri.toString(), '/articles');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -371,7 +371,7 @@ void main() {
       mockHandler.response = mock.primaryResource();
       final response = await client.create('articles', '1');
       expect(response.resource?.type, 'articles');
-      expect(mockHandler.request.method, equals('post'));
+      expect(mockHandler.request.method, equals('POST'));
       expect(mockHandler.request.uri.toString(), '/articles');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -386,7 +386,7 @@ void main() {
       mockHandler.response = mock.noContent();
       final response = await client.create('articles', '1');
       expect(response.resource, isNull);
-      expect(mockHandler.request.method, equals('post'));
+      expect(mockHandler.request.method, equals('POST'));
       expect(mockHandler.request.uri.toString(), '/articles');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -416,7 +416,7 @@ void main() {
         },
       );
       expect(response.resource?.type, 'articles');
-      expect(mockHandler.request.method, equals('post'));
+      expect(mockHandler.request.method, equals('POST'));
       expect(mockHandler.request.uri.toString(), '/articles');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -457,7 +457,7 @@ void main() {
       mockHandler.response = mock.primaryResource();
       final response = await client.updateResource('articles', '1');
       expect(response.resource?.type, 'articles');
-      expect(mockHandler.request.method, equals('patch'));
+      expect(mockHandler.request.method, equals('PATCH'));
       expect(mockHandler.request.uri.toString(), '/articles/1');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -472,7 +472,7 @@ void main() {
       mockHandler.response = mock.noContent();
       final response = await client.updateResource('articles', '1');
       expect(response.resource, isNull);
-      expect(mockHandler.request.method, equals('patch'));
+      expect(mockHandler.request.method, equals('PATCH'));
       expect(mockHandler.request.uri.toString(), '/articles/1');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -502,7 +502,7 @@ void main() {
         },
       );
       expect(response.resource?.type, 'articles');
-      expect(mockHandler.request.method, equals('patch'));
+      expect(mockHandler.request.method, equals('PATCH'));
       expect(mockHandler.request.uri.toString(), '/articles/1');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -548,7 +548,7 @@ void main() {
         Identifier('people', '42'),
       );
       expect(response.relationship, isA<ToOne>());
-      expect(mockHandler.request.method, equals('patch'));
+      expect(mockHandler.request.method, equals('PATCH'));
       expect(mockHandler.request.uri.toString(), '/articles/1/relationships/author');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -572,7 +572,7 @@ void main() {
         },
       );
       expect(response.relationship, isA<ToOne>());
-      expect(mockHandler.request.method, equals('patch'));
+      expect(mockHandler.request.method, equals('PATCH'));
       expect(mockHandler.request.uri.toString(), '/articles/1/relationships/author');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -611,7 +611,7 @@ void main() {
       final response = await client.deleteToOne('articles', '1', 'author');
       expect(response.relationship, isA<ToOne>());
       expect(response.relationship!.identifier, isNull);
-      expect(mockHandler.request.method, equals('patch'));
+      expect(mockHandler.request.method, equals('PATCH'));
       expect(mockHandler.request.uri.toString(), '/articles/1/relationships/author');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -632,7 +632,7 @@ void main() {
       );
       expect(response.relationship, isA<ToOne>());
       expect(response.relationship!.identifier, isNull);
-      expect(mockHandler.request.method, equals('patch'));
+      expect(mockHandler.request.method, equals('PATCH'));
       expect(mockHandler.request.uri.toString(), '/articles/1/relationships/author');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -666,7 +666,7 @@ void main() {
         Identifier('tags', '1'),
       ]);
       expect(response.relationship, isA<ToMany>());
-      expect(mockHandler.request.method, equals('delete'));
+      expect(mockHandler.request.method, equals('DELETE'));
       expect(mockHandler.request.uri.toString(), '/articles/1/relationships/tags');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -692,7 +692,7 @@ void main() {
         },
       );
       expect(response.relationship, isA<ToMany>());
-      expect(mockHandler.request.method, equals('delete'));
+      expect(mockHandler.request.method, equals('DELETE'));
       expect(mockHandler.request.uri.toString(), '/articles/1/relationships/tags');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -734,7 +734,7 @@ void main() {
         Identifier('tags', '1'),
       ]);
       expect(response.relationship, isA<ToMany>());
-      expect(mockHandler.request.method, equals('patch'));
+      expect(mockHandler.request.method, equals('PATCH'));
       expect(mockHandler.request.uri.toString(), '/articles/1/relationships/tags');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -760,7 +760,7 @@ void main() {
         },
       );
       expect(response.relationship, isA<ToMany>());
-      expect(mockHandler.request.method, equals('patch'));
+      expect(mockHandler.request.method, equals('PATCH'));
       expect(mockHandler.request.uri.toString(), '/articles/1/relationships/tags');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -800,7 +800,7 @@ void main() {
       mockHandler.response = mock.many();
       final response = await client.addMany('articles', '1', 'tags', [Identifier('tags', '1')]);
       expect(response.relationship, isA<ToMany>());
-      expect(mockHandler.request.method, equals('post'));
+      expect(mockHandler.request.method, equals('POST'));
       expect(mockHandler.request.uri.toString(), '/articles/1/relationships/tags');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
@@ -826,7 +826,7 @@ void main() {
         },
       );
       expect(response.relationship, isA<ToMany>());
-      expect(mockHandler.request.method, equals('post'));
+      expect(mockHandler.request.method, equals('POST'));
       expect(mockHandler.request.uri.toString(), '/articles/1/relationships/tags');
       expect(mockHandler.request.headers, {
         'Accept': ['application/vnd.api+json'],
