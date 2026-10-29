@@ -2,8 +2,8 @@ import 'package:http_interop/http_interop.dart';
 import 'package:http_interop_middleware/http_interop_middleware.dart';
 
 final corsMiddleware = middleware(
-  onRequest: (rq) async => switch (rq.method) {
-    'options' => Response(
+  onRequest: (rq) async => switch (rq.method.toUpperCase()) {
+    'OPTIONS' => Response(
       204,
       Body.empty(),
       Headers.from({
