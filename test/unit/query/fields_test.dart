@@ -8,15 +8,17 @@ void main() {
       expect(Fields().isNotEmpty, isFalse);
 
       expect(
-          Fields({
-            'foo': ['bar']
-          }).isEmpty,
-          isFalse);
+        Fields({
+          'foo': ['bar'],
+        }).isEmpty,
+        isFalse,
+      );
       expect(
-          Fields({
-            'foo': ['bar']
-          }).isNotEmpty,
-          isTrue);
+        Fields({
+          'foo': ['bar'],
+        }).isNotEmpty,
+        isTrue,
+      );
     });
 
     test('add, remove, clear', () {
@@ -33,7 +35,8 @@ void main() {
 
     test('can decode url without duplicate keys', () {
       final uri = Uri.parse(
-          '/articles?include=author&fields%5Barticles%5D=title%2Cbody&fields%5Bpeople%5D=name');
+        '/articles?include=author&fields%5Barticles%5D=title%2Cbody&fields%5Bpeople%5D=name',
+      );
       final fields = Fields.fromUri(uri);
       expect(fields['articles'], ['title', 'body']);
       expect(fields['people'], ['name']);
@@ -41,7 +44,8 @@ void main() {
 
     test('can decode url with duplicate keys', () {
       final uri = Uri.parse(
-          '/articles?include=author&fields%5Barticles%5D=title%2Cbody&fields%5Bpeople%5D=name&fields%5Bpeople%5D=age');
+        '/articles?include=author&fields%5Barticles%5D=title%2Cbody&fields%5Bpeople%5D=name&fields%5Bpeople%5D=age',
+      );
       final fields = Fields.fromUri(uri);
       expect(fields['articles'], ['title', 'body']);
       expect(fields['people'], ['name', 'age']);
@@ -49,14 +53,15 @@ void main() {
 
     test('can convert to query parameters', () {
       expect(
-          Fields({
-            'articles': ['title', 'body'],
-            'people': ['name']
-          }).toQuery(),
-          {
-            'fields[articles]': ['title,body'],
-            'fields[people]': ['name']
-          });
+        Fields({
+          'articles': ['title', 'body'],
+          'people': ['name'],
+        }).toQuery(),
+        {
+          'fields[articles]': ['title,body'],
+          'fields[people]': ['name'],
+        },
+      );
     });
   });
 }

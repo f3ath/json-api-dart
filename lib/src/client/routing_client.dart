@@ -14,12 +14,7 @@ import 'package:json_api/src/client/response/resource_fetched.dart';
 import 'package:json_api/src/client/response/resource_updated.dart';
 
 /// A routing JSON:API client
-class RoutingClient {
-  RoutingClient(this._baseUri, this._client);
-
-  final Client _client;
-  final UriDesign _baseUri;
-
+class RoutingClient(final UriBuilder _uriFor, final Client _client) {
   /// Adds the [identifiers] to the to-many relationship
   /// identified by [type], [id], [relationship].
   ///
@@ -32,12 +27,13 @@ class RoutingClient {
     List<Identifier> identifiers, {
     Map<String, Object?> meta = const {},
     Map<String, List<String>> headers = const {},
-  }) async =>
-      RelationshipUpdated.many(await send(
-          _baseUri.relationship(type, id, relationship),
-          Request.post(
-              OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
-            ..headers.addAll(headers)));
+  }) async => RelationshipUpdated.many(
+    await send(
+      _uriFor(RelationshipTarget(type, id, relationship)),
+      Request.post(OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
+        ..headers.addAll(headers),
+    ),
+  );
 
   /// Creates a new resource with the given [type] and [id] on the server.
   ///
@@ -59,19 +55,24 @@ class RoutingClient {
     Map<String, Object?> documentMeta = const {},
     Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
-  }) async =>
-      ResourceUpdated(await send(
-          _baseUri.collection(type),
-          Request.post(OutboundDataDocument.resource(Resource(type, id)
-            ..attributes.addAll(attributes)
-            ..relationships.addAll({
-              ...one.map((key, value) => MapEntry(key, ToOne(value))),
-              ...many.map((key, value) => MapEntry(key, ToMany(value))),
-            })
-            ..meta.addAll(meta))
-            ..meta.addAll(documentMeta))
-            ..headers.addAll(headers)
-            ..query.mergeAll(query)));
+  }) async => ResourceUpdated(
+    await send(
+      _uriFor(CollectionTarget(type)),
+      Request.post(
+          OutboundDataDocument.resource(
+            Resource(type, id)
+              ..attributes.addAll(attributes)
+              ..relationships.addAll({
+                ...one.map((key, value) => MapEntry(key, ToOne(value))),
+                ...many.map((key, value) => MapEntry(key, ToMany(value))),
+              })
+              ..meta.addAll(meta),
+          )..meta.addAll(documentMeta),
+        )
+        ..headers.addAll(headers)
+        ..query.mergeAll(query),
+    ),
+  );
 
   /// Creates a new resource in the collection of type [type].
   /// The server is responsible for assigning the resource id.
@@ -95,20 +96,24 @@ class RoutingClient {
     Map<String, Object?> documentMeta = const {},
     Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
-  }) async =>
-      ResourceCreated(await send(
-          _baseUri.collection(type),
-          Request.post(
-              OutboundDataDocument.newResource(NewResource(type, lid: lid)
-                ..attributes.addAll(attributes)
-                ..relationships.addAll({
-                  ...one.map((key, value) => MapEntry(key, NewToOne(value))),
-                  ...many.map((key, value) => MapEntry(key, NewToMany(value))),
-                })
-                ..meta.addAll(meta))
-                ..meta.addAll(documentMeta))
-            ..headers.addAll(headers)
-            ..query.mergeAll(query)));
+  }) async => ResourceCreated(
+    await send(
+      _uriFor(CollectionTarget(type)),
+      Request.post(
+          OutboundDataDocument.newResource(
+            NewResource(type, lid: lid)
+              ..attributes.addAll(attributes)
+              ..relationships.addAll({
+                ...one.map((key, value) => MapEntry(key, NewToOne(value))),
+                ...many.map((key, value) => MapEntry(key, NewToMany(value))),
+              })
+              ..meta.addAll(meta),
+          )..meta.addAll(documentMeta),
+        )
+        ..headers.addAll(headers)
+        ..query.mergeAll(query),
+    ),
+  );
 
   /// Deletes the [identifiers] from the to-many relationship
   /// identified by [type], [id], [relationship].
@@ -123,12 +128,13 @@ class RoutingClient {
     List<Identifier> identifiers, {
     Map<String, Object?> meta = const {},
     Map<String, List<String>> headers = const {},
-  }) async =>
-      RelationshipUpdated.many(await send(
-          _baseUri.relationship(type, id, relationship),
-          Request.delete(
-              OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
-            ..headers.addAll(headers)));
+  }) async => RelationshipUpdated.many(
+    await send(
+      _uriFor(RelationshipTarget(type, id, relationship)),
+      Request.delete(OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
+        ..headers.addAll(headers),
+    ),
+  );
 
   /// Fetches the primary collection of type [type].
   ///
@@ -139,12 +145,14 @@ class RoutingClient {
     String type, {
     Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
-  }) async =>
-      CollectionFetched(await send(
-          _baseUri.collection(type),
-          Request.get()
-            ..headers.addAll(headers)
-            ..query.mergeAll(query)));
+  }) async => CollectionFetched(
+    await send(
+      _uriFor(CollectionTarget(type)),
+      Request.get()
+        ..headers.addAll(headers)
+        ..query.mergeAll(query),
+    ),
+  );
 
   /// Fetches the related resource collection
   /// identified by [type], [id], [relationship].
@@ -158,12 +166,14 @@ class RoutingClient {
     String relationship, {
     Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
-  }) async =>
-      CollectionFetched(await send(
-          _baseUri.related(type, id, relationship),
-          Request.get()
-            ..headers.addAll(headers)
-            ..query.mergeAll(query)));
+  }) async => CollectionFetched(
+    await send(
+      _uriFor(RelatedTarget(type, id, relationship)),
+      Request.get()
+        ..headers.addAll(headers)
+        ..query.mergeAll(query),
+    ),
+  );
 
   /// Fetches the to-one relationship
   /// identified by [type], [id], [relationship].
@@ -177,12 +187,14 @@ class RoutingClient {
     String relationship, {
     Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
-  }) async =>
-      RelationshipFetched.one(await send(
-          _baseUri.relationship(type, id, relationship),
-          Request.get()
-            ..headers.addAll(headers)
-            ..query.mergeAll(query)));
+  }) async => RelationshipFetched.one(
+    await send(
+      _uriFor(RelationshipTarget(type, id, relationship)),
+      Request.get()
+        ..headers.addAll(headers)
+        ..query.mergeAll(query),
+    ),
+  );
 
   /// Fetches the to-many relationship
   /// identified by [type], [id], [relationship].
@@ -196,12 +208,14 @@ class RoutingClient {
     String relationship, {
     Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
-  }) async =>
-      RelationshipFetched.many(await send(
-          _baseUri.relationship(type, id, relationship),
-          Request.get()
-            ..headers.addAll(headers)
-            ..query.mergeAll(query)));
+  }) async => RelationshipFetched.many(
+    await send(
+      _uriFor(RelationshipTarget(type, id, relationship)),
+      Request.get()
+        ..headers.addAll(headers)
+        ..query.mergeAll(query),
+    ),
+  );
 
   /// Fetches the related resource
   /// identified by [type], [id], [relationship].
@@ -215,12 +229,14 @@ class RoutingClient {
     String relationship, {
     Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
-  }) async =>
-      RelatedResourceFetched(await send(
-          _baseUri.related(type, id, relationship),
-          Request.get()
-            ..headers.addAll(headers)
-            ..query.mergeAll(query)));
+  }) async => RelatedResourceFetched(
+    await send(
+      _uriFor(RelatedTarget(type, id, relationship)),
+      Request.get()
+        ..headers.addAll(headers)
+        ..query.mergeAll(query),
+    ),
+  );
 
   /// Fetches the resource identified by [type] and [id].
   ///
@@ -232,12 +248,14 @@ class RoutingClient {
     String id, {
     Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
-  }) async =>
-      ResourceFetched(await send(
-          _baseUri.resource(type, id),
-          Request.get()
-            ..headers.addAll(headers)
-            ..query.mergeAll(query)));
+  }) async => ResourceFetched(
+    await send(
+      _uriFor(ResourceTarget(type, id)),
+      Request.get()
+        ..headers.addAll(headers)
+        ..query.mergeAll(query),
+    ),
+  );
 
   /// Updates the resource identified by [type] and [id].
   ///
@@ -259,19 +277,24 @@ class RoutingClient {
     Map<String, Object?> documentMeta = const {},
     Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
-  }) async =>
-      ResourceUpdated(await send(
-          _baseUri.resource(type, id),
-          Request.patch(OutboundDataDocument.resource(Resource(type, id)
-            ..attributes.addAll(attributes)
-            ..relationships.addAll({
-              ...one.map((key, value) => MapEntry(key, ToOne(value))),
-              ...many.map((key, value) => MapEntry(key, ToMany(value))),
-            })
-            ..meta.addAll(meta))
-            ..meta.addAll(documentMeta))
-            ..headers.addAll(headers)
-            ..query.mergeAll(query)));
+  }) async => ResourceUpdated(
+    await send(
+      _uriFor(ResourceTarget(type, id)),
+      Request.patch(
+          OutboundDataDocument.resource(
+            Resource(type, id)
+              ..attributes.addAll(attributes)
+              ..relationships.addAll({
+                ...one.map((key, value) => MapEntry(key, ToOne(value))),
+                ...many.map((key, value) => MapEntry(key, ToMany(value))),
+              })
+              ..meta.addAll(meta),
+          )..meta.addAll(documentMeta),
+        )
+        ..headers.addAll(headers)
+        ..query.mergeAll(query),
+    ),
+  );
 
   /// Replaces the to-one relationship
   /// identified by [type], [id], and [relationship] by setting
@@ -289,13 +312,14 @@ class RoutingClient {
     Map<String, Object?> meta = const {},
     Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
-  }) async =>
-      RelationshipUpdated.one(await send(
-          _baseUri.relationship(type, id, relationship),
-          Request.patch(
-              OutboundDataDocument.one(ToOne(identifier)..meta.addAll(meta)))
-            ..headers.addAll(headers)
-            ..query.mergeAll(query)));
+  }) async => RelationshipUpdated.one(
+    await send(
+      _uriFor(RelationshipTarget(type, id, relationship)),
+      Request.patch(OutboundDataDocument.one(ToOne(identifier)..meta.addAll(meta)))
+        ..headers.addAll(headers)
+        ..query.mergeAll(query),
+    ),
+  );
 
   /// Replaces the to-many relationship
   /// identified by [type], [id], and [relationship] by setting
@@ -313,13 +337,14 @@ class RoutingClient {
     Map<String, Object?> meta = const {},
     Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
-  }) async =>
-      RelationshipUpdated.many(await send(
-          _baseUri.relationship(type, id, relationship),
-          Request.patch(
-              OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
-            ..headers.addAll(headers)
-            ..query.mergeAll(query)));
+  }) async => RelationshipUpdated.many(
+    await send(
+      _uriFor(RelationshipTarget(type, id, relationship)),
+      Request.patch(OutboundDataDocument.many(ToMany(identifiers)..meta.addAll(meta)))
+        ..headers.addAll(headers)
+        ..query.mergeAll(query),
+    ),
+  );
 
   /// Removes the to-one relationship
   /// identified by [type], [id], and [relationship]..
@@ -333,12 +358,14 @@ class RoutingClient {
     String relationship, {
     Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
-  }) async =>
-      RelationshipUpdated.one(await send(
-          _baseUri.relationship(type, id, relationship),
-          Request.patch(OutboundDataDocument.one(ToOne.empty()))
-            ..headers.addAll(headers)
-            ..query.mergeAll(query)));
+  }) async => RelationshipUpdated.one(
+    await send(
+      _uriFor(RelationshipTarget(type, id, relationship)),
+      Request.patch(OutboundDataDocument.one(ToOne.empty()))
+        ..headers.addAll(headers)
+        ..query.mergeAll(query),
+    ),
+  );
 
   /// Deletes the resource identified by [type] and [id].
   ///
@@ -350,12 +377,12 @@ class RoutingClient {
     String id, {
     Map<String, List<String>> headers = const {},
     Iterable<QueryEncodable> query = const [],
-  }) =>
-      send(
-          _baseUri.resource(type, id),
-          Request.delete()
-            ..headers.addAll(headers)
-            ..query.mergeAll(query));
+  }) => send(
+    _uriFor(ResourceTarget(type, id)),
+    Request.delete()
+      ..headers.addAll(headers)
+      ..query.mergeAll(query),
+  );
 
   /// Sends the [request] to the [uri] on the server.
   /// This method can be used to send any non-standard requests.

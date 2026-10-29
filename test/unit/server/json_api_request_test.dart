@@ -1,0 +1,99 @@
+import 'package:http_interop/http_interop.dart';
+import 'package:json_api/routing.dart';
+import 'package:json_api/server.dart';
+import 'package:test/test.dart';
+
+void main() {
+  const collection = CollectionTarget('books');
+  const resource = ResourceTarget('books', '42');
+  const related = RelatedTarget('books', '42', 'authors');
+  const relationship = RelationshipTarget('books', '42', 'authors');
+
+  test('resolve decodes and stores the document', () async {
+    final httpRequest = Request(
+      'POST',
+      Uri.parse('/books'),
+      Body.json({
+        "data": {
+          "type": "books",
+          "attributes": {"title": "Dune"},
+        },
+      }),
+      Headers(),
+    );
+    final request = await JsonApiRequest.resolve(httpRequest, collection) as CreateResourceRequest;
+    expect(request.newResource.type, 'books');
+    expect(request.newResource.attributes['title'], 'Dune');
+  });
+
+  for (final body in ['{', '[]', 'null', '42']) {
+    test('resolve rejects invalid payload $body', () async {
+      final request = Request('POST', Uri.parse('/books'), Body.text(body), Headers());
+      await expectLater(
+        JsonApiRequest.resolve(request, collection),
+        throwsA(isA<PayloadInvalid>()),
+      );
+    });
+  }
+
+  final cases = [
+    ('GET', collection, isA<FetchCollectionRequest>()),
+    ('POST', collection, isA<CreateResourceRequest>()),
+    ('GET', resource, isA<FetchResourceRequest>()),
+    ('PATCH', resource, isA<UpdateResourceRequest>()),
+    ('DELETE', resource, isA<DeleteResourceRequest>()),
+    ('GET', related, isA<FetchRelatedRequest>()),
+    ('GET', relationship, isA<FetchRelationshipRequest>()),
+    ('POST', relationship, isA<AddManyRequest>()),
+    ('PATCH', relationship, isA<ReplaceRelationshipRequest>()),
+    ('DELETE', relationship, isA<DeleteManyRequest>()),
+  ];
+
+  for (final (method, target) in [
+    ('POST', collection),
+    ('PATCH', resource),
+    ('POST', relationship),
+    ('PATCH', relationship),
+    ('DELETE', relationship),
+  ]) {
+    test('$method ${target.runtimeType} requires a document', () async {
+      final request = Request(method, Uri.parse('/books'), Body.empty(), Headers());
+      await expectLater(JsonApiRequest.resolve(request, target), throwsA(isA<PayloadMissing>()));
+    });
+  }
+
+  for (final (method, target, matcher) in cases) {
+    test('$method ${target.runtimeType} resolves to the corresponding operation', () async {
+      final httpRequest = Request(
+        method,
+        Uri.parse('/books'),
+        Body.json({'data': null}),
+        Headers(),
+      );
+      final request = await JsonApiRequest.resolve(httpRequest, target);
+      expect(request, matcher);
+      expect(request.httpRequest, same(httpRequest));
+      expect(request.target, same(target));
+      final uppercaseRequest = Request(
+        method.toUpperCase(),
+        Uri.parse('/books'),
+        Body.json({'data': null}),
+        Headers(),
+      );
+      expect(await JsonApiRequest.resolve(uppercaseRequest, target), matcher);
+    });
+  }
+
+  for (final target in [collection, resource, related, relationship]) {
+    for (final method in ['GET', 'POST', 'PATCH', 'DELETE', 'put', 'head', 'options']) {
+      if (cases.any((entry) => entry.$1 == method && identical(entry.$2, target))) continue;
+      test('$method ${target.runtimeType} is not allowed', () async {
+        final request = Request(method, Uri.parse('/books'), Body.empty(), Headers());
+        await expectLater(
+          JsonApiRequest.resolve(request, target),
+          throwsA(isA<MethodNotAllowed>().having((error) => error.method, 'method', method)),
+        );
+      });
+    }
+  }
+}

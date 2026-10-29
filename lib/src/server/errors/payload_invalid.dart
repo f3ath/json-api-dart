@@ -1,0 +1,1 @@
+class PayloadInvalid() implements Exception;
