@@ -453,6 +453,27 @@ void main() {
   });
 
   group('Update Resource', () {
+    test('Remove to-one relationship', () async {
+      mockHandler.response = mock.noContent();
+      final response = await client.updateResource('articles', '1', one: {'author': null});
+      expect(response.resource, isNull);
+      expect(mockHandler.request.method, equals('PATCH'));
+      expect(mockHandler.request.uri.toString(), '/articles/1');
+      expect(mockHandler.request.headers, {
+        'Accept': ['application/vnd.api+json'],
+        'Content-Type': ['application/vnd.api+json'],
+      });
+      expect(jsonDecode(await mockHandler.request.body.decode(utf8)), {
+        'data': {
+          'type': 'articles',
+          'id': '1',
+          'relationships': {
+            'author': {'data': null},
+          },
+        },
+      });
+    });
+
     test('Min', () async {
       mockHandler.response = mock.primaryResource();
       final response = await client.updateResource('articles', '1');

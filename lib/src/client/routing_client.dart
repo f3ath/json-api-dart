@@ -271,7 +271,7 @@ class RoutingClient(final UriBuilder _uriFor, final Client _client) {
     String type,
     String id, {
     Map<String, Object?> attributes = const {},
-    Map<String, Identifier> one = const {},
+    Map<String, Identifier?> one = const {},
     Map<String, Iterable<Identifier>> many = const {},
     Map<String, Object?> meta = const {},
     Map<String, Object?> documentMeta = const {},
