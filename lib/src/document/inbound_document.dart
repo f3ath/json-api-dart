@@ -8,26 +8,20 @@ import 'package:json_api/src/document/new_to_many.dart';
 import 'package:json_api/src/document/new_to_one.dart';
 import 'package:json_api/src/document/relationship.dart';
 import 'package:json_api/src/document/resource.dart';
-import 'package:json_api/src/document/to_many.dart';
-import 'package:json_api/src/document/to_one.dart';
 import 'package:json_api/src/nullable.dart';
 
 /// Inbound JSON:API document
-class InboundDocument {
-  InboundDocument(this.json);
-
-  static const _parse = _Parser();
-
+class InboundDocument(
   /// Raw JSON object.
-  final Map json;
+  final Map json,
+) {
+  static const _parse = _Parser();
 
   bool get hasData => json.containsKey('data');
 
   /// Included resources
-  Iterable<Resource> included() => json
-      .get<List>('included', orGet: () => [])
-      .whereType<Map>()
-      .map(_parse.resource);
+  Iterable<Resource> included() =>
+      json.get<List>('included', orGet: () => []).whereType<Map>().map(_parse.resource);
 
   /// Top-level meta data.
   Map<String, Object?> meta() => _parse.meta(json);
@@ -36,13 +30,10 @@ class InboundDocument {
   Map<String, Link> links() => _parse.links(json);
 
   /// Errors (for an Error Document)
-  Iterable<ErrorObject> errors() => json
-      .get<List>('errors', orGet: () => [])
-      .whereType<Map>()
-      .map(_parse.errorObject);
+  Iterable<ErrorObject> errors() =>
+      json.get<List>('errors', orGet: () => []).whereType<Map>().map(_parse.errorObject);
 
-  Iterable<Resource> dataAsCollection() =>
-      _data<List>().whereType<Map>().map(_parse.resource);
+  Iterable<Resource> dataAsCollection() => _data<List>().whereType<Map>().map(_parse.resource);
 
   Resource dataAsResource() => _parse.resource(_data<Map>());
 
@@ -63,11 +54,8 @@ class InboundDocument {
   T _data<T>() => json.get<T>('data');
 }
 
-class _Parser {
-  const _Parser();
-
-  Map<String, Object?> meta(Map json) =>
-      json.get<Map<String, Object?>>('meta', orGet: () => {});
+class const _Parser() {
+  Map<String, Object?> meta(Map json) => json.get<Map<String, Object?>>('meta', orGet: () => {});
 
   Map<String, Link> links(Map json) {
     var links = json.get<Map>('links', orGet: () => {});
@@ -83,27 +71,24 @@ class _Parser {
   }
 
   NewRelationship newRelationship(Map json) {
-    final rel =
-        json.containsKey('data') ? _newRel(json['data']) : NewRelationship();
+    final rel = json.containsKey('data') ? _newRel(json['data']) : NewRelationship();
     rel.links.addAll(links(json));
     rel.meta.addAll(meta(json));
     return rel;
   }
 
-  Resource resource(Map json) => Resource(
-        json.get<String>('type'),
-        json.get<String>('id'),
-      )
-        ..attributes.addAll(_getAttributes(json))
-        ..relationships.addAll(_getRelationships(json))
-        ..links.addAll(links(json))
-        ..meta.addAll(meta(json));
+  Resource resource(Map json) => Resource(json.get<String>('type'), json.get<String>('id'))
+    ..attributes.addAll(_getAttributes(json))
+    ..relationships.addAll(_getRelationships(json))
+    ..links.addAll(links(json))
+    ..meta.addAll(meta(json));
 
-  NewResource newResource(Map json) => NewResource(
-        json.get<String>('type'),
-        id: json.getIfDefined('id'),
-        lid: json.getIfDefined('lid'),
-      )
+  NewResource newResource(Map json) =>
+      NewResource(
+          json.get<String>('type'),
+          id: json.getIfDefined('id'),
+          lid: json.getIfDefined('lid'),
+        )
         ..attributes.addAll(_getAttributes(json))
         ..relationships.addAll(_getNewRelationships(json))
         ..meta.addAll(meta(json));
@@ -111,8 +96,7 @@ class _Parser {
   /// Decodes Identifier from [json]. Returns the decoded object.
   /// If the [json] has incorrect format, throws  [FormatException].
   Identifier identifier(Map json) =>
-      Identifier(json.get<String>('type'), json.get<String>('id'))
-        ..meta.addAll(meta(json));
+      Identifier(json.get<String>('type'), json.get<String>('id'))..meta.addAll(meta(json));
 
   /// Decodes NewIdentifier from [json]. Returns the decoded object.
   /// If the [json] has incorrect format, throws  [FormatException].
@@ -129,29 +113,32 @@ class _Parser {
     throw FormatException('Invalid JSON');
   }
 
-  ErrorObject errorObject(Map json) => ErrorObject(
-      id: json.get<String>('id', orGet: () => ''),
-      status: json.get<String>('status', orGet: () => ''),
-      code: json.get<String>('code', orGet: () => ''),
-      title: json.get<String>('title', orGet: () => ''),
-      detail: json.get<String>('detail', orGet: () => ''),
-      source: errorSource(json.get<Map>('source', orGet: () => {})))
-    ..meta.addAll(meta(json))
-    ..links.addAll(links(json));
+  ErrorObject errorObject(Map json) =>
+      ErrorObject(
+          id: json.get<String>('id', orGet: () => ''),
+          status: json.get<String>('status', orGet: () => ''),
+          code: json.get<String>('code', orGet: () => ''),
+          title: json.get<String>('title', orGet: () => ''),
+          detail: json.get<String>('detail', orGet: () => ''),
+          source: errorSource(json.get<Map>('source', orGet: () => {})),
+        )
+        ..meta.addAll(meta(json))
+        ..links.addAll(links(json));
 
   /// Decodes ErrorSource from [json]. Returns the decoded object.
   /// If the [json] has incorrect format, throws  [FormatException].
   ErrorSource errorSource(Map json) => ErrorSource(
-      pointer: json.get<String>('pointer', orGet: () => ''),
-      parameter: json.get<String>('parameter', orGet: () => ''));
+    pointer: json.get<String>('pointer', orGet: () => ''),
+    parameter: json.get<String>('parameter', orGet: () => ''),
+  );
 
   /// Decodes Link from [json]. Returns the decoded object.
   /// If the [json] has incorrect format, throws  [FormatException].
   Link _link(Object json) => switch (json) {
-        String() => Link(Uri.parse(json)),
-        Map() => Link(Uri.parse(json['href']))..meta.addAll(meta(json)),
-        _ => throw FormatException('Invalid JSON')
-      };
+    String() => Link(Uri.parse(json)),
+    Map() => Link(Uri.parse(json['href']))..meta.addAll(meta(json)),
+    _ => throw FormatException('Invalid JSON'),
+  };
 
   Map<String, Object?> _getAttributes(Map json) =>
       json.get<Map<String, Object?>>('attributes', orGet: () => {});
@@ -164,19 +151,19 @@ class _Parser {
       .get<Map>('relationships', orGet: () => {})
       .map((key, value) => MapEntry(key, newRelationship(value)));
 
-  Relationship _rel(data) => switch (data) {
-        null => ToOne.empty(),
-        Map() => ToOne(identifier(data)),
-        List() => ToMany(data.whereType<Map>().map(identifier)),
-        _ => throw FormatException('Invalid relationship object')
-      };
+  Relationship _rel(Object? data) => switch (data) {
+    null => ToOne.empty(),
+    Map() => ToOne(identifier(data)),
+    List() => ToMany(data.whereType<Map>().map(identifier)),
+    _ => throw FormatException('Invalid relationship object'),
+  };
 
-  NewRelationship _newRel(data) => switch (data) {
-        null => NewToOne.empty(),
-        Map() => NewToOne(newIdentifier(data)),
-        List() => NewToMany(data.whereType<Map>().map(newIdentifier)),
-        _ => throw FormatException('Invalid relationship object')
-      };
+  NewRelationship _newRel(Object? data) => switch (data) {
+    null => NewToOne.empty(),
+    Map() => NewToOne(newIdentifier(data)),
+    List() => NewToMany(data.whereType<Map>().map(newIdentifier)),
+    _ => throw FormatException('Invalid relationship object'),
+  };
 }
 
 extension _TypedGeter on Map {

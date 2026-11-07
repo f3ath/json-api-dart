@@ -1,6 +1,6 @@
 import 'package:http_interop/http_interop.dart';
 
-class MockHandler {
+class MockHandler() {
   late Request request;
   late Response response;
 

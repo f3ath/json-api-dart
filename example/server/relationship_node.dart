@@ -1,17 +1,13 @@
 /// Relationship tree node
-class RelationshipNode {
-  RelationshipNode(this.name);
-
+class RelationshipNode(
+  /// The name of the relationship
+  final String name,
+) {
   static Iterable<RelationshipNode> forest(Iterable<String> relationships) {
     final root = RelationshipNode('');
-    relationships
-        .map((rel) => rel.trim().split('.').map((e) => e.trim()))
-        .forEach(root.add);
+    relationships.map((rel) => rel.trim().split('.').map((e) => e.trim())).forEach(root.add);
     return root.children;
   }
-
-  /// The name of the relationship
-  final String name;
 
   Iterable<RelationshipNode> get children => _map.values;
 

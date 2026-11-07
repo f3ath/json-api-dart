@@ -11,11 +11,12 @@ void main() {
     });
     test('Object', () {
       expect(
-          jsonEncode(Link(Uri.parse(href))..meta['foo'] = []),
-          jsonEncode({
-            'href': href,
-            'meta': {'foo': []}
-          }));
+        jsonEncode(Link(Uri.parse(href))..meta['foo'] = []),
+        jsonEncode({
+          'href': href,
+          'meta': {'foo': []},
+        }),
+      );
     });
   });
 }

@@ -1,22 +1,17 @@
-import 'package:json_api/src/document/error_object.dart';
-import 'package:json_api/src/document/link.dart';
-import 'package:json_api/src/document/new_resource.dart';
-import 'package:json_api/src/document/resource.dart';
-import 'package:json_api/src/document/to_many.dart';
-import 'package:json_api/src/document/to_one.dart';
+import 'package:json_api/document.dart';
 
 /// A sever-to-client document.
-class OutboundDocument {
+class OutboundDocument() implements JsonEncodable {
   /// The document "meta" object.
   final meta = <String, Object?>{};
 
-  /// Returns the JSON representation.
+  @override
   Map<String, Object?> toJson() => {'meta': meta};
 }
 
 /// A sever-to-client document with errors.
-class OutboundErrorDocument extends OutboundDocument {
-  OutboundErrorDocument(Iterable<ErrorObject> errors) {
+class OutboundErrorDocument(Iterable<ErrorObject> errors) extends OutboundDocument {
+  this {
     this.errors.addAll(errors);
   }
 
@@ -24,32 +19,28 @@ class OutboundErrorDocument extends OutboundDocument {
   final errors = <ErrorObject>[];
 
   @override
-  Map<String, Object> toJson() => {
-        'errors': errors,
-        if (meta.isNotEmpty) 'meta': meta,
-      };
+  Map<String, Object> toJson() => {'errors': errors, if (meta.isNotEmpty) 'meta': meta};
 }
 
 /// A sever-to-client document with data.
 class OutboundDataDocument extends OutboundDocument {
   /// Creates an instance of a document containing a single resource as the primary data.
-  OutboundDataDocument.resource(Resource? this.data);
+  new resource(Resource? this.data);
 
   /// Creates an instance of a document containing a single to-be-created resource as the primary data. Used only in client-to-server requests.
-  OutboundDataDocument.newResource(NewResource this.data);
+  new newResource(NewResource this.data);
 
   /// Creates an instance of a document containing a collection of resources as the primary data.
-  OutboundDataDocument.collection(Iterable<Resource> collection)
-      : data = collection.toList();
+  new collection(Iterable<Resource> collection) : data = collection.toList();
 
   /// Creates an instance of a document containing a to-one relationship.
-  OutboundDataDocument.one(ToOne one) : data = one.identifier {
+  new one(ToOne one) : data = one.identifier {
     meta.addAll(one.meta);
     links.addAll(one.links);
   }
 
   /// Creates an instance of a document containing a to-many relationship.
-  OutboundDataDocument.many(ToMany many) : data = many.toList() {
+  new many(ToMany many) : data = many.toList() {
     meta.addAll(many.meta);
     links.addAll(many.links);
   }
@@ -65,9 +56,9 @@ class OutboundDataDocument extends OutboundDocument {
 
   @override
   Map<String, Object?> toJson() => {
-        'data': data,
-        if (links.isNotEmpty) 'links': links,
-        if (included.isNotEmpty) 'included': included,
-        if (meta.isNotEmpty) 'meta': meta,
-      };
+    'data': data,
+    if (links.isNotEmpty) 'links': links,
+    if (included.isNotEmpty) 'included': included,
+    if (meta.isNotEmpty) 'meta': meta,
+  };
 }

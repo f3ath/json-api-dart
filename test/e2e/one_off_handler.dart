@@ -4,7 +4,7 @@ import 'package:http_interop_http/http_interop_http.dart';
 
 Future<Response> oneOffHandler(Request request) async {
   final client = h.Client();
-  final response = await client.handleInterop(request);
+  final response = await client.sendInterop(request);
   client.close();
   return response;
 }

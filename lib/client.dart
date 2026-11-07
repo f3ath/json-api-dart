@@ -21,10 +21,11 @@
 /// representing the most common use cases of resource fetching and manipulation.
 /// It can conveniently construct and parse JSON:API documents and URIs.
 /// The [RoutingClient] should be your default choice.
-library client;
+library;
 
 export 'package:json_api/src/client/client.dart';
 export 'package:json_api/src/client/request.dart';
+export 'package:json_api/src/client/response.dart';
 export 'package:json_api/src/client/response/collection_fetched.dart';
 export 'package:json_api/src/client/response/related_resource_fetched.dart';
 export 'package:json_api/src/client/response/relationship_fetched.dart';
